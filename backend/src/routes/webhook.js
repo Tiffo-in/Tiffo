@@ -1,0 +1,9 @@
+const express = require('express');
+const router = express.Router();
+const { handleRazorpayWebhook } = require('../controllers/webhookController');
+
+// Razorpay webhook endpoint
+// Note: This should NOT use authentication middleware
+router.post('/razorpay', express.raw({ type: 'application/json' }), handleRazorpayWebhook);
+
+module.exports = router;
