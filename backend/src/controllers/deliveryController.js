@@ -37,7 +37,8 @@ exports.updateDeliveryStatus = async (req, res) => {
 
     res.json({ success: true, data: delivery });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    logger.error('updateDeliveryStatus error:', { error: error.message, stack: error.stack });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -176,6 +177,14 @@ exports.batchUpdateDeliveries = async (req, res) => {
   try {
     const { deliveryIds, status, notes } = req.body;
 
+    if (!deliveryIds || !Array.isArray(deliveryIds) || deliveryIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'Delivery IDs array is required' });
+    }
+
+    if (deliveryIds.length > 100) {
+      return res.status(400).json({ success: false, message: 'Batch size too large. Maximum 100 IDs per request allowed.' });
+    }
+
     const result = await Delivery.updateMany(
       {
         _id: { $in: deliveryIds },
@@ -208,7 +217,8 @@ exports.batchUpdateDeliveries = async (req, res) => {
       modifiedCount: result.modifiedCount
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    logger.error('batchUpdateDeliveries error:', { error: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -285,32 +295,63 @@ exports.getAdminDeliveries = async (req, res) => {
       query.deliveryDate = { $gte: startDate, $lte: endDate };
     }
 
-    // Populate and search would be handled via aggregation if search is provided
-    let deliveriesQuery = Delivery.find(query)
-      .populate('user', 'name phone address')
-      .populate('partner', 'businessName phone')
-      .populate('subscription', 'plan')
-      .sort({ deliveryDate: -1, createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    if (search) {
+      // Server-side search via aggregation + $lookup so we can filter on populated fields
+      const searchRegex = { $regex: search, $options: 'i' };
+      const searchFilter = {
+        $or: [
+          { 'userInfo.name': searchRegex },
+          { 'userInfo.phone': searchRegex },
+          { 'partnerInfo.businessName': searchRegex }
+        ]
+      };
 
-    const deliveries = await deliveriesQuery;
-    
-    // Simple memory fallback for search if needed since we map on frontend, 
-    // but ideally we return all or handle regex search.
-    const total = await Delivery.countDocuments(query);
+      const pipeline = [
+        { $match: query },
+        { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'userInfo' } },
+        { $unwind: { path: '$userInfo', preserveNullAndEmptyArrays: true } },
+        { $lookup: { from: 'partners', localField: 'partner', foreignField: 'user', as: 'partnerInfo' } },
+        { $unwind: { path: '$partnerInfo', preserveNullAndEmptyArrays: true } },
+        { $match: searchFilter }
+      ];
+
+      const [deliveries, countResult] = await Promise.all([
+        Delivery.aggregate([
+          ...pipeline,
+          { $sort: { deliveryDate: -1, createdAt: -1 } },
+          { $skip: (page - 1) * limit },
+          { $limit: limit }
+        ]),
+        Delivery.aggregate([...pipeline, { $count: 'total' }])
+      ]);
+
+      const total = countResult[0]?.total || 0;
+      return res.json({
+        success: true,
+        data: deliveries,
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      });
+    }
+
+    // No search — standard populate query
+    const [deliveries, total] = await Promise.all([
+      Delivery.find(query)
+        .populate('user', 'name phone address')
+        .populate('partner', 'businessName phone')
+        .populate('subscription', 'plan')
+        .sort({ deliveryDate: -1, createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      Delivery.countDocuments(query)
+    ]);
 
     res.json({
       success: true,
       data: deliveries,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+

@@ -113,7 +113,13 @@ const tiffinSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Virtual: effective prices after discount
+// ── Indexes ───────────────────────────────────────────────────────────────────
+tiffinSchema.index({ isActive: 1, 'rating.average': -1 });  // main browse query
+tiffinSchema.index({ partner: 1 });                          // partner's own tiffins
+tiffinSchema.index({ mealType: 1, isActive: 1 });            // meal type filter
+tiffinSchema.index({ title: 'text', description: 'text' });  // future full-text search
+
+// ── Virtual: effective prices after discount ──────────────────────────────────
 tiffinSchema.virtual('effectivePrice').get(function () {
   const dailyPrice = this.price.daily;
   const discountActive = this.discount &&

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 const protect = async (req, res, next) => {
   try {
@@ -14,7 +15,7 @@ const protect = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'Access denied. No token provided.'
+        message: 'Access denied. Please log in to continue.'
       });
     }
 
@@ -24,16 +25,27 @@ const protect = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Token is not valid'
+        message: 'Account not found. Please log in again.'
+      });
+    }
+
+    // Check if account is active — admin bans take effect on the very next request
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: user.banReason
+          ? `Account suspended: ${user.banReason}`
+          : 'Your account has been suspended. Please contact support.'
       });
     }
 
     req.user = user;
     next();
   } catch (error) {
+    logger.warn('Auth token validation failed:', { message: error.message });
     res.status(401).json({
       success: false,
-      message: 'Token is not valid'
+      message: 'Session expired. Please log in again.'
     });
   }
 };
@@ -43,7 +55,7 @@ const authorize = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `User role ${req.user.role} is not authorized to access this route`
+        message: 'You do not have permission to perform this action.'
       });
     }
     next();

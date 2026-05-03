@@ -51,6 +51,8 @@ export const tiffinSlice = createSlice({
       })
       .addCase(getTiffins.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.isError = false;
+        state.message = '';
         state.tiffins = action.payload.data;
         state.pagination = action.payload.pagination;
       })
@@ -64,6 +66,8 @@ export const tiffinSlice = createSlice({
       })
       .addCase(getTiffin.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.isError = false;
+        state.message = '';
         state.tiffin = action.payload.data;
       })
       .addCase(getTiffin.rejected, (state, action) => {

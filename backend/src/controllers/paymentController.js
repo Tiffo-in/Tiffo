@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Partner = require('../models/Partner');
 const Subscription = require('../models/Subscription');
 const PaymentLog = require('../models/PaymentLog');
 const logger = require('../utils/logger');
@@ -9,6 +10,8 @@ const {
     verifyPaymentSignature,
     createRefund
 } = require('../services/razorpayService');
+const { generateDeliveriesForSubscription } = require('../services/deliveryService');
+const { emitNotification } = require('../services/socketService');
 
 /**
  * Setup partner Razorpay account
@@ -222,6 +225,21 @@ exports.verifyPayment = async (req, res) => {
         subscription.paidAt = new Date();
         await subscription.save();
 
+        // Generate deliveries for this subscription
+        const populatedForDeliveries = await Subscription.findById(subscription._id).populate('tiffin partner');
+        if (populatedForDeliveries) {
+            await generateDeliveriesForSubscription(populatedForDeliveries);
+            
+            // Notify customer that meal calendar is ready
+            if (populatedForDeliveries.user) {
+                emitNotification(populatedForDeliveries.user._id, {
+                    title: 'Subscription Active 🎉',
+                    message: `Your ${populatedForDeliveries.tiffin.title} subscription is active. Your meal calendar has been updated!`,
+                    type: 'success'
+                });
+            }
+        }
+
         // Update payment log
         await PaymentLog.findOneAndUpdate(
             { orderId: razorpay_order_id },
@@ -243,6 +261,57 @@ exports.verifyPayment = async (req, res) => {
         });
     } catch (error) {
         logger.error('Verify payment error:', { stack: error.stack });
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+/**
+ * Confirm Cash on Delivery
+ * POST /api/payments/cod
+ */
+exports.confirmCodPayment = async (req, res) => {
+    try {
+        const { subscriptionId } = req.body;
+
+        const subscription = await Subscription.findById(subscriptionId);
+
+        if (!subscription) {
+            return res.status(404).json({ message: 'Subscription not found' });
+        }
+
+        // Update subscription
+        subscription.paymentMethod = 'cod';
+        subscription.paymentStatus = 'pending'; // Stays pending until cash is collected
+        subscription.status = 'active';
+        await subscription.save();
+
+        // Generate deliveries for this subscription
+        const populatedForDeliveries = await Subscription.findById(subscription._id).populate('tiffin partner');
+        if (populatedForDeliveries) {
+            await generateDeliveriesForSubscription(populatedForDeliveries);
+            
+            // Notify customer that meal calendar is ready
+            if (populatedForDeliveries.user) {
+                emitNotification(populatedForDeliveries.user._id, {
+                    title: 'Order Confirmed (COD) 🎉',
+                    message: `Your ${populatedForDeliveries.tiffin.title} subscription is active. Pay cash upon first delivery!`,
+                    type: 'success'
+                });
+            }
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'COD Payment confirmed successfully',
+            subscription: {
+                id: subscription._id,
+                status: subscription.status,
+                paymentStatus: subscription.paymentStatus,
+                paymentMethod: subscription.paymentMethod
+            }
+        });
+    } catch (error) {
+        logger.error('Confirm COD error:', { stack: error.stack });
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

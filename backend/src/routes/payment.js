@@ -6,7 +6,8 @@ const {
     createOrder,
     verifyPayment,
     processRefund,
-    getPaymentHistory
+    getPaymentHistory,
+    confirmCodPayment
 } = require('../controllers/paymentController');
 
 // Partner account setup
@@ -17,6 +18,9 @@ router.post('/create-order', protect, createOrder);
 
 // Verify payment
 router.post('/verify', protect, verifyPayment);
+
+// Confirm COD payment
+router.post('/cod', protect, confirmCodPayment);
 
 // Process refund
 router.post('/refund', protect, processRefund);

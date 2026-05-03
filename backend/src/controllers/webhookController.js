@@ -9,6 +9,8 @@ const {
     sendAdminTransferFailureAlert,
     sendRefundConfirmation
 } = require('../services/emailService');
+const { generateDeliveriesForSubscription } = require('../services/deliveryService');
+const { emitNotification } = require('../services/socketService');
 
 
 /**
@@ -92,6 +94,21 @@ async function handlePaymentCaptured(payload) {
         subscription.status = 'active';
         subscription.paidAt = new Date();
         await subscription.save();
+
+        // Generate deliveries for this subscription
+        const populatedForDeliveries = await Subscription.findById(subscription._id).populate('tiffin partner');
+        if (populatedForDeliveries) {
+            await generateDeliveriesForSubscription(populatedForDeliveries);
+            
+            // Notify customer that meal calendar is ready
+            if (populatedForDeliveries.user) {
+                emitNotification(populatedForDeliveries.user._id, {
+                    title: 'Subscription Active 🎉',
+                    message: `Your ${populatedForDeliveries.tiffin.title} subscription is active. Your meal calendar has been updated!`,
+                    type: 'success'
+                });
+            }
+        }
 
         await PaymentLog.findOneAndUpdate(
             { orderId },

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const BlogEditor = () => {
     const navigate = useNavigate();
@@ -37,14 +38,9 @@ const BlogEditor = () => {
 
     const loadPost = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/blog/admin/all?search=${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const result = await response.json();
-
-            if (result.success && result.data.length > 0) {
-                const post = result.data.find(p => p._id === id);
+            const response = await api.get('/blog/admin/all', { params: { search: id } });
+            if (response.data.success && response.data.data.length > 0) {
+                const post = response.data.data.find(p => p._id === id);
                 if (post) {
                     setFormData({
                         title: post.title,
@@ -64,7 +60,6 @@ const BlogEditor = () => {
                 }
             }
         } catch (error) {
-            console.error('Load post error:', error);
             toast.error('Failed to load post');
         }
     };
@@ -72,9 +67,7 @@ const BlogEditor = () => {
     const handleSubmit = async (e, publishNow = false) => {
         e.preventDefault();
         setLoading(true);
-
         try {
-            const token = localStorage.getItem('token');
             const postData = {
                 ...formData,
                 tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
@@ -86,32 +79,18 @@ const BlogEditor = () => {
                 }
             };
 
-            const url = isEditing
-                ? `${process.env.REACT_APP_API_URL}/blog/${id}`
-                : `${process.env.REACT_APP_API_URL}/blog`;
+            const response = isEditing
+                ? await api.put(`/blog/${id}`, postData)
+                : await api.post('/blog', postData);
 
-            const method = isEditing ? 'PUT' : 'POST';
-
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(postData)
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
+            if (response.data.success) {
                 toast.success(isEditing ? 'Post updated successfully' : 'Post created successfully');
                 navigate('/admin/blog');
             } else {
-                toast.error(result.message);
+                toast.error(response.data.message);
             }
         } catch (error) {
-            console.error('Submit error:', error);
-            toast.error('Failed to save post');
+            toast.error(error.response?.data?.message || 'Failed to save post');
         } finally {
             setLoading(false);
         }

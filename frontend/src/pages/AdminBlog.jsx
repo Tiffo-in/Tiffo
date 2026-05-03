@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const AdminBlog = () => {
     const [posts, setPosts] = useState([]);
@@ -21,43 +22,25 @@ const AdminBlog = () => {
 
     const loadStats = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/blog/admin/stats`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const result = await response.json();
-            if (result.success) {
-                setStats(result.data);
+            const response = await api.get('/blog/admin/stats');
+            if (response.data.success) {
+                setStats(response.data.data);
             }
         } catch (error) {
-            console.error('Failed to load stats:', error);
+            // Stats are non-critical — suppress
         }
     };
 
     const loadPosts = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const params = new URLSearchParams({
-                page,
-                limit: 10,
-                ...filter
-            });
-
-            const response = await fetch(
-                `${process.env.REACT_APP_API_URL}/blog/admin/all?${params}`,
-                {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }
-            );
-
-            const result = await response.json();
-            if (result.success) {
-                setPosts(result.data);
-                setPagination(result.pagination);
+            const params = { page, limit: 10, ...filter };
+            const response = await api.get('/blog/admin/all', { params });
+            if (response.data.success) {
+                setPosts(response.data.data);
+                setPagination(response.data.pagination);
             }
         } catch (error) {
-            console.error('Failed to load posts:', error);
             toast.error('Failed to load blog posts');
         } finally {
             setLoading(false);
@@ -66,52 +49,32 @@ const AdminBlog = () => {
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this post?')) return;
-
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/blog/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            const result = await response.json();
-            if (result.success) {
+            const response = await api.delete(`/blog/${id}`);
+            if (response.data.success) {
                 toast.success('Post deleted successfully');
                 loadPosts();
                 loadStats();
             } else {
-                toast.error(result.message);
+                toast.error(response.data.message);
             }
         } catch (error) {
-            console.error('Delete error:', error);
             toast.error('Failed to delete post');
         }
     };
 
     const handleStatusToggle = async (id, currentStatus) => {
         const newStatus = currentStatus === 'published' ? 'draft' : 'published';
-
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/blog/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: newStatus })
-            });
-
-            const result = await response.json();
-            if (result.success) {
+            const response = await api.put(`/blog/${id}`, { status: newStatus });
+            if (response.data.success) {
                 toast.success(`Post ${newStatus === 'published' ? 'published' : 'unpublished'}`);
                 loadPosts();
                 loadStats();
             } else {
-                toast.error(result.message);
+                toast.error(response.data.message);
             }
         } catch (error) {
-            console.error('Status toggle error:', error);
             toast.error('Failed to update status');
         }
     };

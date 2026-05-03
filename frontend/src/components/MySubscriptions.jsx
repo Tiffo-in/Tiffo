@@ -314,23 +314,12 @@ const SubscriptionModal = ({ subscription, onClose }) => {
 
   const fetchDetails = useCallback(async () => {
     try {
-      // Mock subscription details
-      const mockDetails = {
-        deliveryStats: {
-          totalDeliveries: 31,
-          deliveredCount: 15,
-          pendingCount: 0,
-          remainingDeliveries: 16
-        },
-        deliveries: [
-          { _id: '1', deliveryDate: '2024-01-15', status: 'delivered' },
-          { _id: '2', deliveryDate: '2024-01-14', status: 'delivered' },
-          { _id: '3', deliveryDate: '2024-01-13', status: 'delivered' },
-          { _id: '4', deliveryDate: '2024-01-12', status: 'delivered' },
-          { _id: '5', deliveryDate: '2024-01-11', status: 'delivered' }
-        ]
-      };
-      setDetails(mockDetails);
+      const response = await api.get(`/subscriptions/${subscription._id}`);
+      if (response.data.success) {
+        setDetails(response.data.data);
+      } else {
+        toast.error('Failed to load subscription details');
+      }
     } catch (error) {
       console.error('Error fetching subscription details:', error);
     } finally {

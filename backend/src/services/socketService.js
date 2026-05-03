@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
 
 let io = null;
 
@@ -45,7 +46,7 @@ const initializeSocket = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log(`🔌 Client connected: ${socket.id} (User: ${socket.userId || 'guest'})`);
+        logger.info(`🔌 Client connected: ${socket.id} (User: ${socket.userId || 'guest'})`);
 
         // Store connection if authenticated
         if (socket.userId) {
@@ -61,38 +62,38 @@ const initializeSocket = (server) => {
         // Handle joining specific rooms (e.g., order tracking)
         socket.on('join:order', (orderId) => {
             socket.join(`order:${orderId}`);
-            console.log(`📦 Socket ${socket.id} joined order:${orderId}`);
+            logger.info(`📦 Socket ${socket.id} joined order:${orderId}`);
         });
 
         socket.on('leave:order', (orderId) => {
             socket.leave(`order:${orderId}`);
-            console.log(`📦 Socket ${socket.id} left order:${orderId}`);
+            logger.info(`📦 Socket ${socket.id} left order:${orderId}`);
         });
 
         // Handle partner-specific room
         socket.on('join:partner', (partnerId) => {
             socket.join(`partner:${partnerId}`);
-            console.log(`👨‍🍳 Socket ${socket.id} joined partner:${partnerId}`);
+            logger.info(`👨‍🍳 Socket ${socket.id} joined partner:${partnerId}`);
         });
 
         // Handle admin room
         socket.on('join:admin', () => {
             if (socket.userRole === 'admin') {
                 socket.join('admin');
-                console.log(`👑 Admin socket ${socket.id} joined admin room`);
+                logger.info(`👑 Admin socket ${socket.id} joined admin room`);
             }
         });
 
         // Handle disconnect
         socket.on('disconnect', () => {
-            console.log(`🔌 Client disconnected: ${socket.id}`);
+            logger.info(`🔌 Client disconnected: ${socket.id}`);
             if (socket.userId) {
                 connectedUsers.delete(socket.userId);
             }
         });
     });
 
-    console.log('✅ Socket.io initialized');
+    logger.info('✅ Socket.io initialized');
     return io;
 };
 
@@ -101,7 +102,7 @@ const initializeSocket = (server) => {
  */
 const getIO = () => {
     if (!io) {
-        console.warn('⚠️ Socket.io not initialized');
+        logger.warn('⚠️ Socket.io not initialized');
         return null;
     }
     return io;

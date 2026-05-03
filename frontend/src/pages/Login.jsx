@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import SuccessAnimation from '../components/SuccessAnimation';
 import { login as loginAction } from '../store/slices/authSlice';
+import { StarIcon } from '@heroicons/react/24/solid';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -93,70 +94,80 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-stretch relative">
-      {/* Left Panel - Promotional */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-500 relative overflow-hidden">
-        {/* Animated Background Shapes */}
-        <div className="absolute inset-0">
-          <motion.div
-            className="absolute top-20 left-20 w-64 h-64 bg-white/10 rounded-full"
-            animate={{
-              scale: [1, 1.2, 1],
-              rotate: [0, 90, 0]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute bottom-32 right-20 w-80 h-80 bg-white/10 rounded-full"
-            animate={{
-              scale: [1.2, 1, 1.2],
-              rotate: [90, 0, 90]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          />
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
+    <div className="min-h-screen flex items-stretch bg-neutral-50 dark:bg-neutral-950 selection:bg-primary-200 selection:text-primary-900">
+      
+      {/* Left Panel - Image & Branding (Hidden on Mobile) */}
+      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-neutral-900">
+        {/* Beautiful Food Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-[20s] ease-out"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?q=80&w=2000&auto=format&fit=crop')" }}
+        />
+        
+        {/* Gradient Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-900/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/80 to-transparent" />
+        
+        {/* Content Wrapper */}
+        <div className="relative z-10 flex flex-col justify-between w-full p-12 lg:p-16 text-white">
+          
+          {/* Logo Area */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-black mb-6 leading-tight">
-              Welcome back to<br />
-              <span className="text-white/90">TIFFO</span>
-            </h1>
-            <p className="text-xl text-white/80 mb-8 leading-relaxed">
-              Your gateway to authentic homemade meals from trusted local providers.
-            </p>
-
-            {/* Stats */}
-            <div className="flex space-x-8 mt-8">
-              <div>
-                <div className="text-3xl font-bold">10K+</div>
-                <div className="text-white/70 text-sm">Happy Customers</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold">500+</div>
-                <div className="text-white/70 text-sm">Tiffin Partners</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold">50K+</div>
-                <div className="text-white/70 text-sm">Meals Delivered</div>
-              </div>
-            </div>
+            <Link to="/" className="inline-flex items-center gap-2 text-3xl font-black tracking-tight hover:text-primary-400 transition-colors">
+              <span className="text-4xl">🍱</span> Tiffo<span className="text-primary-500">.</span>
+            </Link>
           </motion.div>
+
+          {/* Main Copy & Testimonial */}
+          <div className="space-y-12">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <h1 className="text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
+                Taste the<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">comfort of home.</span>
+              </h1>
+              <p className="text-xl text-neutral-300 max-w-md leading-relaxed font-medium">
+                Log in to manage your daily meals, track deliveries, and discover authentic local tiffins.
+              </p>
+            </motion.div>
+
+            {/* Glassmorphism Testimonial Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl max-w-md shadow-2xl relative"
+            >
+              <div className="absolute -top-4 -left-4 text-4xl opacity-50 text-primary-400">"</div>
+              <div className="flex gap-1 mb-3">
+                {[1, 2, 3, 4, 5].map(i => <StarIcon key={i} className="w-4 h-4 text-yellow-400" />)}
+              </div>
+              <p className="text-neutral-200 italic mb-4 text-sm leading-relaxed">
+                "Tiffo has completely changed my work week. The food is incredibly authentic, fresh, and exactly like what my mom used to make. The daily delivery is perfectly on time!"
+              </p>
+              <div className="flex items-center gap-3">
+                <img src="https://i.pravatar.cc/100?img=47" alt="Customer" className="w-10 h-10 rounded-full border-2 border-primary-500/50" />
+                <div>
+                  <h4 className="font-bold text-sm text-white">Rahul Sharma</h4>
+                  <p className="text-xs text-primary-300">Software Engineer</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-neutral-50 px-6 py-12 relative">
-        {/* Decorative Elements */}
-        <div className="absolute top-10 right-10 text-5xl opacity-5">🍱</div>
-        <div className="absolute bottom-20 left-10 text-4xl opacity-5">🥘</div>
-
-        {/* Success Animation */}
+      <div className="flex-1 flex flex-col justify-center items-center px-6 sm:px-12 py-12 relative dark:bg-neutral-950">
+        
+        {/* Success Overlay */}
         <SuccessAnimation
           show={showSuccess}
           message={`Welcome back, ${userName}!`}
@@ -164,37 +175,40 @@ const Login = () => {
         />
 
         <motion.div
-          className="max-w-md w-full"
-          initial={{ opacity: 0, y: 30 }}
+          className="w-full max-w-[440px]"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          {/* Logo - Mobile Only */}
-          <div className="lg:hidden text-center mb-8">
-            <span className="text-5xl mb-4 block">🍱</span>
-            <h2 className="text-2xl font-bold gradient-text">TIFFO</h2>
+          {/* Mobile Header */}
+          <div className="lg:hidden text-center mb-10">
+            <Link to="/" className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 dark:text-white mb-2">
+              <span className="text-4xl">🍱</span> Tiffo<span className="text-primary-500">.</span>
+            </Link>
+            <p className="text-neutral-500 dark:text-neutral-400">Welcome back to authentic dining.</p>
           </div>
 
-          {/* Form Card */}
-          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-black text-neutral-900 mb-2">
-                Sign in
-              </h2>
-              <p className="text-neutral-500">
-                Welcome back! Please enter your details.
-              </p>
-            </div>
+          <div className="mb-10 hidden lg:block">
+            <h2 className="text-3xl font-black text-neutral-900 dark:text-white mb-2 tracking-tight">
+              Sign in to your account
+            </h2>
+            <p className="text-neutral-500 dark:text-neutral-400 font-medium">
+              Enter your email and password to access your dashboard.
+            </p>
+          </div>
 
-            <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <label htmlFor="login-email" className="block text-sm font-semibold text-neutral-700 mb-2">
-                  Email address
-                </label>
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            
+            {/* Email Field */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <label htmlFor="login-email" className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">
+                Email Address
+              </label>
+              <div className="relative group">
                 <input
                   {...register('email', {
                     required: 'Email is required',
@@ -206,174 +220,188 @@ const Login = () => {
                   id="login-email"
                   type="email"
                   autoComplete="email"
-                  className="input-field"
-                  placeholder="Enter your email"
+                  className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
+                  placeholder="name@example.com"
                 />
-                {errors.email && (
-                  <motion.p
-                    className="mt-2 text-sm text-red-600"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    {errors.email.message}
-                  </motion.p>
-                )}
-              </motion.div>
+              </div>
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
+                  <span>⚠️</span> {errors.email.message}
+                </p>
+              )}
+            </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <label htmlFor="login-password" className="block text-sm font-semibold text-neutral-700 mb-2">
+            {/* Password Field */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="login-password" className="block text-sm font-bold text-neutral-700 dark:text-neutral-300">
                   Password
                 </label>
-                <div className="relative">
-                  <input
-                    {...register('password', {
-                      required: 'Password is required',
-                      minLength: {
-                        value: 6,
-                        message: 'Password must be at least 6 characters',
-                      },
-                    })}
-                    id="login-password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    className="input-field pr-16"
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-500 hover:text-neutral-700 font-medium text-sm transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-                {errors.password && (
-                  <motion.p
-                    className="mt-2 text-sm text-red-600"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    {errors.password.message}
-                  </motion.p>
-                )}
-              </motion.div>
-
-              <div className="flex items-center justify-between">
-                <label htmlFor="login-remember" className="flex items-center">
-                  <input id="login-remember" type="checkbox" className="w-4 h-4 rounded border-neutral-300 text-primary-500 focus:ring-primary-400" />
-                  <span className="ml-2 text-sm text-neutral-600">Remember me</span>
-                </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm font-semibold text-primary-500 hover:text-primary-600 transition-colors"
-                >
+                <Link to="/forgot-password" className="text-sm font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">
                   Forgot password?
                 </Link>
               </div>
-
-              {/* Error Message */}
-              {error && (
-                <motion.div
-                  className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
+              <div className="relative group">
+                <input
+                  {...register('password', {
+                    required: 'Password is required',
+                    minLength: {
+                      value: 6,
+                      message: 'Password must be at least 6 characters',
+                    },
+                  })}
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3.5 pr-16 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 font-bold text-sm transition-colors"
+                  onClick={() => setShowPassword(!showPassword)}
                 >
-                  {error}
-                </motion.div>
-              )}
-
-              <motion.div
-                className="space-y-4 pt-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <motion.button
-                  type="submit"
-                  className="w-full btn-primary text-lg py-4 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                  whileHover={{ scale: isLoading ? 1 : 1.02 }}
-                  whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Signing in...' : 'Sign in'}
-                </motion.button>
-
-                {/* Demo Buttons */}
-                <div className="grid grid-cols-3 gap-2">
-                  <motion.button
-                    type="button"
-                    onClick={() => quickLogin('user')}
-                    className="flex items-center justify-center gap-1 py-2.5 px-3 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition-colors text-sm font-semibold border border-green-100"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span>👤</span> User
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    onClick={() => quickLogin('partner')}
-                    className="flex items-center justify-center gap-1 py-2.5 px-3 bg-purple-50 text-purple-700 rounded-xl hover:bg-purple-100 transition-colors text-sm font-semibold border border-purple-100"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span>👨‍🍳</span> Partner
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    onClick={() => quickLogin('admin')}
-                    className="flex items-center justify-center gap-1 py-2.5 px-3 bg-neutral-900 text-white rounded-xl hover:bg-neutral-800 transition-colors text-sm font-semibold"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span>👑</span> Admin
-                  </motion.button>
-                </div>
-              </motion.div>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-neutral-200" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-neutral-500">Or continue with</span>
-                </div>
+                  {showPassword ? 'HIDE' : 'SHOW'}
+                </button>
               </div>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
+                  <span>⚠️</span> {errors.password.message}
+                </p>
+              )}
+            </motion.div>
 
-              {/* Google Sign In — Coming Soon */}
-              <motion.button
-                type="button"
-                disabled
-                className="w-full flex justify-center items-center px-4 py-3 border-2 border-neutral-200 rounded-xl shadow-sm text-sm font-semibold text-neutral-400 bg-neutral-50 cursor-not-allowed"
+            {/* Remember Me */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center"
+            >
+              <label htmlFor="login-remember" className="flex items-center cursor-pointer group">
+                <div className="relative flex items-center justify-center w-5 h-5 mr-3">
+                  <input id="login-remember" type="checkbox" className="peer appearance-none w-5 h-5 border-2 border-neutral-300 dark:border-neutral-700 rounded cursor-pointer checked:bg-primary-500 checked:border-primary-500 transition-colors" />
+                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none">
+                    <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200 transition-colors">
+                  Keep me signed in
+                </span>
+              </label>
+            </motion.div>
+
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
               >
-                <svg className="w-5 h-5 mr-3 opacity-50" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                </svg>
-                Continue with Google (Coming Soon)
-              </motion.button>
+                <span>⚠️</span> {error}
+              </motion.div>
+            )}
 
-              {/* Sign Up Link */}
-              <p className="text-center text-neutral-600 mt-6">
-                Don't have an account?{' '}
-                <Link to="/register" className="font-semibold text-primary-500 hover:text-primary-600 transition-colors">
-                  Sign up for free
-                </Link>
-              </p>
+            {/* Submit Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="pt-2"
+            >
+              <button
+                type="submit"
+                className="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-lg py-4 rounded-xl font-black hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-4 focus:ring-neutral-900/20 dark:focus:ring-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-neutral-900/20 dark:shadow-white/10"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
+            </motion.div>
+          </form>
 
-              <p className="text-center text-xs text-neutral-400 mt-4">
-                <Link to="/register?role=partner" className="text-primary-500 hover:text-primary-600 font-medium">
-                  Want to become a Tiffin Partner? Register here →
-                </Link>
-              </p>
-            </form>
-          </div>
+          {/* Divider */}
+          <motion.div 
+            className="relative my-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-neutral-200 dark:border-neutral-800" />
+            </div>
+            <div className="relative flex justify-center text-sm font-bold">
+              <span className="px-4 bg-neutral-50 dark:bg-neutral-950 text-neutral-400">OR QUICK LOGIN</span>
+            </div>
+          </motion.div>
+
+          {/* Demo Buttons */}
+          <motion.div 
+            className="grid grid-cols-3 gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <button
+              type="button"
+              onClick={() => quickLogin('user')}
+              className="flex flex-col items-center justify-center gap-1 py-3 px-2 bg-white dark:bg-neutral-900 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors border-2 border-neutral-200 dark:border-neutral-800 font-bold text-neutral-700 dark:text-neutral-300 group"
+            >
+              <span className="text-xl group-hover:scale-110 transition-transform">👤</span> 
+              <span className="text-xs">User</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => quickLogin('partner')}
+              className="flex flex-col items-center justify-center gap-1 py-3 px-2 bg-white dark:bg-neutral-900 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors border-2 border-neutral-200 dark:border-neutral-800 font-bold text-neutral-700 dark:text-neutral-300 group"
+            >
+              <span className="text-xl group-hover:scale-110 transition-transform">👨‍🍳</span> 
+              <span className="text-xs">Partner</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => quickLogin('admin')}
+              className="flex flex-col items-center justify-center gap-1 py-3 px-2 bg-white dark:bg-neutral-900 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors border-2 border-neutral-200 dark:border-neutral-800 font-bold text-neutral-700 dark:text-neutral-300 group"
+            >
+              <span className="text-xl group-hover:scale-110 transition-transform">👑</span> 
+              <span className="text-xs">Admin</span>
+            </button>
+          </motion.div>
+
+          {/* Sign Up Link */}
+          <motion.div 
+            className="mt-10 text-center space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            <p className="text-neutral-600 dark:text-neutral-400 font-medium">
+              Don't have an account?{' '}
+              <Link to="/register" className="font-black text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">
+                Sign up for free
+              </Link>
+            </p>
+            
+            <p className="text-sm font-medium">
+              <Link to="/register?role=partner" className="text-neutral-500 hover:text-primary-600 dark:text-neutral-500 dark:hover:text-primary-400 transition-colors flex items-center justify-center gap-1">
+                Want to become a Tiffin Partner? Register here <span>→</span>
+              </Link>
+            </p>
+          </motion.div>
+
         </motion.div>
       </div>
     </div>

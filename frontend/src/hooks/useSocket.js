@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5005';
@@ -10,14 +11,13 @@ export const useSocket = () => {
     const socketRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
     const [notifications, setNotifications] = useState([]);
+    const { user } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        // Get token from localStorage
-        const token = localStorage.getItem('token');
-
-        // Initialize socket connection
+        // Use userId as auth hint; cookies are sent automatically on socket handshake
         socketRef.current = io(SOCKET_URL, {
-            auth: { token },
+            auth: { userId: user?._id },
+            withCredentials: true,
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionAttempts: 5,

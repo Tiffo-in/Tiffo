@@ -118,10 +118,8 @@ const ProfilePage = () => {
         address: profile.address
       });
       if (res.data.success) {
-        // Keep localStorage in sync
-        const stored = JSON.parse(localStorage.getItem('user') || '{}');
-        localStorage.setItem('user', JSON.stringify({ ...stored, name: profile.name }));
-        dispatch(loginAction({ user: res.data.user, token: localStorage.getItem('token') }));
+        // Update Redux store with fresh user data from API (no localStorage needed)
+        dispatch(loginAction({ user: res.data.user }));
         toast.success('Profile updated!');
         setIsEditing(false);
       }

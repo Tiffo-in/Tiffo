@@ -1,4 +1,5 @@
 const Razorpay = require('razorpay');
+const logger = require('../utils/logger');
 
 // Initialize Razorpay instance (optional - will log warning if keys not configured)
 let razorpay = null;
@@ -9,7 +10,7 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
         key_secret: process.env.RAZORPAY_KEY_SECRET
     });
 } else {
-    console.warn('⚠️  Razorpay keys not configured. Payment features will be unavailable.');
+    logger.warn('⚠️  Razorpay keys not configured. Payment features will be unavailable.');
 }
 
 /**
@@ -48,7 +49,7 @@ const createLinkedAccount = async (partnerData) => {
             data: account
         };
     } catch (error) {
-        console.error('Error creating linked account:', error);
+        logger.error('Error creating linked account:', { error: error.message });
         return {
             success: false,
             error: error.message
@@ -72,7 +73,7 @@ const addBankAccount = async (accountId, bankDetails) => {
             data: bankAccount
         };
     } catch (error) {
-        console.error('Error adding bank account:', error);
+        logger.error('Error adding bank account:', { error: error.message, accountId });
         return {
             success: false,
             error: error.message
@@ -110,7 +111,7 @@ const createOrderWithTransfer = async (orderData) => {
             data: order
         };
     } catch (error) {
-        console.error('Error creating order:', error);
+        logger.error('Error creating order:', { error: error.message, receipt: orderData.receipt });
         return {
             success: false,
             error: error.message
@@ -149,7 +150,7 @@ const createRefund = async (paymentId, amount, notes) => {
             data: refund
         };
     } catch (error) {
-        console.error('Error creating refund:', error);
+        logger.error('Error creating refund:', { error: error.message, paymentId });
         return {
             success: false,
             error: error.message
@@ -168,7 +169,7 @@ const fetchPayment = async (paymentId) => {
             data: payment
         };
     } catch (error) {
-        console.error('Error fetching payment:', error);
+        logger.error('Error fetching payment:', { error: error.message, paymentId });
         return {
             success: false,
             error: error.message
@@ -187,7 +188,7 @@ const fetchTransfer = async (transferId) => {
             data: transfer
         };
     } catch (error) {
-        console.error('Error fetching transfer:', error);
+        logger.error('Error fetching transfer:', { error: error.message, transferId });
         return {
             success: false,
             error: error.message

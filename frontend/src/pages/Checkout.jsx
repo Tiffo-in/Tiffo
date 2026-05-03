@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../services/api';
@@ -8,6 +9,7 @@ import { createOrder, verifyPayment, loadRazorpayScript } from '../services/paym
 const Checkout = () => {
     const { subscriptionId } = useParams();
     const navigate = useNavigate();
+    const { user } = useSelector((state) => state.auth);
     const [subscription, setSubscription] = useState(null);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
@@ -90,9 +92,9 @@ const Checkout = () => {
                     }
                 },
                 prefill: {
-                    name:    localStorage.getItem('userName')  || '',
-                    email:   localStorage.getItem('userEmail') || '',
-                    contact: localStorage.getItem('userPhone') || ''
+                    name:    user?.name  || '',
+                    email:   user?.email || '',
+                    contact: user?.phone || ''
                 },
                 theme: { color: '#7F1D1D' },
                 modal: {

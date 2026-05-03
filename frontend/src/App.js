@@ -1,15 +1,39 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import store from './store/store';
 import SocketProvider from './contexts/SocketProvider';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { HelmetProvider } from 'react-helmet-async';
+import * as Sentry from "@sentry/react";
 
 // Components
 import Navbar from './components/Navbar';
 import ScrollToTop from './components/ScrollToTop';
 import LoadingSpinner from './components/LoadingSpinner';
+import { ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import api from './services/api';
+import { loginAction } from './store/slices/authSlice';
+
+// ── Session Hydrator — restores auth state from httpOnly cookie on page refresh
+const SessionHydrator = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    api.get('/auth/me')
+      .then((res) => {
+        if (res.data?.success && res.data?.user) {
+          dispatch(loginAction({ user: res.data.user }));
+        }
+      })
+      .catch(() => {
+        // No valid cookie — user is logged out, do nothing
+      });
+  }, [dispatch]);
+  return null;
+};
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -59,6 +83,10 @@ class ErrorBoundary extends React.Component {
     return { hasError: true };
   }
   componentDidCatch(error, info) {
+    // Forward to Sentry in production
+    if (process.env.REACT_APP_SENTRY_DSN) {
+      Sentry.captureException(error, { extra: info });
+    }
     console.error('ErrorBoundary caught:', error, info);
   }
   render() {
@@ -66,7 +94,7 @@ class ErrorBoundary extends React.Component {
       return (
         <div className="min-h-screen flex items-center justify-center bg-neutral-50">
           <div className="text-center p-8">
-            <div className="text-6xl mb-4">⚠️</div>
+            <div className="text-6xl mb-4" aria-hidden="true">⚠️</div>
             <h2 className="text-2xl font-bold text-neutral-800 mb-2">Something went wrong</h2>
             <p className="text-neutral-500 mb-6">An unexpected error occurred. Please refresh the page.</p>
             <button
@@ -85,31 +113,34 @@ class ErrorBoundary extends React.Component {
 
 function App() {
   return (
-    <ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider>
       <Provider store={store}>
         <SocketProvider>
-          <Router>
-      <ScrollToTop />
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <ScrollToTop />
+
+            {/* ── Skip Navigation — keyboard accessibility ─────────────────── */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold"
+            >
+              Skip to main content
+            </a>
+
             <ErrorBoundary>
               <div className="App min-h-screen bg-white dark:bg-neutral-950 transition-colors duration-300">
+                <SessionHydrator />
                 <Navbar />
-                <main>
+                <main id="main-content">
                   <Suspense fallback={<LoadingSpinner />}>
                     <Routes>
+                      {/* ── Public Routes ── */}
                       <Route path="/" element={<Home />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/register" element={<Register />} />
                       <Route path="/tiffins" element={<Tiffins />} />
                       <Route path="/tiffins/:id" element={<TiffinDetail />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/profile" element={<ProfilePage />} />
-                      <Route path="/partner/dashboard" element={<PartnerDashboard />} />
-                      <Route path="/partner/profile" element={<PartnerProfile />} />
-                      <Route path="/partner/tiffins" element={<MyTiffins />} />
-                      <Route path="/partner/ads" element={<PartnerAds />} />
-                      <Route path="/partner/orders" element={<Orders />} />
-                      <Route path="/partner/earnings" element={<Earnings />} />
-                      <Route path="/partner/analytics" element={<Analytics />} />
                       <Route path="/privacy" element={<Privacy />} />
                       <Route path="/security" element={<Security />} />
                       <Route path="/terms" element={<Terms />} />
@@ -117,31 +148,90 @@ function App() {
                       <Route path="/report-fraud" element={<ReportFraud />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogPost />} />
-                      <Route path="/checkout/:subscriptionId" element={<Checkout />} />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/payment/success" element={<PaymentSuccess />} />
                       <Route path="/payment/failed" element={<PaymentFailed />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      {/* Admin Routes */}
-                      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                      <Route path="/admin/users" element={<AdminUsers />} />
-                      <Route path="/admin/partners" element={<AdminPartners />} />
-                      <Route path="/admin/analytics" element={<CustomerAnalytics />} />
-                      <Route path="/admin/payments" element={<AdminPayments />} />
-                      <Route path="/admin/alerts" element={<AdminAlerts />} />
-                      <Route path="/admin/deliveries" element={<AdminDeliveries />} />
-                      <Route path="/admin/blog" element={<AdminBlog />} />
-                      <Route path="/admin/blog/new" element={<BlogEditor />} />
-                      <Route path="/admin/blog/edit/:id" element={<BlogEditor />} />
-                      <Route path="/admin/support" element={<AdminSupport />} />
-                      <Route path="/admin/fraud" element={<AdminFraud />} />
-                      {/* 404 fallback */}
+
+                      {/* ── Authenticated User Routes ── */}
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute><Dashboard /></ProtectedRoute>
+                      } />
+                      <Route path="/profile" element={
+                        <ProtectedRoute><ProfilePage /></ProtectedRoute>
+                      } />
+                      <Route path="/checkout/:subscriptionId" element={
+                        <ProtectedRoute><Checkout /></ProtectedRoute>
+                      } />
+
+                      {/* ── Partner Routes ── */}
+                      <Route path="/partner/dashboard" element={
+                        <RoleRoute role="partner"><PartnerDashboard /></RoleRoute>
+                      } />
+                      <Route path="/partner/profile" element={
+                        <RoleRoute role="partner"><PartnerProfile /></RoleRoute>
+                      } />
+                      <Route path="/partner/tiffins" element={
+                        <RoleRoute role="partner"><MyTiffins /></RoleRoute>
+                      } />
+                      <Route path="/partner/ads" element={
+                        <RoleRoute role="partner"><PartnerAds /></RoleRoute>
+                      } />
+                      <Route path="/partner/orders" element={
+                        <RoleRoute role="partner"><Orders /></RoleRoute>
+                      } />
+                      <Route path="/partner/earnings" element={
+                        <RoleRoute role="partner"><Earnings /></RoleRoute>
+                      } />
+                      <Route path="/partner/analytics" element={
+                        <RoleRoute role="partner"><Analytics /></RoleRoute>
+                      } />
+
+                      {/* ── Admin Routes ── */}
+                      <Route path="/admin/dashboard" element={
+                        <RoleRoute role="admin"><AdminDashboard /></RoleRoute>
+                      } />
+                      <Route path="/admin/users" element={
+                        <RoleRoute role="admin"><AdminUsers /></RoleRoute>
+                      } />
+                      <Route path="/admin/partners" element={
+                        <RoleRoute role="admin"><AdminPartners /></RoleRoute>
+                      } />
+                      <Route path="/admin/analytics" element={
+                        <RoleRoute role="admin"><CustomerAnalytics /></RoleRoute>
+                      } />
+                      <Route path="/admin/payments" element={
+                        <RoleRoute role="admin"><AdminPayments /></RoleRoute>
+                      } />
+                      <Route path="/admin/alerts" element={
+                        <RoleRoute role="admin"><AdminAlerts /></RoleRoute>
+                      } />
+                      <Route path="/admin/deliveries" element={
+                        <RoleRoute role="admin"><AdminDeliveries /></RoleRoute>
+                      } />
+                      <Route path="/admin/blog" element={
+                        <RoleRoute role="admin"><AdminBlog /></RoleRoute>
+                      } />
+                      <Route path="/admin/blog/new" element={
+                        <RoleRoute role="admin"><BlogEditor /></RoleRoute>
+                      } />
+                      <Route path="/admin/blog/edit/:id" element={
+                        <RoleRoute role="admin"><BlogEditor /></RoleRoute>
+                      } />
+                      <Route path="/admin/support" element={
+                        <RoleRoute role="admin"><AdminSupport /></RoleRoute>
+                      } />
+                      <Route path="/admin/fraud" element={
+                        <RoleRoute role="admin"><AdminFraud /></RoleRoute>
+                      } />
+
+                      {/* 404 fallback — uses React Router Link (no full reload) */}
                       <Route path="*" element={
                         <div className="min-h-screen flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-8xl mb-4">🍱</div>
+                            <div className="text-8xl mb-4" aria-hidden="true">🍱</div>
                             <h2 className="text-3xl font-bold text-neutral-800 mb-2">Page Not Found</h2>
                             <p className="text-neutral-500 mb-6">The page you're looking for doesn't exist.</p>
-                            <a href="/" className="btn-primary inline-block">Go Home</a>
+                            <Link to="/" className="btn-primary inline-block">Go Home</Link>
                           </div>
                         </div>
                       } />
@@ -161,6 +251,7 @@ function App() {
         </SocketProvider>
       </Provider>
     </ThemeProvider>
+    </HelmetProvider>
   );
 }
 

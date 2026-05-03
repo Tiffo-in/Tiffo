@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
+const { setCsrfCookie } = require('../middlewares/csrf');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -19,12 +20,15 @@ const sendTokenResponse = (user, statusCode, res) => {
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   };
 
+  // Set CSRF double-submit cookie (non-httpOnly so JS can read it)
+  setCsrfCookie(user._id.toString(), res);
+
   res
     .status(statusCode)
     .cookie('token', token, options)
     .json({
       success: true,
-      token, // still sending token in body for any mobile app clients if needed, though strictly cookie is better for web
+      token, // Mobile clients require the token in the JSON payload
       user: {
         id: user._id,
         name: user.name,
@@ -84,10 +88,21 @@ const login = async (req, res) => {
       });
     }
 
+    // Check if account is suspended — return before issuing a token
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: user.banReason
+          ? `Account suspended: ${user.banReason}`
+          : 'Your account has been suspended. Please contact support at help@tiffo.in'
+      });
+    }
+
+    logger.info(`User login: ${user.email} (${user.role})`);
     sendTokenResponse(user, 200, res);
   } catch (error) {
     logger.error('login error:', { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Login failed. Please try again.' });
   }
 };
 
@@ -178,9 +193,15 @@ const registerPartner = async (req, res) => {
 };
 
 const logout = (req, res) => {
+  // Clear both auth and CSRF cookies on logout
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  });
+
+  res.clearCookie('csrf_token', {
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   });

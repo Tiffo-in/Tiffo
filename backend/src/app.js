@@ -1,4 +1,22 @@
 require('dotenv').config();
+const Sentry = require("@sentry/node");
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    integrations: [
+      // enable HTTP calls tracing
+      new Sentry.Integrations.Http({ tracing: true }),
+    ],
+    // Performance Monitoring
+    tracesSampleRate: 1.0,
+  });
+}
+
+// ── Environment validation — fail fast before any service initializes ─────────
+const validateEnv = require('./utils/validateEnv');
+validateEnv();
 
 const express = require('express');
 const cors = require('cors');
@@ -34,6 +52,8 @@ const supportRoutes = require('./routes/support');
 const fraudRoutes = require('./routes/fraud');
 const uploadRoutes = require('./routes/upload');
 const adRoutes = require('./routes/adRoutes');
+const waitlistRoutes = require('./routes/waitlist');
+const { swaggerUi, specs } = require('./config/swagger');
 
 const app = express();
 
@@ -49,13 +69,18 @@ connectDB();
 // Initialize email service
 initializeEmailService();
 
+const { csrfProtection } = require('./middlewares/csrf');
+
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
+
 // Security middleware
 app.use(helmet());
 
 // CORS — reads allowed origins from environment so no code change is needed between dev and prod
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? (process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
-  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3005'];
+  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3005', 'http://localhost:5173'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -78,6 +103,10 @@ app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRoute
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// CSRF Protection — MUST run after cookieParser
+// Protects all POST, PUT, PATCH, DELETE requests
+app.use(csrfProtection);
 
 // Security: strip MongoDB operators ($, .) from user input to prevent NoSQL injection
 app.use(mongoSanitize());
@@ -117,16 +146,38 @@ app.use('/api/support', supportRoutes);
 app.use('/api/fraud', fraudRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ads', adRoutes);
+app.use('/api/waitlist', waitlistRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Tiffo API is running',
+// API Documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+// Health check — includes live DB ping and process uptime
+app.get('/api/health', async (req, res) => {
+  let dbStatus = 'unknown';
+  try {
+    const mongoose = require('mongoose');
+    await mongoose.connection.db.command({ ping: 1 });
+    dbStatus = 'ok';
+  } catch {
+    dbStatus = 'error';
+  }
+
+  const status = dbStatus === 'ok' ? 200 : 503;
+  res.status(status).json({
+    success: dbStatus === 'ok',
+    message: 'Tiffo API',
+    dbStatus,
+    uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
     socketEnabled: !!io
   });
 });
+
+// Sentry error handler — MUST be before your custom error handler
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.errorHandler());
+}
 
 // Error handler
 app.use(errorHandler);
@@ -154,6 +205,20 @@ process.on('unhandledRejection', (err) => {
 process.on('uncaughtException', (err) => {
   logger.error(`Uncaught Exception: ${err.message}`, { stack: err.stack });
   process.exit(1);
+});
+
+// Graceful shutdown for Docker / Kubernetes SIGTERM
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received. Closing HTTP server gracefully...');
+  server.close(() => {
+    logger.info('HTTP server closed. Exiting.');
+    process.exit(0);
+  });
+  // Force exit if server hasn't closed after 10 seconds
+  setTimeout(() => {
+    logger.error('Forced exit after 10s timeout.');
+    process.exit(1);
+  }, 10_000);
 });
 
 module.exports = { app, server, io };

@@ -1,4 +1,5 @@
 const Blog = require('../models/Blog');
+const logger = require('../utils/logger');
 const User = require('../models/User');
 
 /**
@@ -30,7 +31,7 @@ exports.createBlogPost = async (req, res) => {
             data: blogPost
         });
     } catch (error) {
-        console.error('Create blog post error:', error);
+        logger.error('Create blog post error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to create blog post'
@@ -45,7 +46,14 @@ exports.createBlogPost = async (req, res) => {
 exports.updateBlogPost = async (req, res) => {
     try {
         const { id } = req.params;
-        const updates = req.body;
+
+        // Allowlist only safe, user-facing fields — prevents overwriting
+        // internal fields like views, slug, author, or publishedAt.
+        const allowedFields = ['title', 'excerpt', 'content', 'category', 'tags', 'featuredImage', 'status', 'seo', 'isFeatured'];
+        const updates = {};
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) updates[field] = req.body[field];
+        });
 
         const blogPost = await Blog.findByIdAndUpdate(
             id,
@@ -66,7 +74,7 @@ exports.updateBlogPost = async (req, res) => {
             data: blogPost
         });
     } catch (error) {
-        console.error('Update blog post error:', error);
+        logger.error('Update blog post error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to update blog post'
@@ -96,7 +104,7 @@ exports.deleteBlogPost = async (req, res) => {
             message: 'Blog post deleted successfully'
         });
     } catch (error) {
-        console.error('Delete blog post error:', error);
+        logger.error('Delete blog post error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to delete blog post'
@@ -125,20 +133,27 @@ exports.getAllPostsAdmin = async (req, res) => {
         }
 
         if (search) {
-            query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { excerpt: { $regex: search, $options: 'i' } },
-                { content: { $regex: search, $options: 'i' } }
-            ];
+            // Use MongoDB $text search — leverages the weighted text index
+            // (title:10, excerpt:5, content:1) defined in the Blog model.
+            // This is orders of magnitude faster than $regex on large content fields.
+            query.$text = { $search: search };
         }
 
-        const posts = await Blog.find(query)
-            .populate('author', 'name email')
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const sortOptions = search
+            ? { score: { $meta: 'textScore' }, createdAt: -1 } // relevance-first when searching
+            : { createdAt: -1 };
 
-        const total = await Blog.countDocuments(query);
+        const [posts, total] = await Promise.all([
+            Blog.find(
+                query,
+                search ? { score: { $meta: 'textScore' } } : {}
+            )
+                .populate('author', 'name email')
+                .sort(sortOptions)
+                .skip((page - 1) * limit)
+                .limit(limit),
+            Blog.countDocuments(query)
+        ]);
 
         res.json({
             success: true,
@@ -151,7 +166,7 @@ exports.getAllPostsAdmin = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Get all posts admin error:', error);
+        logger.error('Get all posts admin error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to fetch blog posts'
@@ -167,7 +182,7 @@ exports.getAllPosts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 12;
-        const { category, tag } = req.query;
+        const { category, tag, search } = req.query;
 
         const query = { status: 'published' };
 
@@ -179,14 +194,26 @@ exports.getAllPosts = async (req, res) => {
             query.tags = tag;
         }
 
-        const posts = await Blog.find(query)
-            .select('-content') // Exclude full content for list view
-            .populate('author', 'name')
-            .sort({ publishedAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+        if (search) {
+            query.$text = { $search: search };
+        }
 
-        const total = await Blog.countDocuments(query);
+        const sortOptions = search
+            ? { score: { $meta: 'textScore' }, publishedAt: -1 }
+            : { publishedAt: -1 };
+
+        const [posts, total] = await Promise.all([
+            Blog.find(
+                query,
+                search ? { score: { $meta: 'textScore' } } : {}
+            )
+                .select('-content')
+                .populate('author', 'name')
+                .sort(sortOptions)
+                .skip((page - 1) * limit)
+                .limit(limit),
+            Blog.countDocuments(query)
+        ]);
 
         res.json({
             success: true,
@@ -199,7 +226,7 @@ exports.getAllPosts = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Get all posts error:', error);
+        logger.error('Get all posts error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to fetch blog posts'
@@ -230,7 +257,7 @@ exports.getPostBySlug = async (req, res) => {
             data: post
         });
     } catch (error) {
-        console.error('Get post by slug error:', error);
+        logger.error('Get post by slug error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to fetch blog post'
@@ -253,7 +280,7 @@ exports.incrementViews = async (req, res) => {
             message: 'View counted'
         });
     } catch (error) {
-        console.error('Increment views error:', error);
+        logger.error('Increment views error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to increment views'
@@ -312,7 +339,7 @@ exports.getBlogStats = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Get blog stats error:', error);
+        logger.error('Get blog stats error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to fetch statistics'
@@ -351,7 +378,7 @@ exports.getCategories = async (req, res) => {
             data: allCategories
         });
     } catch (error) {
-        console.error('Get categories error:', error);
+        logger.error('Get categories error:', { stack: error.stack });
         res.status(500).json({
             success: false,
             message: error.message || 'Failed to fetch categories'

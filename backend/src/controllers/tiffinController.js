@@ -1,6 +1,7 @@
 const Tiffin = require('../models/Tiffin');
 const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
+const asyncHandler = require('../utils/asyncHandler');
 
 const getTiffins = async (req, res) => {
   try {
@@ -314,12 +315,12 @@ const getMyTiffins = async (req, res) => {
 };
 
 module.exports = {
-  getTiffins,
-  getTiffin,
-  createTiffin,
-  updateTiffin,
-  deleteTiffin,
-  updateDiscount,
-  updateMenuItems,
-  getMyTiffins
+  getTiffins:     asyncHandler(getTiffins),
+  getTiffin:      asyncHandler(getTiffin),
+  createTiffin:   asyncHandler(createTiffin),
+  updateTiffin:   asyncHandler(updateTiffin),
+  deleteTiffin:   asyncHandler(deleteTiffin),
+  updateDiscount: asyncHandler(updateDiscount),
+  updateMenuItems:asyncHandler(updateMenuItems),
+  getMyTiffins:   asyncHandler(getMyTiffins)
 };

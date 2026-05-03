@@ -109,8 +109,12 @@ const AdminDashboard = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 flex items-center justify-center">
-                <div className="animate-spin w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full" />
+            <div
+                className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 flex items-center justify-center"
+                role="status"
+                aria-label="Loading dashboard data"
+            >
+                <div className="animate-spin w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full" aria-hidden="true" />
             </div>
         );
     }
@@ -147,10 +151,14 @@ const AdminDashboard = () => {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            {/* Connection Status */}
-                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                                }`}>
-                                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
+                            {/* Connection Status — aria-live so screen readers announce changes */}
+                            <div
+                                role="status"
+                                aria-live="polite"
+                                aria-label={isConnected ? 'Real-time connection active' : 'Real-time connection offline'}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}
+                            >
+                                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} aria-hidden="true" />
                                 {isConnected ? 'Live' : 'Offline'}
                             </div>
 
@@ -230,8 +238,11 @@ const AdminDashboard = () => {
                                     <h3 className="font-bold text-neutral-900">Partners</h3>
                                     <p className="text-sm text-neutral-500">{stats.totalPartners} verified</p>
                                     {stats.pendingPartners > 0 && (
-                                        <span className="absolute top-3 right-3 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                                            {stats.pendingPartners}
+                                        <span
+                                            className="absolute top-3 right-3 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                                            aria-label={`${stats.pendingPartners} pending partner application${stats.pendingPartners !== 1 ? 's' : ''}`}
+                                        >
+                                            <span aria-hidden="true">{stats.pendingPartners}</span>
                                         </span>
                                     )}
                                 </motion.div>
@@ -349,18 +360,23 @@ const AdminDashboard = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
+                        role="alert"
+                        aria-live="polite"
                         className="mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between"
                     >
                         <div className="flex items-center gap-3">
-                            <ExclamationTriangleIcon className="w-6 h-6 text-amber-600" />
+                            <ExclamationTriangleIcon className="w-6 h-6 text-amber-600" aria-hidden="true" />
                             <div>
-                                <p className="font-semibold text-amber-900">{stats.pendingPartners} pending partner applications</p>
+                                <p className="font-semibold text-amber-900">
+                                    {stats.pendingPartners} pending partner application{stats.pendingPartners !== 1 ? 's' : ''}
+                                </p>
                                 <p className="text-sm text-amber-700">Review and approve new partners</p>
                             </div>
                         </div>
                         <Link
                             to="/admin/partners"
                             className="px-4 py-2 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors"
+                            aria-label={`Review ${stats.pendingPartners} pending partner application${stats.pendingPartners !== 1 ? 's' : ''}`}
                         >
                             Review Now
                         </Link>

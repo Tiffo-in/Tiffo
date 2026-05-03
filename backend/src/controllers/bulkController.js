@@ -15,6 +15,13 @@ const bulkUpdateStatus = async (req, res) => {
             });
         }
 
+        if (userIds.length > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Batch size too large. Maximum 100 IDs per request allowed.'
+            });
+        }
+
         if (!['active', 'banned'].includes(status)) {
             return res.status(400).json({
                 success: false,
@@ -49,9 +56,10 @@ const bulkUpdateStatus = async (req, res) => {
             message: `${result.modifiedCount} users ${status === 'active' ? 'activated' : 'banned'} successfully`
         });
     } catch (error) {
+        logger.error('bulkUpdateStatus error:', { error: error.message, stack: error.stack });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -70,6 +78,13 @@ const bulkDelete = async (req, res) => {
             });
         }
 
+        if (userIds.length > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Batch size too large. Maximum 100 IDs per request allowed.'
+            });
+        }
+
         // Soft delete by marking as deleted
         const result = await User.updateMany(
             { _id: { $in: userIds } },
@@ -85,9 +100,10 @@ const bulkDelete = async (req, res) => {
             message: `${result.modifiedCount} users deleted successfully`
         });
     } catch (error) {
+        logger.error('bulkDelete error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -103,6 +119,13 @@ const bulkNotify = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'User IDs array is required'
+            });
+        }
+
+        if (userIds.length > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Batch size too large. Maximum 100 IDs per request allowed.'
             });
         }
 
@@ -129,9 +152,10 @@ const bulkNotify = async (req, res) => {
             message: `Notification sent to ${sentCount} users`
         });
     } catch (error) {
+        logger.error('bulkNotify error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -147,6 +171,13 @@ const bulkVerify = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'User IDs array is required'
+            });
+        }
+
+        if (userIds.length > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Batch size too large. Maximum 100 IDs per request allowed.'
             });
         }
 
@@ -172,9 +203,10 @@ const bulkVerify = async (req, res) => {
             message: `${result.modifiedCount} users verified successfully`
         });
     } catch (error) {
+        logger.error('bulkVerify error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -190,6 +222,13 @@ const getBulkStats = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'User IDs array is required'
+            });
+        }
+
+        if (userIds.length > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Batch size too large. Maximum 100 IDs per request allowed.'
             });
         }
 
@@ -214,9 +253,10 @@ const getBulkStats = async (req, res) => {
             data: stats
         });
     } catch (error) {
+        logger.error('getBulkStats error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };

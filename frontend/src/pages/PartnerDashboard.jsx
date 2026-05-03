@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import api from '../services/api';
 import CustomerCalendar from '../components/CustomerCalendar';
 import CustomerSelector from '../components/CustomerSelector';
@@ -49,7 +50,8 @@ const PartnerDashboard = () => {
     fetchStats();
   }, []);
 
-  const partner = JSON.parse(localStorage.getItem('user')) || { name: 'Partner' };
+  const { user } = useSelector((state) => state.auth);
+  const partner = user || { name: 'Partner' };
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);

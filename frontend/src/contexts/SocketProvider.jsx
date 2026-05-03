@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 
@@ -16,48 +17,38 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [notifications, setNotifications] = useState([]);
+    const { user } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        // Get auth token from localStorage
-        const token = localStorage.getItem('token');
-
         let isMounted = true;
 
-        // Create socket connection
-        // Use polling first so the HTTP handshake completes before upgrading to WS.
-        // This is the default Socket.io order and avoids "closed before established" errors.
+        // Cookies are sent automatically on the HTTP handshake with withCredentials
         const socketInstance = io(process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5001', {
-            auth: {
-                token: token || ''
-            },
+            auth: { userId: user?._id },
+            withCredentials: true,
             transports: ['polling', 'websocket']
         });
 
         // Connection event handlers
         socketInstance.on('connect', () => {
             if (!isMounted) return;
-            console.log('🔌 Socket connected:', socketInstance.id);
             setIsConnected(true);
         });
 
         socketInstance.on('disconnect', () => {
             if (!isMounted) return;
-            console.log('🔌 Socket disconnected');
             setIsConnected(false);
         });
 
-        socketInstance.on('connect_error', (error) => {
+        socketInstance.on('connect_error', () => {
             if (!isMounted) return;
-            console.error('Socket connection error:', error);
             setIsConnected(false);
         });
 
         // Notification listeners
         socketInstance.on('notification', (data) => {
-            console.log('🔔 Notification received:', data);
             setNotifications(prev => [data, ...prev]);
 
-            // Show toast notification
             const emoji = data.type === 'success' ? '✅' :
                 data.type === 'error' ? '❌' :
                     data.type === 'warning' ? '⚠️' : 'ℹ️';
@@ -69,12 +60,10 @@ export const SocketProvider = ({ children }) => {
         });
 
         socketInstance.on('order:update', (data) => {
-            console.log('📦 Order update:', data);
             toast.success(`Order ${data.status}`, { duration: 3000 });
         });
 
         socketInstance.on('payment:update', (data) => {
-            console.log('💰 Payment update:', data);
             if (data.status === 'success') {
                 toast.success('Payment successful!', { duration: 4000 });
             } else {
@@ -83,12 +72,10 @@ export const SocketProvider = ({ children }) => {
         });
 
         socketInstance.on('delivery:update', (data) => {
-            console.log('🚴 Delivery update:', data);
             toast.success(`Delivery ${data.status}`, { duration: 3000 });
         });
 
-        socketInstance.on('order:new', (data) => {
-            console.log('📦 New order:', data);
+        socketInstance.on('order:new', () => {
             toast.success('New order received!', { duration: 5000 });
         });
 

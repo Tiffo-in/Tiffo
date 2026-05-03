@@ -88,6 +88,11 @@ const subscriptionSchema = new mongoose.Schema({
     enum: ['pending', 'paid', 'captured', 'failed', 'refunded'],
     default: 'pending'
   },
+  paymentMethod: {
+    type: String,
+    enum: ['online', 'cod'],
+    default: 'online'
+  },
   // Razorpay payment details
   orderId: {
     type: String,
@@ -125,5 +130,12 @@ const subscriptionSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// ── Indexes ───────────────────────────────────────────────────────────────────
+subscriptionSchema.index({ user: 1, status: 1 });           // user dashboard: my subscriptions
+subscriptionSchema.index({ partner: 1, status: 1 });        // partner: active orders
+subscriptionSchema.index({ paymentStatus: 1 });              // admin: pending payments
+subscriptionSchema.index({ tiffin: 1 });                     // tiffin: subscription count
+subscriptionSchema.index({ endDate: 1, status: 1 });         // cron: expired subscription sweep
 
 module.exports = mongoose.model('Subscription', subscriptionSchema);

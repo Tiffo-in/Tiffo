@@ -1,6 +1,7 @@
 const Review = require('../models/Review');
 const Subscription = require('../models/Subscription');
 const Tiffin = require('../models/Tiffin');
+const Delivery = require('../models/Delivery');
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
 
@@ -29,11 +30,23 @@ exports.createReview = async (req, res) => {
             });
         }
 
-        // Check if subscription is completed
+        // Check if subscription is in a reviewable state
         if (subscription.status !== 'completed' && subscription.status !== 'active') {
             return res.status(400).json({
                 success: false,
                 message: 'Can only review active or completed subscriptions'
+            });
+        }
+
+        // Verify the user has received at least one delivery before allowing a review
+        const hasDelivery = await Delivery.exists({
+            subscription: subscription._id,
+            status: 'delivered'
+        });
+        if (!hasDelivery) {
+            return res.status(400).json({
+                success: false,
+                message: 'You can only review after receiving at least one delivery'
             });
         }
 
@@ -50,7 +63,7 @@ exports.createReview = async (req, res) => {
             });
         }
 
-        // Create review
+        // Create review (mark as verified purchase since delivery was confirmed above)
         const review = await Review.create({
             user: userId,
             partner: subscription.partner,
@@ -59,7 +72,8 @@ exports.createReview = async (req, res) => {
             rating,
             comment,
             categories,
-            images: images || []
+            images: images || [],
+            isVerifiedPurchase: true
         });
 
         // Populate review with user info
@@ -299,6 +313,7 @@ exports.deleteReview = async (req, res) => {
 exports.markReviewHelpful = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.user.id;
 
         const review = await Review.findById(id);
 
@@ -309,7 +324,27 @@ exports.markReviewHelpful = async (req, res) => {
             });
         }
 
-        review.helpfulVotes += 1;
+        // Prevent the review author from voting on their own review
+        if (review.user.toString() === userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'You cannot vote on your own review'
+            });
+        }
+
+        // Prevent duplicate helpful votes from the same user
+        const alreadyVoted = review.helpfulBy.some(
+            (uid) => uid.toString() === userId
+        );
+        if (alreadyVoted) {
+            return res.status(400).json({
+                success: false,
+                message: 'You have already marked this review as helpful'
+            });
+        }
+
+        review.helpfulBy.push(userId);
+        review.helpfulVotes = review.helpfulBy.length;
         await review.save();
 
         res.json({

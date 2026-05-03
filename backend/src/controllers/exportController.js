@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Subscription = require('../models/Subscription');
 const Payment = require('../models/Payment');
 const Delivery = require('../models/Delivery');
+const logger = require('../utils/logger');
 
 /**
  * Generate CSV string from data
@@ -45,6 +46,17 @@ const exportCustomersCSV = async (req, res) => {
             query.createdAt = {};
             if (startDate) query.createdAt.$gte = new Date(startDate);
             if (endDate) query.createdAt.$lte = new Date(endDate);
+
+            // Safety check: Prevent memory exhaustion from unbounded large queries
+            if (startDate && endDate) {
+                const diffDays = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+                if (diffDays > 180) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Custom export range cannot exceed 180 days. Please refine your dates.'
+                    });
+                }
+            }
         }
 
         const users = await User.find(query)
@@ -97,6 +109,16 @@ const exportOrdersCSV = async (req, res) => {
             query.createdAt = {};
             if (startDate) query.createdAt.$gte = new Date(startDate);
             if (endDate) query.createdAt.$lte = new Date(endDate);
+
+            if (startDate && endDate) {
+                const diffDays = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+                if (diffDays > 180) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Custom export range cannot exceed 180 days.'
+                    });
+                }
+            }
         }
 
         const deliveries = await Delivery.find(query)
@@ -124,9 +146,10 @@ const exportOrdersCSV = async (req, res) => {
         res.setHeader('Content-Disposition', 'attachment; filename="orders_' + Date.now() + '.csv"');
         res.send(csv);
     } catch (error) {
+        logger.error('exportOrdersCSV error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -152,6 +175,16 @@ const exportPaymentsCSV = async (req, res) => {
             query.createdAt = {};
             if (startDate) query.createdAt.$gte = new Date(startDate);
             if (endDate) query.createdAt.$lte = new Date(endDate);
+
+            if (startDate && endDate) {
+                const diffDays = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+                if (diffDays > 180) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Custom export range cannot exceed 180 days.'
+                    });
+                }
+            }
         }
 
         const payments = await Payment.find(query)
@@ -177,9 +210,10 @@ const exportPaymentsCSV = async (req, res) => {
         res.setHeader('Content-Disposition', 'attachment; filename="payments_' + Date.now() + '.csv"');
         res.send(csv);
     } catch (error) {
+        logger.error('exportPaymentsCSV error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -205,6 +239,16 @@ const exportSubscriptionsCSV = async (req, res) => {
             query.createdAt = {};
             if (startDate) query.createdAt.$gte = new Date(startDate);
             if (endDate) query.createdAt.$lte = new Date(endDate);
+
+            if (startDate && endDate) {
+                const diffDays = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+                if (diffDays > 180) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Custom export range cannot exceed 180 days.'
+                    });
+                }
+            }
         }
 
         const subscriptions = await Subscription.find(query)
@@ -234,9 +278,10 @@ const exportSubscriptionsCSV = async (req, res) => {
         res.setHeader('Content-Disposition', 'attachment; filename="subscriptions_' + Date.now() + '.csv"');
         res.send(csv);
     } catch (error) {
+        logger.error('exportSubscriptionsCSV error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };
@@ -296,9 +341,10 @@ const getSummaryReport = async (req, res) => {
             }
         });
     } catch (error) {
+        logger.error('getSummaryReport error:', { error: error.message });
         res.status(500).json({
             success: false,
-            message: error.message
+            message: 'Internal server error'
         });
     }
 };

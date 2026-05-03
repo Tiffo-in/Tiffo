@@ -6,6 +6,7 @@ import {
     PaperAirplaneIcon,
     UserCircleIcon
 } from '@heroicons/react/24/outline';
+import { useSelector } from 'react-redux';
 import { useSocket } from '../hooks/useSocket';
 import api from '../services/api';
 
@@ -18,8 +19,8 @@ const MessageCenter = ({ isOpen, onClose }) => {
     const messagesEndRef = useRef(null);
     const { on, isConnected } = useSocket();
 
-    // Get current user
-    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    // Get current user from Redux (single source of truth)
+    const { user: currentUser } = useSelector((state) => state.auth);
 
     useEffect(() => {
         if (isOpen) {

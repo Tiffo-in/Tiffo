@@ -12,6 +12,7 @@ import {
     StarIcon
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
+import api from '../services/api';
 
 const CustomerAnalytics = () => {
     const [timeRange, setTimeRange] = useState('30d');
@@ -26,29 +27,15 @@ const CustomerAnalytics = () => {
     const loadAnalytics = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const daysMap = {
-                '7d': 7,
-                '30d': 30,
-                '90d': 90,
-                '1y': 365
-            };
-
-            const response = await fetch(
-                `${process.env.REACT_APP_API_URL}/analytics/customers?days=${daysMap[timeRange]}`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
-
-            const result = await response.json();
-            if (result.success) {
-                setStats(result.data);
+            const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
+            const response = await api.get(`/analytics/customers`, {
+                params: { days: daysMap[timeRange] }
+            });
+            if (response.data.success) {
+                setStats(response.data.data);
             }
         } catch (error) {
-            console.error('Failed to load analytics:', error);
+            // Non-critical — leave loading state for error UI
         } finally {
             setLoading(false);
         }
@@ -57,18 +44,11 @@ const CustomerAnalytics = () => {
     // eslint-disable-next-line no-unused-vars
     const handleExport = async (type) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(
-                `${process.env.REACT_APP_API_URL}/analytics/export?type=${type}`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+            const response = await api.get(`/analytics/export`, {
+                params: { type },
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(response.data);
             const a = document.createElement('a');
             a.href = url;
             a.download = `${type}_export.csv`;
@@ -77,7 +57,7 @@ const CustomerAnalytics = () => {
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error('Export failed:', error);
+            // Export silently fails — user can retry
         }
     };
 

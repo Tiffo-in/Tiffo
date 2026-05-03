@@ -44,9 +44,24 @@ const reviewSchema = new mongoose.Schema({
   helpfulVotes: {
     type: Number,
     default: 0
+  },
+  // Tracks user IDs who have voted helpful — prevents duplicate votes
+  helpfulBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  // Set to true only after at least one delivery has been confirmed
+  isVerifiedPurchase: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
 });
+
+// ── Indexes ───────────────────────────────────────────────────────────────────
+reviewSchema.index({ tiffin: 1, createdAt: -1 });          // tiffin reviews, newest first
+reviewSchema.index({ user: 1, subscription: 1 }, { unique: true }); // prevent duplicate reviews
+reviewSchema.index({ partner: 1, createdAt: -1 });          // partner analytics
 
 module.exports = mongoose.model('Review', reviewSchema);

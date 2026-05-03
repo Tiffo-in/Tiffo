@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const BankDetailsForm = ({ onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -46,29 +47,21 @@ const BankDetailsForm = ({ onSuccess }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/payments/setup-partner-account`,
-                {
-                    bankDetails: {
-                        accountNumber: formData.accountNumber,
-                        ifscCode: formData.ifscCode.toUpperCase(),
-                        accountHolderName: formData.accountHolderName
-                    },
-                    taxDetails: {
-                        pan: formData.pan.toUpperCase(),
-                        gst: formData.gst.toUpperCase()
-                    },
-                    businessName: formData.businessName
+            const response = await api.post('/payments/setup-partner-account', {
+                bankDetails: {
+                    accountNumber: formData.accountNumber,
+                    ifscCode: formData.ifscCode.toUpperCase(),
+                    accountHolderName: formData.accountHolderName
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                }
-            );
+                taxDetails: {
+                    pan: formData.pan.toUpperCase(),
+                    gst: formData.gst.toUpperCase()
+                },
+                businessName: formData.businessName
+            });
 
             if (response.data) {
-                alert('Bank details saved successfully! You can now receive payments.');
+                toast.success('Bank details saved! You can now receive payments.');
                 if (onSuccess) onSuccess();
             }
         } catch (err) {

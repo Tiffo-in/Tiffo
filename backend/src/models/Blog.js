@@ -117,5 +117,10 @@ blogSchema.pre('save', function (next) {
 blogSchema.index({ status: 1, publishedAt: -1 });
 blogSchema.index({ category: 1 });
 blogSchema.index({ tags: 1 });
+// Text index for efficient full-text search (replaces slow $regex on large content)
+blogSchema.index(
+    { title: 'text', excerpt: 'text', content: 'text' },
+    { weights: { title: 10, excerpt: 5, content: 1 }, name: 'blog_text_search' }
+);
 
 module.exports = mongoose.model('Blog', blogSchema);

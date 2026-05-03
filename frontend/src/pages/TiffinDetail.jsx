@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +11,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
 import RatingsSummary from '../components/RatingsSummary';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 /* ─── Meal type colour palette ─── */
 const MEAL_COLORS = {
@@ -50,6 +52,12 @@ const TiffinDetail = () => {
 
   /* ── image ── */
   const [imageLoaded, setImageLoaded]   = useState(false);
+
+  /* ── review refresh trigger (avoids window.location.reload) ── */
+  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+
+  // SEO handled by Helmet component below
+  // useDocumentTitle(tiffin ? tiffin.title : null);
 
   /* ── default start date = tomorrow ── */
   useEffect(() => {
@@ -162,6 +170,12 @@ const TiffinDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
+      <Helmet>
+        <title>{tiffin ? `${tiffin.title} | Tiffo Homemade Tiffins` : 'Loading Tiffin Details | Tiffo'}</title>
+        <meta name="description" content={tiffin ? `Order ${tiffin.title} by ${tiffin.partner?.businessName || 'local chef'}. Authentic ${tiffin.cuisine} ${tiffin.mealType} starting at ₹${tiffin.price?.daily || ''}/day.` : 'Discover authentic homemade tiffin services near you.'} />
+        <meta property="og:title" content={tiffin ? `${tiffin.title} - Tiffo` : 'Tiffin Details'} />
+        <meta property="og:image" content={tiffin?.images?.[0] || ''} />
+      </Helmet>
 
       {/* ─── Hero Image ─── */}
       <div className="relative h-72 md:h-96 overflow-hidden">
@@ -311,13 +325,13 @@ const TiffinDetail = () => {
           )}
 
           {/* ─── Ratings Summary ─── */}
-          <RatingsSummary tiffinId={tiffin._id} />
+          <RatingsSummary key={`ratings-${reviewRefreshKey}`} tiffinId={tiffin._id} />
 
           {/* ─── Reviews ─── */}
-          <ReviewList tiffinId={tiffin._id} />
+          <ReviewList key={`reviews-${reviewRefreshKey}`} tiffinId={tiffin._id} />
 
           {/* ─── Leave a Review ─── */}
-          <ReviewForm tiffinId={tiffin._id} onReviewSubmitted={() => window.location.reload()} />
+          <ReviewForm tiffinId={tiffin._id} onReviewSubmitted={() => setReviewRefreshKey(k => k + 1)} />
         </div>
 
         {/* ─── Right: Pricing & Subscribe ─── */}

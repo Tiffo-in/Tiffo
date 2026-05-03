@@ -1,56 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../middlewares/auth');
+const { protect } = require('../middlewares/auth');
 const { adminAuth } = require('../middlewares/adminAuth');
-const {
-    getDashboardStats,
-    getUsers,
-    getUserDetails,
-    updateUserStatus,
-    getPendingPartners,
-    updatePartnerStatus,
-    getRecentActivity,
-    getAnalytics,
-    // Payment Management
-    getAllPayments,
-    getPaymentDetails,
-    getRevenueReport,
-    getPendingPayouts,
-    getPayoutHistory,
-    adminProcessRefund,
-    getDisputedPayments,
-    resolveDispute,
-    getSystemAlerts
-} = require('../controllers/adminController');
 
-// All routes require authentication and admin role
+// Domain-specific Controllers
+const dashboardController = require('../controllers/admin/adminDashboardController');
+const userController = require('../controllers/admin/adminUserController');
+const partnerController = require('../controllers/admin/adminPartnerController');
+const financeController = require('../controllers/admin/adminFinanceController');
+
+// All routes require authentication and admin role verification
 router.use(protect);
 router.use(adminAuth);
 
-// Dashboard
-router.get('/dashboard', getDashboardStats);
-router.get('/activity', getRecentActivity);
-router.get('/analytics', getAnalytics);
+// ── Dashboard & Platforms Analytics ──────────────────────────────────────────
+router.get('/dashboard', dashboardController.getDashboardStats);
+router.get('/activity', dashboardController.getRecentActivity);
+router.get('/analytics', dashboardController.getAnalytics);
+router.get('/alerts', dashboardController.getSystemAlerts);
 
-// User management
-router.get('/users', getUsers);
-router.get('/users/:id', getUserDetails);
-router.patch('/users/:id/status', updateUserStatus);
+// ── User Management ────────────────────────────────────────────────────────
+router.get('/users', userController.getUsers);
+router.get('/users/:id', userController.getUserDetails);
+router.patch('/users/:id/status', userController.updateUserStatus);
 
-// Partner management
-router.get('/partners/pending', getPendingPartners);
-router.patch('/partners/:id/status', updatePartnerStatus);
+// ── Partner Management ─────────────────────────────────────────────────────
+router.get('/partners/pending', partnerController.getPendingPartners);
+router.patch('/partners/:id/status', partnerController.updatePartnerStatus);
 
-// Payment Management
-router.get('/payments', getAllPayments);
-router.get('/payments/revenue/report', getRevenueReport);
-router.get('/payments/payouts/pending', getPendingPayouts);
-router.get('/payments/payouts/history', getPayoutHistory);
-router.get('/payments/disputes', getDisputedPayments);
-router.get('/payments/:id', getPaymentDetails);
-router.post('/payments/:id/refund', adminProcessRefund);
-router.patch('/payments/disputes/:id/resolve', resolveDispute);
-// Admin Alerts
-router.get('/alerts', getSystemAlerts);
+// ── Financial & Payment Management ─────────────────────────────────────────
+router.get('/payments', financeController.getAllPayments);
+router.get('/payments/revenue/report', financeController.getRevenueReport);
+router.get('/payments/payouts/pending', financeController.getPendingPayouts);
+router.get('/payments/payouts/history', financeController.getPayoutHistory);
+router.get('/payments/:id', financeController.getPaymentDetails);
+router.post('/payments/:id/refund', financeController.adminProcessRefund);
+
+// Dispute Resolution
+router.get('/payments/disputes', financeController.getDisputedPayments);
+router.patch('/payments/disputes/:id/resolve', financeController.resolveDispute);
 
 module.exports = router;
