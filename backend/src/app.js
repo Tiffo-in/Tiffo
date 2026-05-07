@@ -25,6 +25,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss');
 const { apiLimiter } = require('./middlewares/rateLimiter');
+const compression = require('compression');
 const http = require('http');
 
 const connectDB = require('./config/database');
@@ -53,6 +54,7 @@ const fraudRoutes = require('./routes/fraud');
 const uploadRoutes = require('./routes/upload');
 const adRoutes = require('./routes/adRoutes');
 const waitlistRoutes = require('./routes/waitlist');
+const sitemapRoutes = require('./routes/sitemap');
 const { swaggerUi, specs } = require('./config/swagger');
 
 const app = express();
@@ -71,6 +73,7 @@ initializeEmailService();
 
 const { csrfProtection } = require('./middlewares/csrf');
 
+app.use(compression());
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
 
@@ -147,6 +150,7 @@ app.use('/api/fraud', fraudRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ads', adRoutes);
 app.use('/api/waitlist', waitlistRoutes);
+app.use('/api/sitemap.xml', sitemapRoutes);
 
 // API Documentation
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs));
