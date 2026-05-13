@@ -1,141 +1,142 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
+  KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Animated, StatusBar,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import { useAuth } from '../../contexts/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../theme/useTheme';
+import { ColorScheme } from '../../theme/colors';
 
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParams, 'Login'>;
-};
+type Props = { navigation: NativeStackNavigationProp<RootStackParams, 'Login'> };
 
-const LoginScreen = ({ navigation }: Props) => {
+export default function LoginScreen({ navigation }: Props) {
+  const C = useTheme();
+  const S = useMemo(() => createStyles(C), [C]);
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passFocused, setPassFocused] = useState(false);
+  const logoAnim = useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.spring(logoAnim, { toValue: 1, friction: 6, tension: 60, useNativeDriver: true }).start();
+  }, []);
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Missing Fields', 'Please enter your email and password.');
-      return;
-    }
+    if (!email.trim() || !password.trim()) { Alert.alert('Missing Fields', 'Please enter your email and password.'); return; }
     try {
       setLoading(true);
       await login(email.trim().toLowerCase(), password);
     } catch (err: any) {
-      Alert.alert(
-        'Login Failed',
-        err.response?.data?.message || 'An unexpected error occurred. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+      Alert.alert('Login Failed', err.response?.data?.message || 'Please check your credentials and try again.');
+    } finally { setLoading(false); }
   };
 
+  const logoScale   = logoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] });
+  const logoOpacity = logoAnim;
+
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Logo / Branding */}
-        <View style={styles.brandArea}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>🍱</Text>
-          </View>
-          <Text style={styles.appName}>Tiffo</Text>
-          <Text style={styles.tagline}>Homemade meals, delivered daily</Text>
+    <KeyboardAvoidingView style={S.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <StatusBar barStyle={C.background === '#111111' ? 'light-content' : 'dark-content'} />
+
+      <Animated.View style={[S.brand, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
+        <View style={S.logoWrap}><Text style={{ fontSize: 36 }}>🍱</Text></View>
+        <Text style={S.appName}>tiffo</Text>
+        <Text style={S.tagline}>Homemade meals, delivered daily</Text>
+      </Animated.View>
+
+      <View style={S.form}>
+        <Text style={S.formTitle}>Welcome back 👋</Text>
+        <Text style={S.formSub}>Sign in to continue to your account</Text>
+
+        <View style={[S.inputWrap, emailFocused && S.inputFocused]}>
+          <Ionicons name="mail-outline" size={18} color={emailFocused ? C.primary : C.textTertiary} style={S.inputIcon} />
+          <TextInput
+            style={S.input}
+            placeholder="Email address"
+            placeholderTextColor={C.textTertiary}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email} onChangeText={setEmail}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
+          />
         </View>
 
-        {/* Form */}
-        <View style={styles.formCard}>
-          <Text style={styles.formTitle}>Welcome back</Text>
-          <Text style={styles.formSubtitle}>Sign in to your account</Text>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="you@example.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Your password"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.loginBtn, loading && styles.loginBtnDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading
-              ? <ActivityIndicator color="#FFF" />
-              : <Text style={styles.loginBtnText}>Sign In</Text>
-            }
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.switchLink}>
-            <Text style={styles.switchText}>
-              Don't have an account? <Text style={styles.switchCta}>Sign up</Text>
-            </Text>
+        <View style={[S.inputWrap, passFocused && S.inputFocused]}>
+          <Ionicons name="lock-closed-outline" size={18} color={passFocused ? C.primary : C.textTertiary} style={S.inputIcon} />
+          <TextInput
+            style={S.input}
+            placeholder="Password"
+            placeholderTextColor={C.textTertiary}
+            secureTextEntry={!showPassword}
+            value={password} onChangeText={setPassword}
+            onFocus={() => setPassFocused(true)}
+            onBlur={() => setPassFocused(false)}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={18} color={C.textTertiary} />
           </TouchableOpacity>
         </View>
-      </ScrollView>
+
+        <TouchableOpacity style={S.forgot}>
+          <Text style={S.forgotTxt}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[S.loginBtn, loading && S.loginBtnDisabled]} onPress={handleLogin} disabled={loading} activeOpacity={0.85}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={S.loginBtnTxt}>Sign In</Text>}
+        </TouchableOpacity>
+
+        <View style={S.dividerRow}>
+          <View style={S.dividerLine} />
+          <Text style={S.dividerTxt}>or continue with</Text>
+          <View style={S.dividerLine} />
+        </View>
+
+        <TouchableOpacity style={S.socialBtn}>
+          <Text style={{ fontSize: 20 }}>🌐</Text>
+          <Text style={S.socialTxt}>Continue with Google</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('Register')} style={S.switchRow}>
+          <Text style={S.switchTxt}>Don't have an account? </Text>
+          <Text style={S.switchCta}>Create one</Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#FFF7ED' },
-  container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
-  brandArea: { alignItems: 'center', marginBottom: 40 },
-  logoCircle: {
-    width: 80, height: 80, borderRadius: 40,
-    backgroundColor: '#F97316', justifyContent: 'center', alignItems: 'center',
-    marginBottom: 12, shadowColor: '#F97316', shadowOpacity: 0.35,
-    shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8,
-  },
-  logoEmoji: { fontSize: 40 },
-  appName: { fontSize: 32, fontWeight: '800', color: '#1C1917' },
-  tagline: { fontSize: 14, color: '#78716C', marginTop: 4 },
-  formCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24,
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 }, elevation: 4,
-  },
-  formTitle: { fontSize: 22, fontWeight: '700', color: '#1C1917', marginBottom: 4 },
-  formSubtitle: { fontSize: 14, color: '#78716C', marginBottom: 24 },
-  inputGroup: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#44403C', marginBottom: 6 },
-  input: {
-    borderWidth: 1.5, borderColor: '#E7E5E4', borderRadius: 12, padding: 14,
-    fontSize: 15, color: '#1C1917', backgroundColor: '#FAF9F7',
-  },
-  loginBtn: {
-    backgroundColor: '#F97316', borderRadius: 14, padding: 16,
-    alignItems: 'center', marginTop: 8,
-    shadowColor: '#F97316', shadowOpacity: 0.4, shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 }, elevation: 6,
-  },
-  loginBtnDisabled: { backgroundColor: '#FDBA74' },
-  loginBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
-  switchLink: { marginTop: 20, alignItems: 'center' },
-  switchText: { fontSize: 14, color: '#78716C' },
-  switchCta: { color: '#F97316', fontWeight: '700' },
+const createStyles = (C: ColorScheme) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: C.background },
+  brand: { alignItems: 'center', paddingTop: 64, paddingBottom: 32 },
+  logoWrap: { width: 72, height: 72, borderRadius: 20, backgroundColor: C.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 14, shadowColor: C.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 10 },
+  appName: { fontSize: 34, fontWeight: '800', color: C.textPrimary, letterSpacing: -1 },
+  tagline: { fontSize: 13, color: C.textSecondary, marginTop: 4 },
+  form: { flex: 1, backgroundColor: C.surfaceCard, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 24, paddingTop: 28, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 8 },
+  formTitle: { fontSize: 22, fontWeight: '800', color: C.textPrimary, marginBottom: 4 },
+  formSub: { fontSize: 13, color: C.textSecondary, marginBottom: 24 },
+  inputWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 14, borderWidth: 1.5, borderColor: C.border, paddingHorizontal: 14, paddingVertical: 13, marginBottom: 12 },
+  inputFocused: { borderColor: C.primary, backgroundColor: C.primaryMuted },
+  inputIcon: { marginRight: 10 },
+  input: { flex: 1, fontSize: 15, color: C.textPrimary },
+  forgot: { alignSelf: 'flex-end', marginBottom: 20 },
+  forgotTxt: { fontSize: 13, color: C.primary, fontWeight: '600' },
+  loginBtn: { backgroundColor: C.primary, borderRadius: 14, padding: 16, alignItems: 'center', marginBottom: 20, shadowColor: C.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
+  loginBtnDisabled: { backgroundColor: C.primaryLight },
+  loginBtnTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: C.divider },
+  dividerTxt: { fontSize: 12, color: C.textTertiary, marginHorizontal: 12 },
+  socialBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, borderRadius: 14, borderWidth: 1.5, borderColor: C.border, padding: 14, marginBottom: 24 },
+  socialTxt: { fontSize: 15, fontWeight: '600', color: C.textPrimary },
+  switchRow: { flexDirection: 'row', justifyContent: 'center' },
+  switchTxt: { fontSize: 14, color: C.textSecondary },
+  switchCta: { fontSize: 14, color: C.primary, fontWeight: '700' },
 });
-
-export default LoginScreen;

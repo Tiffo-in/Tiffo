@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  RefreshControl, ActivityIndicator,
+  RefreshControl, ActivityIndicator, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,191 +10,224 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from '../../navigation/RootNavigator';
+import { useTheme } from '../../theme/useTheme';
+import { ColorScheme } from '../../theme/colors';
 
 interface Subscription {
-  _id: string;
-  plan: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  totalAmount: number;
-  tiffin?: { name: string };
-  partner?: { businessName: string };
+  _id: string; plan: string; status: string;
+  startDate: string; endDate: string; totalAmount: number;
+  tiffin?: { name: string }; partner?: { businessName: string };
 }
 
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  active: { bg: '#DCFCE7', text: '#166534' },
-  paused: { bg: '#FEF9C3', text: '#854D0E' },
-  cancelled: { bg: '#FEE2E2', text: '#991B1B' },
-  expired: { bg: '#F3F4F6', text: '#6B7280' },
-  pending: { bg: '#DBEAFE', text: '#1E40AF' },
+const STATUS_CFG: Record<string, { icon: keyof typeof Ionicons.glyphMap }> = {
+  active:    { icon: 'checkmark-circle' },
+  paused:    { icon: 'pause-circle' },
+  cancelled: { icon: 'close-circle' },
+  expired:   { icon: 'time' },
+  pending:   { icon: 'hourglass' },
 };
 
-const SubscriptionScreen = () => {
+const statusColors = (status: string, C: ColorScheme) => {
+  switch (status) {
+    case 'active':    return { bg: C.successBg, text: C.success };
+    case 'paused':    return { bg: C.warningBg, text: C.warning };
+    case 'cancelled': return { bg: C.errorBg,   text: C.error };
+    case 'expired':   return { bg: C.surface,    text: C.textTertiary };
+    default:          return { bg: C.infoBg,     text: C.info };
+  }
+};
+
+const SubCard = ({ sub, onPause, onResume, index, C }: {
+  sub: Subscription; onPause: () => void; onResume: () => void; index: number; C: ColorScheme;
+}) => {
+  const S = useMemo(() => createStyles(C), [C]);
+  const fade = useRef(new Animated.Value(0)).current;
+  const slide = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fade, { toValue: 1, duration: 350, delay: index * 80, useNativeDriver: true }),
+      Animated.timing(slide, { toValue: 0, duration: 350, delay: index * 80, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  const cfg = STATUS_CFG[sub.status] || STATUS_CFG.pending;
+  const sc = statusColors(sub.status, C);
+  const endDate   = new Date(sub.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const startDate = new Date(sub.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  const daysLeft  = Math.max(0, Math.ceil((new Date(sub.endDate).getTime() - Date.now()) / 86400000));
+  const totalDays = Math.max(1, Math.ceil((new Date(sub.endDate).getTime() - new Date(sub.startDate).getTime()) / 86400000));
+  const progress  = Math.min(1, Math.max(0, 1 - daysLeft / totalDays));
+  const barColor  = sub.status === 'paused' ? C.warning : C.veg;
+
+  return (
+    <Animated.View style={[S.card, { opacity: fade, transform: [{ translateY: slide }] }]}>
+      <View style={S.cardHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={S.mealName} numberOfLines={1}>{sub.tiffin?.name || 'Tiffin Meal'}</Text>
+          <Text style={S.partnerName}>by {sub.partner?.businessName || 'Partner Kitchen'}</Text>
+        </View>
+        <View style={[S.statusBadge, { backgroundColor: sc.bg }]}>
+          <Ionicons name={cfg.icon} size={12} color={sc.text} style={{ marginRight: 4 }} />
+          <Text style={[S.statusTxt, { color: sc.text }]}>{sub.status.toUpperCase()}</Text>
+        </View>
+      </View>
+
+      {(sub.status === 'active' || sub.status === 'paused') && (
+        <View style={S.progressWrap}>
+          <View style={S.progressBg}>
+            <View style={[S.progressFill, { width: `${progress * 100}%` as any, backgroundColor: barColor }]} />
+          </View>
+          <Text style={S.progressTxt}>{daysLeft} days left</Text>
+        </View>
+      )}
+
+      <View style={S.detailGrid}>
+        {[
+          { icon: 'calendar-outline' as const, label: 'Plan',    value: sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) },
+          { icon: 'play-forward-outline' as const, label: 'Started', value: startDate },
+          { icon: 'flag-outline' as const, label: 'Ends',    value: endDate },
+        ].map((d, i) => (
+          <React.Fragment key={d.label}>
+            {i > 0 && <View style={S.detailDivider} />}
+            <View style={S.detailItem}>
+              <Ionicons name={d.icon} size={14} color={C.textTertiary} />
+              <Text style={S.detailLabel}>{d.label}</Text>
+              <Text style={S.detailValue}>{d.value}</Text>
+            </View>
+          </React.Fragment>
+        ))}
+      </View>
+
+      <View style={S.priceRow}>
+        <Text style={S.priceLabel}>Total charged</Text>
+        <Text style={S.priceValue}>₹{sub.totalAmount?.toLocaleString('en-IN')}</Text>
+      </View>
+
+      {sub.status === 'active' && (
+        <TouchableOpacity style={S.pauseBtn} onPress={onPause} activeOpacity={0.8}>
+          <Ionicons name="pause-circle-outline" size={16} color={C.textSecondary} />
+          <Text style={S.pauseTxt}>Pause Subscription</Text>
+        </TouchableOpacity>
+      )}
+      {sub.status === 'paused' && (
+        <TouchableOpacity style={S.resumeBtn} onPress={onResume} activeOpacity={0.8}>
+          <Ionicons name="play-circle-outline" size={16} color={C.veg} />
+          <Text style={S.resumeTxt}>Resume Subscription</Text>
+        </TouchableOpacity>
+      )}
+    </Animated.View>
+  );
+};
+
+export default function SubscriptionScreen() {
+  const C = useTheme();
+  const S = useMemo(() => createStyles(C), [C]);
   const { isAuthenticated } = useAuth();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchSubs = async () => {
-    if (!isAuthenticated) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const res = await api.get('/subscriptions/my');
-      setSubs(res.data?.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    if (!isAuthenticated) { setLoading(false); return; }
+    try { setSubs((await api.get('/subscriptions/my')).data?.data || []); } catch { }
+    finally { setLoading(false); setRefreshing(false); }
   };
 
   useEffect(() => { fetchSubs(); }, [isAuthenticated]);
 
-  const handlePause = async (id: string) => {
-    try {
-      await api.patch(`/subscriptions/${id}/pause`);
-      fetchSubs();
-    } catch (err: any) {
-      console.error('Pause failed', err.response?.data?.message);
-    }
-  };
-
-  const handleResume = async (id: string) => {
-    try {
-      await api.patch(`/subscriptions/${id}/resume`);
-      fetchSubs();
-    } catch (err: any) {
-      console.error('Resume failed', err.response?.data?.message);
-    }
-  };
+  const activeCount = subs.filter(s => s.status === 'active').length;
+  const totalSpent  = subs.reduce((a, s) => a + (s.totalAmount || 0), 0);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.pageHeader}>
-        <Text style={styles.pageTitle}>My Subscriptions</Text>
+    <SafeAreaView style={S.safe}>
+      <View style={S.pageHeader}>
+        <Text style={S.pageTitle}>My Subscriptions</Text>
+        {subs.length > 0 && (
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={S.statBadge}>
+              <Text style={S.statNum}>{activeCount}</Text>
+              <Text style={S.statLbl}>Active</Text>
+            </View>
+            <View style={[S.statBadge, { backgroundColor: C.secondaryMuted }]}>
+              <Text style={[S.statNum, { color: C.secondary }]}>₹{totalSpent.toLocaleString('en-IN')}</Text>
+              <Text style={S.statLbl}>Total Spent</Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <ScrollView
-        style={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchSubs(); }} tintColor="#F97316" />}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchSubs(); }} tintColor={C.primary} />}
+        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
       >
         {!isAuthenticated ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyEmoji}>🔒</Text>
-            <Text style={styles.emptyTitle}>Sign in to view subscriptions</Text>
-            <Text style={styles.emptyText}>You need to be logged in to view your active meal plans.</Text>
-            <TouchableOpacity style={styles.loginBtn} onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginBtnText}>Sign In</Text>
+          <View style={S.empty}>
+            <Text style={{ fontSize: 52, marginBottom: 16 }}>🔒</Text>
+            <Text style={S.emptyTitle}>Sign in required</Text>
+            <Text style={S.emptySub}>Sign in to view and manage your active tiffin subscriptions</Text>
+            <TouchableOpacity style={S.actionBtn} onPress={() => nav.navigate('Login')}>
+              <Text style={S.actionBtnTxt}>Sign In</Text>
             </TouchableOpacity>
           </View>
         ) : loading ? (
-          <ActivityIndicator color="#F97316" size="large" style={{ marginTop: 40 }} />
+          <ActivityIndicator color={C.primary} size="large" style={{ marginTop: 60 }} />
         ) : subs.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyEmoji}>🍽️</Text>
-            <Text style={styles.emptyTitle}>No Active Subscriptions</Text>
-            <Text style={styles.emptyText}>Go to the Home tab to find and subscribe to a tiffin plan.</Text>
+          <View style={S.empty}>
+            <Text style={{ fontSize: 52, marginBottom: 16 }}>🍽️</Text>
+            <Text style={S.emptyTitle}>No subscriptions yet</Text>
+            <Text style={S.emptySub}>Subscribe to daily tiffin plans from local kitchen partners</Text>
+            <TouchableOpacity style={S.actionBtn} onPress={() => (nav as any).navigate('Home')}>
+              <Text style={S.actionBtnTxt}>Explore Meals</Text>
+            </TouchableOpacity>
           </View>
         ) : (
-          subs.map((sub) => {
-            const colors = STATUS_COLORS[sub.status] || STATUS_COLORS.pending;
-            const endDate = new Date(sub.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            return (
-              <View key={sub._id} style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.mealName} numberOfLines={1}>{sub.tiffin?.name || 'Tiffin Meal'}</Text>
-                  <View style={[styles.statusBadge, { backgroundColor: colors.bg }]}>
-                    <Text style={[styles.statusText, { color: colors.text }]}>{sub.status.toUpperCase()}</Text>
-                  </View>
-                </View>
-
-                <Text style={styles.partnerText}>by {sub.partner?.businessName || 'Partner Kitchen'}</Text>
-
-                <View style={styles.detailRow}>
-                  <View style={styles.detailItem}>
-                    <Ionicons name="calendar-outline" size={13} color="#78716C" />
-                    <Text style={styles.detailText}>{sub.plan} plan</Text>
-                  </View>
-                  <View style={styles.detailItem}>
-                    <Ionicons name="time-outline" size={13} color="#78716C" />
-                    <Text style={styles.detailText}>Ends {endDate}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.priceRow}>
-                  <Text style={styles.priceLabel}>Total charged</Text>
-                  <Text style={styles.priceValue}>₹{sub.totalAmount?.toLocaleString('en-IN')}</Text>
-                </View>
-
-                {/* Actions */}
-                {sub.status === 'active' && (
-                  <TouchableOpacity style={styles.pauseBtn} onPress={() => handlePause(sub._id)}>
-                    <Ionicons name="pause-circle-outline" size={16} color="#78716C" />
-                    <Text style={styles.pauseBtnText}>Pause Subscription</Text>
-                  </TouchableOpacity>
-                )}
-                {sub.status === 'paused' && (
-                  <TouchableOpacity style={styles.resumeBtn} onPress={() => handleResume(sub._id)}>
-                    <Ionicons name="play-circle-outline" size={16} color="#166534" />
-                    <Text style={styles.resumeBtnText}>Resume Subscription</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            );
-          })
+          subs.map((sub, i) => (
+            <SubCard key={sub._id} sub={sub} index={i} C={C}
+              onPause={async () => { try { await api.patch(`/subscriptions/${sub._id}/pause`); fetchSubs(); } catch { } }}
+              onResume={async () => { try { await api.patch(`/subscriptions/${sub._id}/resume`); fetchSubs(); } catch { } }}
+            />
+          ))
         )}
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FAFAF9' },
-  pageHeader: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  pageTitle: { fontSize: 22, fontWeight: '800', color: '#1C1917' },
-  scroll: { flex: 1 },
-  emptyState: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 40 },
-  emptyEmoji: { fontSize: 48, marginBottom: 16 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1C1917', marginBottom: 8 },
-  emptyText: { fontSize: 14, color: '#78716C', textAlign: 'center', lineHeight: 20 },
-  card: {
-    backgroundColor: '#FFF', borderRadius: 20, marginHorizontal: 16, marginBottom: 16, padding: 18,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 3,
-  },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  mealName: { flex: 1, fontSize: 16, fontWeight: '700', color: '#1C1917', marginRight: 12 },
-  statusBadge: { borderRadius: 8, paddingHorizontal: 9, paddingVertical: 4 },
-  statusText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.5 },
-  partnerText: { fontSize: 12, color: '#78716C', marginBottom: 12 },
-  detailRow: { flexDirection: 'row', marginBottom: 14 },
-  detailItem: { flexDirection: 'row', alignItems: 'center', marginRight: 16 },
-  detailText: { fontSize: 12, color: '#78716C' },
-  priceRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    borderTopWidth: 1, borderTopColor: '#F3F4F6', paddingTop: 12, marginTop: 2,
-  },
-  priceLabel: { fontSize: 12, color: '#78716C' },
-  priceValue: { fontSize: 17, fontWeight: '800', color: '#F97316' },
-  pauseBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    marginRight: 6, marginTop: 12, padding: 10, borderRadius: 10, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB',
-  },
-  pauseBtnText: { fontSize: 13, fontWeight: '600', color: '#6B7280' },
-  resumeBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    marginRight: 6, marginTop: 12, padding: 10, borderRadius: 10, backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#BBF7D0',
-  },
-  resumeBtnText: { fontSize: 13, fontWeight: '600', color: '#166534' },
-  loginBtn: {
-    backgroundColor: '#F97316', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12,
-    marginTop: 20, shadowColor: '#F97316', shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
-  },
-  loginBtnText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
+const createStyles = (C: ColorScheme) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: C.background },
+  pageHeader: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: C.borderLight },
+  pageTitle: { fontSize: 22, fontWeight: '800', color: C.textPrimary, marginBottom: 12 },
+  statBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.primaryMuted, borderRadius: 100, paddingHorizontal: 12, paddingVertical: 6, gap: 6 },
+  statNum: { fontSize: 14, fontWeight: '800', color: C.primary },
+  statLbl: { fontSize: 12, color: C.textSecondary, fontWeight: '500' },
+  card: { backgroundColor: C.surfaceCard, borderRadius: 16, marginBottom: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3 },
+  cardHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
+  mealName: { fontSize: 16, fontWeight: '700', color: C.textPrimary, marginBottom: 2 },
+  partnerName: { fontSize: 12, color: C.textSecondary },
+  statusBadge: { flexDirection: 'row', alignItems: 'center', borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5 },
+  statusTxt: { fontSize: 10, fontWeight: '700', letterSpacing: 0.5 },
+  progressWrap: { marginBottom: 14 },
+  progressBg: { height: 5, backgroundColor: C.surface, borderRadius: 100, marginBottom: 4 },
+  progressFill: { height: '100%', borderRadius: 100 },
+  progressTxt: { fontSize: 11, color: C.textTertiary },
+  detailGrid: { flexDirection: 'row', backgroundColor: C.surface, borderRadius: 12, padding: 12, marginBottom: 14 },
+  detailItem: { flex: 1, alignItems: 'center' },
+  detailDivider: { width: 1, backgroundColor: C.border },
+  detailLabel: { fontSize: 10, color: C.textTertiary, marginTop: 4, marginBottom: 2 },
+  detailValue: { fontSize: 12, fontWeight: '700', color: C.textPrimary },
+  priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: C.divider, paddingTop: 12 },
+  priceLabel: { fontSize: 12, color: C.textSecondary },
+  priceValue: { fontSize: 18, fontWeight: '800', color: C.primary },
+  pauseBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, padding: 10, borderRadius: 10, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
+  pauseTxt: { fontSize: 13, fontWeight: '600', color: C.textSecondary },
+  resumeBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, padding: 10, borderRadius: 10, backgroundColor: C.successBg, borderWidth: 1, borderColor: C.success + '40' },
+  resumeTxt: { fontSize: 13, fontWeight: '600', color: C.veg },
+  empty: { alignItems: 'center', paddingVertical: 60 },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: C.textPrimary, marginBottom: 8 },
+  emptySub: { fontSize: 14, color: C.textSecondary, textAlign: 'center', lineHeight: 20, marginBottom: 24, paddingHorizontal: 20 },
+  actionBtn: { backgroundColor: C.primary, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 14 },
+  actionBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 15 },
 });
-
-export default SubscriptionScreen;

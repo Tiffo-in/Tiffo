@@ -3,7 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet, Platform } from 'react-native';
+import { useTheme } from '../theme/useTheme';
 
 // Auth screens
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -18,8 +19,6 @@ import ProfileScreen from '../screens/main/ProfileScreen';
 // Stack screens
 import TiffinDetailScreen from '../screens/main/TiffinDetailScreen';
 import CheckoutScreen from '../screens/main/CheckoutScreen';
-
-
 
 export type MainTabParams = {
   Home: undefined;
@@ -39,45 +38,69 @@ export type RootStackParams = {
 const Tab = createBottomTabNavigator<MainTabParams>();
 const RootStack = createNativeStackNavigator<RootStackParams>();
 
-// Bottom Tab Navigator (authenticated users)
-const MainTabs = () => (
-  <Tab.Navigator
-    screenOptions={({ route }) => ({
-      headerShown: false,
-      tabBarStyle: {
-        backgroundColor: '#FFFFFF',
-        borderTopColor: '#F3F4F6',
-        height: 60,
-        paddingBottom: 8,
-      },
-      tabBarActiveTintColor: '#F97316',
-      tabBarInactiveTintColor: '#9CA3AF',
-      tabBarIcon: ({ color, size, focused }) => {
-        const icons: Record<string, keyof typeof Ionicons.glyphMap> = {
-          Home: focused ? 'home' : 'home-outline',
-          Explore: focused ? 'search' : 'search-outline',
-          Subscriptions: focused ? 'receipt' : 'receipt-outline',
-          Profile: focused ? 'person' : 'person-outline',
-        };
-        return <Ionicons name={icons[route.name]} size={size} color={color} />;
-      },
-    })}
-  >
-    <Tab.Screen name="Home" component={HomeScreen} />
-    <Tab.Screen name="Explore" component={ExploreScreen} />
-    <Tab.Screen name="Subscriptions" component={SubscriptionScreen} options={{ title: 'My Subs' }} />
-    <Tab.Screen name="Profile" component={ProfileScreen} />
-  </Tab.Navigator>
-);
+const TAB_CONFIG: Record<string, { activeIcon: keyof typeof Ionicons.glyphMap; inactiveIcon: keyof typeof Ionicons.glyphMap; label: string }> = {
+  Home:          { activeIcon: 'home',    inactiveIcon: 'home-outline',    label: 'Home'    },
+  Explore:       { activeIcon: 'search',  inactiveIcon: 'search-outline',  label: 'Explore' },
+  Subscriptions: { activeIcon: 'receipt', inactiveIcon: 'receipt-outline', label: 'My Subs' },
+  Profile:       { activeIcon: 'person',  inactiveIcon: 'person-outline',  label: 'Profile' },
+};
 
-// Root stack (full-screen pages pushed on top of the main tabs)
+const MainTabs = () => {
+  const C = useTheme();
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: C.tabBackground,
+          borderTopColor: C.borderLight,
+          borderTopWidth: 1,
+          height: Platform.OS === 'ios' ? 82 : 64,
+          paddingBottom: Platform.OS === 'ios' ? 22 : 10,
+          paddingTop: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
+          elevation: 12,
+        },
+        tabBarActiveTintColor: C.tabActive,
+        tabBarInactiveTintColor: C.tabInactive,
+        tabBarIcon: ({ color, focused }) => {
+          const cfg = TAB_CONFIG[route.name];
+          return (
+            <View style={[tabStyles.iconWrap, focused && { backgroundColor: C.primaryMuted }]}>
+              <Ionicons name={focused ? cfg.activeIcon : cfg.inactiveIcon} size={focused ? 22 : 20} color={color} />
+            </View>
+          );
+        },
+        tabBarLabel: ({ focused, color }) => (
+          <Text style={{ fontSize: 11, fontWeight: focused ? '700' : '500', color }}>
+            {TAB_CONFIG[route.name].label}
+          </Text>
+        ),
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Explore" component={ExploreScreen} />
+      <Tab.Screen name="Subscriptions" component={SubscriptionScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+};
+
 const RootNavigator = () => {
   const { isAuthenticated, loading } = useAuth();
+  const C = useTheme();
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF7ED' }}>
-        <ActivityIndicator size="large" color="#F97316" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.background }}>
+        <View style={{ width: 72, height: 72, borderRadius: 20, backgroundColor: C.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+          <Text style={{ fontSize: 36 }}>🍱</Text>
+        </View>
+        <ActivityIndicator size="large" color={C.primary} />
+        <Text style={{ fontSize: 14, color: C.textSecondary, marginTop: 12 }}>Loading...</Text>
       </View>
     );
   }
@@ -85,18 +108,21 @@ const RootNavigator = () => {
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       <RootStack.Screen name="MainTabs" component={MainTabs} />
-      <RootStack.Screen
-        name="TiffinDetail"
-        component={TiffinDetailScreen}
-        options={{ headerShown: true, title: 'Meal Details', headerTintColor: '#F97316' }}
-      />
+      <RootStack.Screen name="TiffinDetail" component={TiffinDetailScreen} />
       <RootStack.Screen
         name="Checkout"
         component={CheckoutScreen}
-        options={{ headerShown: true, title: 'Checkout', headerTintColor: '#F97316' }}
+        options={{
+          headerShown: true,
+          title: 'Checkout',
+          headerTintColor: C.primary,
+          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: C.background },
+          headerShadowVisible: false,
+        }}
       />
       {!isAuthenticated && (
-        <RootStack.Group screenOptions={{ presentation: 'modal' }}>
+        <RootStack.Group screenOptions={{ presentation: 'modal', headerShown: false }}>
           <RootStack.Screen name="Login" component={LoginScreen} />
           <RootStack.Screen name="Register" component={RegisterScreen} />
         </RootStack.Group>
@@ -104,5 +130,9 @@ const RootNavigator = () => {
     </RootStack.Navigator>
   );
 };
+
+const tabStyles = StyleSheet.create({
+  iconWrap: { width: 36, height: 28, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+});
 
 export default RootNavigator;

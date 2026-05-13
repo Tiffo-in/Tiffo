@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
@@ -6,118 +6,144 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import { useAuth } from '../../contexts/AuthContext';
-import api from '../../services/api';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../theme/useTheme';
+import { ColorScheme } from '../../theme/colors';
 
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParams, 'Register'>;
-};
+type Props = { navigation: NativeStackNavigationProp<RootStackParams, 'Register'> };
 
-const RegisterScreen = ({ navigation }: Props) => {
+const FIELDS = [
+  { key: 'name',     label: 'Full Name',      placeholder: 'Rishi Pandey',       icon: 'person-outline' as const,      keyboard: 'default' as const,       caps: 'words' as const,  secure: false },
+  { key: 'email',    label: 'Email Address',  placeholder: 'you@example.com',    icon: 'mail-outline' as const,        keyboard: 'email-address' as const, caps: 'none' as const,   secure: false },
+  { key: 'phone',    label: 'Phone Number',   placeholder: '+91 98765 43210',    icon: 'call-outline' as const,        keyboard: 'phone-pad' as const,     caps: 'none' as const,   secure: false },
+  { key: 'password', label: 'Password',       placeholder: 'Min. 8 characters',  icon: 'lock-closed-outline' as const, keyboard: 'default' as const,       caps: 'none' as const,   secure: true },
+];
+
+export default function RegisterScreen({ navigation }: Props) {
+  const C = useTheme();
+  const S = useMemo(() => createStyles(C), [C]);
   const { register } = useAuth();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [values, setValues] = useState({ name: '', email: '', phone: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [focused, setFocused] = useState('');
+
+  const set = (key: string, val: string) => setValues((v) => ({ ...v, [key]: val }));
 
   const handleRegister = async () => {
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Missing Fields', 'Please fill in all required fields.');
-      return;
+    if (!values.name.trim() || !values.email.trim() || !values.password.trim()) {
+      Alert.alert('Missing Fields', 'Please fill in Name, Email and Password.'); return;
     }
+    if (values.password.length < 8) { Alert.alert('Weak Password', 'Password must be at least 8 characters.'); return; }
     try {
       setLoading(true);
-      await register(name.trim(), email.trim().toLowerCase(), password, phone.trim());
+      await register(values.name.trim(), values.email.trim().toLowerCase(), values.password, values.phone.trim());
     } catch (err: any) {
-      Alert.alert(
-        'Registration Failed',
-        err.response?.data?.message || 'Could not create account. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+      Alert.alert('Registration Failed', err.response?.data?.message || 'Could not create account.');
+    } finally { setLoading(false); }
   };
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Text style={styles.title}>Create Account 🍱</Text>
-          <Text style={styles.subtitle}>Join Tiffo and enjoy homemade meals</Text>
+    <KeyboardAvoidingView style={S.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={S.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+
+        <View style={S.topHeader}>
+          <TouchableOpacity style={S.backBtn} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={20} color={C.textPrimary} />
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.formCard}>
-          {[
-            { label: 'Full Name', value: name, setter: setName, placeholder: 'Rishi Pandey', keyboardType: 'default', secure: false },
-            { label: 'Email', value: email, setter: setEmail, placeholder: 'you@example.com', keyboardType: 'email-address', secure: false },
-            { label: 'Phone', value: phone, setter: setPhone, placeholder: '+91 98765 43210', keyboardType: 'phone-pad', secure: false },
-            { label: 'Password', value: password, setter: setPassword, placeholder: 'Min. 8 characters', keyboardType: 'default', secure: true },
-          ].map((field) => (
-            <View key={field.label} style={styles.inputGroup}>
-              <Text style={styles.label}>{field.label}</Text>
-              <TextInput
-                style={styles.input}
-                placeholder={field.placeholder}
-                placeholderTextColor="#9CA3AF"
-                keyboardType={field.keyboardType as any}
-                autoCapitalize={field.label === 'Full Name' ? 'words' : 'none'}
-                secureTextEntry={field.secure}
-                value={field.value}
-                onChangeText={field.setter}
-              />
+        <View style={S.header}>
+          <View style={S.logoMini}><Text style={{ fontSize: 28 }}>🍱</Text></View>
+          <Text style={S.title}>Create your account</Text>
+          <Text style={S.subtitle}>Join thousands enjoying homemade meals daily</Text>
+        </View>
+
+        {/* Benefits strip */}
+        <View style={S.benefitsRow}>
+          {['🍛 Daily fresh', '🚴 Free delivery', '⏸️ Pause anytime'].map((b) => (
+            <View key={b} style={S.benefit}>
+              <Text style={S.benefitTxt}>{b}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={S.form}>
+          {FIELDS.map((f) => (
+            <View key={f.key} style={S.fieldWrap}>
+              <Text style={S.label}>{f.label}</Text>
+              <View style={[S.inputWrap, focused === f.key && S.inputFocused]}>
+                <Ionicons
+                  name={f.icon}
+                  size={18}
+                  color={focused === f.key ? C.primary : C.textTertiary}
+                  style={S.inputIcon}
+                />
+                <TextInput
+                  style={S.input}
+                  placeholder={f.placeholder}
+                  placeholderTextColor={C.textTertiary}
+                  keyboardType={f.keyboard}
+                  autoCapitalize={f.caps}
+                  secureTextEntry={f.secure && !showPass}
+                  value={(values as any)[f.key]}
+                  onChangeText={(v) => set(f.key, v)}
+                  onFocus={() => setFocused(f.key)}
+                  onBlur={() => setFocused('')}
+                />
+                {f.secure && (
+                  <TouchableOpacity onPress={() => setShowPass(!showPass)}>
+                    <Ionicons name={showPass ? 'eye-off-outline' : 'eye-outline'} size={18} color={C.textTertiary} />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           ))}
 
-          <TouchableOpacity
-            style={[styles.submitBtn, loading && styles.submitBtnDisabled]}
-            onPress={handleRegister}
-            disabled={loading}
-          >
-            {loading
-              ? <ActivityIndicator color="#FFF" />
-              : <Text style={styles.submitBtnText}>Create Account</Text>
-            }
+          <TouchableOpacity style={[S.submitBtn, loading && S.submitDisabled]} onPress={handleRegister} disabled={loading} activeOpacity={0.85}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={S.submitTxt}>Create Account</Text>}
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.switchLink}>
-            <Text style={styles.switchText}>
-              Already have an account? <Text style={styles.switchCta}>Sign in</Text>
-            </Text>
+          <Text style={S.terms}>
+            By creating an account, you agree to our{' '}
+            <Text style={{ color: C.primary }}>Terms</Text> &{' '}
+            <Text style={{ color: C.primary }}>Privacy Policy</Text>
+          </Text>
+
+          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={S.switchRow}>
+            <Text style={S.switchTxt}>Already have an account? </Text>
+            <Text style={S.switchCta}>Sign in</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#FFF7ED' },
-  container: { flexGrow: 1, padding: 24, paddingTop: 60 },
-  header: { marginBottom: 32 },
-  title: { fontSize: 28, fontWeight: '800', color: '#1C1917' },
-  subtitle: { fontSize: 15, color: '#78716C', marginTop: 6 },
-  formCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24,
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 }, elevation: 4,
-  },
-  inputGroup: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#44403C', marginBottom: 6 },
-  input: {
-    borderWidth: 1.5, borderColor: '#E7E5E4', borderRadius: 12, padding: 14,
-    fontSize: 15, color: '#1C1917', backgroundColor: '#FAF9F7',
-  },
-  submitBtn: {
-    backgroundColor: '#F97316', borderRadius: 14, padding: 16,
-    alignItems: 'center', marginTop: 8,
-    shadowColor: '#F97316', shadowOpacity: 0.4, shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 }, elevation: 6,
-  },
-  submitBtnDisabled: { backgroundColor: '#FDBA74' },
-  submitBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
-  switchLink: { marginTop: 20, alignItems: 'center' },
-  switchText: { fontSize: 14, color: '#78716C' },
-  switchCta: { color: '#F97316', fontWeight: '700' },
+const createStyles = (C: ColorScheme) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: C.background },
+  scroll: { flexGrow: 1, paddingBottom: 40 },
+  topHeader: { paddingHorizontal: 16, paddingTop: 52, paddingBottom: 8 },
+  backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: C.surface, justifyContent: 'center', alignItems: 'center' },
+  header: { alignItems: 'center', paddingTop: 12, paddingBottom: 20, paddingHorizontal: 24 },
+  logoMini: { width: 60, height: 60, borderRadius: 16, backgroundColor: C.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 14, shadowColor: C.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
+  title: { fontSize: 24, fontWeight: '800', color: C.textPrimary, textAlign: 'center', marginBottom: 6 },
+  subtitle: { fontSize: 13, color: C.textSecondary, textAlign: 'center' },
+  benefitsRow: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 20, gap: 8 },
+  benefit: { flex: 1, backgroundColor: C.primaryMuted, borderRadius: 10, paddingVertical: 8, alignItems: 'center' },
+  benefitTxt: { fontSize: 11, fontWeight: '600', color: C.primary, textAlign: 'center' },
+  form: { paddingHorizontal: 16 },
+  fieldWrap: { marginBottom: 14 },
+  label: { fontSize: 13, fontWeight: '600', color: C.textPrimary, marginBottom: 6 },
+  inputWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 12, borderWidth: 1.5, borderColor: C.border, paddingHorizontal: 14, paddingVertical: 12 },
+  inputFocused: { borderColor: C.primary, backgroundColor: C.primaryMuted },
+  inputIcon: { marginRight: 10 },
+  input: { flex: 1, fontSize: 15, color: C.textPrimary },
+  submitBtn: { backgroundColor: C.primary, borderRadius: 14, padding: 16, alignItems: 'center', marginTop: 8, shadowColor: C.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
+  submitDisabled: { backgroundColor: C.primaryLight },
+  submitTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  terms: { fontSize: 12, color: C.textTertiary, textAlign: 'center', marginTop: 16, lineHeight: 18 },
+  switchRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
+  switchTxt: { fontSize: 14, color: C.textSecondary },
+  switchCta: { fontSize: 14, color: C.primary, fontWeight: '700' },
 });
-
-export default RegisterScreen;

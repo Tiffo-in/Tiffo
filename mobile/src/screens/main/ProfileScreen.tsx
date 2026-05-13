@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef, useMemo } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView,
+  View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,10 +8,48 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParams } from '../../navigation/RootNavigator';
+import { useTheme } from '../../theme/useTheme';
+import { ColorScheme } from '../../theme/colors';
 
-const ProfileScreen = () => {
+const MENU_ITEMS = [
+  { icon: 'person-outline' as const,         label: 'Edit Profile',      sublabel: 'Update name, phone & preferences' },
+  { icon: 'location-outline' as const,        label: 'Saved Addresses',   sublabel: 'Home, work and other addresses' },
+  { icon: 'card-outline' as const,            label: 'Payment Methods',   sublabel: 'Cards, UPI and wallets' },
+  { icon: 'notifications-outline' as const,   label: 'Notifications',     sublabel: 'Manage delivery alerts' },
+  { icon: 'help-circle-outline' as const,     label: 'Help & Support',    sublabel: '24/7 customer care' },
+  { icon: 'document-text-outline' as const,   label: 'Privacy Policy',    sublabel: 'Read our data practices' },
+];
+
+const MenuRow = ({ item, index, total, C }: { item: typeof MENU_ITEMS[0]; index: number; total: number; C: ColorScheme }) => {
+  const S = useMemo(() => createStyles(C), [C]);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity
+        style={[S.menuRow, index < total - 1 && S.menuBorder]}
+        onPress={() => {}}
+        onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, friction: 8 }).start()}
+        onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, friction: 8 }).start()}
+        activeOpacity={1}
+      >
+        <View style={S.iconWrap}>
+          <Ionicons name={item.icon} size={20} color={C.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={S.menuLabel}>{item.label}</Text>
+          <Text style={S.menuSub}>{item.sublabel}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={C.border} />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
+export default function ProfileScreen() {
+  const C = useTheme();
+  const S = useMemo(() => createStyles(C), [C]);
   const { user, logout, isAuthenticated } = useAuth();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParams>>();
 
   const handleLogout = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -20,138 +58,108 @@ const ProfileScreen = () => {
     ]);
   };
 
-  const menuItems = [
-    { icon: 'person-outline' as const, label: 'Edit Profile', onPress: () => {} },
-    { icon: 'location-outline' as const, label: 'Saved Addresses', onPress: () => {} },
-    { icon: 'card-outline' as const, label: 'Payment Methods', onPress: () => {} },
-    { icon: 'notifications-outline' as const, label: 'Notifications', onPress: () => {} },
-    { icon: 'help-circle-outline' as const, label: 'Help & Support', onPress: () => {} },
-    { icon: 'document-text-outline' as const, label: 'Privacy Policy', onPress: () => {} },
-  ];
+  if (!isAuthenticated) return (
+    <SafeAreaView style={S.safe}>
+      <View style={S.guestContainer}>
+        <View style={S.guestIllustration}><Text style={{ fontSize: 64 }}>👤</Text></View>
+        <Text style={S.guestTitle}>Welcome to Tiffo</Text>
+        <Text style={S.guestSubtitle}>Sign in to view your profile, manage subscriptions, and track deliveries</Text>
+        <TouchableOpacity style={S.signInBtn} onPress={() => nav.navigate('Login')}>
+          <Text style={S.signInTxt}>Sign In</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={S.registerBtn} onPress={() => nav.navigate('Register')}>
+          <Text style={S.registerTxt}>Create Account</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        {!isAuthenticated ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyEmoji}>👤</Text>
-            <Text style={styles.emptyTitle}>Sign in to your profile</Text>
-            <Text style={styles.emptyText}>Create an account or log in to manage your addresses, payment methods, and settings.</Text>
-            <TouchableOpacity style={styles.loginBtn} onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginBtnText}>Sign In / Sign Up</Text>
-            </TouchableOpacity>
+    <SafeAreaView style={S.safe}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Profile Hero */}
+        <View style={S.hero}>
+          <View style={S.avatarWrap}>
+            <View style={S.avatar}>
+              <Text style={S.avatarTxt}>{user?.name?.[0]?.toUpperCase()}</Text>
+            </View>
+            <View style={S.editBadge}><Ionicons name="pencil" size={10} color="#fff" /></View>
           </View>
-        ) : (
-          <>
-            {/* Avatar & Name */}
-            <View style={styles.avatarSection}>
-              <View style={styles.avatarCircle}>
-                <Text style={styles.avatarInitial}>{user?.name?.[0]?.toUpperCase()}</Text>
+          <Text style={S.userName}>{user?.name}</Text>
+          <Text style={S.userEmail}>{user?.email}</Text>
+          <View style={S.rolePill}>
+            <Text style={S.roleTxt}>{user?.role?.toUpperCase() || 'CUSTOMER'}</Text>
+          </View>
+        </View>
+
+        {/* Stats */}
+        <View style={S.statsCard}>
+          {[
+            { label: 'Subscriptions', value: '—', icon: 'receipt-outline' as const },
+            { label: 'Deliveries',    value: '—', icon: 'bicycle-outline' as const },
+            { label: 'Reviews',       value: '—', icon: 'star-outline' as const },
+          ].map((s, i, arr) => (
+            <React.Fragment key={s.label}>
+              {i > 0 && <View style={S.statDivider} />}
+              <View style={S.statItem}>
+                <Ionicons name={s.icon} size={18} color={C.primary} style={{ marginBottom: 6 }} />
+                <Text style={S.statVal}>{s.value}</Text>
+                <Text style={S.statLabel}>{s.label}</Text>
               </View>
-              <Text style={styles.userName}>{user?.name}</Text>
-              <Text style={styles.userEmail}>{user?.email}</Text>
-              <View style={styles.roleBadge}>
-                <Text style={styles.roleText}>{user?.role?.toUpperCase()}</Text>
-              </View>
-            </View>
+            </React.Fragment>
+          ))}
+        </View>
 
-            {/* Stats row */}
-            <View style={styles.statsRow}>
-              {[
-                { label: 'Subscriptions', value: '—' },
-                { label: 'Deliveries', value: '—' },
-                { label: 'Reviews', value: '—' },
-              ].map((s) => (
-                <View key={s.label} style={styles.statItem}>
-                  <Text style={styles.statValue}>{s.value}</Text>
-                  <Text style={styles.statLabel}>{s.label}</Text>
-                </View>
-              ))}
-            </View>
+        {/* Menu */}
+        <View style={S.menuCard}>
+          {MENU_ITEMS.map((item, i) => (
+            <MenuRow key={item.label} item={item} index={i} total={MENU_ITEMS.length} C={C} />
+          ))}
+        </View>
 
-            {/* Menu items */}
-            <View style={styles.menuCard}>
-              {menuItems.map((item, index) => (
-                <TouchableOpacity
-                  key={item.label}
-                  style={[styles.menuRow, index < menuItems.length - 1 && styles.menuRowBorder]}
-                  onPress={item.onPress}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.menuIconWrap}>
-                    <Ionicons name={item.icon} size={20} color="#F97316" />
-                  </View>
-                  <Text style={styles.menuLabel}>{item.label}</Text>
-                  <Ionicons name="chevron-forward" size={16} color="#D4D0CC" />
-                </TouchableOpacity>
-              ))}
-            </View>
+        {/* Logout */}
+        <TouchableOpacity style={S.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
+          <Ionicons name="log-out-outline" size={18} color={C.primary} />
+          <Text style={S.logoutTxt}>Sign Out</Text>
+        </TouchableOpacity>
 
-            {/* Logout */}
-            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-              <Ionicons name="log-out-outline" size={18} color="#EF4444" />
-              <Text style={styles.logoutText}>Sign Out</Text>
-            </TouchableOpacity>
-          </>
-        )}
-        <Text style={styles.version}>Tiffo v1.0.0</Text>
+        <Text style={S.version}>Tiffo v1.0.0 • Made with ❤️ in India</Text>
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FAFAF9' },
-  scroll: { flex: 1 },
-  avatarSection: { alignItems: 'center', paddingTop: 32, paddingBottom: 24 },
-  avatarCircle: {
-    width: 88, height: 88, borderRadius: 44, backgroundColor: '#F97316',
-    justifyContent: 'center', alignItems: 'center', marginBottom: 14,
-    shadowColor: '#F97316', shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
-  },
-  avatarInitial: { color: '#FFF', fontSize: 36, fontWeight: '800' },
-  userName: { fontSize: 22, fontWeight: '800', color: '#1C1917', marginBottom: 4 },
-  userEmail: { fontSize: 13, color: '#78716C', marginBottom: 10 },
-  roleBadge: {
-    backgroundColor: '#FFF7ED', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 5,
-    borderWidth: 1, borderColor: '#FED7AA',
-  },
-  roleText: { fontSize: 11, fontWeight: '700', color: '#EA580C', letterSpacing: 1 },
-  statsRow: {
-    flexDirection: 'row', backgroundColor: '#FFF', marginHorizontal: 16, borderRadius: 20,
-    padding: 20, marginBottom: 16, justifyContent: 'space-between',
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
-  },
-  statItem: { alignItems: 'center', flex: 1 },
-  statValue: { fontSize: 20, fontWeight: '800', color: '#F97316', marginBottom: 4 },
-  statLabel: { fontSize: 11, color: '#78716C' },
-  menuCard: {
-    backgroundColor: '#FFF', marginHorizontal: 16, borderRadius: 20, marginBottom: 16,
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2, overflow: 'hidden',
-  },
-  menuRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16 },
-  menuRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
-  menuIconWrap: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFF7ED',
-    justifyContent: 'center', alignItems: 'center', marginRight: 14,
-  },
-  menuLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: '#1C1917' },
-  logoutBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    marginHorizontal: 16, marginBottom: 16, padding: 16, borderRadius: 16,
-    backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FECACA',
-  },
-  logoutText: { fontSize: 15, fontWeight: '700', color: '#EF4444' },
-  version: { textAlign: 'center', fontSize: 12, color: '#D4D0CC', marginBottom: 32 },
-  emptyState: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 40 },
-  emptyEmoji: { fontSize: 48, marginBottom: 16 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1C1917', marginBottom: 8 },
-  emptyText: { fontSize: 14, color: '#78716C', textAlign: 'center', lineHeight: 20 },
-  loginBtn: {
-    backgroundColor: '#F97316', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12,
-    marginTop: 20, shadowColor: '#F97316', shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
-  },
-  loginBtnText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
+const createStyles = (C: ColorScheme) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: C.background },
+  guestContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, paddingTop: 80 },
+  guestIllustration: { width: 120, height: 120, borderRadius: 60, backgroundColor: C.primaryMuted, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
+  guestTitle: { fontSize: 24, fontWeight: '800', color: C.textPrimary, marginBottom: 10 },
+  guestSubtitle: { fontSize: 14, color: C.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: 32 },
+  signInBtn: { backgroundColor: C.primary, width: '100%', borderRadius: 14, padding: 16, alignItems: 'center', marginBottom: 12 },
+  signInTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  registerBtn: { width: '100%', borderRadius: 14, padding: 16, alignItems: 'center', borderWidth: 1.5, borderColor: C.primary },
+  registerTxt: { color: C.primary, fontSize: 16, fontWeight: '700' },
+  hero: { alignItems: 'center', paddingTop: 32, paddingBottom: 24, backgroundColor: C.surfaceMuted, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
+  avatarWrap: { position: 'relative', marginBottom: 14 },
+  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: C.primary, justifyContent: 'center', alignItems: 'center', shadowColor: C.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8 },
+  avatarTxt: { color: '#fff', fontSize: 36, fontWeight: '800' },
+  editBadge: { position: 'absolute', bottom: 2, right: 2, width: 24, height: 24, borderRadius: 12, backgroundColor: C.secondary, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: C.background },
+  userName: { fontSize: 22, fontWeight: '800', color: C.textPrimary, marginBottom: 4 },
+  userEmail: { fontSize: 13, color: C.textSecondary, marginBottom: 10 },
+  rolePill: { backgroundColor: C.primaryMuted, borderRadius: 100, paddingHorizontal: 14, paddingVertical: 5, borderWidth: 1, borderColor: C.primary + '40' },
+  roleTxt: { fontSize: 11, fontWeight: '700', color: C.primary, letterSpacing: 1 },
+  statsCard: { flexDirection: 'row', backgroundColor: C.surfaceCard, marginHorizontal: 16, borderRadius: 18, padding: 20, marginTop: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  statItem: { flex: 1, alignItems: 'center' },
+  statDivider: { width: 1, backgroundColor: C.divider },
+  statVal: { fontSize: 20, fontWeight: '800', color: C.textPrimary, marginBottom: 2 },
+  statLabel: { fontSize: 11, color: C.textTertiary },
+  menuCard: { backgroundColor: C.surfaceCard, marginHorizontal: 16, borderRadius: 18, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2, overflow: 'hidden' },
+  menuRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
+  menuBorder: { borderBottomWidth: 1, borderBottomColor: C.divider },
+  iconWrap: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14, backgroundColor: C.primaryMuted },
+  menuLabel: { fontSize: 15, fontWeight: '600', color: C.textPrimary, marginBottom: 2 },
+  menuSub: { fontSize: 11, color: C.textTertiary },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginHorizontal: 16, marginBottom: 16, padding: 16, borderRadius: 14, backgroundColor: C.primaryMuted, borderWidth: 1, borderColor: C.primary + '40' },
+  logoutTxt: { fontSize: 15, fontWeight: '700', color: C.primary },
+  version: { textAlign: 'center', fontSize: 12, color: C.textTertiary, marginBottom: 32 },
 });
-
-export default ProfileScreen;
