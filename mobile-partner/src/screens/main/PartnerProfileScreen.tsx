@@ -1,7 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useAuth } from '../../contexts/AuthContext';
 
 const PartnerProfileScreen = () => {
@@ -46,7 +47,12 @@ const PartnerProfileScreen = () => {
             <Text style={styles.infoLabel}>Kitchen Name</Text>
             <Text style={styles.infoValue}>{user?.businessName || user?.name}</Text>
           </View>
-          <View style={[styles.infoRow, { borderTopWidth: 1, borderTopColor: '#334155', marginTop: 12, paddingTop: 12 }]}>
+          <View
+            style={[
+              styles.infoRow,
+              { borderTopWidth: 1, borderTopColor: '#334155', marginTop: 12, paddingTop: 12 },
+            ]}
+          >
             <Ionicons name="mail-outline" size={16} color="#F59E0B" />
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
@@ -86,40 +92,81 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   avatarSection: { alignItems: 'center', paddingTop: 32, paddingBottom: 24 },
   avatarCircle: {
-    width: 88, height: 88, borderRadius: 44, backgroundColor: '#F59E0B',
-    justifyContent: 'center', alignItems: 'center', marginBottom: 14,
-    shadowColor: '#F59E0B', shadowOpacity: 0.35, shadowRadius: 16, elevation: 8,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: '#F59E0B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
+    shadowColor: '#F59E0B',
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
   },
   avatarInitial: { color: '#0F172A', fontSize: 36, fontWeight: '800' },
   partnerName: { fontSize: 22, fontWeight: '800', color: '#F8FAFC', marginBottom: 4 },
   partnerEmail: { fontSize: 13, color: '#64748B', marginBottom: 10 },
   partnerBadge: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#064E3B',
-    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 1, borderColor: '#065F46',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#064E3B',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#065F46',
   },
   partnerBadgeText: { fontSize: 12, fontWeight: '600', color: '#10B981', marginLeft: 5 },
   infoCard: {
-    backgroundColor: '#1E293B', marginHorizontal: 16, borderRadius: 16, padding: 16, marginBottom: 16,
-    borderWidth: 1, borderColor: '#334155',
+    backgroundColor: '#1E293B',
+    marginHorizontal: 16,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   infoRow: { flexDirection: 'row', alignItems: 'center' },
   infoLabel: { flex: 1, fontSize: 13, color: '#64748B', marginLeft: 10 },
   infoValue: { fontSize: 13, fontWeight: '600', color: '#F8FAFC' },
   menuCard: {
-    backgroundColor: '#1E293B', marginHorizontal: 16, borderRadius: 16, marginBottom: 16,
-    borderWidth: 1, borderColor: '#334155', overflow: 'hidden',
+    backgroundColor: '#1E293B',
+    marginHorizontal: 16,
+    borderRadius: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
+    overflow: 'hidden',
   },
-  menuRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
   menuRowBorder: { borderBottomWidth: 1, borderBottomColor: '#334155' },
   menuIconWrap: {
-    width: 34, height: 34, borderRadius: 9, backgroundColor: '#0F172A',
-    justifyContent: 'center', alignItems: 'center', marginRight: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 9,
+    backgroundColor: '#0F172A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   menuLabel: { flex: 1, fontSize: 14, color: '#CBD5E1', fontWeight: '500' },
   logoutBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    marginHorizontal: 16, marginBottom: 16, padding: 16, borderRadius: 16,
-    backgroundColor: '#450A0A', borderWidth: 1, borderColor: '#7F1D1D',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#450A0A',
+    borderWidth: 1,
+    borderColor: '#7F1D1D',
   },
   logoutText: { fontSize: 15, fontWeight: '700', color: '#EF4444', marginLeft: 8 },
   version: { textAlign: 'center', fontSize: 12, color: '#334155', marginBottom: 32 },

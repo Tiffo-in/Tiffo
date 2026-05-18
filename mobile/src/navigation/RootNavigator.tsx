@@ -1,24 +1,25 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../contexts/AuthContext';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
 import { ActivityIndicator, View, Text, StyleSheet, Platform } from 'react-native';
-import { useTheme } from '../theme/useTheme';
+
+import { useAuth } from '../contexts/AuthContext';
 
 // Auth screens
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 
 // Main tab screens
-import HomeScreen from '../screens/main/HomeScreen';
+import CheckoutScreen from '../screens/main/CheckoutScreen';
 import ExploreScreen from '../screens/main/ExploreScreen';
-import SubscriptionScreen from '../screens/main/SubscriptionScreen';
+import HomeScreen from '../screens/main/HomeScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import SubscriptionScreen from '../screens/main/SubscriptionScreen';
 
 // Stack screens
 import TiffinDetailScreen from '../screens/main/TiffinDetailScreen';
-import CheckoutScreen from '../screens/main/CheckoutScreen';
+import { useTheme } from '../theme/useTheme';
 
 export type MainTabParams = {
   Home: undefined;
@@ -38,11 +39,18 @@ export type RootStackParams = {
 const Tab = createBottomTabNavigator<MainTabParams>();
 const RootStack = createNativeStackNavigator<RootStackParams>();
 
-const TAB_CONFIG: Record<string, { activeIcon: keyof typeof Ionicons.glyphMap; inactiveIcon: keyof typeof Ionicons.glyphMap; label: string }> = {
-  Home:          { activeIcon: 'home',    inactiveIcon: 'home-outline',    label: 'Home'    },
-  Explore:       { activeIcon: 'search',  inactiveIcon: 'search-outline',  label: 'Explore' },
+const TAB_CONFIG: Record<
+  string,
+  {
+    activeIcon: keyof typeof Ionicons.glyphMap;
+    inactiveIcon: keyof typeof Ionicons.glyphMap;
+    label: string;
+  }
+> = {
+  Home: { activeIcon: 'home', inactiveIcon: 'home-outline', label: 'Home' },
+  Explore: { activeIcon: 'search', inactiveIcon: 'search-outline', label: 'Explore' },
   Subscriptions: { activeIcon: 'receipt', inactiveIcon: 'receipt-outline', label: 'My Subs' },
-  Profile:       { activeIcon: 'person',  inactiveIcon: 'person-outline',  label: 'Profile' },
+  Profile: { activeIcon: 'person', inactiveIcon: 'person-outline', label: 'Profile' },
 };
 
 const MainTabs = () => {
@@ -70,7 +78,11 @@ const MainTabs = () => {
           const cfg = TAB_CONFIG[route.name];
           return (
             <View style={[tabStyles.iconWrap, focused && { backgroundColor: C.primaryMuted }]}>
-              <Ionicons name={focused ? cfg.activeIcon : cfg.inactiveIcon} size={focused ? 22 : 20} color={color} />
+              <Ionicons
+                name={focused ? cfg.activeIcon : cfg.inactiveIcon}
+                size={focused ? 22 : 20}
+                color={color}
+              />
             </View>
           );
         },
@@ -95,8 +107,25 @@ const RootNavigator = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.background }}>
-        <View style={{ width: 72, height: 72, borderRadius: 20, backgroundColor: C.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: C.background,
+        }}
+      >
+        <View
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: 20,
+            backgroundColor: C.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 20,
+          }}
+        >
           <Text style={{ fontSize: 36 }}>🍱</Text>
         </View>
         <ActivityIndicator size="large" color={C.primary} />
@@ -132,7 +161,13 @@ const RootNavigator = () => {
 };
 
 const tabStyles = StyleSheet.create({
-  iconWrap: { width: 36, height: 28, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  iconWrap: {
+    width: 36,
+    height: 28,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default RootNavigator;

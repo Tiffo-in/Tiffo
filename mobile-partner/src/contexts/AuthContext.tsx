@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+
+import { initSocket, disconnectSocket } from '../../../shared-mobile/src/services/socketService';
 import authService, { AuthState, PartnerUser } from '../services/authService';
 
 interface AuthContextType extends AuthState {
@@ -9,11 +11,11 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-import { initSocket, disconnectSocket } from '../../../shared-mobile/src/services/socketService';
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<AuthState>({
-    user: null, token: null, isAuthenticated: false,
+    user: null,
+    token: null,
+    isAuthenticated: false,
   });
   const [loading, setLoading] = useState(true);
 

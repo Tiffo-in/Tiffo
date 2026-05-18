@@ -1,5 +1,6 @@
-import api from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import api from './api';
 
 export interface PartnerUser {
   _id: string;
@@ -29,7 +30,9 @@ const authService = {
   },
 
   logout: async () => {
-    try { await api.post('/auth/logout'); } catch (_) {}
+    try {
+      await api.post('/auth/logout');
+    } catch (_) {}
     await AsyncStorage.removeItem('partner_auth_token');
     await AsyncStorage.removeItem('partner_auth_user');
   },

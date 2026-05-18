@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running backend pre-commit checks..."
+cd backend && npx lint-staged
+
+echo "Running frontend pre-commit checks..."
+cd ../frontend && npx lint-staged
+
+echo "Running mobile pre-commit checks..."
+cd ../mobile && npx lint-staged
+
+echo "Running mobile-partner pre-commit checks..."
+cd ../mobile-partner && npx lint-staged

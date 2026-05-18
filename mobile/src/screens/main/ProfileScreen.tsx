@@ -1,26 +1,59 @@
-import React, { useRef, useMemo } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Animated,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useRef, useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  Animated,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
-import { useTheme } from '../../theme/useTheme';
 import { ColorScheme } from '../../theme/colors';
+import { useTheme } from '../../theme/useTheme';
 
 const MENU_ITEMS = [
-  { icon: 'person-outline' as const,         label: 'Edit Profile',      sublabel: 'Update name, phone & preferences' },
-  { icon: 'location-outline' as const,        label: 'Saved Addresses',   sublabel: 'Home, work and other addresses' },
-  { icon: 'card-outline' as const,            label: 'Payment Methods',   sublabel: 'Cards, UPI and wallets' },
-  { icon: 'notifications-outline' as const,   label: 'Notifications',     sublabel: 'Manage delivery alerts' },
-  { icon: 'help-circle-outline' as const,     label: 'Help & Support',    sublabel: '24/7 customer care' },
-  { icon: 'document-text-outline' as const,   label: 'Privacy Policy',    sublabel: 'Read our data practices' },
+  {
+    icon: 'person-outline' as const,
+    label: 'Edit Profile',
+    sublabel: 'Update name, phone & preferences',
+  },
+  {
+    icon: 'location-outline' as const,
+    label: 'Saved Addresses',
+    sublabel: 'Home, work and other addresses',
+  },
+  { icon: 'card-outline' as const, label: 'Payment Methods', sublabel: 'Cards, UPI and wallets' },
+  {
+    icon: 'notifications-outline' as const,
+    label: 'Notifications',
+    sublabel: 'Manage delivery alerts',
+  },
+  { icon: 'help-circle-outline' as const, label: 'Help & Support', sublabel: '24/7 customer care' },
+  {
+    icon: 'document-text-outline' as const,
+    label: 'Privacy Policy',
+    sublabel: 'Read our data practices',
+  },
 ];
 
-const MenuRow = ({ item, index, total, C }: { item: typeof MENU_ITEMS[0]; index: number; total: number; C: ColorScheme }) => {
+const MenuRow = ({
+  item,
+  index,
+  total,
+  C,
+}: {
+  item: (typeof MENU_ITEMS)[0];
+  index: number;
+  total: number;
+  C: ColorScheme;
+}) => {
   const S = useMemo(() => createStyles(C), [C]);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   return (
@@ -28,8 +61,12 @@ const MenuRow = ({ item, index, total, C }: { item: typeof MENU_ITEMS[0]; index:
       <TouchableOpacity
         style={[S.menuRow, index < total - 1 && S.menuBorder]}
         onPress={() => {}}
-        onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, friction: 8 }).start()}
-        onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, friction: 8 }).start()}
+        onPressIn={() =>
+          Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, friction: 8 }).start()
+        }
+        onPressOut={() =>
+          Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, friction: 8 }).start()
+        }
         activeOpacity={1}
       >
         <View style={S.iconWrap}>
@@ -58,21 +95,26 @@ export default function ProfileScreen() {
     ]);
   };
 
-  if (!isAuthenticated) return (
-    <SafeAreaView style={S.safe}>
-      <View style={S.guestContainer}>
-        <View style={S.guestIllustration}><Text style={{ fontSize: 64 }}>👤</Text></View>
-        <Text style={S.guestTitle}>Welcome to Tiffo</Text>
-        <Text style={S.guestSubtitle}>Sign in to view your profile, manage subscriptions, and track deliveries</Text>
-        <TouchableOpacity style={S.signInBtn} onPress={() => nav.navigate('Login')}>
-          <Text style={S.signInTxt}>Sign In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={S.registerBtn} onPress={() => nav.navigate('Register')}>
-          <Text style={S.registerTxt}>Create Account</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
+  if (!isAuthenticated)
+    return (
+      <SafeAreaView style={S.safe}>
+        <View style={S.guestContainer}>
+          <View style={S.guestIllustration}>
+            <Text style={{ fontSize: 64 }}>👤</Text>
+          </View>
+          <Text style={S.guestTitle}>Welcome to Tiffo</Text>
+          <Text style={S.guestSubtitle}>
+            Sign in to view your profile, manage subscriptions, and track deliveries
+          </Text>
+          <TouchableOpacity style={S.signInBtn} onPress={() => nav.navigate('Login')}>
+            <Text style={S.signInTxt}>Sign In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={S.registerBtn} onPress={() => nav.navigate('Register')}>
+            <Text style={S.registerTxt}>Create Account</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
 
   return (
     <SafeAreaView style={S.safe}>
@@ -83,7 +125,9 @@ export default function ProfileScreen() {
             <View style={S.avatar}>
               <Text style={S.avatarTxt}>{user?.name?.[0]?.toUpperCase()}</Text>
             </View>
-            <View style={S.editBadge}><Ionicons name="pencil" size={10} color="#fff" /></View>
+            <View style={S.editBadge}>
+              <Ionicons name="pencil" size={10} color="#fff" />
+            </View>
           </View>
           <Text style={S.userName}>{user?.name}</Text>
           <Text style={S.userEmail}>{user?.email}</Text>
@@ -96,8 +140,8 @@ export default function ProfileScreen() {
         <View style={S.statsCard}>
           {[
             { label: 'Subscriptions', value: '—', icon: 'receipt-outline' as const },
-            { label: 'Deliveries',    value: '—', icon: 'bicycle-outline' as const },
-            { label: 'Reviews',       value: '—', icon: 'star-outline' as const },
+            { label: 'Deliveries', value: '—', icon: 'bicycle-outline' as const },
+            { label: 'Reviews', value: '—', icon: 'star-outline' as const },
           ].map((s, i, arr) => (
             <React.Fragment key={s.label}>
               {i > 0 && <View style={S.statDivider} />}
@@ -129,37 +173,159 @@ export default function ProfileScreen() {
   );
 }
 
-const createStyles = (C: ColorScheme) => StyleSheet.create({
-  safe: { flex: 1, backgroundColor: C.background },
-  guestContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, paddingTop: 80 },
-  guestIllustration: { width: 120, height: 120, borderRadius: 60, backgroundColor: C.primaryMuted, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
-  guestTitle: { fontSize: 24, fontWeight: '800', color: C.textPrimary, marginBottom: 10 },
-  guestSubtitle: { fontSize: 14, color: C.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: 32 },
-  signInBtn: { backgroundColor: C.primary, width: '100%', borderRadius: 14, padding: 16, alignItems: 'center', marginBottom: 12 },
-  signInTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  registerBtn: { width: '100%', borderRadius: 14, padding: 16, alignItems: 'center', borderWidth: 1.5, borderColor: C.primary },
-  registerTxt: { color: C.primary, fontSize: 16, fontWeight: '700' },
-  hero: { alignItems: 'center', paddingTop: 32, paddingBottom: 24, backgroundColor: C.surfaceMuted, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
-  avatarWrap: { position: 'relative', marginBottom: 14 },
-  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: C.primary, justifyContent: 'center', alignItems: 'center', shadowColor: C.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8 },
-  avatarTxt: { color: '#fff', fontSize: 36, fontWeight: '800' },
-  editBadge: { position: 'absolute', bottom: 2, right: 2, width: 24, height: 24, borderRadius: 12, backgroundColor: C.secondary, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: C.background },
-  userName: { fontSize: 22, fontWeight: '800', color: C.textPrimary, marginBottom: 4 },
-  userEmail: { fontSize: 13, color: C.textSecondary, marginBottom: 10 },
-  rolePill: { backgroundColor: C.primaryMuted, borderRadius: 100, paddingHorizontal: 14, paddingVertical: 5, borderWidth: 1, borderColor: C.primary + '40' },
-  roleTxt: { fontSize: 11, fontWeight: '700', color: C.primary, letterSpacing: 1 },
-  statsCard: { flexDirection: 'row', backgroundColor: C.surfaceCard, marginHorizontal: 16, borderRadius: 18, padding: 20, marginTop: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  statItem: { flex: 1, alignItems: 'center' },
-  statDivider: { width: 1, backgroundColor: C.divider },
-  statVal: { fontSize: 20, fontWeight: '800', color: C.textPrimary, marginBottom: 2 },
-  statLabel: { fontSize: 11, color: C.textTertiary },
-  menuCard: { backgroundColor: C.surfaceCard, marginHorizontal: 16, borderRadius: 18, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2, overflow: 'hidden' },
-  menuRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 },
-  menuBorder: { borderBottomWidth: 1, borderBottomColor: C.divider },
-  iconWrap: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14, backgroundColor: C.primaryMuted },
-  menuLabel: { fontSize: 15, fontWeight: '600', color: C.textPrimary, marginBottom: 2 },
-  menuSub: { fontSize: 11, color: C.textTertiary },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginHorizontal: 16, marginBottom: 16, padding: 16, borderRadius: 14, backgroundColor: C.primaryMuted, borderWidth: 1, borderColor: C.primary + '40' },
-  logoutTxt: { fontSize: 15, fontWeight: '700', color: C.primary },
-  version: { textAlign: 'center', fontSize: 12, color: C.textTertiary, marginBottom: 32 },
-});
+const createStyles = (C: ColorScheme) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: C.background },
+    guestContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 32,
+      paddingTop: 80,
+    },
+    guestIllustration: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: C.primaryMuted,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    guestTitle: { fontSize: 24, fontWeight: '800', color: C.textPrimary, marginBottom: 10 },
+    guestSubtitle: {
+      fontSize: 14,
+      color: C.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+      marginBottom: 32,
+    },
+    signInBtn: {
+      backgroundColor: C.primary,
+      width: '100%',
+      borderRadius: 14,
+      padding: 16,
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    signInTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
+    registerBtn: {
+      width: '100%',
+      borderRadius: 14,
+      padding: 16,
+      alignItems: 'center',
+      borderWidth: 1.5,
+      borderColor: C.primary,
+    },
+    registerTxt: { color: C.primary, fontSize: 16, fontWeight: '700' },
+    hero: {
+      alignItems: 'center',
+      paddingTop: 32,
+      paddingBottom: 24,
+      backgroundColor: C.surfaceMuted,
+      borderBottomLeftRadius: 24,
+      borderBottomRightRadius: 24,
+    },
+    avatarWrap: { position: 'relative', marginBottom: 14 },
+    avatar: {
+      width: 90,
+      height: 90,
+      borderRadius: 45,
+      backgroundColor: C.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: C.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    avatarTxt: { color: '#fff', fontSize: 36, fontWeight: '800' },
+    editBadge: {
+      position: 'absolute',
+      bottom: 2,
+      right: 2,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: C.secondary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: C.background,
+    },
+    userName: { fontSize: 22, fontWeight: '800', color: C.textPrimary, marginBottom: 4 },
+    userEmail: { fontSize: 13, color: C.textSecondary, marginBottom: 10 },
+    rolePill: {
+      backgroundColor: C.primaryMuted,
+      borderRadius: 100,
+      paddingHorizontal: 14,
+      paddingVertical: 5,
+      borderWidth: 1,
+      borderColor: C.primary + '40',
+    },
+    roleTxt: { fontSize: 11, fontWeight: '700', color: C.primary, letterSpacing: 1 },
+    statsCard: {
+      flexDirection: 'row',
+      backgroundColor: C.surfaceCard,
+      marginHorizontal: 16,
+      borderRadius: 18,
+      padding: 20,
+      marginTop: 16,
+      marginBottom: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    statItem: { flex: 1, alignItems: 'center' },
+    statDivider: { width: 1, backgroundColor: C.divider },
+    statVal: { fontSize: 20, fontWeight: '800', color: C.textPrimary, marginBottom: 2 },
+    statLabel: { fontSize: 11, color: C.textTertiary },
+    menuCard: {
+      backgroundColor: C.surfaceCard,
+      marginHorizontal: 16,
+      borderRadius: 18,
+      marginBottom: 14,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+      overflow: 'hidden',
+    },
+    menuRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+    },
+    menuBorder: { borderBottomWidth: 1, borderBottomColor: C.divider },
+    iconWrap: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 14,
+      backgroundColor: C.primaryMuted,
+    },
+    menuLabel: { fontSize: 15, fontWeight: '600', color: C.textPrimary, marginBottom: 2 },
+    menuSub: { fontSize: 11, color: C.textTertiary },
+    logoutBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      marginHorizontal: 16,
+      marginBottom: 16,
+      padding: 16,
+      borderRadius: 14,
+      backgroundColor: C.primaryMuted,
+      borderWidth: 1,
+      borderColor: C.primary + '40',
+    },
+    logoutTxt: { fontSize: 15, fontWeight: '700', color: C.primary },
+    version: { textAlign: 'center', fontSize: 12, color: C.textTertiary, marginBottom: 32 },
+  });

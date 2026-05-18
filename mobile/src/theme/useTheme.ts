@@ -1,4 +1,5 @@
 import { useColorScheme } from 'react-native';
+
 import { LightColors, DarkColors, ColorScheme } from './colors';
 
 /**

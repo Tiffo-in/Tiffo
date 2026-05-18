@@ -1,16 +1,17 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../contexts/AuthContext';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
+
+import { useAuth } from '../contexts/AuthContext';
 
 // Screens
 import LoginScreen from '../screens/auth/LoginScreen';
 import DashboardScreen from '../screens/main/DashboardScreen';
-import OrdersScreen from '../screens/main/OrdersScreen';
-import MenuScreen from '../screens/main/MenuScreen';
 import EarningsScreen from '../screens/main/EarningsScreen';
+import MenuScreen from '../screens/main/MenuScreen';
+import OrdersScreen from '../screens/main/OrdersScreen';
 import PartnerProfileScreen from '../screens/main/PartnerProfileScreen';
 
 export type AuthStackParams = { Login: undefined };
@@ -40,10 +41,10 @@ const MainTabs = () => (
       tabBarIcon: ({ color, size, focused }) => {
         const icons: Record<string, keyof typeof Ionicons.glyphMap> = {
           Dashboard: focused ? 'grid' : 'grid-outline',
-          Orders:    focused ? 'list' : 'list-outline',
-          Menu:      focused ? 'restaurant' : 'restaurant-outline',
-          Earnings:  focused ? 'cash' : 'cash-outline',
-          Profile:   focused ? 'person' : 'person-outline',
+          Orders: focused ? 'list' : 'list-outline',
+          Menu: focused ? 'restaurant' : 'restaurant-outline',
+          Earnings: focused ? 'cash' : 'cash-outline',
+          Profile: focused ? 'person' : 'person-outline',
         };
         return <Ionicons name={icons[route.name]} size={size} color={color} />;
       },
@@ -68,7 +69,14 @@ const RootNavigator = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0F172A' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#0F172A',
+        }}
+      >
         <ActivityIndicator size="large" color="#F59E0B" />
       </View>
     );

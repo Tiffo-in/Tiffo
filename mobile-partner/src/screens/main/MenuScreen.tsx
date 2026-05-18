@@ -1,10 +1,18 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity,
-  RefreshControl, ActivityIndicator, Alert, Switch,
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+  ActivityIndicator,
+  Alert,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+
 import api from '../../services/api';
 
 interface Tiffin {
@@ -35,14 +43,16 @@ const MenuScreen = () => {
     }
   };
 
-  useEffect(() => { fetchMenu(); }, []);
+  useEffect(() => {
+    fetchMenu();
+  }, []);
 
   const toggleActive = async (tiffinId: string, currentValue: boolean) => {
     setToggling(tiffinId);
     try {
       await api.patch(`/tiffins/${tiffinId}`, { isActive: !currentValue });
       setTiffins((prev) =>
-        prev.map((t) => t._id === tiffinId ? { ...t, isActive: !currentValue } : t)
+        prev.map((t) => (t._id === tiffinId ? { ...t, isActive: !currentValue } : t)),
       );
     } catch (err: any) {
       Alert.alert('Update Failed', err.response?.data?.message || 'Could not update tiffin.');
@@ -58,7 +68,10 @@ const MenuScreen = () => {
           <Text style={{ fontSize: 28 }}>{item.isVeg ? '🥦' : '🍗'}</Text>
         </View>
         <View style={styles.cardInfo}>
-          <Text style={[styles.cardName, !item.isActive && styles.cardNameInactive]} numberOfLines={1}>
+          <Text
+            style={[styles.cardName, !item.isActive && styles.cardNameInactive]}
+            numberOfLines={1}
+          >
             {item.name}
           </Text>
           <Text style={styles.cardCategory}>{item.category}</Text>
@@ -88,7 +101,9 @@ const MenuScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.pageHeader}>
         <Text style={styles.pageTitle}>My Menu</Text>
-        <Text style={styles.pageSubtitle}>{tiffins.filter((t) => t.isActive).length} of {tiffins.length} items active</Text>
+        <Text style={styles.pageSubtitle}>
+          {tiffins.filter((t) => t.isActive).length} of {tiffins.length} items active
+        </Text>
       </View>
 
       {loading ? (
@@ -99,7 +114,16 @@ const MenuScreen = () => {
           keyExtractor={(item) => item._id}
           renderItem={renderItem}
           contentContainerStyle={{ padding: 16 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchMenu(); }} tintColor="#F59E0B" />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchMenu();
+              }}
+              tintColor="#F59E0B"
+            />
+          }
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text style={styles.emptyEmoji}>🍽️</Text>
@@ -119,15 +143,26 @@ const styles = StyleSheet.create({
   pageTitle: { fontSize: 22, fontWeight: '800', color: '#F8FAFC' },
   pageSubtitle: { fontSize: 13, color: '#64748B', marginTop: 2 },
   card: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#1E293B', borderRadius: 16, padding: 14, marginBottom: 12,
-    borderWidth: 1, borderColor: '#334155',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   cardInactive: { opacity: 0.55 },
   cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   iconArea: {
-    width: 56, height: 56, borderRadius: 12, backgroundColor: '#0F172A',
-    justifyContent: 'center', alignItems: 'center', marginRight: 12,
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: '#0F172A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   cardInfo: { flex: 1 },
   cardName: { fontSize: 15, fontWeight: '700', color: '#F8FAFC', marginBottom: 2 },

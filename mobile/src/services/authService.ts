@@ -1,5 +1,6 @@
-import api from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import api from './api';
 
 export interface User {
   _id: string;

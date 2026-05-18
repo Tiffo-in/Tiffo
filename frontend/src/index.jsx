@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react';
 
 if (process.env.REACT_APP_SENTRY_DSN) {
   Sentry.init({
@@ -11,7 +11,7 @@ if (process.env.REACT_APP_SENTRY_DSN) {
     integrations: [
       new Sentry.BrowserTracing({
         // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-        tracePropagationTargets: ["localhost", /^https:\/\/tiffo\.in\/api/],
+        tracePropagationTargets: ['localhost', /^https:\/\/tiffo\.in\/api/],
       }),
       new Sentry.Replay(),
     ],
