@@ -8,15 +8,15 @@ steps:
     id: 'build-backend'
     args: [
       'build',
-      '-t', 'gcr.io/$PROJECT_ID/tiffo-backend:$COMMIT_SHA',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-backend:$COMMIT_SHA',
       '-f', 'backend/Dockerfile',
       'backend'
     ]
 
-  # Push backend image to Container Registry
+  # Push backend image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend'
-    args: ['push', 'gcr.io/$PROJECT_ID/tiffo-backend:$COMMIT_SHA']
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-backend:$COMMIT_SHA']
 
   # Deploy backend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -24,7 +24,7 @@ steps:
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', 'tiffo',
-      '--image', 'gcr.io/$PROJECT_ID/tiffo-backend:$COMMIT_SHA',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-backend:$COMMIT_SHA',
       '--region', 'us-central1',
       '--platform', 'managed',
       '--allow-unauthenticated'
@@ -39,15 +39,15 @@ steps:
     id: 'build-frontend'
     args: [
       'build',
-      '-t', 'gcr.io/$PROJECT_ID/tiffo-frontend:$COMMIT_SHA',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-frontend:$COMMIT_SHA',
       '-f', 'frontend/Dockerfile',
       'frontend'
     ]
 
-  # Push frontend image to Container Registry
+  # Push frontend image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-frontend'
-    args: ['push', 'gcr.io/$PROJECT_ID/tiffo-frontend:$COMMIT_SHA']
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-frontend:$COMMIT_SHA']
 
   # Deploy frontend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -55,7 +55,7 @@ steps:
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', 'tiffo-frontend',
-      '--image', 'gcr.io/$PROJECT_ID/tiffo-frontend:$COMMIT_SHA',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-frontend:$COMMIT_SHA',
       '--region', 'us-central1',
       '--platform', 'managed',
       '--allow-unauthenticated'
