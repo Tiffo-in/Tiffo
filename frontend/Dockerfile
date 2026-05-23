@@ -8,6 +8,8 @@ RUN npm run build
 
 # Production stage
 FROM nginx:alpine
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the built React app to Nginx's default directory
 COPY --from=build /app/build /usr/share/nginx/html
 # Expose port 80
