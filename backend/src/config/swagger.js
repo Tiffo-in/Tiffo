@@ -15,7 +15,10 @@ const options = {
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production' ? 'https://tiffo.in/api' : 'http://localhost:5001/api',
+        url:
+          process.env.NODE_ENV === 'production'
+            ? 'https://api.tiffo.in/api'
+            : 'http://localhost:5001/api',
         description: 'Primary API Server',
       },
     ],

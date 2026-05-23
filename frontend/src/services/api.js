@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://api.tiffo.in/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -17,9 +17,7 @@ const api = axios.create({
  * server can verify it against the cookie value (double-submit cookie pattern).
  */
 const getCsrfToken = () => {
-  const match = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith('csrf_token='));
+  const match = document.cookie.split('; ').find((row) => row.startsWith('csrf_token='));
   return match ? match.split('=')[1] : null;
 };
 

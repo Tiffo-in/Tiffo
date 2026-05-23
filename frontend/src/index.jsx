@@ -11,7 +11,7 @@ if (process.env.REACT_APP_SENTRY_DSN) {
     integrations: [
       new Sentry.BrowserTracing({
         // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-        tracePropagationTargets: ['localhost', /^https:\/\/tiffo\.in\/api/],
+        tracePropagationTargets: ['localhost', /^https:\/\/api\.tiffo\.in\/api/],
       }),
       new Sentry.Replay(),
     ],
