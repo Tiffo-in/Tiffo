@@ -58,7 +58,8 @@ steps:
       '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-frontend:$COMMIT_SHA',
       '--region', 'us-central1',
       '--platform', 'managed',
-      '--allow-unauthenticated'
+      '--allow-unauthenticated',
+      '--port', '80'
     ]
 
 options:
