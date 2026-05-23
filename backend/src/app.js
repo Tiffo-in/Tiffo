@@ -1,15 +1,10 @@
 require('dotenv').config();
-const Sentry = require("@sentry/node");
+const Sentry = require('@sentry/node');
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
-    integrations: [
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-    ],
-    // Performance Monitoring
     tracesSampleRate: 1.0,
   });
 }
@@ -74,26 +69,34 @@ initializeEmailService();
 const { csrfProtection } = require('./middlewares/csrf');
 
 app.use(compression());
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.tracingHandler());
 
 // Security middleware
 app.use(helmet());
 
 // CORS — reads allowed origins from environment so no code change is needed between dev and prod
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? (process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
-  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3005', 'http://localhost:5173'];
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL
+      ? [process.env.FRONTEND_URL]
+      : []
+    : [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3005',
+        'http://localhost:5173',
+      ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: origin '${origin}' not allowed`));
-  },
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
+    },
+    credentials: true,
+  }),
+);
 
 // Rate limiting
 app.use('/api/', apiLimiter);
@@ -174,13 +177,13 @@ app.get('/api/health', async (req, res) => {
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
-    socketEnabled: !!io
+    socketEnabled: !!io,
   });
 });
 
 // Sentry error handler — MUST be before your custom error handler
 if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.errorHandler());
+  Sentry.setupExpressErrorHandler(app);
 }
 
 // Error handler
@@ -190,7 +193,7 @@ app.use(errorHandler);
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found'
+    message: 'Route not found',
   });
 });
 
