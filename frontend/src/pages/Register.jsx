@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import { useForm } from 'react-hook-form';
+import { login as loginAction } from '../store/slices/authSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   UserIcon,
@@ -11,7 +12,7 @@ import {
   PhoneIcon,
   LockClosedIcon,
   SparklesIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as SolidCheckCircleIcon } from '@heroicons/react/24/solid';
 
@@ -33,6 +34,76 @@ const Register = () => {
   const password = watch('password');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Google Simulated Authentication State
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [googleLoadingAccount, setGoogleLoadingAccount] = useState(null);
+  const [googleError, setGoogleError] = useState('');
+
+  const googleAccounts = [
+    {
+      name: 'Priya Sharma',
+      email: 'priya@example.com',
+      role: 'user',
+      avatar: 'https://i.pravatar.cc/100?img=47',
+      password: 'priya123',
+      emoji: '👤',
+    },
+    {
+      name: 'Vikram Singh',
+      email: 'partner1@tiffo.com',
+      role: 'partner',
+      avatar: 'https://i.pravatar.cc/100?img=12',
+      password: 'partner123',
+      emoji: '👨‍🍳',
+    },
+    {
+      name: 'Tiffo Admin',
+      email: 'admin@tiffo.com',
+      role: 'admin',
+      avatar: 'https://i.pravatar.cc/100?img=33',
+      password: 'admin123',
+      emoji: '👑',
+    },
+  ];
+
+  const getRedirectPath = (role) => {
+    switch (role) {
+      case 'admin':
+        return '/admin/dashboard';
+      case 'partner':
+        return '/partner/dashboard';
+      default:
+        return '/dashboard';
+    }
+  };
+
+  const handleGoogleSignup = async (account) => {
+    setGoogleLoadingAccount(account.email);
+    setGoogleError('');
+
+    // Simulate real delay for Google auth popup feeling
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    try {
+      const result = await dispatch(
+        loginAction({
+          email: account.email,
+          password: account.password,
+        })
+      ).unwrap();
+
+      if (result.user) {
+        toast.success(`Welcome, ${result.user.name}!`);
+        setShowGoogleModal(false);
+        const redirectPath = getRedirectPath(result.user.role);
+        navigate(redirectPath, { replace: true });
+      }
+    } catch (err) {
+      setGoogleError(err || 'Failed to authenticate via Google');
+      setGoogleLoadingAccount(null);
+    }
+  };
+
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
@@ -42,7 +113,7 @@ const Register = () => {
         email: data.email,
         phone: data.phone,
         password: data.password,
-        businessName: data.businessName || data.name
+        businessName: data.businessName || data.name,
       });
 
       if (response.data.success) {
@@ -64,36 +135,43 @@ const Register = () => {
       title: 'Customer',
       description: 'Order delicious tiffins',
       emoji: '🍽️',
-      activeColor: 'ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+      activeColor:
+        'ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
     },
     {
       id: 'partner',
       title: 'Tiffin Partner',
       description: 'Start your food business',
       emoji: '👨‍🍳',
-      activeColor: 'ring-primary-500 bg-primary-50/50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800'
-    }
+      activeColor:
+        'ring-primary-500 bg-primary-50/50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800',
+    },
   ];
 
   return (
     <div className="min-h-screen flex items-stretch bg-neutral-50 dark:bg-neutral-950 selection:bg-primary-200 selection:text-primary-900">
-      
       {/* Left Panel - Image & Branding (Hidden on Mobile/Tablet) */}
       <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-neutral-900">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-[20s] ease-out"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1589302168068-964664d93cb0?q=80&w=2000&auto=format&fit=crop')" }}
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1589302168068-964664d93cb0?q=80&w=2000&auto=format&fit=crop')",
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-900/70 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/90 to-transparent" />
-        
+
         <div className="relative z-10 flex flex-col justify-between w-full p-12 lg:p-16 text-white h-full">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <Link to="/" className="inline-flex items-center gap-2 text-3xl font-black tracking-tight hover:text-primary-400 transition-colors">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight hover:text-primary-400 transition-colors"
+            >
               <span className="text-4xl">🍱</span> Tiffo<span className="text-primary-500">.</span>
             </Link>
           </motion.div>
@@ -106,10 +184,14 @@ const Register = () => {
             >
               <h1 className="text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
                 Your journey to <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">great food</span> begins here.
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
+                  great food
+                </span>{' '}
+                begins here.
               </h1>
               <p className="text-xl text-neutral-300 max-w-md leading-relaxed font-medium">
-                Join thousands of food lovers enjoying daily authentic meals, or start your own tiffin business today.
+                Join thousands of food lovers enjoying daily authentic meals, or start your own
+                tiffin business today.
               </p>
             </motion.div>
 
@@ -120,21 +202,27 @@ const Register = () => {
               className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl max-w-md shadow-2xl relative"
             >
               <h3 className="font-bold text-xl mb-6 text-white flex items-center gap-2">
-                <SparklesIcon className="w-6 h-6 text-primary-400" /> 
+                <SparklesIcon className="w-6 h-6 text-primary-400" />
                 Why join Tiffo?
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <SolidCheckCircleIcon className="w-6 h-6 text-green-400 shrink-0" />
-                  <span className="text-neutral-200 font-medium">100% Authentic homemade meals from verified local chefs.</span>
+                  <span className="text-neutral-200 font-medium">
+                    100% Authentic homemade meals from verified local chefs.
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <SolidCheckCircleIcon className="w-6 h-6 text-green-400 shrink-0" />
-                  <span className="text-neutral-200 font-medium">Flexible subscriptions — pause or cancel anytime.</span>
+                  <span className="text-neutral-200 font-medium">
+                    Flexible subscriptions — pause or cancel anytime.
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <SolidCheckCircleIcon className="w-6 h-6 text-green-400 shrink-0" />
-                  <span className="text-neutral-200 font-medium">Empowering local communities and home cooks.</span>
+                  <span className="text-neutral-200 font-medium">
+                    Empowering local communities and home cooks.
+                  </span>
                 </li>
               </ul>
             </motion.div>
@@ -151,10 +239,15 @@ const Register = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="lg:hidden text-center mb-10">
-            <Link to="/" className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 dark:text-white mb-2">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 dark:text-white mb-2"
+            >
               <span className="text-4xl">🍱</span> Tiffo<span className="text-primary-500">.</span>
             </Link>
-            <p className="text-neutral-500 dark:text-neutral-400">Join the homemade food revolution.</p>
+            <p className="text-neutral-500 dark:text-neutral-400">
+              Join the homemade food revolution.
+            </p>
           </div>
 
           <div className="mb-8 hidden lg:block">
@@ -167,8 +260,7 @@ const Register = () => {
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            
-            <motion.div 
+            <motion.div
               className="space-y-3"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -186,9 +278,10 @@ const Register = () => {
                       type="button"
                       onClick={() => setUserRole(option.id)}
                       className={`relative flex flex-col items-start p-4 rounded-2xl border-2 text-left transition-all duration-200 outline-none
-                        ${isSelected 
-                          ? `${option.activeColor} ring-2 ring-offset-2 dark:ring-offset-neutral-950` 
-                          : 'border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 text-neutral-500 dark:text-neutral-400'
+                        ${
+                          isSelected
+                            ? `${option.activeColor} ring-2 ring-offset-2 dark:ring-offset-neutral-950`
+                            : 'border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 text-neutral-500 dark:text-neutral-400'
                         }`}
                     >
                       {isSelected && (
@@ -197,10 +290,14 @@ const Register = () => {
                         </div>
                       )}
                       <span className="text-3xl mb-3">{option.emoji}</span>
-                      <h4 className={`font-bold text-base mb-1 ${isSelected ? 'text-neutral-900 dark:text-white' : ''}`}>
+                      <h4
+                        className={`font-bold text-base mb-1 ${isSelected ? 'text-neutral-900 dark:text-white' : ''}`}
+                      >
                         {option.title}
                       </h4>
-                      <p className={`text-xs font-medium ${isSelected ? 'text-neutral-700 dark:text-neutral-300' : ''}`}>
+                      <p
+                        className={`text-xs font-medium ${isSelected ? 'text-neutral-700 dark:text-neutral-300' : ''}`}
+                      >
                         {option.description}
                       </p>
                     </button>
@@ -219,8 +316,13 @@ const Register = () => {
                     <div className="flex items-start gap-3 p-3.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl">
                       <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Partner Verification</p>
-                        <p className="text-xs font-medium text-amber-700 dark:text-amber-500/80 mt-1">Your business details will be verified by our team before your account is fully activated.</p>
+                        <p className="text-sm font-bold text-amber-800 dark:text-amber-400">
+                          Partner Verification
+                        </p>
+                        <p className="text-xs font-medium text-amber-700 dark:text-amber-500/80 mt-1">
+                          Your business details will be verified by our team before your account is
+                          fully activated.
+                        </p>
                       </div>
                     </div>
                   </motion.div>
@@ -228,7 +330,7 @@ const Register = () => {
               </AnimatePresence>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="space-y-5"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -373,7 +475,7 @@ const Register = () => {
               </div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="pt-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -381,16 +483,40 @@ const Register = () => {
             >
               <label className="flex items-start cursor-pointer group">
                 <div className="relative flex items-center justify-center w-5 h-5 mr-3 mt-0.5 shrink-0">
-                  <input {...register('terms', { required: true })} type="checkbox" className="peer appearance-none w-5 h-5 border-2 border-neutral-300 dark:border-neutral-700 rounded cursor-pointer checked:bg-primary-500 checked:border-primary-500 transition-colors" />
-                  <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none">
-                    <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <input
+                    {...register('terms', { required: true })}
+                    type="checkbox"
+                    className="peer appearance-none w-5 h-5 border-2 border-neutral-300 dark:border-neutral-700 rounded cursor-pointer checked:bg-primary-500 checked:border-primary-500 transition-colors"
+                  />
+                  <svg
+                    className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"
+                    viewBox="0 0 14 10"
+                    fill="none"
+                  >
+                    <path
+                      d="M1 5L4.5 8.5L13 1"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </div>
                 <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  I agree to the {' '}
-                  <Link to="/terms" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 font-bold transition-colors">Terms of Service</Link>
-                  {' '} and {' '}
-                  <Link to="/privacy" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 font-bold transition-colors">Privacy Policy</Link>
+                  I agree to the{' '}
+                  <Link
+                    to="/terms"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 font-bold transition-colors"
+                  >
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link
+                    to="/privacy"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 font-bold transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
                 </span>
               </label>
               {errors.terms && (
@@ -414,8 +540,20 @@ const Register = () => {
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     Creating Account...
                   </span>
@@ -429,7 +567,7 @@ const Register = () => {
             </motion.div>
 
             {/* Divider */}
-            <motion.div 
+            <motion.div
               className="relative pt-4 pb-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -439,12 +577,14 @@ const Register = () => {
                 <div className="w-full border-t border-neutral-200 dark:border-neutral-800"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 font-bold">or continue with</span>
+                <span className="px-4 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 font-bold">
+                  or continue with
+                </span>
               </div>
             </motion.div>
 
             {/* Social Login */}
-            <motion.div 
+            <motion.div
               className="grid grid-cols-2 gap-4"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -452,13 +592,26 @@ const Register = () => {
             >
               <button
                 type="button"
+                onClick={() => setShowGoogleModal(true)}
                 className="flex items-center justify-center gap-3 py-3.5 px-4 bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl hover:border-neutral-300 dark:hover:border-neutral-700 transition-all font-bold text-neutral-700 dark:text-neutral-300 shadow-sm"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
                 </svg>
                 Google
               </button>
@@ -473,7 +626,7 @@ const Register = () => {
             </motion.div>
           </form>
 
-          <motion.div 
+          <motion.div
             className="mt-8 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -481,14 +634,141 @@ const Register = () => {
           >
             <p className="text-neutral-600 dark:text-neutral-400 font-medium">
               Already have an account?{' '}
-              <Link to="/login" className="font-black text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">
+              <Link
+                to="/login"
+                className="font-black text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+              >
                 Sign in instead
               </Link>
             </p>
           </motion.div>
-
         </motion.div>
       </div>
+
+      {/* ── High-Fidelity Google Simulated Authentication Modal ── */}
+      <AnimatePresence>
+        {showGoogleModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                if (!googleLoadingAccount) setShowGoogleModal(false);
+              }}
+              className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-[420px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-2xl z-10 overflow-hidden text-neutral-900 dark:text-white"
+            >
+              {/* Google Branding Header */}
+              <div className="flex flex-col items-center text-center mb-6">
+                <svg className="w-10 h-10 mb-3" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+                <h3 className="text-xl font-black tracking-tight">Choose an account</h3>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mt-1">
+                  to continue to Tiffo
+                </p>
+              </div>
+
+              {googleError && (
+                <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium">
+                  ⚠️ {googleError}
+                </div>
+              )}
+
+              {/* Accounts List */}
+              <div className="space-y-3">
+                {googleAccounts.map((account) => {
+                  const isAccountLoading = googleLoadingAccount === account.email;
+                  return (
+                    <button
+                      key={account.email}
+                      type="button"
+                      disabled={!!googleLoadingAccount}
+                      onClick={() => handleGoogleSignup(account)}
+                      className="w-full flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-950/40 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 border-2 border-neutral-100 dark:border-neutral-800/60 rounded-2xl transition-all outline-none group disabled:opacity-60"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <div className="relative">
+                          <img
+                            src={account.avatar}
+                            alt={account.name}
+                            className="w-10 h-10 rounded-full border-2 border-neutral-200 dark:border-neutral-700 group-hover:scale-105 transition-transform"
+                          />
+                          <span className="absolute -bottom-1.5 -right-1 text-xs">
+                            {account.emoji}
+                          </span>
+                        </div>
+                        <div className="text-left">
+                          <h4 className="font-bold text-sm leading-tight text-neutral-800 dark:text-neutral-200">
+                            {account.name}
+                          </h4>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-tight mt-0.5">
+                            {account.email}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Loading state indicator */}
+                      {isAccountLoading ? (
+                        <svg className="animate-spin h-5 w-5 text-primary-500" viewBox="0 0 24 24">
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      ) : (
+                        <span className="text-xs font-black uppercase tracking-wider px-2 py-1 bg-neutral-200/50 dark:bg-neutral-800/80 text-neutral-600 dark:text-neutral-400 rounded-lg group-hover:bg-primary-500 group-hover:text-white transition-colors">
+                          {account.role}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Secure note */}
+              <div className="mt-6 flex items-center justify-center gap-1.5 text-xs text-neutral-400 font-medium">
+                <span>🔒</span>
+                <span>Secure simulated sign-in for demo purposes</span>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

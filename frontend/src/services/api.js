@@ -45,7 +45,18 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('user'); // only clear user UX state — cookies cleared by backend
-      window.location.href = '/login';
+
+      // Avoid redirecting if it's a background session check or if we are already on an auth page
+      const url = error.config?.url || '';
+      const isAuthRequest =
+        url.includes('/auth/me') || url.includes('/auth/login') || url.includes('/auth/register');
+      const isAuthPage = ['/login', '/register', '/forgot-password'].includes(
+        window.location.pathname
+      );
+
+      if (!isAuthRequest && !isAuthPage) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
