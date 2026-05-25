@@ -1,8 +1,22 @@
 const express = require('express');
-const { register, registerPartner, login, logout, getMe, updateProfile, changePassword } = require('../controllers/authController');
+const {
+  register,
+  registerPartner,
+  login,
+  logout,
+  getMe,
+  updateProfile,
+  changePassword,
+  googleLogin,
+} = require('../controllers/authController');
 const { protect } = require('../middlewares/auth');
 const { authLimiter } = require('../middlewares/rateLimiter');
-const { validate, registerValidator, loginValidator, changePasswordValidator } = require('../middlewares/validate');
+const {
+  validate,
+  registerValidator,
+  loginValidator,
+  changePasswordValidator,
+} = require('../middlewares/validate');
 
 const router = express.Router();
 
@@ -11,6 +25,9 @@ router.post('/register', authLimiter, registerValidator, validate, register);
 
 // Partner registration — separate endpoint, still strict rate limited + validated
 router.post('/register/partner', authLimiter, registerValidator, validate, registerPartner);
+
+// Google Sign-In / Sign-Up endpoint
+router.post('/google', authLimiter, googleLogin);
 
 /**
  * @openapi

@@ -6,7 +6,7 @@ const { setCsrfCookie } = require('../middlewares/csrf');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
+    expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
@@ -17,7 +17,7 @@ const sendTokenResponse = (user, statusCode, res) => {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   };
 
   // Set CSRF double-submit cookie (non-httpOnly so JS can read it)
@@ -33,8 +33,8 @@ const sendTokenResponse = (user, statusCode, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
 };
 
@@ -48,7 +48,7 @@ const register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'User already exists with this email',
       });
     }
 
@@ -58,7 +58,7 @@ const register = async (req, res) => {
       password,
       phone,
       role: 'user', // always default — never trust client-supplied role
-      address
+      address,
     });
 
     sendTokenResponse(user, 201, res);
@@ -75,7 +75,7 @@ const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: 'Please provide email and password',
       });
     }
 
@@ -84,7 +84,7 @@ const login = async (req, res) => {
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     }
 
@@ -94,7 +94,7 @@ const login = async (req, res) => {
         success: false,
         message: user.banReason
           ? `Account suspended: ${user.banReason}`
-          : 'Your account has been suspended. Please contact support at help@tiffo.in'
+          : 'Your account has been suspended. Please contact support at help@tiffo.in',
       });
     }
 
@@ -109,11 +109,12 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     // Explicitly exclude sensitive financial / PII fields from the public profile response
-    const user = await User.findById(req.user.id)
-      .select('-password -bankDetails -taxDetails -razorpayAccountId -commissionRate');
+    const user = await User.findById(req.user.id).select(
+      '-password -bankDetails -taxDetails -razorpayAccountId -commissionRate',
+    );
     res.json({
       success: true,
-      user
+      user,
     });
   } catch (error) {
     logger.error('getMe error:', { stack: error.stack });
@@ -127,7 +128,7 @@ const updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { name, phone, address },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select('-password');
     res.json({ success: true, user });
   } catch (error) {
@@ -140,7 +141,9 @@ const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ success: false, message: 'Please provide current and new password' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Please provide current and new password' });
     }
     const user = await User.findById(req.user.id).select('+password');
     if (!(await user.comparePassword(currentPassword))) {
@@ -164,7 +167,7 @@ const registerPartner = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'User already exists with this email',
       });
     }
 
@@ -174,7 +177,7 @@ const registerPartner = async (req, res) => {
       password,
       phone,
       role: 'partner', // safe — this is the dedicated partner endpoint
-      address
+      address,
     });
 
     // Create the matching Partner profile document
@@ -182,7 +185,7 @@ const registerPartner = async (req, res) => {
       user: user._id,
       businessName: businessName || name,
       contact: { phone, email },
-      address
+      address,
     });
 
     sendTokenResponse(user, 201, res);
@@ -192,23 +195,108 @@ const registerPartner = async (req, res) => {
   }
 };
 
+const googleLogin = async (req, res) => {
+  try {
+    const { idToken, role } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide Google ID Token',
+      });
+    }
+
+    // Verify token with Google API
+    const googleResponse = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`,
+    );
+
+    if (!googleResponse.ok) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Google ID Token',
+      });
+    }
+
+    const googleUser = await googleResponse.json();
+
+    if (!googleUser.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google login failed: email not verified/provided',
+      });
+    }
+
+    const email = googleUser.email;
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Register new user automatically
+      const name = googleUser.name || googleUser.given_name || 'Google User';
+      // Generate a secure random password
+      const randomPassword =
+        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+      const targetRole = role === 'partner' ? 'partner' : 'user';
+
+      user = await User.create({
+        name,
+        email,
+        password: randomPassword,
+        phone: 'Not provided',
+        role: targetRole,
+        isActive: true,
+      });
+
+      if (targetRole === 'partner') {
+        // Create matching Partner profile
+        await Partner.create({
+          user: user._id,
+          businessName: name,
+          contact: { phone: 'Not provided', email },
+          address: 'Not provided',
+        });
+      }
+
+      logger.info(`Google User registered: ${email} (${targetRole})`);
+    } else {
+      // Check if account is suspended — return before issuing a token
+      if (!user.isActive) {
+        return res.status(403).json({
+          success: false,
+          message: user.banReason
+            ? `Account suspended: ${user.banReason}`
+            : 'Your account has been suspended. Please contact support at help@tiffo.in',
+        });
+      }
+
+      logger.info(`Google User logged in: ${email} (${user.role})`);
+    }
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    logger.error('googleLogin error:', { stack: error.stack });
+    res.status(500).json({ success: false, message: 'Google authentication failed' });
+  }
+};
+
 const logout = (req, res) => {
   // Clear both auth and CSRF cookies on logout
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   });
 
   res.clearCookie('csrf_token', {
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   });
 
   res.status(200).json({
     success: true,
-    message: 'Logged out successfully'
+    message: 'Logged out successfully',
   });
 };
 
@@ -219,5 +307,6 @@ module.exports = {
   logout,
   getMe,
   updateProfile,
-  changePassword
+  changePassword,
+  googleLogin,
 };

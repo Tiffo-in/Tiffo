@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SuccessAnimation from '../components/SuccessAnimation';
 import { login as loginAction } from '../store/slices/authSlice';
 import { StarIcon } from '@heroicons/react/24/solid';
+import api from '../services/api';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,68 +23,62 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  // Google Simulated Authentication State
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const [googleLoadingAccount, setGoogleLoadingAccount] = useState(null);
-  const [googleError, setGoogleError] = useState('');
-
-  const googleAccounts = [
-    {
-      name: 'Priya Sharma',
-      email: 'priya@example.com',
-      role: 'user',
-      avatar: 'https://i.pravatar.cc/100?img=47',
-      password: 'priya123',
-      emoji: '👤',
-    },
-    {
-      name: 'Vikram Singh',
-      email: 'partner1@tiffo.com',
-      role: 'partner',
-      avatar: 'https://i.pravatar.cc/100?img=12',
-      password: 'partner123',
-      emoji: '👨‍🍳',
-    },
-    {
-      name: 'Tiffo Admin',
-      email: 'admin@tiffo.com',
-      role: 'admin',
-      avatar: 'https://i.pravatar.cc/100?img=33',
-      password: 'admin123',
-      emoji: '👑',
-    },
-  ];
-
-  const handleGoogleLogin = async (account) => {
-    setGoogleLoadingAccount(account.email);
-    setGoogleError('');
-
-    // Simulate real delay for Google auth popup feeling
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+  // Handle successful Google token credential verification from Google Identity Services
+  const handleGoogleCredentialResponse = async (response) => {
+    setError('');
+    setIsLoading(true);
 
     try {
-      const result = await dispatch(
-        loginAction({
-          email: account.email,
-          password: account.password,
-        })
-      ).unwrap();
+      // Dispatch through Redux so state.auth is updated for all consumers (Navbar, etc.)
+      const res = await api.post('/auth/google', {
+        idToken: response.credential,
+        role: 'user',
+      });
 
-      if (result.user) {
-        setUserName(result.user.name);
-        setShowGoogleModal(false);
+      if (res.data.success && res.data.user) {
+        // Hydrate store state
+        dispatch(loginAction({ user: res.data.user }));
+        setUserName(res.data.user.name);
         setShowSuccess(true);
-        const redirectPath = getRedirectPath(result.user.role);
+        const redirectPath = getRedirectPath(res.data.user.role);
         setTimeout(() => {
           setShowSuccess(false);
           navigate(redirectPath, { replace: true });
         }, 3000);
       }
     } catch (err) {
-      setGoogleError(err || 'Failed to authenticate via Google');
-      setGoogleLoadingAccount(null);
+      setError(err.response?.data?.message || 'Google authentication failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const initializeGoogle = () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id:
+            process.env.REACT_APP_GOOGLE_CLIENT_ID ||
+            '1008719970978-placeholder.apps.googleusercontent.com',
+          callback: handleGoogleCredentialResponse,
+        });
+        window.google.accounts.id.renderButton(document.getElementById('google-signin-button'), {
+          theme: 'outline',
+          size: 'large',
+          width: 440,
+        });
+      }
+    };
+
+    if (window.google) {
+      initializeGoogle();
+    } else {
+      const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (script) {
+        script.addEventListener('load', initializeGoogle);
+      }
+    }
+  }, []);
 
   // Get redirect path based on user role
   const getRedirectPath = (role) => {
@@ -442,37 +437,14 @@ const Login = () => {
             </div>
           </motion.div>
 
-          {/* Google Login Button */}
+          {/* Google Login Button container */}
           <motion.div
+            className="flex justify-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <button
-              type="button"
-              onClick={() => setShowGoogleModal(true)}
-              className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all font-black text-neutral-700 dark:text-neutral-300 shadow-sm"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              Google
-            </button>
+            <div id="google-signin-button" className="w-full flex justify-center"></div>
           </motion.div>
 
           {/* Sign Up Link */}
@@ -503,131 +475,6 @@ const Login = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* ── High-Fidelity Google Simulated Authentication Modal ── */}
-      <AnimatePresence>
-        {showGoogleModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => {
-                if (!googleLoadingAccount) setShowGoogleModal(false);
-              }}
-              className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
-            />
-
-            {/* Modal Box */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-[420px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-2xl z-10 overflow-hidden text-neutral-900 dark:text-white"
-            >
-              {/* Google Branding Header */}
-              <div className="flex flex-col items-center text-center mb-6">
-                <svg className="w-10 h-10 mb-3" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                <h3 className="text-xl font-black tracking-tight">Choose an account</h3>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mt-1">
-                  to continue to Tiffo
-                </p>
-              </div>
-
-              {googleError && (
-                <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium">
-                  ⚠️ {googleError}
-                </div>
-              )}
-
-              {/* Accounts List */}
-              <div className="space-y-3">
-                {googleAccounts.map((account) => {
-                  const isAccountLoading = googleLoadingAccount === account.email;
-                  return (
-                    <button
-                      key={account.email}
-                      type="button"
-                      disabled={!!googleLoadingAccount}
-                      onClick={() => handleGoogleLogin(account)}
-                      className="w-full flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-950/40 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 border-2 border-neutral-100 dark:border-neutral-800/60 rounded-2xl transition-all outline-none group disabled:opacity-60"
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <div className="relative">
-                          <img
-                            src={account.avatar}
-                            alt={account.name}
-                            className="w-10 h-10 rounded-full border-2 border-neutral-200 dark:border-neutral-700 group-hover:scale-105 transition-transform"
-                          />
-                          <span className="absolute -bottom-1.5 -right-1 text-xs">
-                            {account.emoji}
-                          </span>
-                        </div>
-                        <div className="text-left">
-                          <h4 className="font-bold text-sm leading-tight text-neutral-800 dark:text-neutral-200">
-                            {account.name}
-                          </h4>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-tight mt-0.5">
-                            {account.email}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Loading state indicator */}
-                      {isAccountLoading ? (
-                        <svg className="animate-spin h-5 w-5 text-primary-500" viewBox="0 0 24 24">
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                            fill="none"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                      ) : (
-                        <span className="text-xs font-black uppercase tracking-wider px-2 py-1 bg-neutral-200/50 dark:bg-neutral-800/80 text-neutral-600 dark:text-neutral-400 rounded-lg group-hover:bg-primary-500 group-hover:text-white transition-colors">
-                          {account.role}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Secure note */}
-              <div className="mt-6 flex items-center justify-center gap-1.5 text-xs text-neutral-400 font-medium">
-                <span>🔒</span>
-                <span>Secure simulated sign-in for demo purposes</span>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
