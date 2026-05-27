@@ -8,7 +8,7 @@ import {
   CreditCardIcon,
   ArrowPathIcon,
   DevicePhoneMobileIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
@@ -16,20 +16,24 @@ import api from '../services/api';
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
   success: { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircleIcon, label: 'Success' },
-  pending: { bg: 'bg-amber-100', text: 'text-amber-700', icon: ClockIcon,        label: 'Pending' },
-  failed:  { bg: 'bg-red-100',   text: 'text-red-700',   icon: XCircleIcon,      label: 'Failed'  },
-  refunded:{ bg: 'bg-blue-100',  text: 'text-blue-700',  icon: ArrowPathIcon,    label: 'Refunded'},
+  pending: { bg: 'bg-amber-100', text: 'text-amber-700', icon: ClockIcon, label: 'Pending' },
+  failed: { bg: 'bg-red-100', text: 'text-red-700', icon: XCircleIcon, label: 'Failed' },
+  refunded: { bg: 'bg-blue-100', text: 'text-blue-700', icon: ArrowPathIcon, label: 'Refunded' },
 };
 
 const getStatusConfig = (status) =>
   STATUS_CONFIG[status] ?? {
-    bg: 'bg-neutral-100', text: 'text-neutral-600',
-    icon: InformationCircleIcon, label: status ?? 'Unknown'
+    bg: 'bg-neutral-100',
+    text: 'text-neutral-600',
+    icon: InformationCircleIcon,
+    label: status ?? 'Unknown',
   };
 
 const fmt = (date) =>
   new Date(date).toLocaleDateString('en-IN', {
-    day: 'numeric', month: 'short', year: 'numeric'
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   });
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
@@ -41,7 +45,9 @@ const EmptyState = () => (
   >
     <div className="text-6xl mb-4">💳</div>
     <h3 className="text-xl font-semibold text-neutral-700 mb-2">No transactions yet</h3>
-    <p className="text-neutral-500">Your payment history will appear here after your first subscription.</p>
+    <p className="text-neutral-500">
+      Your payment history will appear here after your first subscription.
+    </p>
   </motion.div>
 );
 
@@ -59,14 +65,18 @@ const TransactionRow = ({ payment, index }) => {
     >
       <div className="flex items-center space-x-4">
         {/* Type icon */}
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-          payment.type === 'refund'
-            ? 'bg-blue-50 text-blue-500'
-            : 'bg-primary-50 text-primary-500'
-        }`}>
-          {payment.type === 'refund'
-            ? <ArrowPathIcon className="w-6 h-6" />
-            : <CreditCardIcon className="w-6 h-6" />}
+        <div
+          className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+            payment.type === 'refund'
+              ? 'bg-blue-50 text-blue-500'
+              : 'bg-primary-50 text-primary-500'
+          }`}
+        >
+          {payment.type === 'refund' ? (
+            <ArrowPathIcon className="w-6 h-6" />
+          ) : (
+            <CreditCardIcon className="w-6 h-6" />
+          )}
         </div>
 
         <div>
@@ -85,10 +95,14 @@ const TransactionRow = ({ payment, index }) => {
       </div>
 
       <div className="flex items-center gap-4 sm:flex-row-reverse">
-        <p className={`text-xl font-bold ${payment.type === 'refund' ? 'text-blue-600' : 'text-neutral-900'}`}>
+        <p
+          className={`text-xl font-bold ${payment.type === 'refund' ? 'text-blue-600' : 'text-neutral-900'}`}
+        >
           {payment.type === 'refund' ? '−' : ''}₹{(payment.amount ?? 0).toLocaleString('en-IN')}
         </p>
-        <span className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+        <span
+          className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}
+        >
           <StatusIcon className="w-3.5 h-3.5" />
           <span>{cfg.label}</span>
         </span>
@@ -131,19 +145,36 @@ const HowItWorks = () => (
 );
 
 // ─── Summary stats ────────────────────────────────────────────────────────────
-const SummaryStats = ({ payments }) => {
-  const successful = payments.filter(p => p.status === 'success' && p.type !== 'refund');
-  const refunded   = payments.filter(p => p.type === 'refund');
-  const failed     = payments.filter(p => p.status === 'failed');
-  const totalSpent = successful.reduce((s, p) => s + (p.amount ?? 0), 0);
+const SummaryStats = ({ summaryStats }) => {
+  if (!summaryStats) return null;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       {[
-        { label: 'Total Spent',    value: `₹${totalSpent.toLocaleString('en-IN')}`, color: 'text-primary-600', bg: 'bg-primary-50' },
-        { label: 'Transactions',   value: successful.length, color: 'text-green-600',   bg: 'bg-green-50'   },
-        { label: 'Refunds',        value: refunded.length,   color: 'text-blue-600',    bg: 'bg-blue-50'    },
-        { label: 'Failed',         value: failed.length,     color: 'text-red-600',     bg: 'bg-red-50'     },
+        {
+          label: 'Total Spent',
+          value: `₹${(summaryStats.totalSpent || 0).toLocaleString('en-IN')}`,
+          color: 'text-primary-600',
+          bg: 'bg-primary-50',
+        },
+        {
+          label: 'Transactions',
+          value: summaryStats.totalTransactions || 0,
+          color: 'text-green-600',
+          bg: 'bg-green-50',
+        },
+        {
+          label: 'Refunds',
+          value: summaryStats.totalRefunds || 0,
+          color: 'text-blue-600',
+          bg: 'bg-blue-50',
+        },
+        {
+          label: 'Failed',
+          value: summaryStats.totalFailed || 0,
+          color: 'text-red-600',
+          bg: 'bg-red-50',
+        },
       ].map(({ label, value, color, bg }) => (
         <div key={label} className={`${bg} rounded-2xl p-4 text-center`}>
           <p className={`text-2xl font-bold ${color}`}>{value}</p>
@@ -161,6 +192,7 @@ const PaymentMethods = () => {
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
+  const [summaryStats, setSummaryStats] = useState(null);
 
   useEffect(() => {
     fetchPayments();
@@ -178,6 +210,7 @@ const PaymentMethods = () => {
       const res = await api.get('/payments/history', { params });
       setPayments(res.data.payments ?? []);
       setPagination(res.data.pagination ?? { total: 0, pages: 1 });
+      if (res.data.summaryStats) setSummaryStats(res.data.summaryStats);
     } catch (err) {
       console.error('Failed to load payment history:', err);
       toast.error('Failed to load payment history');
@@ -199,7 +232,10 @@ const PaymentMethods = () => {
         <div className="flex items-center gap-2">
           <select
             value={filter}
-            onChange={(e) => { setFilter(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setPage(1);
+            }}
             className="input-field py-2 px-4 text-sm"
           >
             <option value="all">All Transactions</option>
@@ -215,7 +251,9 @@ const PaymentMethods = () => {
             className="p-2.5 rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-colors"
             title="Refresh"
           >
-            <ArrowPathIcon className={`w-5 h-5 text-neutral-500 ${loading ? 'animate-spin' : ''}`} />
+            <ArrowPathIcon
+              className={`w-5 h-5 text-neutral-500 ${loading ? 'animate-spin' : ''}`}
+            />
           </motion.button>
         </div>
       </div>
@@ -227,7 +265,9 @@ const PaymentMethods = () => {
         </div>
         <div>
           <p className="text-sm font-semibold text-green-800">Your payments are secure</p>
-          <p className="text-xs text-green-600">All transactions are processed via Razorpay — PCI-DSS Level 1 certified</p>
+          <p className="text-xs text-green-600">
+            All transactions are processed via Razorpay — PCI-DSS Level 1 certified
+          </p>
         </div>
       </div>
 
@@ -242,7 +282,7 @@ const PaymentMethods = () => {
       ) : (
         <>
           {/* Summary cards — only show when we have data */}
-          {payments.length > 0 && <SummaryStats payments={payments} />}
+          {summaryStats && <SummaryStats summaryStats={summaryStats} />}
 
           {/* Transaction list */}
           {filtered.length === 0 ? (
@@ -262,7 +302,7 @@ const PaymentMethods = () => {
             <div className="flex justify-center items-center space-x-3 pt-2">
               <button
                 disabled={page === 1}
-                onClick={() => setPage(p => p - 1)}
+                onClick={() => setPage((p) => p - 1)}
                 className="px-4 py-2 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 ← Previous
@@ -272,7 +312,7 @@ const PaymentMethods = () => {
               </span>
               <button
                 disabled={page === pagination.pages}
-                onClick={() => setPage(p => p + 1)}
+                onClick={() => setPage((p) => p + 1)}
                 className="px-4 py-2 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next →

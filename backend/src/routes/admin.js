@@ -20,6 +20,7 @@ router.get('/analytics', dashboardController.getAnalytics);
 router.get('/alerts', dashboardController.getSystemAlerts);
 
 // ── User Management ────────────────────────────────────────────────────────
+router.post('/users/bulk', userController.bulkUserAction);
 router.get('/users', userController.getUsers);
 router.get('/users/:id', userController.getUserDetails);
 router.patch('/users/:id/status', userController.updateUserStatus);

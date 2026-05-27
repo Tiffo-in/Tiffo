@@ -2,25 +2,6 @@ const Subscription = require('../models/Subscription');
 const Delivery = require('../models/Delivery');
 const Tiffin = require('../models/Tiffin');
 
-// Helper function to calculate expected deliveries
-const getTotalExpectedDeliveries = (subscription) => {
-  const start = new Date(subscription.startDate);
-  const end = new Date(subscription.endDate);
-  const diffTime = Math.abs(end - start);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  switch (subscription.plan) {
-    case 'daily':
-      return diffDays;
-    case 'weekly':
-      return Math.ceil(diffDays / 7);
-    case 'monthly':
-      return Math.ceil(diffDays / 30);
-    default:
-      return diffDays;
-  }
-};
-
 exports.fetchUserSubscriptions = async (userId) => {
   const subscriptions = await Subscription.find({
     user: userId,
@@ -41,10 +22,10 @@ exports.fetchUserSubscriptions = async (userId) => {
         status: 'delivered',
       });
 
-      const remainingDeliveries = Math.max(
-        0,
-        getTotalExpectedDeliveries(subscription) - deliveredCount,
-      );
+      const remainingDeliveries = await Delivery.countDocuments({
+        subscription: subscription._id,
+        status: { $in: ['scheduled', 'preparing', 'out_for_delivery'] },
+      });
 
       return {
         ...subscription.toObject(),
@@ -84,11 +65,9 @@ exports.fetchSubscriptionDetails = async (subscriptionId, userId) => {
     pendingCount: deliveries.filter((d) =>
       ['scheduled', 'preparing', 'out_for_delivery'].includes(d.status),
     ).length,
-    remainingDeliveries: Math.max(
-      0,
-      getTotalExpectedDeliveries(subscription) -
-        deliveries.filter((d) => d.status === 'delivered').length,
-    ),
+    remainingDeliveries: deliveries.filter((d) =>
+      ['scheduled', 'preparing', 'out_for_delivery'].includes(d.status),
+    ).length,
   };
 
   return {

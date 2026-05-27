@@ -8,7 +8,7 @@ import {
   XMarkIcon,
   CheckCircleIcon,
   TruckIcon,
-  PauseCircleIcon
+  PauseCircleIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
@@ -42,7 +42,9 @@ const MySubscriptions = () => {
       toast.loading('Pausing subscription...', { id: 'pause' });
       const response = await api.put(`/subscriptions/${id}/pause`);
       if (response.data.success) {
-        setSubscriptions(prev => prev.map(sub => sub._id === id ? { ...sub, status: 'paused' } : sub));
+        setSubscriptions((prev) =>
+          prev.map((sub) => (sub._id === id ? { ...sub, status: 'paused' } : sub))
+        );
         toast.success('Subscription paused', { id: 'pause' });
       }
     } catch (error) {
@@ -55,11 +57,15 @@ const MySubscriptions = () => {
       toast.loading('Resuming subscription...', { id: 'resume' });
       const response = await api.put(`/subscriptions/${id}/resume`);
       if (response.data.success) {
-        setSubscriptions(prev => prev.map(sub => sub._id === id ? { ...sub, status: 'active' } : sub));
+        setSubscriptions((prev) =>
+          prev.map((sub) => (sub._id === id ? { ...sub, status: 'active' } : sub))
+        );
         toast.success('Subscription resumed', { id: 'resume' });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to resume subscription', { id: 'resume' });
+      toast.error(error.response?.data?.message || 'Failed to resume subscription', {
+        id: 'resume',
+      });
     }
   };
 
@@ -70,28 +76,28 @@ const MySubscriptions = () => {
           bg: 'bg-gradient-to-r from-green-500 to-emerald-500',
           text: 'text-white',
           icon: CheckCircleIcon,
-          label: 'Active'
+          label: 'Active',
         };
       case 'paused':
         return {
           bg: 'bg-gradient-to-r from-amber-400 to-orange-400',
           text: 'text-white',
           icon: PauseCircleIcon,
-          label: 'Paused'
+          label: 'Paused',
         };
       case 'cancelled':
         return {
           bg: 'bg-gradient-to-r from-red-400 to-rose-500',
           text: 'text-white',
           icon: XMarkIcon,
-          label: 'Cancelled'
+          label: 'Cancelled',
         };
       default:
         return {
           bg: 'bg-neutral-100',
           text: 'text-neutral-600',
           icon: ClockIcon,
-          label: status
+          label: status,
         };
     }
   };
@@ -115,7 +121,10 @@ const MySubscriptions = () => {
           <h2 className="text-2xl font-bold text-neutral-900">My Subscriptions</h2>
           <p className="text-neutral-500 mt-1">Manage your active tiffin subscriptions</p>
         </div>
-        <button onClick={() => navigate('/tiffins')} className="btn-primary flex items-center space-x-2">
+        <button
+          onClick={() => navigate('/tiffins')}
+          className="btn-primary flex items-center space-x-2"
+        >
           <span>+ New Subscription</span>
         </button>
       </div>
@@ -129,7 +138,9 @@ const MySubscriptions = () => {
           <div className="text-6xl mb-4">📦</div>
           <h3 className="text-xl font-semibold text-neutral-700 mb-2">No subscriptions yet</h3>
           <p className="text-neutral-500 mb-6">Start your tiffin journey today!</p>
-          <Link to="/tiffins" className="btn-primary inline-block">Browse Tiffins</Link>
+          <Link to="/tiffins" className="btn-primary inline-block">
+            Browse Tiffins
+          </Link>
         </motion.div>
       ) : (
         <div className="grid gap-6">
@@ -138,7 +149,8 @@ const MySubscriptions = () => {
             const StatusIcon = statusConfig.icon;
             const delivered = subscription.deliveryStats?.deliveredCount ?? 0;
             const remaining = subscription.deliveryStats?.remainingDeliveries ?? 0;
-            const progress = delivered + remaining > 0 ? (delivered / (delivered + remaining)) * 100 : 0;
+            const progress =
+              delivered + remaining > 0 ? (delivered / (delivered + remaining)) * 100 : 0;
 
             return (
               <motion.div
@@ -158,17 +170,22 @@ const MySubscriptions = () => {
                     <div className="flex items-center space-x-4">
                       <div className="relative">
                         <img
-                          src={subscription.tiffin.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop'}
-                          alt={subscription.tiffin.title}
+                          src={
+                            subscription.tiffin?.images?.[0] ||
+                            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop'
+                          }
+                          alt={subscription.tiffin?.title || subscription.tiffin?.name}
                           className="w-20 h-20 rounded-xl object-cover shadow-md group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className={`absolute -bottom-2 -right-2 w-6 h-6 ${statusConfig.bg} rounded-full flex items-center justify-center`}>
+                        <div
+                          className={`absolute -bottom-2 -right-2 w-6 h-6 ${statusConfig.bg} rounded-full flex items-center justify-center`}
+                        >
                           <StatusIcon className="w-4 h-4 text-white" />
                         </div>
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-neutral-900 mb-1 group-hover:text-primary-600 transition-colors">
-                          {subscription.tiffin.title}
+                          {subscription.tiffin?.title || subscription.tiffin?.name}
                         </h3>
                         <p className="text-neutral-600 flex items-center">
                           <span className="text-lg mr-1">👨‍🍳</span>
@@ -176,7 +193,7 @@ const MySubscriptions = () => {
                         </p>
                         <div className="flex items-center mt-2 space-x-3">
                           <span className="px-2.5 py-1 bg-primary-50 text-primary-600 rounded-lg text-xs font-semibold">
-                            {subscription.tiffin.cuisine}
+                            {subscription.tiffin?.cuisine}
                           </span>
                           <div className="flex items-center text-amber-500">
                             <StarIcon className="w-4 h-4" />
@@ -185,7 +202,9 @@ const MySubscriptions = () => {
                         </div>
                       </div>
                     </div>
-                    <div className={`${statusConfig.bg} ${statusConfig.text} px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-md`}>
+                    <div
+                      className={`${statusConfig.bg} ${statusConfig.text} px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-md`}
+                    >
                       <StatusIcon className="w-4 h-4" />
                       <span>{statusConfig.label}</span>
                     </div>
@@ -194,27 +213,21 @@ const MySubscriptions = () => {
                   {/* Stats Grid */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 text-center">
-                      <p className="text-3xl font-bold text-green-600">
-                        {delivered}
-                      </p>
+                      <p className="text-3xl font-bold text-green-600">{delivered}</p>
                       <p className="text-sm text-neutral-600 font-medium">Delivered</p>
                     </div>
                     <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 text-center">
-                      <p className="text-3xl font-bold text-blue-600">
-                        {remaining}
-                      </p>
+                      <p className="text-3xl font-bold text-blue-600">{remaining}</p>
                       <p className="text-sm text-neutral-600 font-medium">Remaining</p>
                     </div>
                     <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 text-center">
-                       <p className="text-3xl font-bold text-amber-600">
-                         ₹{subscription.tiffin.price?.daily ?? subscription.totalAmount}
-                       </p>
-                       <p className="text-sm text-neutral-600 font-medium">Per Day</p>
+                      <p className="text-3xl font-bold text-amber-600">
+                        ₹{subscription.tiffin?.price?.daily ?? subscription.totalAmount}
+                      </p>
+                      <p className="text-sm text-neutral-600 font-medium">Per Day</p>
                     </div>
                     <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 text-center">
-                      <p className="text-xl font-bold text-purple-600">
-                        {subscription.plan}
-                      </p>
+                      <p className="text-xl font-bold text-purple-600">{subscription.plan}</p>
                       <p className="text-sm text-neutral-600 font-medium">Plan</p>
                     </div>
                   </div>
@@ -223,7 +236,10 @@ const MySubscriptions = () => {
                   <div className="flex flex-wrap gap-4 text-sm text-neutral-600 mb-6 p-4 bg-neutral-50 rounded-xl">
                     <div className="flex items-center space-x-2">
                       <CalendarDaysIcon className="w-4 h-4 text-neutral-400" />
-                      <span>{new Date(subscription.startDate).toLocaleDateString()} - {new Date(subscription.endDate).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(subscription.startDate).toLocaleDateString()} -{' '}
+                        {new Date(subscription.endDate).toLocaleDateString()}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <ClockIcon className="w-4 h-4 text-neutral-400" />
@@ -231,15 +247,19 @@ const MySubscriptions = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <MapPinIcon className="w-4 h-4 text-neutral-400" />
-                      <span>{subscription.deliveryAddress.city}</span>
+                      <span>{subscription.deliveryAddress?.city || 'Address not provided'}</span>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
                   <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-neutral-600">Delivery Progress</span>
-                      <span className="text-sm font-bold text-primary-600">{Math.round(progress)}%</span>
+                      <span className="text-sm font-medium text-neutral-600">
+                        Delivery Progress
+                      </span>
+                      <span className="text-sm font-bold text-primary-600">
+                        {Math.round(progress)}%
+                      </span>
                     </div>
                     <div className="w-full bg-neutral-200 rounded-full h-3 overflow-hidden">
                       <motion.div
@@ -265,7 +285,7 @@ const MySubscriptions = () => {
                       View Details
                     </motion.button>
                     {subscription.status === 'active' && (
-                      <button 
+                      <button
                         onClick={() => handlePauseSubscription(subscription._id)}
                         className="px-6 py-3 border-2 border-neutral-200 text-neutral-600 rounded-xl font-semibold hover:border-amber-400 hover:text-amber-600 transition-colors"
                       >
@@ -273,7 +293,7 @@ const MySubscriptions = () => {
                       </button>
                     )}
                     {subscription.status === 'paused' && (
-                      <button 
+                      <button
                         onClick={() => handleResumeSubscription(subscription._id)}
                         className="px-6 py-3 bg-green-50 text-green-600 border-2 border-green-200 rounded-xl font-semibold hover:bg-green-100 transition-colors"
                       >
@@ -281,7 +301,7 @@ const MySubscriptions = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => navigate(`/tiffins/${subscription.tiffin._id}`)}
+                      onClick={() => navigate(`/tiffins/${subscription.tiffin?._id}`)}
                       className="px-6 py-3 text-neutral-500 hover:text-primary-600 rounded-xl font-medium transition-colors"
                     >
                       Manage
@@ -344,12 +364,14 @@ const SubscriptionModal = ({ subscription, onClose }) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
           <div>
             <h3 className="text-2xl font-bold text-neutral-900">Subscription Details</h3>
-            <p className="text-neutral-500">{subscription.tiffin.title}</p>
+            <p className="text-neutral-500">
+              {subscription.tiffin?.title || subscription.tiffin?.name}
+            </p>
           </div>
           <motion.button
             whileHover={{ scale: 1.1, rotate: 90 }}
@@ -370,19 +392,27 @@ const SubscriptionModal = ({ subscription, onClose }) => {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-neutral-50 rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-neutral-900">{details.deliveryStats.totalDeliveries}</p>
+                <p className="text-2xl font-bold text-neutral-900">
+                  {details.deliveryStats.totalDeliveries}
+                </p>
                 <p className="text-sm text-neutral-500">Total</p>
               </div>
               <div className="bg-green-50 rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-green-600">{details.deliveryStats.deliveredCount}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {details.deliveryStats.deliveredCount}
+                </p>
                 <p className="text-sm text-neutral-500">Delivered</p>
               </div>
               <div className="bg-amber-50 rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-amber-600">{details.deliveryStats.pendingCount}</p>
+                <p className="text-2xl font-bold text-amber-600">
+                  {details.deliveryStats.pendingCount}
+                </p>
                 <p className="text-sm text-neutral-500">Pending</p>
               </div>
               <div className="bg-blue-50 rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-blue-600">{details.deliveryStats.remainingDeliveries}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {details.deliveryStats.remainingDeliveries}
+                </p>
                 <p className="text-sm text-neutral-500">Remaining</p>
               </div>
             </div>
@@ -393,9 +423,11 @@ const SubscriptionModal = ({ subscription, onClose }) => {
                 <MapPinIcon className="w-5 h-5 mr-2 text-primary-500" />
                 Delivery Address
               </h4>
-              <p className="text-neutral-600">{subscription.deliveryAddress.street}</p>
-              <p className="text-neutral-600">{subscription.deliveryAddress.city}, {subscription.deliveryAddress.state}</p>
-              <p className="text-neutral-600">{subscription.deliveryAddress.pincode}</p>
+              <p className="text-neutral-600">{subscription.deliveryAddress?.street}</p>
+              <p className="text-neutral-600">
+                {subscription.deliveryAddress?.city}, {subscription.deliveryAddress?.state}
+              </p>
+              <p className="text-neutral-600">{subscription.deliveryAddress?.pincode}</p>
             </div>
 
             {/* Recent Deliveries */}
@@ -406,13 +438,20 @@ const SubscriptionModal = ({ subscription, onClose }) => {
               </h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {details.deliveries.map((delivery) => (
-                  <div key={delivery._id} className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors">
+                  <div
+                    key={delivery._id}
+                    className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
+                  >
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                         <CheckCircleIcon className="w-5 h-5 text-green-600" />
                       </div>
                       <span className="font-medium text-neutral-700">
-                        {new Date(delivery.deliveryDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        {new Date(delivery.deliveryDate).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
                       </span>
                     </div>
                     <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
@@ -426,13 +465,19 @@ const SubscriptionModal = ({ subscription, onClose }) => {
             {/* Actions */}
             <div className="flex gap-4 pt-4 border-t border-neutral-100">
               <button
-                onClick={() => { onClose(); navigate('/support'); }}
+                onClick={() => {
+                  onClose();
+                  navigate('/support');
+                }}
                 className="flex-1 btn-secondary"
               >
                 Contact Support
               </button>
               <button
-                onClick={() => { onClose(); navigate(`/tiffins/${subscription.tiffin._id}`); }}
+                onClick={() => {
+                  onClose();
+                  navigate(`/tiffins/${subscription.tiffin?._id}`);
+                }}
                 className="flex-1 btn-primary"
               >
                 Modify Subscription

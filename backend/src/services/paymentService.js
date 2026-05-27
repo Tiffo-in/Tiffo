@@ -293,8 +293,23 @@ exports.fetchPaymentHistory = async (userId, { type, status, limit = 20, page = 
 
   const total = await PaymentLog.countDocuments(query);
 
+  // Calculate global summary stats for the user (ignoring pagination filters)
+  const allPayments = await PaymentLog.find({ userId });
+  const successful = allPayments.filter((p) => p.status === 'success' && p.type !== 'refund');
+  const refunded = allPayments.filter((p) => p.type === 'refund');
+  const failed = allPayments.filter((p) => p.status === 'failed');
+  const totalSpent = successful.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+  const summaryStats = {
+    totalSpent,
+    totalTransactions: successful.length,
+    totalRefunds: refunded.length,
+    totalFailed: failed.length,
+  };
+
   return {
     payments,
+    summaryStats,
     pagination: {
       total,
       page: parseInt(page),

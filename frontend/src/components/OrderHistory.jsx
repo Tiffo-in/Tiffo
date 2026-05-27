@@ -11,7 +11,7 @@ import {
   XMarkIcon,
   MapPinIcon,
   CurrencyRupeeIcon,
-  TruckIcon
+  TruckIcon,
 } from '@heroicons/react/24/outline';
 
 import { toast } from 'react-hot-toast';
@@ -20,30 +20,43 @@ import api from '../services/api';
 // ─── Status helpers ───────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
   completed: {
-    bg: 'bg-green-100', text: 'text-green-700',
-    icon: CheckCircleIcon, iconBg: 'bg-green-500', label: 'Completed'
+    bg: 'bg-green-100',
+    text: 'text-green-700',
+    icon: CheckCircleIcon,
+    iconBg: 'bg-green-500',
+    label: 'Completed',
   },
   cancelled: {
-    bg: 'bg-red-100', text: 'text-red-700',
-    icon: XCircleIcon,  iconBg: 'bg-red-500',   label: 'Cancelled'
+    bg: 'bg-red-100',
+    text: 'text-red-700',
+    icon: XCircleIcon,
+    iconBg: 'bg-red-500',
+    label: 'Cancelled',
   },
   active: {
-    bg: 'bg-blue-100', text: 'text-blue-700',
-    icon: ClockIcon,   iconBg: 'bg-blue-500',   label: 'Active'
+    bg: 'bg-blue-100',
+    text: 'text-blue-700',
+    icon: ClockIcon,
+    iconBg: 'bg-blue-500',
+    label: 'Active',
   },
   paused: {
-    bg: 'bg-amber-100', text: 'text-amber-700',
-    icon: ClockIcon,   iconBg: 'bg-amber-500',  label: 'Paused'
+    bg: 'bg-amber-100',
+    text: 'text-amber-700',
+    icon: ClockIcon,
+    iconBg: 'bg-amber-500',
+    label: 'Paused',
   },
 };
 
 const getStatusConfig = (status) =>
   STATUS_CONFIG[status] ?? {
-    bg: 'bg-neutral-100', text: 'text-neutral-700',
-    icon: ClockIcon, iconBg: 'bg-neutral-500', label: status
+    bg: 'bg-neutral-100',
+    text: 'text-neutral-700',
+    icon: ClockIcon,
+    iconBg: 'bg-neutral-500',
+    label: status,
   };
-
-
 
 // ─── Detail Modal ─────────────────────────────────────────────────────────────
 const OrderDetailModal = ({ order, onClose }) => {
@@ -83,7 +96,9 @@ const OrderDetailModal = ({ order, onClose }) => {
         </div>
 
         {/* Status badge */}
-        <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl ${statusConfig.bg} ${statusConfig.text} font-semibold mb-6`}>
+        <div
+          className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl ${statusConfig.bg} ${statusConfig.text} font-semibold mb-6`}
+        >
           <StatusIcon className="w-4 h-4" />
           <span>{statusConfig.label}</span>
         </div>
@@ -122,9 +137,17 @@ const OrderDetailModal = ({ order, onClose }) => {
           <div>
             <p className="text-xs text-neutral-500">Subscription Period</p>
             <p className="font-medium text-neutral-700">
-              {new Date(order.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {new Date(order.startDate).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })}
               {' → '}
-              {new Date(order.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {new Date(order.endDate).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })}
             </p>
           </div>
         </div>
@@ -136,9 +159,9 @@ const OrderDetailModal = ({ order, onClose }) => {
             <div>
               <p className="text-xs text-neutral-500 mb-1">Delivery Address</p>
               <p className="font-medium text-neutral-700">
-                {order.deliveryAddress.street}, {order.deliveryAddress.city}
+                {order.deliveryAddress?.street}, {order.deliveryAddress?.city}
               </p>
-              <p className="text-sm text-neutral-500">{order.deliveryAddress.pincode}</p>
+              <p className="text-sm text-neutral-500">{order.deliveryAddress?.pincode}</p>
             </div>
           </div>
         )}
@@ -149,11 +172,13 @@ const OrderDetailModal = ({ order, onClose }) => {
             <CurrencyRupeeIcon className="w-5 h-5 text-neutral-400" />
             <span className="text-sm text-neutral-600">Payment Status</span>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-            order.paymentStatus === 'paid' || order.paymentStatus === 'captured'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-amber-100 text-amber-700'
-          }`}>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+              order.paymentStatus === 'paid' || order.paymentStatus === 'captured'
+                ? 'bg-green-100 text-green-700'
+                : 'bg-amber-100 text-amber-700'
+            }`}
+          >
             {order.paymentStatus?.toUpperCase()}
           </span>
         </div>
@@ -210,7 +235,7 @@ const OrderHistory = () => {
     }, 1500);
   };
 
-  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+  const filtered = filter === 'all' ? orders : orders.filter((o) => o.status === filter);
 
   if (loading) {
     return (
@@ -251,8 +276,12 @@ const OrderHistory = () => {
         >
           <div className="text-6xl mb-4">📋</div>
           <h3 className="text-xl font-semibold text-neutral-700 mb-2">No order history yet</h3>
-          <p className="text-neutral-500 mb-6">Past subscriptions will appear here once completed</p>
-          <Link to="/tiffins" className="btn-primary inline-block">Browse Tiffins</Link>
+          <p className="text-neutral-500 mb-6">
+            Past subscriptions will appear here once completed
+          </p>
+          <Link to="/tiffins" className="btn-primary inline-block">
+            Browse Tiffins
+          </Link>
         </motion.div>
       ) : (
         <div className="space-y-4">
@@ -260,7 +289,8 @@ const OrderHistory = () => {
             const statusConfig = getStatusConfig(order.status);
             const StatusIcon = statusConfig.icon;
             const tiffinTitle = order.tiffin?.title || order.tiffin?.name || 'Tiffin';
-            const tiffinImage = order.tiffin?.images?.[0] ||
+            const tiffinImage =
+              order.tiffin?.images?.[0] ||
               'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop';
             const pricePerDay = order.tiffin?.price?.daily;
 
@@ -283,10 +313,13 @@ const OrderHistory = () => {
                           alt={tiffinTitle}
                           className="w-20 h-20 rounded-xl object-cover shadow-md"
                           onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop';
+                            e.target.src =
+                              'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop';
                           }}
                         />
-                        <div className={`absolute -bottom-2 -right-2 w-7 h-7 ${statusConfig.iconBg} rounded-full flex items-center justify-center shadow-md`}>
+                        <div
+                          className={`absolute -bottom-2 -right-2 w-7 h-7 ${statusConfig.iconBg} rounded-full flex items-center justify-center shadow-md`}
+                        >
                           <StatusIcon className="w-4 h-4 text-white" />
                         </div>
                       </div>
@@ -299,7 +332,11 @@ const OrderHistory = () => {
                         <div className="flex flex-wrap items-center gap-3 mt-2">
                           <div className="flex items-center text-neutral-500 text-sm">
                             <CalendarDaysIcon className="w-4 h-4 mr-1 flex-shrink-0" />
-                            {new Date(order.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            {new Date(order.endDate).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
                           </div>
                           <div className="flex items-center text-neutral-500 text-sm">
                             <TruckIcon className="w-4 h-4 mr-1 flex-shrink-0" />
@@ -317,7 +354,9 @@ const OrderHistory = () => {
                           <p className="text-sm text-neutral-400">₹{pricePerDay}/day</p>
                         )}
                       </div>
-                      <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${statusConfig.bg} ${statusConfig.text} flex items-center space-x-1.5`}>
+                      <span
+                        className={`px-3 py-1.5 rounded-full text-sm font-semibold ${statusConfig.bg} ${statusConfig.text} flex items-center space-x-1.5`}
+                      >
                         <StatusIcon className="w-4 h-4" />
                         <span>{statusConfig.label}</span>
                       </span>
@@ -359,7 +398,9 @@ const OrderHistory = () => {
                         onClick={() => handleReorder(order)}
                         className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-60"
                       >
-                        <ArrowPathIcon className={`w-4 h-4 ${reordering === order._id ? 'animate-spin' : ''}`} />
+                        <ArrowPathIcon
+                          className={`w-4 h-4 ${reordering === order._id ? 'animate-spin' : ''}`}
+                        />
                         <span className="text-sm">Reorder</span>
                       </motion.button>
                     )}
@@ -374,10 +415,7 @@ const OrderHistory = () => {
       {/* Detail Modal */}
       <AnimatePresence>
         {selectedOrder && (
-          <OrderDetailModal
-            order={selectedOrder}
-            onClose={() => setSelectedOrder(null)}
-          />
+          <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
         )}
       </AnimatePresence>
     </div>

@@ -51,6 +51,9 @@ exports.createOrder = async (req, res) => {
     ) {
       return res.status(400).json({ message: error.message });
     }
+    if (error.message.startsWith('Failed to create order')) {
+      return res.status(500).json({ success: false, message: 'Failed to create order' });
+    }
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
@@ -137,6 +140,9 @@ exports.processRefund = async (req, res) => {
     }
     if (error.message === 'No payment found for this subscription') {
       return res.status(400).json({ message: error.message });
+    }
+    if (error.message.startsWith('Refund failed')) {
+      return res.status(500).json({ success: false, message: 'Refund failed' });
     }
     res.status(500).json({ success: false, message: 'Server error' });
   }
