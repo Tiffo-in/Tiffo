@@ -2,6 +2,7 @@ const Tiffin = require('../models/Tiffin');
 const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
+const PartnerAnalytics = require('../models/PartnerAnalytics');
 
 const getTiffins = async (req, res) => {
   try {
@@ -15,7 +16,7 @@ const getTiffins = async (req, res) => {
       maxPrice,
       lat,
       lng,
-      radius = 10
+      radius = 10,
     } = req.query;
 
     let query = { isActive: true };
@@ -39,17 +40,17 @@ const getTiffins = async (req, res) => {
       const partners = await Partner.aggregate([
         {
           $geoNear: {
-            near: { type: "Point", coordinates: [userLng, userLat] },
-            distanceField: "distance",
+            near: { type: 'Point', coordinates: [userLng, userLat] },
+            distanceField: 'distance',
             maxDistance: searchRadius * 1000, // MongoDB uses meters for 2dsphere
-            distanceMultiplier: 1 / 1000,     // Convert output back to km
-            spherical: true
-          }
-        }
+            distanceMultiplier: 1 / 1000, // Convert output back to km
+            spherical: true,
+          },
+        },
       ]);
 
-      const partnerIds = partners.map(p => p._id);
-      partners.forEach(p => {
+      const partnerIds = partners.map((p) => p._id);
+      partners.forEach((p) => {
         partnerDistances[p._id.toString()] = p.distance;
       });
 
@@ -57,16 +58,22 @@ const getTiffins = async (req, res) => {
     }
 
     // Since we handle pagination in memory when sorted by distance, we get all matching tiffins first
-    let tiffins = await Tiffin.find(query)
-      .populate('partner', 'businessName rating address deliveryRadius location');
+    let tiffins = await Tiffin.find(query).populate(
+      'partner',
+      'businessName rating address deliveryRadius location',
+    );
 
     if (lat && lng) {
-      tiffins = tiffins.map(tiffin => {
-        const tiffinObj = tiffin.toObject();
-        tiffinObj.distance = parseFloat(partnerDistances[tiffinObj.partner._id.toString()].toFixed(2));
-        tiffinObj.withinRadius = true;
-        return tiffinObj;
-      }).sort((a, b) => a.distance - b.distance);
+      tiffins = tiffins
+        .map((tiffin) => {
+          const tiffinObj = tiffin.toObject();
+          tiffinObj.distance = parseFloat(
+            partnerDistances[tiffinObj.partner._id.toString()].toFixed(2),
+          );
+          tiffinObj.withinRadius = true;
+          return tiffinObj;
+        })
+        .sort((a, b) => a.distance - b.distance);
     } else {
       tiffins = tiffins.sort((a, b) => b.rating.average - a.rating.average);
     }
@@ -81,42 +88,61 @@ const getTiffins = async (req, res) => {
       pagination: {
         page: Number(page),
         pages: Math.ceil(total / Number(limit)) || 1,
-        total
+        total,
       },
-      locationFilter: lat && lng ? {
-        enabled: true,
-        userLocation: { lat: parseFloat(lat), lng: parseFloat(lng) },
-        radius: parseFloat(radius)
-      } : { enabled: false }
+      locationFilter:
+        lat && lng
+          ? {
+              enabled: true,
+              userLocation: { lat: parseFloat(lat), lng: parseFloat(lng) },
+              radius: parseFloat(radius),
+            }
+          : { enabled: false },
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
 const getTiffin = async (req, res) => {
   try {
-    const tiffin = await Tiffin.findById(req.params.id)
-      .populate('partner', 'businessName rating address contact businessHours');
+    const tiffin = await Tiffin.findById(req.params.id).populate(
+      'partner',
+      'businessName rating address contact businessHours',
+    );
 
     if (!tiffin) {
       return res.status(404).json({
         success: false,
-        message: 'Tiffin not found'
+        message: 'Tiffin not found',
       });
+    }
+
+    // Track visit
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      await PartnerAnalytics.updateOne(
+        { partner: tiffin.partner._id, date: today },
+        { $inc: { visits: 1 } },
+        { upsert: true },
+      );
+    } catch (visitError) {
+      logger.error('Error tracking visit:', visitError);
     }
 
     res.json({
       success: true,
-      data: tiffin
+      data: tiffin,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -127,23 +153,23 @@ const createTiffin = async (req, res) => {
     if (!partner) {
       return res.status(404).json({
         success: false,
-        message: 'Partner profile not found'
+        message: 'Partner profile not found',
       });
     }
 
     const tiffin = await Tiffin.create({
       ...req.body,
-      partner: partner._id
+      partner: partner._id,
     });
 
     res.status(201).json({
       success: true,
-      data: tiffin
+      data: tiffin,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -154,24 +180,24 @@ const updateTiffin = async (req, res) => {
     const tiffin = await Tiffin.findOneAndUpdate(
       { _id: req.params.id, partner: partner._id },
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!tiffin) {
       return res.status(404).json({
         success: false,
-        message: 'Tiffin not found'
+        message: 'Tiffin not found',
       });
     }
 
     res.json({
       success: true,
-      data: tiffin
+      data: tiffin,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -181,24 +207,24 @@ const deleteTiffin = async (req, res) => {
     const partner = await Partner.findOne({ user: req.user.id });
     const tiffin = await Tiffin.findOneAndDelete({
       _id: req.params.id,
-      partner: partner._id
+      partner: partner._id,
     });
 
     if (!tiffin) {
       return res.status(404).json({
         success: false,
-        message: 'Tiffin not found'
+        message: 'Tiffin not found',
       });
     }
 
     res.json({
       success: true,
-      message: 'Tiffin deleted successfully'
+      message: 'Tiffin deleted successfully',
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -217,7 +243,7 @@ const updateDiscount = async (req, res) => {
     if (weekly < 0 || weekly > 70 || monthly < 0 || monthly > 70) {
       return res.status(400).json({
         success: false,
-        message: 'Discount percentages must be between 0 and 70'
+        message: 'Discount percentages must be between 0 and 70',
       });
     }
 
@@ -225,14 +251,14 @@ const updateDiscount = async (req, res) => {
       { _id: req.params.id, partner: partner._id },
       {
         $set: {
-          'discount.weekly':    Number(weekly),
-          'discount.monthly':   Number(monthly),
-          'discount.isActive':  Boolean(isActive),
-          'discount.label':     label || '',
-          'discount.expiresAt': expiresAt ? new Date(expiresAt) : null
-        }
+          'discount.weekly': Number(weekly),
+          'discount.monthly': Number(monthly),
+          'discount.isActive': Boolean(isActive),
+          'discount.label': label || '',
+          'discount.expiresAt': expiresAt ? new Date(expiresAt) : null,
+        },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!tiffin) {
@@ -242,10 +268,11 @@ const updateDiscount = async (req, res) => {
     res.json({
       success: true,
       message: 'Discount updated successfully',
-      data: tiffin
+      data: tiffin,
     });
   } catch (error) {
-    logger.error(error.message, { stack: error.stack }); res.status(400).json({ success: false, message: error.message });
+    logger.error(error.message, { stack: error.stack });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -268,20 +295,20 @@ const updateMenuItems = async (req, res) => {
         throw new Error(`Item at index ${idx} is missing a name`);
       }
       return {
-        name:        item.name.trim(),
+        name: item.name.trim(),
         description: (item.description || item.desc || '').trim(),
-        image:       item.image || '',
-        category:    item.category || 'main',
-        tags:        Array.isArray(item.tags)
-                       ? item.tags.map(t => String(t).trim()).filter(Boolean)
-                       : []
+        image: item.image || '',
+        category: item.category || 'main',
+        tags: Array.isArray(item.tags)
+          ? item.tags.map((t) => String(t).trim()).filter(Boolean)
+          : [],
       };
     });
 
     const tiffin = await Tiffin.findOneAndUpdate(
       { _id: req.params.id, partner: partner._id },
       { $set: { menuItems: sanitized } },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!tiffin) {
@@ -291,7 +318,7 @@ const updateMenuItems = async (req, res) => {
     res.json({
       success: true,
       message: 'Menu updated successfully',
-      data: tiffin
+      data: tiffin,
     });
   } catch (error) {
     logger.error(error.message, { stack: error.stack });
@@ -310,17 +337,18 @@ const getMyTiffins = async (req, res) => {
     const tiffins = await Tiffin.find({ partner: partner._id });
     res.json({ success: true, data: tiffins });
   } catch (error) {
-    logger.error(error.message, { stack: error.stack }); res.status(400).json({ success: false, message: error.message });
+    logger.error(error.message, { stack: error.stack });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
 module.exports = {
-  getTiffins:     asyncHandler(getTiffins),
-  getTiffin:      asyncHandler(getTiffin),
-  createTiffin:   asyncHandler(createTiffin),
-  updateTiffin:   asyncHandler(updateTiffin),
-  deleteTiffin:   asyncHandler(deleteTiffin),
+  getTiffins: asyncHandler(getTiffins),
+  getTiffin: asyncHandler(getTiffin),
+  createTiffin: asyncHandler(createTiffin),
+  updateTiffin: asyncHandler(updateTiffin),
+  deleteTiffin: asyncHandler(deleteTiffin),
   updateDiscount: asyncHandler(updateDiscount),
-  updateMenuItems:asyncHandler(updateMenuItems),
-  getMyTiffins:   asyncHandler(getMyTiffins)
+  updateMenuItems: asyncHandler(updateMenuItems),
+  getMyTiffins: asyncHandler(getMyTiffins),
 };
