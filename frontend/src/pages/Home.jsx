@@ -594,7 +594,7 @@ const Home = () => {
                     to="/register?role=partner"
                     className="text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors"
                   >
-                    Become a Chef
+                    Become Partner
                   </Link>
                 </li>
                 <li>

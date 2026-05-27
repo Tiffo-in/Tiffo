@@ -61,7 +61,9 @@ const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const PaymentFailed = React.lazy(() => import('./pages/PaymentFailed'));
 const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
-
+const About = React.lazy(() => import('./pages/About'));
+const Careers = React.lazy(() => import('./pages/Careers'));
+const PartnerGuidelines = React.lazy(() => import('./pages/PartnerGuidelines'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminUsers = React.lazy(() => import('./pages/AdminUsers'));
 const AdminPartners = React.lazy(() => import('./pages/AdminPartners'));
@@ -153,6 +155,9 @@ function App() {
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/payment/success" element={<PaymentSuccess />} />
                         <Route path="/payment/failed" element={<PaymentFailed />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/careers" element={<Careers />} />
+                        <Route path="/partner-guidelines" element={<PartnerGuidelines />} />
 
                         {/* ── Authenticated User Routes ── */}
                         <Route
