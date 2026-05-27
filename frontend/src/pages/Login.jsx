@@ -189,7 +189,8 @@ const Login = () => {
               to="/"
               className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 dark:text-white mb-2"
             >
-              <span className="text-4xl">🍱</span> Tiffo<span className="text-primary-500">.</span>
+              <img src="/logo.png" alt="Tiffo Logo" className="h-10 w-auto" /> Tiffo
+              <span className="text-primary-500">.</span>
             </Link>
             <p className="text-neutral-500 dark:text-neutral-400">
               Welcome back to authentic dining.

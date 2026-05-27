@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
-import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import {
+  Bars3Icon,
+  XMarkIcon,
+  SunIcon,
+  MoonIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
+} from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -29,7 +36,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Browse Tiffins', path: '/tiffins' }
+    { name: 'Browse Tiffins', path: '/tiffins' },
   ];
 
   return (
@@ -45,14 +52,19 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-12">
-          
           {/* Logo Area */}
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center space-x-2 group outline-none">
-              <span className="text-3xl lg:text-4xl group-hover:scale-110 transition-transform duration-300">🍱</span>
-              <span className={`text-2xl font-black tracking-tight transition-colors duration-300 ${
-                scrolled ? 'text-neutral-900 dark:text-white' : 'text-neutral-900 dark:text-white'
-              }`}>
+              <img
+                src="/logo.png"
+                alt="Tiffo Logo"
+                className="h-10 w-auto group-hover:scale-110 transition-transform duration-300"
+              />
+              <span
+                className={`text-2xl font-black tracking-tight transition-colors duration-300 ${
+                  scrolled ? 'text-neutral-900 dark:text-white' : 'text-neutral-900 dark:text-white'
+                }`}
+              >
                 Tiffo<span className="text-primary-500">.</span>
               </span>
             </Link>
@@ -60,7 +72,6 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-1">
-            
             {/* Primary Links */}
             <div className="flex items-center space-x-1 mr-4 bg-neutral-100/50 dark:bg-neutral-900/50 p-1 rounded-full border border-neutral-200/50 dark:border-neutral-800/50 backdrop-blur-md">
               {navLinks.map((link) => (
@@ -128,11 +139,23 @@ const Navbar = () => {
               >
                 <AnimatePresence mode="wait">
                   {isDark ? (
-                    <motion.div key="sun" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
+                    <motion.div
+                      key="sun"
+                      initial={{ rotate: -90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <SunIcon className="w-5 h-5" />
                     </motion.div>
                   ) : (
-                    <motion.div key="moon" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
+                    <motion.div
+                      key="moon"
+                      initial={{ rotate: 90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <MoonIcon className="w-5 h-5" />
                     </motion.div>
                   )}
@@ -155,15 +178,25 @@ const Navbar = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm"
-              aria-label={isOpen ? "Close Menu" : "Open Menu"}
+              aria-label={isOpen ? 'Close Menu' : 'Open Menu'}
             >
               <AnimatePresence mode="wait">
                 {isOpen ? (
-                  <motion.div key="close" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <motion.div
+                    key="close"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
                     <XMarkIcon className="h-6 w-6" />
                   </motion.div>
                 ) : (
-                  <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <motion.div
+                    key="menu"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
                     <Bars3Icon className="h-6 w-6" />
                   </motion.div>
                 )}
