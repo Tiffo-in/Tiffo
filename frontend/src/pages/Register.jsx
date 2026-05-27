@@ -149,26 +149,13 @@ const Register = () => {
           className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-[20s] ease-out"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1589302168068-964664d93cb0?q=80&w=2000&auto=format&fit=crop')",
+              "url('https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=2000&auto=format&fit=crop')",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-900/70 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/90 to-transparent" />
 
-        <div className="relative z-10 flex flex-col justify-between w-full p-12 lg:p-16 text-white h-full">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight hover:text-primary-400 transition-colors"
-            >
-              <span className="text-4xl">🍱</span> Tiffo<span className="text-primary-500">.</span>
-            </Link>
-          </motion.div>
-
+        <div className="relative z-10 flex flex-col justify-center w-full p-12 lg:p-16 text-white h-full">
           <div className="space-y-12">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -578,22 +565,13 @@ const Register = () => {
 
             {/* Social Login */}
             <motion.div
-              className="grid grid-cols-2 gap-4 items-center justify-center"
+              className="flex justify-center"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
               {/* GIS Real Sign-In Button */}
-              <div id="google-signin-button" className="flex justify-center w-full"></div>
-
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center justify-center gap-2 py-3.5 px-4 bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-400 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-all font-bold shadow-sm h-[40px]"
-              >
-                <span>🚀</span>
-                Demo Login
-              </button>
+              <div id="google-signin-button" className="w-full flex justify-center"></div>
             </motion.div>
           </form>
 

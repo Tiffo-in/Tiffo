@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import SuccessAnimation from '../components/SuccessAnimation';
 import { login as loginAction } from '../store/slices/authSlice';
-import { StarIcon } from '@heroicons/react/24/solid';
 import api from '../services/api';
 
 const Login = () => {
@@ -145,22 +144,8 @@ const Login = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/80 to-transparent" />
 
         {/* Content Wrapper */}
-        <div className="relative z-10 flex flex-col justify-between w-full p-12 lg:p-16 text-white">
-          {/* Logo Area */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight hover:text-primary-400 transition-colors"
-            >
-              <span className="text-4xl">🍱</span> Tiffo<span className="text-primary-500">.</span>
-            </Link>
-          </motion.div>
-
-          {/* Main Copy & Testimonial */}
+        <div className="relative z-10 flex flex-col justify-center h-full w-full p-12 lg:p-16 text-white">
+          {/* Main Copy */}
           <div className="space-y-12">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -178,36 +163,6 @@ const Login = () => {
                 Log in to manage your daily meals, track deliveries, and discover authentic local
                 tiffins.
               </p>
-            </motion.div>
-
-            {/* Glassmorphism Testimonial Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl max-w-md shadow-2xl relative"
-            >
-              <div className="absolute -top-4 -left-4 text-4xl opacity-50 text-primary-400">"</div>
-              <div className="flex gap-1 mb-3">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <StarIcon key={i} className="w-4 h-4 text-yellow-400" />
-                ))}
-              </div>
-              <p className="text-neutral-200 italic mb-4 text-sm leading-relaxed">
-                "Tiffo has completely changed my work week. The food is incredibly authentic, fresh,
-                and exactly like what my mom used to make. The daily delivery is perfectly on time!"
-              </p>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://i.pravatar.cc/100?img=47"
-                  alt="Customer"
-                  className="w-10 h-10 rounded-full border-2 border-primary-500/50"
-                />
-                <div>
-                  <h4 className="font-bold text-sm text-white">Rahul Sharma</h4>
-                  <p className="text-xs text-primary-300">Software Engineer</p>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>
