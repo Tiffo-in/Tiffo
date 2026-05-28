@@ -37,7 +37,10 @@ const Blog = () => {
     try {
       const response = await api.get('/blog/categories');
       if (response.data.success) {
-        setCategories([{ name: 'All', count: response.data.data.reduce((acc, cat) => acc + cat.count, 0) }, ...response.data.data]);
+        setCategories([
+          { name: 'All', count: response.data.data.reduce((acc, cat) => acc + cat.count, 0) },
+          ...response.data.data,
+        ]);
       }
     } catch (error) {
       console.error('Failed to load categories:', error);
@@ -52,7 +55,7 @@ const Blog = () => {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/support/newsletter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newsletterEmail })
+        body: JSON.stringify({ email: newsletterEmail }),
       });
       // Treat any 2xx or even network issue as success — newsletter is non-critical
       setNewsletterSent(true);
@@ -71,15 +74,19 @@ const Blog = () => {
 
     // Filter by category
     if (selectedCategory !== 'All') {
-      filtered = filtered.filter(post => post.category === selectedCategory);
+      filtered = filtered.filter((post) => post.category === selectedCategory);
     }
 
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(post =>
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.author.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (post) =>
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (typeof post.author === 'string'
+            ? post.author.toLowerCase()
+            : post.author?.name?.toLowerCase() || ''
+          ).includes(searchQuery.toLowerCase())
       );
     }
 
@@ -89,17 +96,16 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
               <span className="text-5xl mr-3">📝</span>
               Tiffo Blog
             </h1>
-            <p className="text-xl text-gray-600">Stories, tips, and insights about food, health, and community</p>
+            <p className="text-xl text-gray-600">
+              Stories, tips, and insights about food, health, and community
+            </p>
           </div>
 
           {/* Search and Filters */}
@@ -120,7 +126,12 @@ const Blog = () => {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 {searchQuery && (
                   <button
@@ -135,14 +146,15 @@ const Blog = () => {
 
             {/* Category Filters */}
             <div className="flex flex-wrap justify-center gap-3">
-              {categories.map(category => (
+              {categories.map((category) => (
                 <button
                   key={category.name}
                   onClick={() => setSelectedCategory(category.name)}
-                  className={`px-4 py-2 rounded-full font-medium transition-all ${selectedCategory === category.name
-                    ? 'bg-maroon-600 text-white shadow-md'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
-                    }`}
+                  className={`px-4 py-2 rounded-full font-medium transition-all ${
+                    selectedCategory === category.name
+                      ? 'bg-maroon-600 text-white shadow-md'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
                   {category.name} ({category.count})
                 </button>
@@ -153,7 +165,8 @@ const Blog = () => {
           {/* Results Count */}
           {(searchQuery || selectedCategory !== 'All') && (
             <div className="mb-6 text-center text-gray-600">
-              Found <span className="font-semibold text-maroon-600">{filteredPosts.length}</span> article{filteredPosts.length !== 1 ? 's' : ''}
+              Found <span className="font-semibold text-maroon-600">{filteredPosts.length}</span>{' '}
+              article{filteredPosts.length !== 1 ? 's' : ''}
             </div>
           )}
 
@@ -172,11 +185,17 @@ const Blog = () => {
                       </span>
                       <span className="ml-4 text-gray-500 text-sm">Featured Post</span>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">{filteredPosts[0].title}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      {filteredPosts[0].title}
+                    </h2>
                     <p className="text-gray-600 mb-4">{filteredPosts[0].excerpt}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-sm text-gray-500">
-                        <span>{filteredPosts[0].author}</span>
+                        <span>
+                          {typeof filteredPosts[0].author === 'object'
+                            ? filteredPosts[0].author?.name
+                            : filteredPosts[0].author}
+                        </span>
                         <span className="mx-2">•</span>
                         <span>{new Date(filteredPosts[0].date).toLocaleDateString()}</span>
                         <span className="mx-2">•</span>
@@ -199,50 +218,50 @@ const Blog = () => {
             </div>
           ) : filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.slice(searchQuery || selectedCategory !== 'All' ? 0 : 1).map((post, index) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Link to={`/blog/${post.slug}`}>
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all cursor-pointer group">
-                      <div className="bg-gradient-to-br from-gray-100 to-gray-200 h-48 flex items-center justify-center group-hover:scale-105 transition-transform">
-                        <div className="text-4xl">🍱</div>
+              {filteredPosts
+                .slice(searchQuery || selectedCategory !== 'All' ? 0 : 1)
+                .map((post, index) => (
+                  <motion.div
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Link to={`/blog/${post.slug}`}>
+                      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all cursor-pointer group">
+                        <div className="bg-gradient-to-br from-gray-100 to-gray-200 h-48 flex items-center justify-center group-hover:scale-105 transition-transform">
+                          <div className="text-4xl">🍱</div>
+                        </div>
+                        <div className="p-6">
+                          <div className="flex items-center mb-3">
+                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium">
+                              {post.category}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-maroon-600 transition-colors">
+                            {post.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-3">{post.excerpt}</p>
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <span>
+                              {typeof post.author === 'object' ? post.author?.name : post.author}
+                            </span>
+                            <span>{post.readTime}</span>
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">
+                            {new Date(post.date).toLocaleDateString()}
+                          </div>
+                        </div>
                       </div>
-                      <div className="p-6">
-                        <div className="flex items-center mb-3">
-                          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium">
-                            {post.category}
-                          </span>
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-maroon-600 transition-colors">
-                          {post.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                          {post.excerpt}
-                        </p>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>{post.author}</span>
-                          <span>{post.readTime}</span>
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">
-                          {new Date(post.date).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
+                    </Link>
+                  </motion.div>
+                ))}
             </div>
           ) : (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🔍</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No articles found</h3>
-              <p className="text-gray-600 mb-4">
-                Try adjusting your search or filters
-              </p>
+              <p className="text-gray-600 mb-4">Try adjusting your search or filters</p>
               <button
                 onClick={() => {
                   setSearchQuery('');
@@ -258,14 +277,22 @@ const Blog = () => {
           {/* Newsletter Signup */}
           <div className="bg-gradient-to-r from-maroon-50 to-orange-50 rounded-lg p-8 mt-12 text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Stay Updated</h3>
-            <p className="text-gray-600 mb-6">Subscribe to our newsletter for the latest food tips, health advice, and platform updates.</p>
+            <p className="text-gray-600 mb-6">
+              Subscribe to our newsletter for the latest food tips, health advice, and platform
+              updates.
+            </p>
             {newsletterSent ? (
               <div className="flex flex-col items-center gap-3">
                 <span className="text-4xl">✅</span>
-                <p className="font-semibold text-green-700">You're subscribed! Thanks for joining.</p>
+                <p className="font-semibold text-green-700">
+                  You're subscribed! Thanks for joining.
+                </p>
               </div>
             ) : (
-              <form onSubmit={subscribeToNewsletter} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <form
+                onSubmit={subscribeToNewsletter}
+                className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+              >
                 <input
                   type="email"
                   placeholder="Enter your email"
