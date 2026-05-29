@@ -1,16 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { useRef, useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
-  Dimensions,
   Animated,
 } from 'react-native';
 
@@ -19,22 +17,7 @@ import { RootStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
 import { ColorScheme } from '../../theme/colors';
 import { useTheme } from '../../theme/useTheme';
-
-const { width: SW } = Dimensions.get('window');
-
-interface Tiffin {
-  _id: string;
-  name: string;
-  description?: string;
-  price: any;
-  category: string;
-  isVeg?: boolean;
-  availablePlans?: string[];
-  images?: string[];
-  partnerInfo?: { businessName: string; rating?: number };
-  tags?: string[];
-  rating?: { average: number; count: number };
-}
+import { Tiffin, ApiResponse } from '../../types';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParams, 'TiffinDetail'>;
@@ -58,20 +41,24 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
   const { tiffinId } = route.params;
-  const [tiffin, setTiffin] = useState<Tiffin | null>(null);
-  const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const { isAuthenticated } = useAuth();
   const scrollY = useRef(new Animated.Value(0)).current;
   const btnScale = useRef(new Animated.Value(1)).current;
 
-  useEffect(() => {
-    api
-      .get(`/tiffins/${tiffinId}`)
-      .then((r) => setTiffin(r.data?.data || r.data?.tiffin))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [tiffinId]);
+  const {
+    data: tiffin,
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useQuery<Tiffin | null>({
+    queryKey: ['tiffin', tiffinId],
+    queryFn: async () => {
+      const r = await api.get<ApiResponse<Tiffin>>(`/tiffins/${tiffinId}`);
+      return r.data?.data || r.data?.tiffin || null;
+    },
+  });
 
   const headerOpacity = scrollY.interpolate({
     inputRange: [0, 200],
@@ -97,7 +84,8 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
         <ActivityIndicator color={C.primary} size="large" />
       </View>
     );
-  if (!tiffin)
+
+  if (isError || !tiffin)
     return (
       <View
         style={{
@@ -108,7 +96,23 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
         }}
       >
         <Text style={{ fontSize: 40 }}>😕</Text>
-        <Text style={{ fontSize: 16, color: C.textSecondary, marginTop: 12 }}>Meal not found</Text>
+        <Text style={{ fontSize: 16, color: C.textSecondary, marginTop: 12 }}>
+          {isError ? (error as any)?.message || 'Failed to load meal details' : 'Meal not found'}
+        </Text>
+        {isError && (
+          <TouchableOpacity
+            onPress={() => refetch()}
+            style={{
+              marginTop: 16,
+              backgroundColor: C.primary,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Try Again</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
 

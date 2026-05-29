@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   View,
@@ -9,7 +10,6 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
   Image,
   Animated,
   Dimensions,
@@ -22,20 +22,9 @@ import { RootStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
 import { ColorScheme } from '../../theme/colors';
 import { useTheme } from '../../theme/useTheme';
+import { Tiffin, ApiResponse } from '../../types';
 
 const { width: SW } = Dimensions.get('window');
-
-interface Tiffin {
-  _id: string;
-  name: string;
-  description?: string;
-  price: any;
-  category: string;
-  images?: string[];
-  rating?: { average: number; count: number };
-  isVeg?: boolean;
-  partner?: { businessName: string };
-}
 
 const CATEGORIES = [
   { label: 'All', icon: '🍽️' },
@@ -248,36 +237,30 @@ export default function HomeScreen() {
   const S = useMemo(() => createStyles(C), [C]);
   const { user } = useAuth();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParams>>();
-  const [tiffins, setTiffins] = useState<Tiffin[]>([]);
-  const [filtered, setFiltered] = useState<Tiffin[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [activeCat, setActiveCat] = useState('All');
 
-  const fetchTiffins = async () => {
-    try {
-      const res = await api.get('/tiffins?limit=20&status=active');
-      const d = res.data?.data || [];
-      setTiffins(d);
-      setFiltered(d);
-    } catch {
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const {
+    data: tiffins = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useQuery<Tiffin[]>({
+    queryKey: ['tiffins', 'active'],
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<Tiffin[]>>('/tiffins?limit=20&status=active');
+      return res.data?.data || [];
+    },
+  });
 
-  useEffect(() => {
-    fetchTiffins();
-  }, []);
+  const filtered = useMemo(() => {
+    if (activeCat === 'All') return tiffins;
+    return tiffins.filter((t) => t.category?.toLowerCase().includes(activeCat.toLowerCase()));
+  }, [tiffins, activeCat]);
 
   const filterCat = (cat: string) => {
     setActiveCat(cat);
-    setFiltered(
-      cat === 'All'
-        ? tiffins
-        : tiffins.filter((t) => t.category?.toLowerCase().includes(cat.toLowerCase())),
-    );
   };
 
   const greeting = () => {
@@ -290,14 +273,7 @@ export default function HomeScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              fetchTiffins();
-            }}
-            tintColor={C.primary}
-          />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={C.primary} />
         }
       >
         {/* Header */}
@@ -366,12 +342,42 @@ export default function HomeScreen() {
           <Text style={{ fontSize: 12, color: C.textTertiary }}>{filtered.length} available</Text>
         </View>
 
-        {loading ? (
+        {isLoading ? (
           <>
             <SkeletonCard C={C} />
             <SkeletonCard C={C} />
             <SkeletonCard C={C} />
           </>
+        ) : isError ? (
+          <View style={S.empty}>
+            <Text style={{ fontSize: 48, marginBottom: 12 }}>⚠️</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: C.textPrimary }}>
+              Oops! Something went wrong
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                color: C.textSecondary,
+                marginTop: 8,
+                textAlign: 'center',
+                paddingHorizontal: 32,
+              }}
+            >
+              {(error as any)?.message || 'Failed to load meals.'}
+            </Text>
+            <TouchableOpacity
+              onPress={() => refetch()}
+              style={{
+                marginTop: 16,
+                backgroundColor: C.primary,
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: '#fff', fontWeight: 'bold' }}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
         ) : filtered.length === 0 ? (
           <View style={S.empty}>
             <Text style={{ fontSize: 48, marginBottom: 12 }}>🍽️</Text>

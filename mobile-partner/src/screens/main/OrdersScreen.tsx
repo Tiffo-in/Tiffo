@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
 import {
   View,
   Text,
@@ -13,18 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import api from '../../services/api';
-
-interface Delivery {
-  _id: string;
-  status: 'scheduled' | 'preparing' | 'out_for_delivery' | 'delivered' | 'failed';
-  deliveryDate: string;
-  deliveryTime: string;
-  subscription?: {
-    deliveryAddress?: string;
-    user?: { name?: string; phone?: string };
-    tiffin?: { name?: string };
-  };
-}
+import { Delivery, ApiResponse } from '../../types';
 
 const STATUS_CONFIG: Record<
   string,
@@ -68,47 +58,65 @@ const STATUS_CONFIG: Record<
 };
 
 const OrdersScreen = () => {
-  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [updating, setUpdating] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const today = new Date().toISOString().split('T')[0];
 
-  const fetchDeliveries = async () => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const res = await api.get(`/deliveries?date=${today}&limit=50`);
-      setDeliveries(res.data?.data || []);
-    } catch {
-      setDeliveries([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const {
+    data: deliveries,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useQuery<Delivery[]>({
+    queryKey: ['partner', 'deliveries', today],
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<Delivery[]>>(`/deliveries?date=${today}&limit=50`);
+      return res.data?.data || (res.data as unknown as Delivery[]);
+    },
+  });
 
-  useEffect(() => {
-    fetchDeliveries();
-  }, []);
-
-  const updateStatus = async (deliveryId: string, newStatus: string) => {
-    setUpdating(deliveryId);
-    try {
+  const {
+    mutate: updateStatus,
+    isPending: isUpdatingStatus,
+    variables: updatingVariables,
+  } = useMutation({
+    mutationFn: async ({ deliveryId, newStatus }: { deliveryId: string; newStatus: string }) => {
       await api.patch(`/deliveries/${deliveryId}/status`, { status: newStatus });
-      setDeliveries((prev) =>
-        prev.map((d) =>
-          d._id === deliveryId ? { ...d, status: newStatus as Delivery['status'] } : d,
-        ),
-      );
-    } catch (err: any) {
+      return { deliveryId, newStatus };
+    },
+    onMutate: async ({ deliveryId, newStatus }) => {
+      await queryClient.cancelQueries({ queryKey: ['partner', 'deliveries', today] });
+      const previousDeliveries = queryClient.getQueryData<Delivery[]>([
+        'partner',
+        'deliveries',
+        today,
+      ]);
+
+      if (previousDeliveries) {
+        queryClient.setQueryData<Delivery[]>(
+          ['partner', 'deliveries', today],
+          previousDeliveries.map((d) =>
+            d._id === deliveryId ? { ...d, status: newStatus as Delivery['status'] } : d,
+          ),
+        );
+      }
+      return { previousDeliveries };
+    },
+    onError: (err: any, variables, context) => {
+      if (context?.previousDeliveries) {
+        queryClient.setQueryData(['partner', 'deliveries', today], context.previousDeliveries);
+      }
       Alert.alert('Update Failed', err.response?.data?.message || 'Could not update status.');
-    } finally {
-      setUpdating(null);
-    }
-  };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['partner', 'deliveries', today] });
+    },
+  });
 
   const renderItem = ({ item }: { item: Delivery }) => {
     const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.scheduled;
-    const isUpdating = updating === item._id;
+    const isUpdating = isUpdatingStatus && updatingVariables?.deliveryId === item._id;
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -143,7 +151,9 @@ const OrdersScreen = () => {
         {cfg.nextAction && (
           <TouchableOpacity
             style={[styles.actionBtn, isUpdating && styles.actionBtnDisabled]}
-            onPress={() => cfg.nextStatus && updateStatus(item._id, cfg.nextStatus)}
+            onPress={() =>
+              cfg.nextStatus && updateStatus({ deliveryId: item._id, newStatus: cfg.nextStatus })
+            }
             disabled={isUpdating}
           >
             {isUpdating ? (
@@ -177,8 +187,30 @@ const OrdersScreen = () => {
         </Text>
       </View>
 
-      {loading ? (
+      {isLoading ? (
         <ActivityIndicator color="#F59E0B" size="large" style={{ marginTop: 40 }} />
+      ) : isError ? (
+        <View style={{ alignItems: 'center', marginTop: 40, paddingHorizontal: 20 }}>
+          <Ionicons name="warning-outline" size={48} color="#EF4444" />
+          <Text style={{ color: '#F8FAFC', fontSize: 18, fontWeight: '700', marginTop: 12 }}>
+            Failed to load deliveries
+          </Text>
+          <Text style={{ color: '#94A3B8', fontSize: 14, textAlign: 'center', marginTop: 8 }}>
+            {(error as any)?.message || 'There was a problem reaching our servers.'}
+          </Text>
+          <TouchableOpacity
+            onPress={() => refetch()}
+            style={{
+              marginTop: 16,
+              backgroundColor: '#F59E0B',
+              paddingHorizontal: 24,
+              paddingVertical: 12,
+              borderRadius: 10,
+            }}
+          >
+            <Text style={{ color: '#0F172A', fontWeight: '700' }}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <FlatList
           data={deliveries}
@@ -186,14 +218,7 @@ const OrdersScreen = () => {
           renderItem={renderItem}
           contentContainerStyle={{ padding: 16 }}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                fetchDeliveries();
-              }}
-              tintColor="#F59E0B"
-            />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#F59E0B" />
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>

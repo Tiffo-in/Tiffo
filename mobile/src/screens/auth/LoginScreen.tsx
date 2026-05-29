@@ -143,16 +143,20 @@ export default function LoginScreen({ navigation }: Props) {
           )}
         </TouchableOpacity>
 
+        {/*
         <View style={S.dividerRow}>
           <View style={S.dividerLine} />
           <Text style={S.dividerTxt}>or continue with</Text>
           <View style={S.dividerLine} />
         </View>
+        */}
 
+        {/* TODO: Implement Google Auth
         <TouchableOpacity style={S.socialBtn}>
           <Text style={{ fontSize: 20 }}>🌐</Text>
           <Text style={S.socialTxt}>Continue with Google</Text>
         </TouchableOpacity>
+        */}
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')} style={S.switchRow}>
           <Text style={S.switchTxt}>Don't have an account? </Text>

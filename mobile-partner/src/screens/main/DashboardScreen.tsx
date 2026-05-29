@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import {
   View,
   Text,
@@ -13,43 +14,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
-
-interface Stats {
-  activeSubscriptions: number;
-  todayDeliveries: number;
-  completedToday: number;
-  monthlyRevenue: number;
-  pendingPayouts: number;
-}
+import { Stats, ApiResponse } from '../../types';
 
 const DashboardScreen = () => {
-  const { user, logout } = useAuth();
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { user } = useAuth();
 
-  const fetchStats = async () => {
-    try {
-      const res = await api.get('/partner/stats');
-      setStats(res.data?.data || res.data);
-    } catch {
-      // Show zeros if the endpoint isn't available yet
-      setStats({
-        activeSubscriptions: 0,
-        todayDeliveries: 0,
-        completedToday: 0,
-        monthlyRevenue: 0,
-        pendingPayouts: 0,
-      });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  const {
+    data: stats,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+  } = useQuery<Stats>({
+    queryKey: ['partner', 'stats'],
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<Stats>>('/partner/stats');
+      return res.data?.data || (res.data as unknown as Stats);
+    },
+  });
 
   const getGreeting = () => {
     const h = new Date().getHours();
@@ -86,14 +69,7 @@ const DashboardScreen = () => {
       <ScrollView
         style={styles.scroll}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              fetchStats();
-            }}
-            tintColor="#F59E0B"
-          />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#F59E0B" />
         }
       >
         {/* Header */}
@@ -114,8 +90,30 @@ const DashboardScreen = () => {
         </View>
 
         {/* Stats */}
-        {loading ? (
+        {isLoading ? (
           <ActivityIndicator color="#F59E0B" size="large" style={{ marginTop: 40 }} />
+        ) : isError ? (
+          <View style={{ alignItems: 'center', marginTop: 40, paddingHorizontal: 20 }}>
+            <Ionicons name="warning-outline" size={48} color="#EF4444" />
+            <Text style={{ color: '#F8FAFC', fontSize: 18, fontWeight: '700', marginTop: 12 }}>
+              Failed to load stats
+            </Text>
+            <Text style={{ color: '#94A3B8', fontSize: 14, textAlign: 'center', marginTop: 8 }}>
+              {(error as any)?.message || 'There was a problem reaching our servers.'}
+            </Text>
+            <TouchableOpacity
+              onPress={() => refetch()}
+              style={{
+                marginTop: 16,
+                backgroundColor: '#F59E0B',
+                paddingHorizontal: 24,
+                paddingVertical: 12,
+                borderRadius: 10,
+              }}
+            >
+              <Text style={{ color: '#0F172A', fontWeight: '700' }}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           <>
             <Text style={styles.sectionTitle}>Today's Overview</Text>
