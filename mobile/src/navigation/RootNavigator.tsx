@@ -1,3 +1,4 @@
+// Root Navigation Flow for Tiffo Mobile Application
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,9 +13,15 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 
 // Main tab screens
 import CheckoutScreen from '../screens/main/CheckoutScreen';
+import EditProfileScreen from '../screens/main/EditProfileScreen';
 import ExploreScreen from '../screens/main/ExploreScreen';
+import HelpSupportScreen from '../screens/main/HelpSupportScreen';
 import HomeScreen from '../screens/main/HomeScreen';
+import NotificationsScreen from '../screens/main/NotificationsScreen';
+import PaymentMethodsScreen from '../screens/main/PaymentMethodsScreen';
+import PrivacyPolicyScreen from '../screens/main/PrivacyPolicyScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import SavedAddressesScreen from '../screens/main/SavedAddressesScreen';
 import SubscriptionScreen from '../screens/main/SubscriptionScreen';
 
 // Stack screens
@@ -34,6 +41,12 @@ export type RootStackParams = {
   Checkout: { tiffinId: string; plan: string; price: number };
   Login: undefined;
   Register: undefined;
+  EditProfile: undefined;
+  SavedAddresses: undefined;
+  PaymentMethods: undefined;
+  Notifications: undefined;
+  HelpSupport: undefined;
+  PrivacyPolicy: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParams>();
@@ -144,6 +157,78 @@ const RootNavigator = () => {
         options={{
           headerShown: true,
           title: 'Checkout',
+          headerTintColor: C.primary,
+          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: C.background },
+          headerShadowVisible: false,
+        }}
+      />
+      <RootStack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{
+          headerShown: true,
+          title: 'Edit Profile',
+          headerTintColor: C.primary,
+          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: C.background },
+          headerShadowVisible: false,
+        }}
+      />
+      <RootStack.Screen
+        name="SavedAddresses"
+        component={SavedAddressesScreen}
+        options={{
+          headerShown: true,
+          title: 'Saved Addresses',
+          headerTintColor: C.primary,
+          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: C.background },
+          headerShadowVisible: false,
+        }}
+      />
+      <RootStack.Screen
+        name="PaymentMethods"
+        component={PaymentMethodsScreen}
+        options={{
+          headerShown: true,
+          title: 'Payment Methods',
+          headerTintColor: C.primary,
+          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: C.background },
+          headerShadowVisible: false,
+        }}
+      />
+      <RootStack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          headerShown: true,
+          title: 'Notifications',
+          headerTintColor: C.primary,
+          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: C.background },
+          headerShadowVisible: false,
+        }}
+      />
+      <RootStack.Screen
+        name="HelpSupport"
+        component={HelpSupportScreen}
+        options={{
+          headerShown: true,
+          title: 'Help & Support',
+          headerTintColor: C.primary,
+          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+          headerStyle: { backgroundColor: C.background },
+          headerShadowVisible: false,
+        }}
+      />
+      <RootStack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{
+          headerShown: true,
+          title: 'Privacy Policy',
           headerTintColor: C.primary,
           headerTitleStyle: { fontWeight: '700', fontSize: 17 },
           headerStyle: { backgroundColor: C.background },

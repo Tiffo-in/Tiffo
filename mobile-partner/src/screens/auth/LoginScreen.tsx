@@ -11,6 +11,7 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 
 import { useAuth } from '../../contexts/AuthContext';
@@ -50,9 +51,11 @@ const LoginScreen = ({ navigation }: Props) => {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>🍳</Text>
-          </View>
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={styles.appName}>Tiffo Partner</Text>
           <Text style={styles.tagline}>Kitchen Partner Dashboard</Text>
         </View>
@@ -111,21 +114,11 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: '#0F172A' },
   container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   header: { alignItems: 'center', marginBottom: 36 },
-  logoCircle: {
+  logoImage: {
     width: 88,
     height: 88,
-    borderRadius: 44,
-    backgroundColor: '#F59E0B',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 16,
-    shadowColor: '#F59E0B',
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 10,
   },
-  logoEmoji: { fontSize: 44 },
   appName: { fontSize: 28, fontWeight: '800', color: '#F8FAFC' },
   tagline: { fontSize: 13, color: '#94A3B8', marginTop: 4 },
   formCard: {

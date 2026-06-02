@@ -9,12 +9,13 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
   Animated,
   StatusBar,
+  Image,
 } from 'react-native';
 
+import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import { ColorScheme } from '../../theme/colors';
@@ -26,6 +27,7 @@ export default function LoginScreen({ navigation }: Props) {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
   const { login } = useAuth();
+  const { error, warning } = useAlert();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,14 +47,14 @@ export default function LoginScreen({ navigation }: Props) {
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Missing Fields', 'Please enter your email and password.');
+      warning('Missing Fields', 'Please enter your email and password.');
       return;
     }
     try {
       setLoading(true);
       await login(email.trim().toLowerCase(), password);
     } catch (err: any) {
-      Alert.alert(
+      error(
         'Login Failed',
         err.response?.data?.message || 'Please check your credentials and try again.',
       );
@@ -69,9 +71,11 @@ export default function LoginScreen({ navigation }: Props) {
       <StatusBar barStyle={C.background === '#111111' ? 'light-content' : 'dark-content'} />
 
       <Animated.View style={[S.brand, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
-        <View style={S.logoWrap}>
-          <Text style={{ fontSize: 36 }}>🍱</Text>
-        </View>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={S.logoImage}
+          resizeMode="contain"
+        />
         <Text style={S.appName}>tiffo</Text>
         <Text style={S.tagline}>Homemade meals, delivered daily</Text>
       </Animated.View>
@@ -171,19 +175,10 @@ const createStyles = (C: ColorScheme) =>
   StyleSheet.create({
     flex: { flex: 1, backgroundColor: C.background },
     brand: { alignItems: 'center', paddingTop: 64, paddingBottom: 32 },
-    logoWrap: {
+    logoImage: {
       width: 72,
       height: 72,
-      borderRadius: 20,
-      backgroundColor: C.primary,
-      justifyContent: 'center',
-      alignItems: 'center',
       marginBottom: 14,
-      shadowColor: C.primary,
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 0.35,
-      shadowRadius: 12,
-      elevation: 10,
     },
     appName: { fontSize: 34, fontWeight: '800', color: C.textPrimary, letterSpacing: -1 },
     tagline: { fontSize: 13, color: C.textSecondary, marginTop: 4 },

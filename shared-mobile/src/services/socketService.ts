@@ -3,9 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 declare const __DEV__: boolean;
 
-const SOCKET_URL = __DEV__ 
-  ? 'http://10.48.176.39:5005'
-  : 'https://api.tiffo.in';
+const SOCKET_URL = 'https://api.tiffo.in';
 
 let socket: Socket | null = null;
 

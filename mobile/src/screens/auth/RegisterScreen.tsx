@@ -10,10 +10,11 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 
+import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import { ColorScheme } from '../../theme/colors';
@@ -64,6 +65,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
   const { register } = useAuth();
+  const { error, warning } = useAlert();
   const [values, setValues] = useState({ name: '', email: '', phone: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -73,11 +75,11 @@ export default function RegisterScreen({ navigation }: Props) {
 
   const handleRegister = async () => {
     if (!values.name.trim() || !values.email.trim() || !values.password.trim()) {
-      Alert.alert('Missing Fields', 'Please fill in Name, Email and Password.');
+      warning('Missing Fields', 'Please fill in Name, Email and Password.');
       return;
     }
     if (values.password.length < 8) {
-      Alert.alert('Weak Password', 'Password must be at least 8 characters.');
+      warning('Weak Password', 'Password must be at least 8 characters.');
       return;
     }
     try {
@@ -89,10 +91,7 @@ export default function RegisterScreen({ navigation }: Props) {
         values.phone.trim(),
       );
     } catch (err: any) {
-      Alert.alert(
-        'Registration Failed',
-        err.response?.data?.message || 'Could not create account.',
-      );
+      error('Registration Failed', err.response?.data?.message || 'Could not create account.');
     } finally {
       setLoading(false);
     }
@@ -112,9 +111,11 @@ export default function RegisterScreen({ navigation }: Props) {
         </View>
 
         <View style={S.header}>
-          <View style={S.logoMini}>
-            <Text style={{ fontSize: 28 }}>🍱</Text>
-          </View>
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={S.logoImage}
+            resizeMode="contain"
+          />
           <Text style={S.title}>Create your account</Text>
           <Text style={S.subtitle}>Join thousands enjoying homemade meals daily</Text>
         </View>
@@ -147,7 +148,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   autoCapitalize={f.caps}
                   secureTextEntry={f.secure && !showPass}
                   value={(values as any)[f.key]}
-                  onChangeText={(v) => set(f.key, v)}
+                  onChangeText={(v: string) => set(f.key, v)}
                   onFocus={() => setFocused(f.key)}
                   onBlur={() => setFocused('')}
                 />
@@ -206,19 +207,10 @@ const createStyles = (C: ColorScheme) =>
       alignItems: 'center',
     },
     header: { alignItems: 'center', paddingTop: 12, paddingBottom: 20, paddingHorizontal: 24 },
-    logoMini: {
+    logoImage: {
       width: 60,
       height: 60,
-      borderRadius: 16,
-      backgroundColor: C.primary,
-      justifyContent: 'center',
-      alignItems: 'center',
       marginBottom: 14,
-      shadowColor: C.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 6,
     },
     title: {
       fontSize: 24,

@@ -10,6 +10,16 @@ export interface User {
   role: 'user' | 'partner' | 'admin';
   isVerified: boolean;
   avatar?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
+  };
 }
 
 export interface AuthState {
@@ -70,6 +80,13 @@ const authService = {
   getMe: async (): Promise<User> => {
     const res = await api.get('/auth/me');
     return res.data.user;
+  },
+
+  updateProfile: async (name: string, phone: string, address?: any): Promise<User> => {
+    const res = await api.put('/auth/me', { name, phone, address });
+    const user = res.data.user;
+    await AsyncStorage.setItem('auth_user', JSON.stringify(user));
+    return user;
   },
 };
 

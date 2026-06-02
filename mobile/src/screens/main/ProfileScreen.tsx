@@ -2,17 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useRef, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  Animated,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import { ColorScheme } from '../../theme/colors';
@@ -23,23 +16,37 @@ const MENU_ITEMS = [
     icon: 'person-outline' as const,
     label: 'Edit Profile',
     sublabel: 'Update name, phone & preferences',
+    route: 'EditProfile' as const,
   },
   {
     icon: 'location-outline' as const,
     label: 'Saved Addresses',
     sublabel: 'Home, work and other addresses',
+    route: 'SavedAddresses' as const,
   },
-  { icon: 'card-outline' as const, label: 'Payment Methods', sublabel: 'Cards, UPI and wallets' },
+  {
+    icon: 'card-outline' as const,
+    label: 'Payment Methods',
+    sublabel: 'Cards, UPI and wallets',
+    route: 'PaymentMethods' as const,
+  },
   {
     icon: 'notifications-outline' as const,
     label: 'Notifications',
     sublabel: 'Manage delivery alerts',
+    route: 'Notifications' as const,
   },
-  { icon: 'help-circle-outline' as const, label: 'Help & Support', sublabel: '24/7 customer care' },
+  {
+    icon: 'help-circle-outline' as const,
+    label: 'Help & Support',
+    sublabel: '24/7 customer care',
+    route: 'HelpSupport' as const,
+  },
   {
     icon: 'document-text-outline' as const,
     label: 'Privacy Policy',
     sublabel: 'Read our data practices',
+    route: 'PrivacyPolicy' as const,
   },
 ];
 
@@ -56,11 +63,12 @@ const MenuRow = ({
 }) => {
   const S = useMemo(() => createStyles(C), [C]);
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
       <TouchableOpacity
         style={[S.menuRow, index < total - 1 && S.menuBorder]}
-        onPress={() => {}}
+        onPress={() => nav.navigate(item.route)}
         onPressIn={() =>
           Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, friction: 8 }).start()
         }
@@ -86,13 +94,18 @@ export default function ProfileScreen() {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
   const { user, logout, isAuthenticated } = useAuth();
+  const { confirm } = useAlert();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParams>>();
 
   const handleLogout = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: logout },
-    ]);
+    confirm(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      logout,
+      undefined,
+      'Sign Out',
+      'Cancel',
+    );
   };
 
   if (!isAuthenticated)

@@ -2,9 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // In development, this is your Mac's IP when testing on a physical device.
-const API_URL = __DEV__
-  ? 'http://10.48.176.39:5005/api' 
-  : 'https://api.tiffo.in/api'; 
+const API_URL = 'https://api.tiffo.in/api'; 
 
 export const createApi = (tokenKey: string, userKey: string) => {
   const api = axios.create({

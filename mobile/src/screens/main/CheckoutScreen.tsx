@@ -10,12 +10,12 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import RazorpayCheckout from 'react-native-razorpay';
 
+import { useAlert } from '../../contexts/AlertContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
 import { ColorScheme } from '../../theme/colors';
@@ -31,6 +31,7 @@ const TIMES = ['12:30 PM', '01:00 PM', '01:30 PM', '07:30 PM', '08:00 PM'];
 export default function CheckoutScreen({ route, navigation }: Props) {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
+  const { success, error, warning } = useAlert();
   const { tiffinId, plan, price } = route.params;
   const [address, setAddress] = useState('');
   const [time, setTime] = useState(TIMES[0]);
@@ -43,7 +44,7 @@ export default function CheckoutScreen({ route, navigation }: Props) {
 
   const handleConfirmOrder = async () => {
     if (!address.trim()) {
-      Alert.alert('Missing Info', 'Please enter your delivery address.');
+      warning('Missing Info', 'Please enter your delivery address.');
       return;
     }
     setLoading(true);
@@ -61,10 +62,10 @@ export default function CheckoutScreen({ route, navigation }: Props) {
 
       if (payMethod === 'cod') {
         await api.post('/payments/cod', { subscriptionId });
-        Alert.alert(
+        success(
           'Order Placed! 🎉',
           'Your subscription is confirmed. Pay cash on first delivery.',
-          [{ text: 'View Subscriptions', onPress: () => navigation.navigate('MainTabs') }],
+          () => navigation.navigate('MainTabs'),
         );
         setLoading(false);
         return;
@@ -87,24 +88,24 @@ export default function CheckoutScreen({ route, navigation }: Props) {
         .then(async (data: any) => {
           try {
             await api.post('/payments/verify', { ...data, subscriptionId });
-            Alert.alert(
+            success(
               'Payment Successful! 🎉',
               'Your subscription is active. Meals start tomorrow!',
-              [{ text: 'View Subscriptions', onPress: () => navigation.navigate('MainTabs') }],
+              () => navigation.navigate('MainTabs'),
             );
           } catch {
-            Alert.alert('Verification Failed', 'Contact support.');
+            error('Verification Failed', 'Contact support.');
           } finally {
             setLoading(false);
           }
         })
         .catch((e: any) => {
           setLoading(false);
-          Alert.alert('Payment Failed', e.description || 'Cancelled.');
+          error('Payment Failed', e.description || 'Cancelled.');
         });
     } catch (err: any) {
       setLoading(false);
-      Alert.alert(
+      error(
         'Order Failed',
         err.response?.data?.message || err.message || 'Could not process order.',
       );

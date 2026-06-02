@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
@@ -191,9 +192,11 @@ const BannerCarousel = ({ C }: { C: ColorScheme }) => {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(e) => setIdx(Math.round(e.nativeEvent.contentOffset.x / (SW - 32)))}
-        keyExtractor={(b) => b.id}
-        renderItem={({ item }) => (
+        onMomentumScrollEnd={(e: any) =>
+          setIdx(Math.round(e.nativeEvent.contentOffset.x / (SW - 32)))
+        }
+        keyExtractor={(b: any) => b.id}
+        renderItem={({ item }: { item: any }) => (
           <View
             style={{
               backgroundColor: item.bg,
@@ -236,8 +239,81 @@ export default function HomeScreen() {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
   const { user } = useAuth();
+  const { success, error: showError, warning, confirm } = useAlert();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const [activeCat, setActiveCat] = useState('All');
+
+  const [activeLocCoords, setActiveLocCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [activeLocName, setActiveLocName] = useState<string>('Home');
+
+  // Sync with user's primary address on load or profile update
+  useEffect(() => {
+    if (user?.address?.city) {
+      setActiveLocName(user.address.city);
+      if (user.address.coordinates?.lat && user.address.coordinates?.lng) {
+        setActiveLocCoords({
+          lat: user.address.coordinates.lat,
+          lng: user.address.coordinates.lng,
+        });
+      } else {
+        setActiveLocCoords(null);
+      }
+    } else {
+      setActiveLocName('Select Location...');
+      setActiveLocCoords(null);
+    }
+  }, [user]);
+
+  const handleRequestGPS = () => {
+    confirm(
+      'Use GPS Location',
+      'Would you like to fetch your current GPS coordinates to find nearest tiffins?',
+      () => {
+        if (typeof navigator !== 'undefined' && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setActiveLocName('Near You (GPS)');
+              setActiveLocCoords({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              });
+              success('GPS Connected', 'Now showing tiffins nearest to your position!');
+            },
+            (err) => {
+              showError(
+                'GPS Location Failed',
+                'Could not acquire accurate GPS coordinates. Please manage saved addresses instead.',
+              );
+            },
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
+          );
+        } else {
+          // Geolocation not present (common in node/native environment without expo-location compiled)
+          confirm(
+            'GPS Service Simulation',
+            'Native GPS service is unavailable in this environment. Would you like to simulate a GPS coordinates fetch for Pune City to find nearest tiffins?',
+            () => {
+              setActiveLocName('Locating...');
+              setTimeout(() => {
+                setActiveLocName('Near Pune (Simulated)');
+                setActiveLocCoords({
+                  lat: 18.5204,
+                  lng: 73.8567,
+                });
+                success('GPS Simulated', 'Now showing tiffins nearest to Pune City!');
+              }, 800);
+            },
+            undefined,
+            'Simulate GPS',
+            'Cancel',
+          );
+        }
+      },
+      undefined,
+      'Get Location',
+      'Cancel',
+    );
+  };
 
   const {
     data: tiffins = [],
@@ -247,9 +323,13 @@ export default function HomeScreen() {
     refetch,
     isRefetching,
   } = useQuery<Tiffin[]>({
-    queryKey: ['tiffins', 'active'],
+    queryKey: ['tiffins', 'active', activeLocCoords?.lat, activeLocCoords?.lng],
     queryFn: async () => {
-      const res = await api.get<ApiResponse<Tiffin[]>>('/tiffins?limit=20&status=active');
+      let url = '/tiffins?limit=20&status=active';
+      if (activeLocCoords?.lat && activeLocCoords?.lng) {
+        url += `&lat=${activeLocCoords.lat}&lng=${activeLocCoords.lng}&radius=15`;
+      }
+      const res = await api.get<ApiResponse<Tiffin[]>>(url);
       return res.data?.data || [];
     },
   });
@@ -278,11 +358,13 @@ export default function HomeScreen() {
       >
         {/* Header */}
         <View style={S.header}>
-          <View style={S.locRow}>
+          <TouchableOpacity style={S.locRow} onPress={handleRequestGPS} activeOpacity={0.7}>
             <Ionicons name="location-sharp" size={16} color={C.primary} />
-            <Text style={S.locTxt}>Home</Text>
+            <Text style={S.locTxt} numberOfLines={1}>
+              {activeLocName}
+            </Text>
             <Ionicons name="chevron-down" size={14} color={C.textSecondary} />
-          </View>
+          </TouchableOpacity>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Text style={S.greet}>{greeting()}</Text>
             <View style={S.avatar}>
