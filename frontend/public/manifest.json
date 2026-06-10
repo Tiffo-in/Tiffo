@@ -1,0 +1,29 @@
+{
+  "short_name": "Tiffo",
+  "name": "Tiffo - Homemade Tiffin Services",
+  "description": "Connect with local tiffin service providers and enjoy authentic, homemade meals delivered to your doorstep.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#f97316",
+  "background_color": "#ffffff"
+}
