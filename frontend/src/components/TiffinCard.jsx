@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { StarIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/solid';
 
-const TiffinCard = ({ tiffin, showDistance = false }) => {
+const foodImages = [
+  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
+  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
+  'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445',
+  'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
+];
+
+const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const foodImages = [
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-    'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-    'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445',
-    'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-  ];
-
-  const randomImage = foodImages[Math.floor(Math.random() * foodImages.length)];
+  const randomImage = useMemo(() => foodImages[Math.floor(Math.random() * foodImages.length)], []);
 
   // Compute discount info
   const discount = tiffin.discount;
@@ -153,6 +153,6 @@ const TiffinCard = ({ tiffin, showDistance = false }) => {
       </motion.div>
     </Link>
   );
-};
+});
 
 export default TiffinCard;

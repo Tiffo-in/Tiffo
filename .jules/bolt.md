@@ -1,0 +1,3 @@
+## 2024-05-18 - TiffinCard Re-renders and Image Flickering
+**Learning:** Found that `TiffinCard`, heavily used in list views (`Tiffins.jsx`, `Home.jsx`), was redefining a static fallback array, calculating random images synchronously on every render, and lacking memoization. This led to unnecessary re-renders when parent components updated, and more importantly, caused the random placeholder image to visibly flicker or change on every re-render.
+**Action:** Extract static arrays outside React components. Use `React.memo()` for list item components. Use `useMemo` with an empty dependency array (`[]`) for stable random values (like placeholder images) so they don't change and cause visual flickering on re-renders.
