@@ -35,7 +35,11 @@ describe('Tiffin Controller', () => {
         { _id: '2', name: 'Tiffin 2', rating: { average: 4.0 } }
       ];
 
+      Tiffin.countDocuments.mockResolvedValue(2);
       Tiffin.find.mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
         populate: jest.fn().mockResolvedValue(mockTiffins)
       });
 
@@ -54,9 +58,7 @@ describe('Tiffin Controller', () => {
     });
 
     it('should return 400 if an error occurs', async () => {
-      Tiffin.find.mockReturnValue({
-        populate: jest.fn().mockRejectedValue(new Error('DB Error'))
-      });
+      Tiffin.countDocuments.mockRejectedValue(new Error('DB Error'));
 
       await getTiffins(mockReq, mockRes);
 
