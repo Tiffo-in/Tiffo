@@ -11,34 +11,47 @@ exports.fetchUserSubscriptions = async (userId) => {
     .populate('partner', 'businessName')
     .sort({ createdAt: -1 });
 
-  const subscriptionsWithStats = await Promise.all(
-    subscriptions.map(async (subscription) => {
-      const totalDeliveries = await Delivery.countDocuments({
-        subscription: subscription._id,
-      });
+  const subIds = subscriptions.map((s) => s._id);
 
-      const deliveredCount = await Delivery.countDocuments({
-        subscription: subscription._id,
-        status: 'delivered',
-      });
-
-      const remainingDeliveries = await Delivery.countDocuments({
-        subscription: subscription._id,
-        status: { $in: ['scheduled', 'preparing', 'out_for_delivery'] },
-      });
-
-      return {
-        ...subscription.toObject(),
-        deliveryStats: {
-          totalDeliveries,
-          deliveredCount,
-          remainingDeliveries,
+  // ⚡ Bolt Optimization: Replace N+1 queries with a single aggregation
+  const deliveryStats = await Delivery.aggregate([
+    { $match: { subscription: { $in: subIds } } },
+    {
+      $group: {
+        _id: '$subscription',
+        totalDeliveries: { $sum: 1 },
+        deliveredCount: {
+          $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] },
         },
-      };
-    }),
-  );
+        remainingDeliveries: {
+          $sum: {
+            $cond: [{ $in: ['$status', ['scheduled', 'preparing', 'out_for_delivery']] }, 1, 0],
+          },
+        },
+      },
+    },
+  ]);
 
-  return subscriptionsWithStats;
+  const statsMap = deliveryStats.reduce((acc, stat) => {
+    acc[stat._id.toString()] = stat;
+    return acc;
+  }, {});
+
+  return subscriptions.map((subscription) => {
+    const stats = statsMap[subscription._id.toString()] || {
+      totalDeliveries: 0,
+      deliveredCount: 0,
+      remainingDeliveries: 0,
+    };
+    return {
+      ...subscription.toObject(),
+      deliveryStats: {
+        totalDeliveries: stats.totalDeliveries,
+        deliveredCount: stats.deliveredCount,
+        remainingDeliveries: stats.remainingDeliveries,
+      },
+    };
+  });
 };
 
 exports.fetchSubscriptionDetails = async (subscriptionId, userId) => {
@@ -86,26 +99,34 @@ exports.fetchOrderHistory = async (userId) => {
     .populate('partner', 'businessName')
     .sort({ endDate: -1 });
 
-  const historyWithStats = await Promise.all(
-    pastSubscriptions.map(async (subscription) => {
-      const deliveredCount = await Delivery.countDocuments({
-        subscription: subscription._id,
-        status: 'delivered',
-      });
+  const subIds = pastSubscriptions.map((s) => s._id);
 
-      return {
-        ...subscription.toObject(),
-        deliveredCount,
-        totalAmount: subscription.totalAmount,
-        duration: Math.ceil(
-          (new Date(subscription.endDate) - new Date(subscription.startDate)) /
-            (1000 * 60 * 60 * 24),
-        ),
-      };
-    }),
-  );
+  // ⚡ Bolt Optimization: Replace N+1 queries with a single aggregation
+  const deliveryStats = await Delivery.aggregate([
+    { $match: { subscription: { $in: subIds }, status: 'delivered' } },
+    {
+      $group: {
+        _id: '$subscription',
+        deliveredCount: { $sum: 1 },
+      },
+    },
+  ]);
 
-  return historyWithStats;
+  const statsMap = deliveryStats.reduce((acc, stat) => {
+    acc[stat._id.toString()] = stat.deliveredCount;
+    return acc;
+  }, {});
+
+  return pastSubscriptions.map((subscription) => {
+    return {
+      ...subscription.toObject(),
+      deliveredCount: statsMap[subscription._id.toString()] || 0,
+      totalAmount: subscription.totalAmount,
+      duration: Math.ceil(
+        (new Date(subscription.endDate) - new Date(subscription.startDate)) / (1000 * 60 * 60 * 24),
+      ),
+    };
+  });
 };
 
 exports.pauseUserSubscription = async (subscriptionId, userId) => {
