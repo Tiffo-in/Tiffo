@@ -8,7 +8,7 @@ const FraudReport = require('../models/FraudReport');
 exports.createFraudReport = async (req, res, next) => {
   try {
     const reportData = { ...req.body };
-    
+
     // Attach user ID if logged in
     if (req.user) {
       reportData.reporterUserId = req.user._id;
@@ -19,7 +19,7 @@ exports.createFraudReport = async (req, res, next) => {
     res.status(201).json({
       success: true,
       data: report,
-      message: 'Fraud report submitted successfully. We will investigate this matter.'
+      message: 'Fraud report submitted successfully. We will investigate this matter.',
     });
   } catch (error) {
     next(error);
@@ -58,9 +58,9 @@ exports.getFraudReports = async (req, res, next) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
+        pages: Math.ceil(total / limit),
       },
-      data: reports
+      data: reports,
     });
   } catch (error) {
     next(error);
@@ -75,25 +75,25 @@ exports.getFraudReports = async (req, res, next) => {
 exports.updateFraudReportStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    
+
     if (!['open', 'under_investigation', 'action_taken', 'dismissed'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status value'});
+      return res.status(400).json({ success: false, message: 'Invalid status value' });
     }
 
     const report = await FraudReport.findByIdAndUpdate(
       req.params.id,
       { status },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!report) {
-      return res.status(404).json({ success: false, message: 'Fraud report not found'});
+      return res.status(404).json({ success: false, message: 'Fraud report not found' });
     }
 
     res.status(200).json({
       success: true,
       data: report,
-      message: `Fraud report marked as ${status}`
+      message: `Fraud report marked as ${status}`,
     });
   } catch (error) {
     next(error);

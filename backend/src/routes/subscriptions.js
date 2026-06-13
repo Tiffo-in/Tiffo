@@ -8,7 +8,7 @@ const {
   getUserStats,
   pauseSubscription,
   resumeSubscription,
-  createSubscription
+  createSubscription,
 } = require('../controllers/subscriptionController');
 
 // Create subscription (discount pricing applied server-side)

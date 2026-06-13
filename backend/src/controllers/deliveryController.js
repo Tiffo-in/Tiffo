@@ -1,6 +1,7 @@
 const Delivery = require('../models/Delivery');
 const Subscription = require('../models/Subscription');
 const { emitDeliveryUpdate } = require('../services/socketService');
+const logger = require('../utils/logger');
 
 /**
  * Update delivery status
@@ -16,10 +17,11 @@ exports.updateDeliveryStatus = async (req, res) => {
       {
         status,
         notes,
-        [`${status}At`]: new Date()
+        [`${status}At`]: new Date(),
       },
-      { new: true }
-    ).populate('user', 'name phone')
+      { new: true },
+    )
+      .populate('user', 'name phone')
       .populate('subscription');
 
     if (!delivery) {
@@ -27,13 +29,7 @@ exports.updateDeliveryStatus = async (req, res) => {
     }
 
     // Emit real-time update
-    emitDeliveryUpdate(
-      delivery._id,
-      delivery.user._id,
-      req.user.id,
-      status,
-      { delivery }
-    );
+    emitDeliveryUpdate(delivery._id, delivery.user._id, req.user.id, status, { delivery });
 
     res.json({ success: true, data: delivery });
   } catch (error) {
@@ -103,8 +99,8 @@ exports.getPartnerDeliveries = async (req, res) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -125,8 +121,8 @@ exports.getDeliveryStats = async (req, res) => {
       {
         $match: {
           partner: req.user._id,
-          deliveryDate: { $gte: startDate }
-        }
+          deliveryDate: { $gte: startDate },
+        },
       },
       {
         $group: {
@@ -135,9 +131,9 @@ exports.getDeliveryStats = async (req, res) => {
           pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
           outForDelivery: { $sum: { $cond: [{ $eq: ['$status', 'out_for_delivery'] }, 1, 0] } },
           delivered: { $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] } },
-          cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } }
-        }
-      }
+          cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } },
+        },
+      },
     ]);
 
     // Today's deliveries
@@ -148,21 +144,21 @@ exports.getDeliveryStats = async (req, res) => {
 
     const todayDeliveries = await Delivery.countDocuments({
       partner: req.user.id,
-      deliveryDate: { $gte: today, $lt: tomorrow }
+      deliveryDate: { $gte: today, $lt: tomorrow },
     });
 
     res.json({
       success: true,
       data: {
-        ...stats[0] || {
+        ...(stats[0] || {
           total: 0,
           pending: 0,
           outForDelivery: 0,
           delivered: 0,
-          cancelled: 0
-        },
-        todayDeliveries
-      }
+          cancelled: 0,
+        }),
+        todayDeliveries,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -182,39 +178,35 @@ exports.batchUpdateDeliveries = async (req, res) => {
     }
 
     if (deliveryIds.length > 100) {
-      return res.status(400).json({ success: false, message: 'Batch size too large. Maximum 100 IDs per request allowed.' });
+      return res.status(400).json({
+        success: false,
+        message: 'Batch size too large. Maximum 100 IDs per request allowed.',
+      });
     }
 
     const result = await Delivery.updateMany(
       {
         _id: { $in: deliveryIds },
-        partner: req.user.id
+        partner: req.user.id,
       },
       {
         status,
         notes,
-        [`${status}At`]: new Date()
-      }
+        [`${status}At`]: new Date(),
+      },
     );
 
     // Emit updates for each delivery
-    const deliveries = await Delivery.find({ _id: { $in: deliveryIds } })
-      .populate('user', '_id');
+    const deliveries = await Delivery.find({ _id: { $in: deliveryIds } }).populate('user', '_id');
 
-    deliveries.forEach(delivery => {
-      emitDeliveryUpdate(
-        delivery._id,
-        delivery.user._id,
-        req.user.id,
-        status,
-        { delivery }
-      );
+    deliveries.forEach((delivery) => {
+      emitDeliveryUpdate(delivery._id, delivery.user._id, req.user.id, status, { delivery });
     });
 
     res.json({
       success: true,
       message: `${result.modifiedCount} deliveries updated`,
-      modifiedCount: result.modifiedCount
+      modifiedCount: result.modifiedCount,
     });
   } catch (error) {
     logger.error('batchUpdateDeliveries error:', { error: error.message });
@@ -238,9 +230,9 @@ exports.getAdminDeliveryOverview = async (req, res) => {
         {
           $group: {
             _id: '$status',
-            count: { $sum: 1 }
-          }
-        }
+            count: { $sum: 1 },
+          },
+        },
       ]),
       // Weekly stats
       Delivery.aggregate([
@@ -249,14 +241,14 @@ exports.getAdminDeliveryOverview = async (req, res) => {
           $group: {
             _id: null,
             total: { $sum: 1 },
-            delivered: { $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] } }
-          }
-        }
-      ])
+            delivered: { $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] } },
+          },
+        },
+      ]),
     ]);
 
     const todayByStatus = {};
-    todayStats.forEach(stat => {
+    todayStats.forEach((stat) => {
       todayByStatus[stat._id] = stat.count;
     });
 
@@ -264,8 +256,8 @@ exports.getAdminDeliveryOverview = async (req, res) => {
       success: true,
       data: {
         today: todayByStatus,
-        week: weekStats[0] || { total: 0, delivered: 0 }
-      }
+        week: weekStats[0] || { total: 0, delivered: 0 },
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -302,17 +294,24 @@ exports.getAdminDeliveries = async (req, res) => {
         $or: [
           { 'userInfo.name': searchRegex },
           { 'userInfo.phone': searchRegex },
-          { 'partnerInfo.businessName': searchRegex }
-        ]
+          { 'partnerInfo.businessName': searchRegex },
+        ],
       };
 
       const pipeline = [
         { $match: query },
         { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'userInfo' } },
         { $unwind: { path: '$userInfo', preserveNullAndEmptyArrays: true } },
-        { $lookup: { from: 'partners', localField: 'partner', foreignField: 'user', as: 'partnerInfo' } },
+        {
+          $lookup: {
+            from: 'partners',
+            localField: 'partner',
+            foreignField: 'user',
+            as: 'partnerInfo',
+          },
+        },
         { $unwind: { path: '$partnerInfo', preserveNullAndEmptyArrays: true } },
-        { $match: searchFilter }
+        { $match: searchFilter },
       ];
 
       const [deliveries, countResult] = await Promise.all([
@@ -320,16 +319,16 @@ exports.getAdminDeliveries = async (req, res) => {
           ...pipeline,
           { $sort: { deliveryDate: -1, createdAt: -1 } },
           { $skip: (page - 1) * limit },
-          { $limit: limit }
+          { $limit: limit },
         ]),
-        Delivery.aggregate([...pipeline, { $count: 'total' }])
+        Delivery.aggregate([...pipeline, { $count: 'total' }]),
       ]);
 
       const total = countResult[0]?.total || 0;
       return res.json({
         success: true,
         data: deliveries,
-        pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) },
       });
     }
 
@@ -342,16 +341,15 @@ exports.getAdminDeliveries = async (req, res) => {
         .sort({ deliveryDate: -1, createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit),
-      Delivery.countDocuments(query)
+      Delivery.countDocuments(query),
     ]);
 
     res.json({
       success: true,
       data: deliveries,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-

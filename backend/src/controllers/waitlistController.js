@@ -18,7 +18,7 @@ exports.joinWaitlist = async (req, res) => {
     await Waitlist.findOneAndUpdate(
       { email },
       { email, source: req.body.source || 'home_page' },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, new: true, runValidators: true },
     );
 
     logger.info(`Waitlist signup: ${email}`);

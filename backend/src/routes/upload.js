@@ -14,7 +14,7 @@ router.post('/', protect, upload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'No file uploaded'
+        message: 'No file uploaded',
       });
     }
 
@@ -30,13 +30,13 @@ router.post('/', protect, upload.single('file'), async (req, res) => {
       success: true,
       url: result.secure_url,
       public_id: result.public_id,
-      message: 'Image uploaded successfully'
+      message: 'Image uploaded successfully',
     });
   } catch (error) {
     console.error('Cloudinary Upload Error:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Server error while uploading image'
+      message: error.message || 'Server error while uploading image',
     });
   }
 });

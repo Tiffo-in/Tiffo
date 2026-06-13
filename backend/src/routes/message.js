@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const {
-    sendMessage,
-    getConversations,
-    getMessages,
-    markAsRead,
-    getUnreadCount
+  sendMessage,
+  getConversations,
+  getMessages,
+  markAsRead,
+  getUnreadCount,
 } = require('../controllers/messageController');
 
 // All routes require authentication
