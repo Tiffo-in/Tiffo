@@ -386,17 +386,20 @@ describe('Payment Controller', () => {
       ];
 
       // Build a proper chain: .sort().limit().skip().populate().populate()
-      // Note: we need to handle the two calls to PaymentLog.find
       PaymentLog.find.mockImplementation(() => {
         return {
           sort: jest.fn().mockReturnThis(),
           limit: jest.fn().mockReturnThis(),
           skip: jest.fn().mockReturnThis(),
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue(mockLogs)
+            populate: jest.fn().mockResolvedValue(mockLogs),
           }),
-          then: function(resolve) { resolve(mockLogs); },
-          filter: function(fn) { return mockLogs.filter(fn); }
+          then: function (resolve) {
+            resolve(mockLogs);
+          },
+          filter: function (fn) {
+            return mockLogs.filter(fn);
+          },
         };
       });
       PaymentLog.countDocuments.mockResolvedValue(2);
@@ -422,10 +425,14 @@ describe('Payment Controller', () => {
           limit: jest.fn().mockReturnThis(),
           skip: jest.fn().mockReturnThis(),
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue([])
+            populate: jest.fn().mockResolvedValue([]),
           }),
-          then: function(resolve) { resolve([]); },
-          filter: function() { return []; }
+          then: function (resolve) {
+            resolve([]);
+          },
+          filter: function () {
+            return [];
+          },
         };
       });
       PaymentLog.countDocuments.mockResolvedValue(0);

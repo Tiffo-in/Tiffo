@@ -159,7 +159,6 @@ exports.getPaymentHistory = async (req, res) => {
 
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
     logger.error('Get payment history error:', { stack: error.stack });
     res.status(500).json({ success: false, message: 'Server error' });
   }
