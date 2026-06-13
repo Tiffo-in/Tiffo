@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import toast from 'react-hot-toast';
+import DOMPurify from 'dompurify';
 import api from '../services/api';
 
 const BlogEditor = () => {
@@ -365,7 +366,7 @@ const BlogEditor = () => {
                         )}
                         <div
                             className="prose max-w-none"
-                            dangerouslySetInnerHTML={{ __html: formData.content }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formData.content) }}
                         />
                     </div>
                 )}
