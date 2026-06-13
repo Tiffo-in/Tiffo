@@ -11,9 +11,7 @@ const {
   pauseSubscription,
   resumeSubscription,
   getSubscriptionDetails,
-  getUserSubscriptions,
   getUserStats,
-  getOrderHistory,
 } = require('../subscriptionController');
 
 const Subscription = require('../../models/Subscription');
