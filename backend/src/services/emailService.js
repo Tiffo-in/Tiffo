@@ -8,59 +8,59 @@ let transporter = null;
  * Initialize email transporter
  */
 const initializeEmailService = () => {
-    try {
-        transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-            port: process.env.EMAIL_PORT || 587,
-            secure: false, // true for 465, false for other ports
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
+  try {
+    transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      port: process.env.EMAIL_PORT || 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-        logger.info('Email service initialized');
-        return transporter;
-    } catch (error) {
-        logger.error('Email service initialization failed:', { stack: error.stack });
-        return null;
-    }
+    logger.info('Email service initialized');
+    return transporter;
+  } catch (error) {
+    logger.error('Email service initialization failed:', { stack: error.stack });
+    return null;
+  }
 };
 
 /**
  * Send email helper
  */
 const sendEmail = async (to, subject, html, text) => {
-    try {
-        if (!transporter) {
-            logger.warn('Email service not initialized, skipping email send');
-            return { success: false, message: 'Email service not configured' };
-        }
-
-        const mailOptions = {
-            from: process.env.EMAIL_FROM || 'TIFFO <noreply@tiffo.com>',
-            to,
-            subject,
-            html,
-            text
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        logger.info(`Email sent to ${to}: ${info.messageId}`);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        logger.error(`Error sending email to ${to}: ${error.message}`);
-        return { success: false, error: error.message };
+  try {
+    if (!transporter) {
+      logger.warn('Email service not initialized, skipping email send');
+      return { success: false, message: 'Email service not configured' };
     }
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'TIFFO <noreply@tiffo.com>',
+      to,
+      subject,
+      html,
+      text,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    logger.info(`Email sent to ${to}: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    logger.error(`Error sending email to ${to}: ${error.message}`);
+    return { success: false, error: error.message };
+  }
 };
 
 /**
  * Payment confirmation email
  */
 const sendPaymentConfirmation = async (user, subscription, payment) => {
-    const subject = '✅ Payment Confirmed - TIFFO Subscription';
+  const subject = '✅ Payment Confirmed - TIFFO Subscription';
 
-    const html = `
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -127,7 +127,7 @@ const sendPaymentConfirmation = async (user, subscription, payment) => {
         </html>
     `;
 
-    const text = `
+  const text = `
 Payment Confirmed - TIFFO
 
 Hello ${user.name},
@@ -149,16 +149,16 @@ Thank you for choosing TIFFO!
 Questions? Contact us at support@tiffo.com
     `;
 
-    return await sendEmail(user.email, subject, html, text);
+  return await sendEmail(user.email, subject, html, text);
 };
 
 /**
  * Payment failure notification
  */
 const sendPaymentFailure = async (user, subscription, errorDetails) => {
-    const subject = '❌ Payment Failed - TIFFO Subscription';
+  const subject = '❌ Payment Failed - TIFFO Subscription';
 
-    const html = `
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -205,7 +205,7 @@ const sendPaymentFailure = async (user, subscription, errorDetails) => {
         </html>
     `;
 
-    const text = `
+  const text = `
 Payment Failed - TIFFO
 
 Hello ${user.name},
@@ -222,16 +222,16 @@ You can retry the payment at: ${process.env.FRONTEND_URL || 'http://localhost:30
 Need help? Contact us at support@tiffo.com
     `;
 
-    return await sendEmail(user.email, subject, html, text);
+  return await sendEmail(user.email, subject, html, text);
 };
 
 /**
  * Partner payment notification
  */
 const sendPartnerPaymentNotification = async (partner, subscription, transferAmount) => {
-    const subject = '💰 Payment Received - TIFFO';
+  const subject = '💰 Payment Received - TIFFO';
 
-    const html = `
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -274,7 +274,7 @@ const sendPartnerPaymentNotification = async (partner, subscription, transferAmo
         </html>
     `;
 
-    const text = `
+  const text = `
 Payment Received - TIFFO
 
 Hello ${partner.businessName || partner.name},
@@ -289,17 +289,17 @@ Transaction Details:
 View earnings: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/partner/earnings
     `;
 
-    return await sendEmail(partner.email, subject, html, text);
+  return await sendEmail(partner.email, subject, html, text);
 };
 
 /**
  * Admin transfer failure alert
  */
 const sendAdminTransferFailureAlert = async (subscription, errorDetails) => {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@tiffo.com';
-    const subject = '⚠️ Transfer Failed - Action Required';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@tiffo.com';
+  const subject = '⚠️ Transfer Failed - Action Required';
 
-    const html = `
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -338,7 +338,7 @@ const sendAdminTransferFailureAlert = async (subscription, errorDetails) => {
         </html>
     `;
 
-    const text = `
+  const text = `
 TIFFO Admin Alert - Transfer Failed
 
 A payment transfer to partner has failed.
@@ -352,16 +352,16 @@ Error: ${errorDetails.errorDescription || 'Unknown error'}
 Please investigate and retry the transfer manually.
     `;
 
-    return await sendEmail(adminEmail, subject, html, text);
+  return await sendEmail(adminEmail, subject, html, text);
 };
 
 /**
  * Refund confirmation email
  */
 const sendRefundConfirmation = async (user, subscription, refundAmount) => {
-    const subject = '💳 Refund Processed - TIFFO';
+  const subject = '💳 Refund Processed - TIFFO';
 
-    const html = `
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -404,7 +404,7 @@ const sendRefundConfirmation = async (user, subscription, refundAmount) => {
         </html>
     `;
 
-    const text = `
+  const text = `
 Refund Processed - TIFFO
 
 Hello ${user.name},
@@ -420,15 +420,15 @@ The refund will be credited to your original payment method within 5-7 business 
 Questions? Contact us at support@tiffo.com
     `;
 
-    return await sendEmail(user.email, subject, html, text);
+  return await sendEmail(user.email, subject, html, text);
 };
 
 module.exports = {
-    initializeEmailService,
-    sendEmail,
-    sendPaymentConfirmation,
-    sendPaymentFailure,
-    sendPartnerPaymentNotification,
-    sendAdminTransferFailureAlert,
-    sendRefundConfirmation
+  initializeEmailService,
+  sendEmail,
+  sendPaymentConfirmation,
+  sendPaymentFailure,
+  sendPartnerPaymentNotification,
+  sendAdminTransferFailureAlert,
+  sendRefundConfirmation,
 };

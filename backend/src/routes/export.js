@@ -3,11 +3,11 @@ const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const { adminAuth } = require('../middlewares/adminAuth');
 const {
-    exportCustomersCSV,
-    exportOrdersCSV,
-    exportPaymentsCSV,
-    exportSubscriptionsCSV,
-    getSummaryReport
+  exportCustomersCSV,
+  exportOrdersCSV,
+  exportPaymentsCSV,
+  exportSubscriptionsCSV,
+  getSummaryReport,
 } = require('../controllers/exportController');
 
 // All export routes require authentication

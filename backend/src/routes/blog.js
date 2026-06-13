@@ -2,15 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middlewares/auth');
 const {
-    createBlogPost,
-    updateBlogPost,
-    deleteBlogPost,
-    getAllPostsAdmin,
-    getAllPosts,
-    getPostBySlug,
-    incrementViews,
-    getBlogStats,
-    getCategories
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
+  getAllPostsAdmin,
+  getAllPosts,
+  getPostBySlug,
+  incrementViews,
+  getBlogStats,
+  getCategories,
 } = require('../controllers/blogController');
 
 // Public routes

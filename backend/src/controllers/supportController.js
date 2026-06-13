@@ -8,9 +8,9 @@ const SupportRequest = require('../models/SupportRequest');
 exports.createSupportRequest = async (req, res, next) => {
   try {
     const { name, email, subject, message } = req.body;
-    
+
     const requestData = { name, email, subject, message };
-    
+
     // Attach user ID if logged in
     if (req.user) {
       requestData.userId = req.user._id;
@@ -21,7 +21,7 @@ exports.createSupportRequest = async (req, res, next) => {
     res.status(201).json({
       success: true,
       data: supportRequest,
-      message: 'Support request submitted successfully'
+      message: 'Support request submitted successfully',
     });
   } catch (error) {
     next(error);
@@ -57,9 +57,9 @@ exports.getSupportRequests = async (req, res, next) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
+        pages: Math.ceil(total / limit),
       },
-      data: requests
+      data: requests,
     });
   } catch (error) {
     next(error);
@@ -74,25 +74,25 @@ exports.getSupportRequests = async (req, res, next) => {
 exports.updateSupportStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    
+
     if (!['pending', 'investigating', 'resolved', 'closed'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status value'});
+      return res.status(400).json({ success: false, message: 'Invalid status value' });
     }
 
     const supportRequest = await SupportRequest.findByIdAndUpdate(
       req.params.id,
       { status },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!supportRequest) {
-      return res.status(404).json({ success: false, message: 'Support request not found'});
+      return res.status(404).json({ success: false, message: 'Support request not found' });
     }
 
     res.status(200).json({
       success: true,
       data: supportRequest,
-      message: `Support request marked as ${status}`
+      message: `Support request marked as ${status}`,
     });
   } catch (error) {
     next(error);

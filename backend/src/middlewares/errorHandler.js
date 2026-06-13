@@ -19,7 +19,9 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message).join(', ');
+    const message = Object.values(err.errors)
+      .map((val) => val.message)
+      .join(', ');
     error = { message, statusCode: 400 };
   }
 
@@ -27,13 +29,12 @@ const errorHandler = (err, req, res, next) => {
 
   // In production, never leak internal error details for 5xx responses
   const isProduction = process.env.NODE_ENV === 'production';
-  const message = (isProduction && statusCode >= 500)
-    ? 'Internal Server Error'
-    : (error.message || 'Server Error');
+  const message =
+    isProduction && statusCode >= 500 ? 'Internal Server Error' : error.message || 'Server Error';
 
   res.status(statusCode).json({
     success: false,
-    message
+    message,
   });
 };
 

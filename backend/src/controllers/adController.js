@@ -26,12 +26,9 @@ const resetDailyBudgetsIfNeeded = async () => {
   startOfToday.setHours(0, 0, 0, 0);
   await AdCampaign.updateMany(
     {
-      $or: [
-        { lastSpentDate: { $lt: startOfToday } },
-        { lastSpentDate: null }
-      ]
+      $or: [{ lastSpentDate: { $lt: startOfToday } }, { lastSpentDate: null }],
     },
-    { $set: { spentToday: 0, lastSpentDate: new Date() } }
+    { $set: { spentToday: 0, lastSpentDate: new Date() } },
   );
 };
 
@@ -46,7 +43,9 @@ exports.getAdListings = async (req, res) => {
     const { lat, lng, radius = 10, mealType } = req.query;
 
     if (!lat || !lng) {
-      return res.status(400).json({ success: false, message: 'Latitude and longitude are required' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Latitude and longitude are required' });
     }
 
     // Bug 10 fix: lazy-reset daily budgets before querying active campaigns
@@ -55,7 +54,7 @@ exports.getAdListings = async (req, res) => {
     const userLat = parseFloat(lat);
     const userLng = parseFloat(lng);
     const searchRadius = parseFloat(radius);
-    
+
     // Hardcoded user ID or IP for frequency capping
     // In actual app, use req.user?.id or extract IP
     const trackingUserId = req.user ? req.user.id : req.ip;
@@ -64,19 +63,19 @@ exports.getAdListings = async (req, res) => {
     const nearbyPartners = await Partner.aggregate([
       {
         $geoNear: {
-          near: { type: "Point", coordinates: [userLng, userLat] },
-          distanceField: "distance",
+          near: { type: 'Point', coordinates: [userLng, userLat] },
+          distanceField: 'distance',
           maxDistance: searchRadius * 1000,
           distanceMultiplier: 1 / 1000,
           spherical: true,
-          query: { isActive: true }
-        }
-      }
+          query: { isActive: true },
+        },
+      },
     ]);
 
-    const partnerIds = nearbyPartners.map(p => p._id);
+    const partnerIds = nearbyPartners.map((p) => p._id);
     const distanceMap = {};
-    nearbyPartners.forEach(p => {
+    nearbyPartners.forEach((p) => {
       distanceMap[p._id.toString()] = p.distance;
     });
 
@@ -88,13 +87,13 @@ exports.getAdListings = async (req, res) => {
       isActive: true,
       $or: [{ slot: activeSlot }, { slot: 'AllDay' }],
       $expr: {
-        $lt: ['$spentToday', '$dailyBudget']
-      }
+        $lt: ['$spentToday', '$dailyBudget'],
+      },
     }).populate('partner', 'businessName rating address logo hasActiveSubscriptionBadge');
 
     // 3. Prevent Ad Fatigue (Frequency Capping)
-    const campaignIds = activeCampaigns.map(c => c._id);
-    
+    const campaignIds = activeCampaigns.map((c) => c._id);
+
     // Find how many times this user saw each active campaign TODAY
     const impressionsToday = await AdImpression.aggregate([
       {
@@ -102,34 +101,34 @@ exports.getAdListings = async (req, res) => {
           userId: trackingUserId,
           campaignId: { $in: campaignIds },
           createdAt: {
-            $gte: new Date(new Date().setHours(0, 0, 0, 0))
-          }
-        }
+            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          },
+        },
       },
       {
         $group: {
           _id: '$campaignId',
-          count: { $sum: 1 }
-        }
-      }
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const impressionCounts = {};
-    impressionsToday.forEach(imp => {
+    impressionsToday.forEach((imp) => {
       impressionCounts[imp._id.toString()] = imp.count;
     });
 
     // 4. Filter out campaigns with >= 3 impressions today for this user
-    let candidates = activeCampaigns.filter(c => {
+    let candidates = activeCampaigns.filter((c) => {
       const shownCount = impressionCounts[c._id.toString()] || 0;
       return shownCount < 3; // MAX 3 IMPRESSIONS
     });
 
     // 5. Rank remaining campaigns by Ad Rank (Bid * Rating)
-    candidates = candidates.map(c => {
+    candidates = candidates.map((c) => {
       const p = c.partner;
       const rank = c.maxBidPerClick * (p.rating && p.rating.average ? p.rating.average : 3);
-      
+
       const campaignObj = c.toObject();
       campaignObj.distance = distanceMap[p._id.toString()];
       campaignObj.rankScore = rank;
@@ -141,11 +140,10 @@ exports.getAdListings = async (req, res) => {
     res.json({
       success: true,
       data: {
-        sponsored: candidates.slice(0, 3) // Return top 3 ads
+        sponsored: candidates.slice(0, 3), // Return top 3 ads
         // Could also fetch organic here if needed, but for now we separate concerns
-      }
+      },
     });
-
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -158,7 +156,9 @@ exports.getRecommender = async (req, res) => {
     const { lat, lng } = req.query;
 
     if (!lat || !lng) {
-      return res.status(400).json({ success: false, message: 'Latitude and longitude are required' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Latitude and longitude are required' });
     }
 
     const activeSlot = getCurrentSlot();
@@ -167,34 +167,36 @@ exports.getRecommender = async (req, res) => {
     const nearbyPartners = await Partner.aggregate([
       {
         $geoNear: {
-          near: { type: "Point", coordinates: [parseFloat(lng), parseFloat(lat)] },
-          distanceField: "distance",
+          near: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
+          distanceField: 'distance',
           maxDistance: searchRadius * 1000,
-          spherical: true
-        }
-      }
+          spherical: true,
+        },
+      },
     ]);
 
-    const partnerIds = nearbyPartners.map(p => p._id);
-    
+    const partnerIds = nearbyPartners.map((p) => p._id);
+
     // Find the single highest bidding ad with menuOfTheDay or trial meal
     const topCampaign = await AdCampaign.findOne({
       partner: { $in: partnerIds },
       isActive: true,
-      $or: [{ slot: activeSlot }, { slot: 'AllDay' }]
-    }).sort({ maxBidPerClick: -1 }).populate('partner', 'businessName');
+      $or: [{ slot: activeSlot }, { slot: 'AllDay' }],
+    })
+      .sort({ maxBidPerClick: -1 })
+      .populate('partner', 'businessName');
 
     if (!topCampaign) {
       return res.json({
         success: true,
         data: null,
-        message: "No recommendations available near you right now."
+        message: 'No recommendations available near you right now.',
       });
     }
 
     let chatString = `I see you are looking for ${activeSlot.toLowerCase()}; `;
     chatString += `${topCampaign.partner.businessName} has a special today! `;
-    
+
     if (topCampaign.menuOfTheDay) {
       chatString += `Today's menu is ${topCampaign.menuOfTheDay}. `;
     }
@@ -210,8 +212,8 @@ exports.getRecommender = async (req, res) => {
       data: {
         campaignId: topCampaign._id,
         partnerId: topCampaign.partner._id,
-        message: chatString
-      }
+        message: chatString,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -228,24 +230,24 @@ exports.logImpressions = async (req, res) => {
     }
 
     // Validate all campaignIds are valid ObjectIds
-    const validIds = campaignIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    const validIds = campaignIds.filter((id) => mongoose.Types.ObjectId.isValid(id));
     if (validIds.length === 0) {
       return res.status(400).json({ success: false, message: 'No valid campaign IDs provided' });
     }
 
     const trackingUserId = req.user ? req.user.id : req.ip;
 
-    const impressionDocs = validIds.map(id => ({
+    const impressionDocs = validIds.map((id) => ({
       userId: trackingUserId,
-      campaignId: new mongoose.Types.ObjectId(id)
+      campaignId: new mongoose.Types.ObjectId(id),
     }));
 
     await AdImpression.insertMany(impressionDocs);
 
     // Update the aggregate count on the campaigns
     await AdCampaign.updateMany(
-      { _id: { $in: validIds.map(id => new mongoose.Types.ObjectId(id)) } },
-      { $inc: { impressionsCount: 1 } }
+      { _id: { $in: validIds.map((id) => new mongoose.Types.ObjectId(id)) } },
+      { $inc: { impressionsCount: 1 } },
     );
 
     res.json({ success: true, message: 'Impressions logged' });
@@ -284,7 +286,6 @@ exports.logClick = async (req, res) => {
   }
 };
 
-
 // ==============================
 // PARTNER ENDPOINTS (Protected by auth)
 // ==============================
@@ -293,12 +294,13 @@ exports.logClick = async (req, res) => {
 exports.createCampaign = async (req, res) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id });
-    if (!partner) return res.status(404).json({ success: false, message: 'Partner profile required' });
+    if (!partner)
+      return res.status(404).json({ success: false, message: 'Partner profile required' });
 
     const campaign = await AdCampaign.create({
       ...req.body,
       partner: partner._id,
-      freeImpressions: 500 // give 500 free impressions on creation
+      freeImpressions: 500, // give 500 free impressions on creation
     });
 
     res.status(201).json({ success: true, data: campaign });
@@ -311,7 +313,8 @@ exports.createCampaign = async (req, res) => {
 exports.getMyCampaigns = async (req, res) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id });
-    if (!partner) return res.status(404).json({ success: false, message: 'Partner profile required' });
+    if (!partner)
+      return res.status(404).json({ success: false, message: 'Partner profile required' });
 
     const campaigns = await AdCampaign.find({ partner: partner._id }).populate('tiffin');
     res.json({ success: true, data: campaigns });
@@ -332,7 +335,7 @@ exports.updateCampaign = async (req, res) => {
     const campaign = await AdCampaign.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(req.params.id), partner: partner._id },
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!campaign) return res.status(404).json({ success: false, message: 'Campaign not found' });
@@ -350,15 +353,19 @@ exports.updateCampaign = async (req, res) => {
 exports.createWalletOrder = async (req, res) => {
   try {
     const { amount } = req.body; // Amount in INR
-    if (!amount || amount < 100) return res.status(400).json({ success: false, message: 'Minimum wallet top-up is ₹100' });
+    if (!amount || amount < 100)
+      return res.status(400).json({ success: false, message: 'Minimum wallet top-up is ₹100' });
 
     const partner = await Partner.findOne({ user: req.user.id });
-    if (!partner) return res.status(403).json({ success: false, message: 'Only partners can add to Ad Wallet' });
+    if (!partner)
+      return res
+        .status(403)
+        .json({ success: false, message: 'Only partners can add to Ad Wallet' });
 
     const options = {
       amount: amount * 100, // Razorpay takes amount in paise
       currency: 'INR',
-      receipt: `wallet_rcpt_${Date.now()}_${partner._id}`
+      receipt: `wallet_rcpt_${Date.now()}_${partner._id}`,
     };
 
     const order = await razorpay.orders.create(options);
@@ -388,16 +395,25 @@ exports.verifyWalletPayment = async (req, res) => {
     // Payment is successful, add amount to active AdCampaign or a general partner wallet.
     // Assuming the partner has at least one AdCampaign to top up, we find the first or the specified one.
     // For simplicity, top-up the most recently created active campaign.
-    const campaign = await AdCampaign.findOne({ partner: partner._id, isActive: true }).sort({ createdAt: -1 });
+    const campaign = await AdCampaign.findOne({ partner: partner._id, isActive: true }).sort({
+      createdAt: -1,
+    });
 
     if (campaign) {
       campaign.walletBalance += amountAdded; // amountAdded is in INR
       await campaign.save();
     } else {
-      return res.status(400).json({ success: false, message: 'No active AdCampaign found to credit balance to. Please create an ad first.' });
+      return res.status(400).json({
+        success: false,
+        message: 'No active AdCampaign found to credit balance to. Please create an ad first.',
+      });
     }
 
-    res.json({ success: true, message: 'Wallet topped up successfully', walletBalance: campaign.walletBalance });
+    res.json({
+      success: true,
+      message: 'Wallet topped up successfully',
+      walletBalance: campaign.walletBalance,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

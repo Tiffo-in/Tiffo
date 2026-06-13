@@ -6,7 +6,7 @@ jest.mock('../../models/Tiffin');
 jest.mock('../../models/Partner');
 jest.mock('../../utils/logger', () => ({
   info: jest.fn(),
-  error: jest.fn()
+  error: jest.fn(),
 }));
 
 describe('Tiffin Controller', () => {
@@ -16,11 +16,11 @@ describe('Tiffin Controller', () => {
   beforeEach(() => {
     mockReq = {
       query: {},
-      params: {}
+      params: {},
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
+      json: jest.fn().mockReturnThis(),
     };
   });
 
@@ -32,7 +32,7 @@ describe('Tiffin Controller', () => {
     it('should return 200 and paginated tiffins', async () => {
       const mockTiffins = [
         { _id: '1', name: 'Tiffin 1', rating: { average: 4.5 } },
-        { _id: '2', name: 'Tiffin 2', rating: { average: 4.0 } }
+        { _id: '2', name: 'Tiffin 2', rating: { average: 4.0 } },
       ];
 
       Tiffin.countDocuments.mockResolvedValue(2);
@@ -40,21 +40,23 @@ describe('Tiffin Controller', () => {
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
-        populate: jest.fn().mockResolvedValue(mockTiffins)
+        populate: jest.fn().mockResolvedValue(mockTiffins),
       });
 
       mockReq.query = { page: '1', limit: '10' };
 
       await getTiffins(mockReq, mockRes);
 
-      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true,
-        data: expect.any(Array),
-        pagination: expect.objectContaining({
-          page: 1,
-          total: 2
-        })
-      }));
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.any(Array),
+          pagination: expect.objectContaining({
+            page: 1,
+            total: 2,
+          }),
+        }),
+      );
     });
 
     it('should return 400 if an error occurs', async () => {
@@ -63,10 +65,12 @@ describe('Tiffin Controller', () => {
       await getTiffins(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: false,
-        message: 'DB Error'
-      }));
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: 'DB Error',
+        }),
+      );
     });
   });
 
@@ -74,31 +78,35 @@ describe('Tiffin Controller', () => {
     it('should return 200 and the tiffin if found', async () => {
       const mockTiffin = { _id: '1', name: 'Tiffin 1' };
       Tiffin.findById.mockReturnValue({
-        populate: jest.fn().mockResolvedValue(mockTiffin)
+        populate: jest.fn().mockResolvedValue(mockTiffin),
       });
       mockReq.params.id = '1';
 
       await getTiffin(mockReq, mockRes);
 
-      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true,
-        data: mockTiffin
-      }));
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: mockTiffin,
+        }),
+      );
     });
 
     it('should return 404 if tiffin not found', async () => {
       Tiffin.findById.mockReturnValue({
-        populate: jest.fn().mockResolvedValue(null)
+        populate: jest.fn().mockResolvedValue(null),
       });
       mockReq.params.id = 'nonexistent';
 
       await getTiffin(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: false,
-        message: 'Tiffin not found'
-      }));
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: 'Tiffin not found',
+        }),
+      );
     });
   });
 });

@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const {
-    createReview,
-    getReviewsByTiffin,
-    getReviewsByPartner,
-    getReviewStats,
-    updateReview,
-    deleteReview,
-    markReviewHelpful,
-    getMyReviews
+  createReview,
+  getReviewsByTiffin,
+  getReviewsByPartner,
+  getReviewStats,
+  updateReview,
+  deleteReview,
+  markReviewHelpful,
+  getMyReviews,
 } = require('../controllers/reviewController');
 
 // Public routes

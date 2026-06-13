@@ -3,11 +3,11 @@ const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const { adminAuth } = require('../middlewares/adminAuth');
 const {
-    bulkUpdateStatus,
-    bulkDelete,
-    bulkNotify,
-    bulkVerify,
-    getBulkStats
+  bulkUpdateStatus,
+  bulkDelete,
+  bulkNotify,
+  bulkVerify,
+  getBulkStats,
 } = require('../controllers/bulkController');
 
 // All bulk routes require admin authentication

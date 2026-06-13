@@ -11,7 +11,6 @@
  *   const asyncHandler = require('../utils/asyncHandler');
  *   router.get('/resource', asyncHandler(myController));
  */
-const asyncHandler = (fn) => (req, res, next) =>
-  Promise.resolve(fn(req, res, next)).catch(next);
+const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 module.exports = asyncHandler;
