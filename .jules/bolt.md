@@ -3,3 +3,7 @@
 **Action:** Extract static arrays outside React components. Use `React.memo()` for list item components. Use `useMemo` with an empty dependency array (`[]`) for stable random values (like placeholder images) so they don't change and cause visual flickering on re-renders.## 2024-05-18 - DB Pagination Optimization
 **Learning:** The organic browsing query in `getTiffins` fetched all active tiffins into memory and used `.sort().slice()` on the result array, causing a memory footprint bottleneck and an N+1 issue due to population. While memory pagination is necessary for geospatial requests, it is inefficient for standard filtering.
 **Action:** Always check array pagination operations like `.slice()` in controllers. For non-geospatial requests, use database-level pagination like `.skip().limit()` directly at the query level.
+
+## 2024-06-13 - N+1 Query in Subscription Delivery Stats
+**Learning:** The `fetchUserSubscriptions` and `fetchOrderHistory` methods in the subscription service were looping over subscriptions with a `Promise.all` and querying the `Delivery` collection inside the loop. This resulted in an N+1 query problem that significantly impacted backend performance as the number of subscriptions grew.
+**Action:** Always prefer using a single MongoDB aggregation (`aggregate` with `$match` and `$group`) instead of making multiple queries within loops like `Promise.all`.

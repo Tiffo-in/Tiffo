@@ -33,9 +33,6 @@ exports.getCustomerAnalytics = async (req, res) => {
       subscriptionTrends,
       demographics,
       retentionData,
-      previousLifetimeValue,
-      previousActiveSubscriptions,
-      previousInactiveSubscriptions,
     ] = await Promise.all([
       User.countDocuments({ role: 'user' }),
       User.countDocuments({ role: 'user', createdAt: { $gte: startDate } }),
