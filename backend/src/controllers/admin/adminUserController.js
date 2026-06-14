@@ -3,6 +3,7 @@ const Subscription = require('../../models/Subscription');
 const Payment = require('../../models/Payment');
 const logger = require('../../utils/logger');
 const { emitNotification } = require('../../services/socketService');
+const escapeRegex = require('../../utils/escapeRegex');
 
 /**
  * Get all users with pagination and filters
@@ -19,9 +20,10 @@ exports.getUsers = async (req, res) => {
     const query = {};
 
     if (search) {
+      const safeSearch = escapeRegex(search);
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { email: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 
