@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const {
-    setupPartnerAccount,
-    createOrder,
-    verifyPayment,
-    processRefund,
-    getPaymentHistory,
-    confirmCodPayment
+  setupPartnerAccount,
+  createOrder,
+  verifyPayment,
+  processRefund,
+  getPaymentHistory,
+  confirmCodPayment,
 } = require('../controllers/paymentController');
 
 // Partner account setup

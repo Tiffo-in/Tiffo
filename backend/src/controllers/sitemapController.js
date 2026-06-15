@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
 exports.getSitemap = async (req, res) => {
   try {
     const frontendUrl = process.env.FRONTEND_URL || 'https://tiffo.in';
-    
+
     // Static routes
     const staticRoutes = [
       '',
@@ -32,7 +32,7 @@ exports.getSitemap = async (req, res) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
     // Add static routes
-    staticRoutes.forEach(route => {
+    staticRoutes.forEach((route) => {
       xml += `
   <url>
     <loc>${frontendUrl}${route}</loc>
@@ -42,7 +42,7 @@ exports.getSitemap = async (req, res) => {
     });
 
     // Add Tiffins
-    tiffins.forEach(tiffin => {
+    tiffins.forEach((tiffin) => {
       xml += `
   <url>
     <loc>${frontendUrl}/tiffins/${tiffin._id}</loc>
@@ -53,7 +53,7 @@ exports.getSitemap = async (req, res) => {
     });
 
     // Add Blogs
-    blogs.forEach(blog => {
+    blogs.forEach((blog) => {
       xml += `
   <url>
     <loc>${frontendUrl}/blog/${blog.slug}</loc>

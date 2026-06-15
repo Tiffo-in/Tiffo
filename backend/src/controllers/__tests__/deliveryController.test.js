@@ -4,7 +4,7 @@ const {
   getPartnerDeliveries,
   getDeliveryStats,
   batchUpdateDeliveries,
-  getAdminDeliveries
+  getAdminDeliveries,
 } = require('../deliveryController');
 const Delivery = require('../../models/Delivery');
 const Subscription = require('../../models/Subscription');
@@ -23,11 +23,11 @@ describe('Delivery Controller', () => {
       params: {},
       query: {},
       body: {},
-      user: { id: 'partner_id_123', _id: 'partner_id_123', role: 'partner' }
+      user: { id: 'partner_id_123', _id: 'partner_id_123', role: 'partner' },
     };
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
+      json: jest.fn().mockReturnThis(),
     };
     jest.clearAllMocks();
   });
@@ -101,19 +101,19 @@ describe('Delivery Controller', () => {
       const mockDelivery = {
         _id: 'del_1',
         status: 'delivered',
-        user: { _id: 'user_1', name: 'John' }
+        user: { _id: 'user_1', name: 'John' },
       };
 
       Delivery.findOneAndUpdate.mockReturnValue({
         populate: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockResolvedValue(mockDelivery)
+        exec: jest.fn().mockResolvedValue(mockDelivery),
       });
 
       // Simple mock for non-chained populate if used directly
       Delivery.findOneAndUpdate.mockReturnValue({
         populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockResolvedValue(mockDelivery)
-        })
+          populate: jest.fn().mockResolvedValue(mockDelivery),
+        }),
       });
 
       await updateDeliveryStatus(req, res);
@@ -121,7 +121,7 @@ describe('Delivery Controller', () => {
       expect(Delivery.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: 'del_1', partner: 'partner_id_123' },
         expect.objectContaining({ status: 'delivered' }),
-        { new: true }
+        { new: true },
       );
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
       expect(emitDeliveryUpdate).toHaveBeenCalled();
@@ -131,8 +131,8 @@ describe('Delivery Controller', () => {
       req.params.deliveryId = 'del_wrong';
       Delivery.findOneAndUpdate.mockReturnValue({
         populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockResolvedValue(null)
-        })
+          populate: jest.fn().mockResolvedValue(null),
+        }),
       });
 
       await updateDeliveryStatus(req, res);
@@ -145,21 +145,23 @@ describe('Delivery Controller', () => {
   describe('getPartnerDeliveries', () => {
     it('should return paginated deliveries for partner', async () => {
       req.query = { page: '1', limit: '10' };
-      
+
       Delivery.find.mockReturnValue({
         populate: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue([{ _id: 'd1' }])
+        limit: jest.fn().mockResolvedValue([{ _id: 'd1' }]),
       });
       Delivery.countDocuments.mockResolvedValue(1);
 
       await getPartnerDeliveries(req, res);
 
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true,
-        pagination: expect.objectContaining({ total: 1 })
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          pagination: expect.objectContaining({ total: 1 }),
+        }),
+      );
     });
   });
 
@@ -167,34 +169,36 @@ describe('Delivery Controller', () => {
     it('should return 400 if batch size exceeds 100', async () => {
       req.body = {
         deliveryIds: Array(101).fill('id'),
-        status: 'delivered'
+        status: 'delivered',
       };
 
       await batchUpdateDeliveries(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        message: 'Batch size too large. Maximum 100 IDs per request allowed.'
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Batch size too large. Maximum 100 IDs per request allowed.',
+        }),
+      );
       expect(Delivery.updateMany).not.toHaveBeenCalled();
     });
 
     it('should update many and return modified count on success', async () => {
       req.body = {
         deliveryIds: ['id1', 'id2'],
-        status: 'preparing'
+        status: 'preparing',
       };
 
       Delivery.updateMany.mockResolvedValue({ modifiedCount: 2 });
       Delivery.find.mockReturnValue({
-        populate: jest.fn().mockResolvedValue([{ _id: 'id1', user: { _id: 'u1' } }])
+        populate: jest.fn().mockResolvedValue([{ _id: 'id1', user: { _id: 'u1' } }]),
       });
 
       await batchUpdateDeliveries(req, res);
 
       expect(Delivery.updateMany).toHaveBeenCalledWith(
         { _id: { $in: ['id1', 'id2'] }, partner: 'partner_id_123' },
-        expect.anything()
+        expect.anything(),
       );
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ modifiedCount: 2 }));
     });
@@ -206,7 +210,7 @@ describe('Delivery Controller', () => {
       req.user.role = 'admin';
 
       Delivery.aggregate.mockResolvedValueOnce([{ _id: 'agg1' }]); // data
-      Delivery.aggregate.mockResolvedValueOnce([{ total: 1 }]);   // count
+      Delivery.aggregate.mockResolvedValueOnce([{ total: 1 }]); // count
 
       await getAdminDeliveries(req, res);
 
@@ -222,7 +226,7 @@ describe('Delivery Controller', () => {
         populate: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue([])
+        limit: jest.fn().mockResolvedValue([]),
       });
       Delivery.countDocuments.mockResolvedValue(0);
 

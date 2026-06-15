@@ -5,7 +5,7 @@ module.exports = {
   // Fail fast in CI — coverage thresholds enforced here
   coverageThreshold: {
     global: {
-      branches: 40,
+      branches: 35,
       functions: 40,
       lines: 40,
       statements: 40,

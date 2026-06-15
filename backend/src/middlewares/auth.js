@@ -15,7 +15,7 @@ const protect = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'Access denied. Please log in to continue.'
+        message: 'Access denied. Please log in to continue.',
       });
     }
 
@@ -25,7 +25,7 @@ const protect = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Account not found. Please log in again.'
+        message: 'Account not found. Please log in again.',
       });
     }
 
@@ -35,7 +35,7 @@ const protect = async (req, res, next) => {
         success: false,
         message: user.banReason
           ? `Account suspended: ${user.banReason}`
-          : 'Your account has been suspended. Please contact support.'
+          : 'Your account has been suspended. Please contact support.',
       });
     }
 
@@ -45,7 +45,7 @@ const protect = async (req, res, next) => {
     logger.warn('Auth token validation failed:', { message: error.message });
     res.status(401).json({
       success: false,
-      message: 'Session expired. Please log in again.'
+      message: 'Session expired. Please log in again.',
     });
   }
 };
@@ -55,7 +55,7 @@ const authorize = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: 'You do not have permission to perform this action.'
+        message: 'You do not have permission to perform this action.',
       });
     }
     next();

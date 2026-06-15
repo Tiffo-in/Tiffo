@@ -56,7 +56,7 @@ const csrfProtection = (req, res, next) => {
   if (!headerToken || !cookieToken) {
     return res.status(403).json({
       success: false,
-      message: 'CSRF token missing'
+      message: 'CSRF token missing',
     });
   }
 
@@ -64,13 +64,10 @@ const csrfProtection = (req, res, next) => {
   const headerBuf = Buffer.from(headerToken, 'hex');
   const cookieBuf = Buffer.from(cookieToken, 'hex');
 
-  if (
-    headerBuf.length !== cookieBuf.length ||
-    !crypto.timingSafeEqual(headerBuf, cookieBuf)
-  ) {
+  if (headerBuf.length !== cookieBuf.length || !crypto.timingSafeEqual(headerBuf, cookieBuf)) {
     return res.status(403).json({
       success: false,
-      message: 'Invalid CSRF token'
+      message: 'Invalid CSRF token',
     });
   }
 
@@ -90,7 +87,7 @@ const setCsrfCookie = (userId, res) => {
     httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
   return token;
 };

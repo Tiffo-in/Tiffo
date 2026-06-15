@@ -11,9 +11,7 @@ const {
   pauseSubscription,
   resumeSubscription,
   getSubscriptionDetails,
-  getUserSubscriptions,
   getUserStats,
-  getOrderHistory
 } = require('../subscriptionController');
 
 const Subscription = require('../../models/Subscription');
@@ -30,7 +28,7 @@ jest.mock('../../utils/logger', () => ({ info: jest.fn(), error: jest.fn(), warn
 // ── Shared helpers ─────────────────────────────────────────────────────────
 const makeRes = () => ({
   status: jest.fn().mockReturnThis(),
-  json: jest.fn().mockReturnThis()
+  json: jest.fn().mockReturnThis(),
 });
 
 const makeReq = (overrides = {}) => ({
@@ -38,7 +36,7 @@ const makeReq = (overrides = {}) => ({
   body: {},
   query: {},
   params: {},
-  ...overrides
+  ...overrides,
 });
 
 const mockTiffin = {
@@ -53,8 +51,8 @@ const mockTiffin = {
     weeklyDiscountPercent: 14,
     monthly: 2200,
     monthlyOriginal: 3000,
-    monthlyDiscountPercent: 26
-  }
+    monthlyDiscountPercent: 26,
+  },
 };
 
 const mockSub = (overrides = {}) => ({
@@ -70,23 +68,21 @@ const mockSub = (overrides = {}) => ({
   pausedDates: [],
   toObject: jest.fn().mockReturnThis(),
   save: jest.fn().mockResolvedValue(true),
-  ...overrides
+  ...overrides,
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('Subscription Controller', () => {
-
   afterEach(() => jest.clearAllMocks());
 
   // ── createSubscription ───────────────────────────────────────────────────
   describe('createSubscription', () => {
-
     const validBody = {
       tiffinId: 'tiffin123',
       plan: 'weekly',
       startDate: '2026-05-01',
       deliveryAddress: { street: '10 MG Road', city: 'Pune', state: 'MH', pincode: '411001' },
-      deliveryTime: '12:00'
+      deliveryTime: '12:00',
     };
 
     it('should return 400 if any required field is missing', async () => {
@@ -107,9 +103,11 @@ describe('Subscription Controller', () => {
       await createSubscription(req, res);
 
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        message: 'Tiffin not found or inactive'
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Tiffin not found or inactive',
+        }),
+      );
     });
 
     it('should return 400 for an invalid plan', async () => {
@@ -120,9 +118,11 @@ describe('Subscription Controller', () => {
       await createSubscription(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        message: 'Invalid plan. Must be daily, weekly, or monthly'
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Invalid plan. Must be daily, weekly, or monthly',
+        }),
+      );
     });
 
     it('should correctly compute GST (5%) and grandTotal for weekly plan', async () => {
@@ -164,7 +164,8 @@ describe('Subscription Controller', () => {
       await createSubscription(req, res);
 
       const created = Subscription.create.mock.calls[0][0];
-      const diffDays = (new Date(created.endDate) - new Date(created.startDate)) / (1000 * 60 * 60 * 24);
+      const diffDays =
+        (new Date(created.endDate) - new Date(created.startDate)) / (1000 * 60 * 60 * 24);
       expect(diffDays).toBe(30);
     });
 
@@ -190,16 +191,17 @@ describe('Subscription Controller', () => {
       await createSubscription(req, res);
 
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true,
-        data: newSub
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: newSub,
+        }),
+      );
     });
   });
 
   // ── pauseSubscription ────────────────────────────────────────────────────
   describe('pauseSubscription', () => {
-
     it('should return 404 if subscription not found', async () => {
       const req = makeReq({ params: { id: 'ghost' } });
       const res = makeRes();
@@ -218,9 +220,11 @@ describe('Subscription Controller', () => {
       await pauseSubscription(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        message: 'Only active subscriptions can be paused'
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Only active subscriptions can be paused',
+        }),
+      );
     });
 
     it('should set status to paused, record pausedDate, and save', async () => {
@@ -240,7 +244,6 @@ describe('Subscription Controller', () => {
 
   // ── resumeSubscription ───────────────────────────────────────────────────
   describe('resumeSubscription', () => {
-
     it('should return 404 if subscription not found', async () => {
       const req = makeReq({ params: { id: 'ghost' } });
       const res = makeRes();
@@ -259,9 +262,11 @@ describe('Subscription Controller', () => {
       await resumeSubscription(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        message: 'Only paused subscriptions can be resumed'
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Only paused subscriptions can be resumed',
+        }),
+      );
     });
 
     it('should set status to active and save on valid resume', async () => {
@@ -294,14 +299,13 @@ describe('Subscription Controller', () => {
 
   // ── getSubscriptionDetails ───────────────────────────────────────────────
   describe('getSubscriptionDetails', () => {
-
     it('should return 404 if subscription not found', async () => {
       const req = makeReq({ params: { id: 'ghost' } });
       const res = makeRes();
       Subscription.findOne.mockReturnValue({
         populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockResolvedValue(null)
-        })
+          populate: jest.fn().mockResolvedValue(null),
+        }),
       });
 
       await getSubscriptionDetails(req, res);
@@ -315,33 +319,34 @@ describe('Subscription Controller', () => {
       const sub = mockSub();
       Subscription.findOne.mockReturnValue({
         populate: jest.fn().mockReturnValue({
-          populate: jest.fn().mockResolvedValue(sub)
-        })
+          populate: jest.fn().mockResolvedValue(sub),
+        }),
       });
       const deliveries = [
         { status: 'delivered' },
         { status: 'delivered' },
-        { status: 'scheduled' }
+        { status: 'scheduled' },
       ];
       Delivery.find.mockReturnValue({ sort: jest.fn().mockResolvedValue(deliveries) });
 
       await getSubscriptionDetails(req, res);
 
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true,
-        data: expect.objectContaining({
-          deliveryStats: expect.objectContaining({
-            deliveredCount: 2,
-            pendingCount: 1
-          })
-        })
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            deliveryStats: expect.objectContaining({
+              deliveredCount: 2,
+              pendingCount: 1,
+            }),
+          }),
+        }),
+      );
     });
   });
 
   // ── getUserStats ─────────────────────────────────────────────────────────
   describe('getUserStats', () => {
-
     it('should return correct loyalty points calculation', async () => {
       const req = makeReq();
       const res = makeRes();
@@ -353,27 +358,31 @@ describe('Subscription Controller', () => {
       // 4. Subscription.find({ paymentStatus: $in }).select('totalAmount') → paid subs
       // 5. Subscription.countDocuments({ status: 'completed' }) → 1
       Subscription.countDocuments
-        .mockResolvedValueOnce(2)  // 1st call: activeSubscriptions
+        .mockResolvedValueOnce(2) // 1st call: activeSubscriptions
         .mockResolvedValueOnce(1); // 2nd call: completedOrders
 
       Subscription.find
-        .mockReturnValueOnce({ distinct: jest.fn().mockResolvedValue(['id1', 'id2']) })  // userSubIds
-        .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([{ totalAmount: 600 }, { totalAmount: 400 }]) }); // paidSubs
+        .mockReturnValueOnce({ distinct: jest.fn().mockResolvedValue(['id1', 'id2']) }) // userSubIds
+        .mockReturnValueOnce({
+          select: jest.fn().mockResolvedValue([{ totalAmount: 600 }, { totalAmount: 400 }]),
+        }); // paidSubs
 
       Delivery.countDocuments.mockResolvedValue(5); // mealsThisMonth
 
       await getUserStats(req, res);
 
       // loyaltyPoints = completedOrders(1)*10 + activeSubscriptions(2)*5 = 10 + 10 = 20
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        success: true,
-        data: expect.objectContaining({
-          activeSubscriptions: 2,
-          mealsThisMonth: 5,
-          totalSpent: 1000,
-          loyaltyPoints: 20
-        })
-      }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            activeSubscriptions: 2,
+            mealsThisMonth: 5,
+            totalSpent: 1000,
+            loyaltyPoints: 20,
+          }),
+        }),
+      );
     });
   });
 });
