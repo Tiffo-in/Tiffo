@@ -29,6 +29,7 @@ const Register = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    setError,
   } = useForm();
 
   const password = watch('password');
@@ -116,7 +117,14 @@ const Register = () => {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.response?.data?.message || 'Failed to register');
+      if (error.response?.data?.errors) {
+        error.response.data.errors.forEach((err) => {
+          setError(err.field, { type: 'manual', message: err.message });
+        });
+        toast.error('Please resolve the validation errors.');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to register');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -326,7 +334,11 @@ const Register = () => {
                     <UserIcon className="w-5 h-5 text-neutral-400" />
                   </div>
                   <input
-                    {...register('name', { required: 'Name is required' })}
+                    {...register('name', {
+                      required: 'Name is required',
+                      minLength: { value: 2, message: 'Name must be at least 2 characters' },
+                      maxLength: { value: 60, message: 'Name cannot exceed 60 characters' },
+                    })}
                     type="text"
                     className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-12 pr-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
                     placeholder="John Doe"
@@ -376,11 +388,22 @@ const Register = () => {
                     <PhoneIcon className="w-5 h-5 text-neutral-400" />
                   </div>
                   <input
-                    {...register('phone', { required: 'Phone number is required' })}
+                    {...register('phone', {
+                      required: 'Phone number is required',
+                      pattern: {
+                        value: /^[6-9]\d{9}$/,
+                        message:
+                          'Please enter a valid 10-digit Indian mobile number (e.g., 9876543210)',
+                      },
+                    })}
                     type="tel"
                     className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-12 pr-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                    placeholder="+91 98765 43210"
+                    placeholder="9876543210"
                   />
+                  <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
+                    Enter a 10-digit number starting with 6-9 (e.g. 9876543210, without country
+                    code, spaces, or dashes)
+                  </p>
                 </div>
                 {errors.phone && (
                   <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
@@ -401,11 +424,15 @@ const Register = () => {
                     <input
                       {...register('password', {
                         required: 'Required',
-                        minLength: { value: 6, message: 'Min 6 chars' },
+                        minLength: { value: 8, message: 'Password must be at least 8 characters' },
+                        pattern: {
+                          value: /\d/,
+                          message: 'Password must contain at least one number',
+                        },
                       })}
                       type={showPassword ? 'text' : 'password'}
                       className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-11 pr-12 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                      placeholder="••••••"
+                      placeholder="••••••••"
                     />
                     <button
                       type="button"
@@ -433,11 +460,11 @@ const Register = () => {
                     <input
                       {...register('confirmPassword', {
                         required: 'Required',
-                        validate: (value) => value === password || 'No match',
+                        validate: (value) => value === password || 'Passwords do not match',
                       })}
                       type={showConfirmPassword ? 'text' : 'password'}
                       className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-11 pr-12 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                      placeholder="••••••"
+                      placeholder="••••••••"
                     />
                     <button
                       type="button"

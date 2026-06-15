@@ -31,6 +31,9 @@ const getTiffins = async (req, res) => {
     }
 
     let partnerDistances = {};
+    let paginatedTiffins;
+    let total;
+    const startIndex = (Number(page) - 1) * Number(limit);
 
     if (lat && lng) {
       const userLat = parseFloat(lat);
@@ -55,15 +58,13 @@ const getTiffins = async (req, res) => {
       });
 
       query.partner = { $in: partnerIds };
-    }
 
-    // Since we handle pagination in memory when sorted by distance, we get all matching tiffins first
-    let tiffins = await Tiffin.find(query).populate(
-      'partner',
-      'businessName rating address deliveryRadius location',
-    );
+      // Since we handle pagination in memory when sorted by distance, we get all matching tiffins first
+      let tiffins = await Tiffin.find(query).populate(
+        'partner',
+        'businessName rating address deliveryRadius location',
+      );
 
-    if (lat && lng) {
       tiffins = tiffins
         .map((tiffin) => {
           const tiffinObj = tiffin.toObject();
@@ -74,13 +75,17 @@ const getTiffins = async (req, res) => {
           return tiffinObj;
         })
         .sort((a, b) => a.distance - b.distance);
-    } else {
-      tiffins = tiffins.sort((a, b) => b.rating.average - a.rating.average);
-    }
 
-    const total = tiffins.length;
-    const startIndex = (Number(page) - 1) * Number(limit);
-    const paginatedTiffins = tiffins.slice(startIndex, startIndex + Number(limit));
+      total = tiffins.length;
+      paginatedTiffins = tiffins.slice(startIndex, startIndex + Number(limit));
+    } else {
+      total = await Tiffin.countDocuments(query);
+      paginatedTiffins = await Tiffin.find(query)
+        .sort({ 'rating.average': -1 })
+        .skip(startIndex)
+        .limit(Number(limit))
+        .populate('partner', 'businessName rating address deliveryRadius location');
+    }
 
     res.json({
       success: true,

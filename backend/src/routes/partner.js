@@ -1,7 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middlewares/auth');
-const { getPartnerCustomers, getCustomerCalendar, getCustomerSubscription, getCustomerDetails, updatePartnerProfile, getPartnerProfile, getTodayOrders, getEarnings, getAnalytics, getPartnerStats } = require('../controllers/partnerController');
+const {
+  getPartnerCustomers,
+  getCustomerCalendar,
+  getCustomerSubscription,
+  getCustomerDetails,
+  updatePartnerProfile,
+  getPartnerProfile,
+  getTodayOrders,
+  getEarnings,
+  getAnalytics,
+  getPartnerStats,
+} = require('../controllers/partnerController');
 
 // Get all customers for a partner
 router.get('/customers', protect, authorize('partner'), getPartnerCustomers);
@@ -10,7 +21,12 @@ router.get('/customers', protect, authorize('partner'), getPartnerCustomers);
 router.get('/customers/:customerId/calendar', protect, authorize('partner'), getCustomerCalendar);
 
 // Get customer subscription details
-router.get('/customers/:customerId/subscription', protect, authorize('partner'), getCustomerSubscription);
+router.get(
+  '/customers/:customerId/subscription',
+  protect,
+  authorize('partner'),
+  getCustomerSubscription,
+);
 
 // Get detailed customer information
 router.get('/customers/:customerId/details', protect, authorize('partner'), getCustomerDetails);

@@ -1,7 +1,7 @@
 /**
  * validate.js
  * Express-validator based request validation middleware factory.
- * 
+ *
  * Usage:
  *   const { validate, registerValidator } = require('../middlewares/validate');
  *   router.post('/register', registerValidator, validate, controller);
@@ -29,84 +29,108 @@ const validate = (req, res, next) => {
 const registerValidator = [
   body('name')
     .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 60 }).withMessage('Name must be between 2 and 60 characters'),
+    .notEmpty()
+    .withMessage('Name is required')
+    .isLength({ min: 2, max: 60 })
+    .withMessage('Name must be between 2 and 60 characters'),
 
   body('email')
     .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please enter a valid email address')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please enter a valid email address')
     .normalizeEmail(),
 
   body('password')
-    .notEmpty().withMessage('Password is required')
-    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-    .matches(/\d/).withMessage('Password must contain at least one number'),
+    .notEmpty()
+    .withMessage('Password is required')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters')
+    .matches(/\d/)
+    .withMessage('Password must contain at least one number'),
 
   body('phone')
     .trim()
-    .notEmpty().withMessage('Phone number is required')
-    .matches(/^[6-9]\d{9}$/).withMessage('Please enter a valid 10-digit Indian mobile number'),
+    .notEmpty()
+    .withMessage('Phone number is required')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Please enter a valid 10-digit Indian mobile number'),
 ];
 
 const loginValidator = [
   body('email')
     .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please enter a valid email address')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please enter a valid email address')
     .normalizeEmail(),
 
-  body('password')
-    .notEmpty().withMessage('Password is required'),
+  body('password').notEmpty().withMessage('Password is required'),
 ];
 
 const changePasswordValidator = [
-  body('currentPassword')
-    .notEmpty().withMessage('Current password is required'),
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
 
   body('newPassword')
-    .notEmpty().withMessage('New password is required')
-    .isLength({ min: 8 }).withMessage('New password must be at least 8 characters')
-    .matches(/\d/).withMessage('New password must contain at least one number'),
+    .notEmpty()
+    .withMessage('New password is required')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters')
+    .matches(/\d/)
+    .withMessage('New password must contain at least one number'),
 ];
 
 const tiffinValidator = [
   body('title')
     .trim()
-    .notEmpty().withMessage('Tiffin title is required')
-    .isLength({ max: 100 }).withMessage('Title cannot exceed 100 characters'),
+    .notEmpty()
+    .withMessage('Tiffin title is required')
+    .isLength({ max: 100 })
+    .withMessage('Title cannot exceed 100 characters'),
 
   body('description')
     .trim()
-    .notEmpty().withMessage('Description is required')
-    .isLength({ max: 1000 }).withMessage('Description cannot exceed 1000 characters'),
+    .notEmpty()
+    .withMessage('Description is required')
+    .isLength({ max: 1000 })
+    .withMessage('Description cannot exceed 1000 characters'),
 
   body('price.daily')
-    .notEmpty().withMessage('Daily price is required')
-    .isFloat({ min: 1 }).withMessage('Daily price must be a positive number'),
+    .notEmpty()
+    .withMessage('Daily price is required')
+    .isFloat({ min: 1 })
+    .withMessage('Daily price must be a positive number'),
 
   body('mealType')
-    .notEmpty().withMessage('Meal type is required')
-    .isIn(['breakfast', 'lunch', 'dinner', 'snacks']).withMessage('Invalid meal type'),
+    .notEmpty()
+    .withMessage('Meal type is required')
+    .isIn(['breakfast', 'lunch', 'dinner', 'snacks'])
+    .withMessage('Invalid meal type'),
 
-  body('cuisine')
-    .trim()
-    .notEmpty().withMessage('Cuisine type is required'),
+  body('cuisine').trim().notEmpty().withMessage('Cuisine type is required'),
 ];
 
 const reviewValidator = [
   body('rating')
-    .notEmpty().withMessage('Rating is required')
-    .isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+    .notEmpty()
+    .withMessage('Rating is required')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5'),
 
   body('comment')
     .trim()
-    .notEmpty().withMessage('Review comment is required')
-    .isLength({ max: 500 }).withMessage('Comment cannot exceed 500 characters'),
+    .notEmpty()
+    .withMessage('Review comment is required')
+    .isLength({ max: 500 })
+    .withMessage('Comment cannot exceed 500 characters'),
 
   body('subscriptionId')
-    .notEmpty().withMessage('Subscription ID is required')
-    .isMongoId().withMessage('Invalid subscription ID'),
+    .notEmpty()
+    .withMessage('Subscription ID is required')
+    .isMongoId()
+    .withMessage('Invalid subscription ID'),
 ];
 
 module.exports = {

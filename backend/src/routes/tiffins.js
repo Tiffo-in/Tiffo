@@ -7,7 +7,7 @@ const {
   deleteTiffin,
   updateDiscount,
   updateMenuItems,
-  getMyTiffins
+  getMyTiffins,
 } = require('../controllers/tiffinController');
 const { protect, authorize } = require('../middlewares/auth');
 
@@ -16,11 +16,10 @@ const router = express.Router();
 // Partner's own tiffins (must come before /:id to avoid conflict)
 router.get('/mine', protect, authorize('partner'), getMyTiffins);
 
-router.route('/')
-  .get(getTiffins)
-  .post(protect, authorize('partner'), createTiffin);
+router.route('/').get(getTiffins).post(protect, authorize('partner'), createTiffin);
 
-router.route('/:id')
+router
+  .route('/:id')
   .get(getTiffin)
   .put(protect, authorize('partner'), updateTiffin)
   .delete(protect, authorize('partner'), deleteTiffin);

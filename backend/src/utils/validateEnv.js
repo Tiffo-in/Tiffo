@@ -8,12 +8,7 @@
  */
 const logger = require('./logger');
 
-const REQUIRED_ALWAYS = [
-  'NODE_ENV',
-  'MONGODB_URI',
-  'JWT_SECRET',
-  'JWT_EXPIRE',
-];
+const REQUIRED_ALWAYS = ['NODE_ENV', 'MONGODB_URI', 'JWT_SECRET', 'JWT_EXPIRE'];
 
 const REQUIRED_IN_PRODUCTION = [
   'FRONTEND_URL',
@@ -49,7 +44,7 @@ function validateEnv() {
   if (missing.length > 0) {
     logger.error(
       `FATAL: Missing required environment variable(s): ${missing.join(', ')}. ` +
-      `Copy .env.example to .env and populate the missing values.`
+        `Copy .env.example to .env and populate the missing values.`,
     );
     process.exit(1);
   }
@@ -58,7 +53,7 @@ function validateEnv() {
   const missingRecommended = RECOMMENDED.filter((k) => !process.env[k]);
   if (missingRecommended.length > 0) {
     logger.warn(
-      `Some recommended env vars are not set (non-fatal): ${missingRecommended.join(', ')}`
+      `Some recommended env vars are not set (non-fatal): ${missingRecommended.join(', ')}`,
     );
   }
 

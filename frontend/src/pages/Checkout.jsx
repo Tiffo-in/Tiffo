@@ -19,7 +19,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [step, setStep] = useState('summary'); // 'summary' | 'verifying'
-  const [payMethod, setPayMethod] = useState('online'); // 'online' | 'cod'
+  const [payMethod, setPayMethod] = useState('cod'); // 'online' | 'cod'
 
   useEffect(() => {
     fetchSubscriptionDetails();
@@ -298,24 +298,18 @@ const Checkout = () => {
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Method</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Pay Online Card */}
+              {/* Pay Online Card (Disabled - Coming Soon) */}
               <button
                 type="button"
-                onClick={() => setPayMethod('online')}
-                className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition-all text-center relative ${
-                  payMethod === 'online'
-                    ? 'border-maroon-600 bg-maroon-50/50 ring-2 ring-maroon-100'
-                    : 'border-gray-150 hover:border-maroon-300 bg-white'
-                }`}
+                disabled
+                className="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-gray-200 bg-gray-50/50 opacity-60 text-center relative cursor-not-allowed select-none w-full"
               >
-                <span className="text-4xl mb-2">💳</span>
-                <span className="font-bold text-gray-900">Pay Online</span>
-                <span className="text-xs text-gray-500 mt-1">UPI, Cards, Net Banking</span>
-                {payMethod === 'online' && (
-                  <span className="absolute top-3 right-3 bg-maroon-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
+                <span className="absolute top-3 right-3 bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-amber-200">
+                  Coming Soon
+                </span>
+                <span className="text-4xl mb-2 grayscale">💳</span>
+                <span className="font-bold text-gray-400">Pay Online</span>
+                <span className="text-xs text-gray-400 mt-1">UPI, Cards, Net Banking</span>
               </button>
 
               {/* Cash on Delivery Card */}

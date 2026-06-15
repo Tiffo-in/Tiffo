@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middlewares/auth');
 const {
-    updateDeliveryStatus,
-    getDeliveryDetails,
-    getPartnerDeliveries,
-    getDeliveryStats,
-    batchUpdateDeliveries,
-    getAdminDeliveryOverview,
-    getAdminDeliveries
+  updateDeliveryStatus,
+  getDeliveryDetails,
+  getPartnerDeliveries,
+  getDeliveryStats,
+  batchUpdateDeliveries,
+  getAdminDeliveryOverview,
+  getAdminDeliveries,
 } = require('../controllers/deliveryController');
 
 // Partner routes

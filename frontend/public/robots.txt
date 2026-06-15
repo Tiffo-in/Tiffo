@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /partner/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /checkout/
+
+# Allow public pages
+Allow: /tiffins
+Allow: /blog
+Allow: /privacy
+Allow: /terms
+Allow: /security
+Allow: /support
+
+Sitemap: https://tiffo.in/sitemap.xml

@@ -37,7 +37,7 @@ export default function CheckoutScreen({ route, navigation }: Props) {
   const [time, setTime] = useState(TIMES[0]);
   const [instructions, setInstructions] = useState('');
   const [loading, setLoading] = useState(false);
-  const [payMethod, setPayMethod] = useState<'online' | 'cod'>('online');
+  const [payMethod, setPayMethod] = useState<'online' | 'cod'>('cod');
 
   const gst = Math.round(price * 0.05);
   const total = price + gst;
@@ -193,30 +193,46 @@ export default function CheckoutScreen({ route, navigation }: Props) {
             <Text style={S.cardTitle}>Payment Method</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 10 }}>
-            {(['online', 'cod'] as const).map((m) => (
-              <TouchableOpacity
-                key={m}
-                style={[S.payOption, payMethod === m && S.payOptionActive]}
-                onPress={() => setPayMethod(m)}
-              >
-                <Ionicons
-                  name={m === 'online' ? 'card-outline' : 'cash-outline'}
-                  size={22}
-                  color={payMethod === m ? C.primary : C.textSecondary}
-                />
-                <Text style={[S.payLabel, payMethod === m && S.payLabelActive]}>
-                  {m === 'online' ? 'Pay Online' : 'Cash on Delivery'}
-                </Text>
-                <Text style={S.payDesc}>
-                  {m === 'online' ? 'UPI, Card, Wallet' : 'Pay when delivered'}
-                </Text>
-                {payMethod === m && (
-                  <View style={S.payCheck}>
-                    <Ionicons name="checkmark" size={10} color="#fff" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
+            {(['online', 'cod'] as const).map((m) => {
+              const isOnline = m === 'online';
+              return (
+                <TouchableOpacity
+                  key={m}
+                  disabled={isOnline}
+                  style={[
+                    S.payOption,
+                    payMethod === m && S.payOptionActive,
+                    isOnline && { opacity: 0.5, borderColor: C.border },
+                  ]}
+                  onPress={() => setPayMethod(m)}
+                >
+                  <Ionicons
+                    name={isOnline ? 'card-outline' : 'cash-outline'}
+                    size={22}
+                    color={
+                      isOnline ? C.textTertiary : payMethod === m ? C.primary : C.textSecondary
+                    }
+                  />
+                  <Text
+                    style={[
+                      S.payLabel,
+                      payMethod === m && S.payLabelActive,
+                      isOnline && { color: C.textTertiary },
+                    ]}
+                  >
+                    {isOnline ? 'Pay Online (Soon)' : 'Cash on Delivery'}
+                  </Text>
+                  <Text style={[S.payDesc, isOnline && { color: C.textTertiary }]}>
+                    {isOnline ? 'Coming Soon' : 'Pay when delivered'}
+                  </Text>
+                  {payMethod === m && !isOnline && (
+                    <View style={S.payCheck}>
+                      <Ionicons name="checkmark" size={10} color="#fff" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
