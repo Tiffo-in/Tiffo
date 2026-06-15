@@ -2,6 +2,7 @@ const Delivery = require('../models/Delivery');
 const Subscription = require('../models/Subscription');
 const { emitDeliveryUpdate } = require('../services/socketService');
 const logger = require('../utils/logger');
+const escapeRegex = require('../utils/escapeRegex');
 
 /**
  * Update delivery status
@@ -289,7 +290,8 @@ exports.getAdminDeliveries = async (req, res) => {
 
     if (search) {
       // Server-side search via aggregation + $lookup so we can filter on populated fields
-      const searchRegex = { $regex: search, $options: 'i' };
+      const safeSearch = escapeRegex(search);
+      const searchRegex = { $regex: safeSearch, $options: 'i' };
       const searchFilter = {
         $or: [
           { 'userInfo.name': searchRegex },
