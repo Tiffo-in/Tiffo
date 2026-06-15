@@ -15,7 +15,7 @@ import {
   ArrowRightIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { CheckCircleIcon, FireIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('subscriptions');
