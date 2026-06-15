@@ -11,3 +11,6 @@
 ## 2023-10-27 - [Avoid N+1 Queries in Map Loops]
 **Learning:** Found an N+1 performance bottleneck in `getUsers` where `Promise.all` inside a `.map` loop caused `2N` database queries for subscription counts and payment aggregates per paginated user list. This severely impacts load times on larger sets.
 **Action:** Replace `map(async (...) => { await Promise.all(...) })` loops querying DB with batched aggregation queries using `$in`, followed by mapping results using an O(1) hash map lookup. This reduces total DB queries from `2N+2` to exactly 4. Always use `$in` aggregation and hash maps for listing related stats.
+## 2026-06-15 - Batched Queries over Promise.all
+**Learning:** Nested `await User.findById` in `Promise.all(map(...))` creates an N+1 query problem, heavily degrading performance when lists grow large (like message conversations).
+**Action:** Replace `Promise.all` with a single batched query using `$in` and an O(1) hash map lookup whenever iterating over an array to fetch related database records.
