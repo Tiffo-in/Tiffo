@@ -1,5 +1,5 @@
 const Delivery = require('../models/Delivery');
-const Subscription = require('../models/Subscription');
+
 const { emitDeliveryUpdate } = require('../services/socketService');
 const logger = require('../utils/logger');
 

@@ -1,9 +1,8 @@
 const { getTiffins, getTiffin } = require('../tiffinController');
 const Tiffin = require('../../models/Tiffin');
-const Partner = require('../../models/Partner');
 
 jest.mock('../../models/Tiffin');
-jest.mock('../../models/Partner');
+
 jest.mock('../../utils/logger', () => ({
   info: jest.fn(),
   error: jest.fn(),

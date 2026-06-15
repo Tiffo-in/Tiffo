@@ -40,7 +40,7 @@ const resetDailyBudgetsIfNeeded = async () => {
 // Description: Get nearby ads mixed with organic results (or just ads for a specific feed)
 exports.getAdListings = async (req, res) => {
   try {
-    const { lat, lng, radius = 10, mealType } = req.query;
+    const { lat, lng, radius = 10 } = req.query;
 
     if (!lat || !lng) {
       return res
