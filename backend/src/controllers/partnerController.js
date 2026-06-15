@@ -485,6 +485,20 @@ exports.getAnalytics = async (req, res) => {
     // Merge visits into dailyData
     const last7DaysVisits = analyticsRecords.filter((record) => record.date >= sevenDaysAgo);
 
+    // Convert arrays into lookup objects by date string for O(1) access
+    const visitsLookup = last7DaysVisits.reduce((acc, record) => {
+      const dateStr = record.date.toISOString().split('T')[0];
+      if (!acc[dateStr]) {
+        acc[dateStr] = record;
+      }
+      return acc;
+    }, {});
+
+    const subscriptionsLookup = dailyData.reduce((acc, record) => {
+      acc[record._id] = record;
+      return acc;
+    }, {});
+
     // Generate an array of the last 7 dates as strings (YYYY-MM-DD)
     const chartData = [];
     for (let i = 0; i <= 6; i++) {
@@ -492,10 +506,8 @@ exports.getAnalytics = async (req, res) => {
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
 
-      const visitRecord = last7DaysVisits.find(
-        (r) => r.date.toISOString().split('T')[0] === dateStr,
-      );
-      const subRecord = dailyData.find((r) => r._id === dateStr);
+      const visitRecord = visitsLookup[dateStr];
+      const subRecord = subscriptionsLookup[dateStr];
 
       chartData.push({
         date: dateStr,
