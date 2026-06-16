@@ -99,24 +99,30 @@ const getConversations = async (req, res) => {
       },
     ]);
 
-    // Get other user info for each conversation
-    const populatedConversations = await Promise.all(
-      conversations.map(async (conv) => {
-        const otherUserId = conv._id.split('_').find((id) => id !== userId.toString());
-        const otherUser = await User.findById(otherUserId).select('name avatar email role');
-
-        return {
-          conversationId: conv._id,
-          otherUser,
-          lastMessage: {
-            content: conv.lastMessage.content,
-            createdAt: conv.lastMessage.createdAt,
-            isFromMe: conv.lastMessage.sender.toString() === userId.toString(),
-          },
-          unreadCount: conv.unreadCount,
-        };
-      }),
+    // Get other user info for each conversation using batched query to fix N+1 issue
+    const otherUserIds = conversations.map((conv) =>
+      conv._id.split('_').find((id) => id !== userId.toString()),
     );
+    const otherUsers = await User.find({ _id: { $in: otherUserIds } }).select(
+      'name avatar email role',
+    );
+    const userMap = new Map(otherUsers.map((u) => [u._id.toString(), u]));
+
+    const populatedConversations = conversations.map((conv) => {
+      const otherUserId = conv._id.split('_').find((id) => id !== userId.toString());
+      const otherUser = userMap.get(otherUserId) || null;
+
+      return {
+        conversationId: conv._id,
+        otherUser,
+        lastMessage: {
+          content: conv.lastMessage.content,
+          createdAt: conv.lastMessage.createdAt,
+          isFromMe: conv.lastMessage.sender.toString() === userId.toString(),
+        },
+        unreadCount: conv.unreadCount,
+      };
+    });
 
     res.json({
       success: true,
