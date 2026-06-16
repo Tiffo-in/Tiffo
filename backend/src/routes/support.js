@@ -5,7 +5,7 @@ const {
   getSupportRequests,
   updateSupportStatus,
 } = require('../controllers/supportController');
-const { protect, authorize } = require('../middlewares/auth');
+const { protect } = require('../middlewares/auth');
 const { adminAuth } = require('../middlewares/adminAuth');
 
 // Public route for submitting requests (can handle optional auth inside controller)
