@@ -2,16 +2,16 @@ const {
   updateDeliveryStatus,
   getDeliveryDetails,
   getPartnerDeliveries,
-  getDeliveryStats,
+
   batchUpdateDeliveries,
   getAdminDeliveries,
 } = require('../deliveryController');
 const Delivery = require('../../models/Delivery');
-const Subscription = require('../../models/Subscription');
+
 const { emitDeliveryUpdate } = require('../../services/socketService');
 
 jest.mock('../../models/Delivery');
-jest.mock('../../models/Subscription');
+
 jest.mock('../../services/socketService');
 jest.mock('../../utils/logger');
 

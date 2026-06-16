@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Message = require('../models/Message');
 const User = require('../models/User');
 const { emitToUser } = require('../services/socketService');
@@ -59,9 +60,10 @@ const sendMessage = async (req, res) => {
       data: message,
     });
   } catch (error) {
+    logger.error('Error sending message:', error);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: 'Failed to send message',
     });
   }
 };

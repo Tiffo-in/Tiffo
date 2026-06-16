@@ -1,6 +1,6 @@
 const Subscription = require('../models/Subscription');
 const Delivery = require('../models/Delivery');
-const User = require('../models/User');
+
 const Partner = require('../models/Partner');
 const Payment = require('../models/Payment');
 const Review = require('../models/Review');

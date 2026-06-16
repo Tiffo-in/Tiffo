@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const { emitNotification, emitToAdmins } = require('../services/socketService');
+const { emitNotification } = require('../services/socketService');
 const logger = require('../utils/logger');
 
 /**

@@ -1,6 +1,6 @@
 const {
   emitNotification,
-  emitToUser,
+
   emitToPartner,
   emitToAdmins,
   emitOrderUpdate,
