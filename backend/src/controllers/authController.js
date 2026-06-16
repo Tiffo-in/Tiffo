@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Partner = require('../models/Partner');
@@ -234,8 +235,7 @@ const googleLogin = async (req, res) => {
       // Register new user automatically
       const name = googleUser.name || googleUser.given_name || 'Google User';
       // Generate a secure random password
-      const randomPassword =
-        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const randomPassword = crypto.randomBytes(16).toString('hex');
 
       const targetRole = role === 'partner' ? 'partner' : 'user';
 

@@ -39,15 +39,15 @@ describe('Delivery Controller', () => {
         _id: 'del_123',
         user: { _id: 'u1', name: 'John Doe', phone: '123', address: '123 Main St' },
         subscription: { _id: 's1', plan: 'Weekly' },
-        partner: { _id: 'p1', businessName: 'Tiffins Co.', phone: '987' }
+        partner: { _id: 'p1', businessName: 'Tiffins Co.', phone: '987' },
       };
 
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue(mockDelivery)
-          })
-        })
+            populate: jest.fn().mockResolvedValue(mockDelivery),
+          }),
+        }),
       });
 
       await getDeliveryDetails(req, res);
@@ -62,16 +62,18 @@ describe('Delivery Controller', () => {
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue(null)
-          })
-        })
+            populate: jest.fn().mockResolvedValue(null),
+          }),
+        }),
       });
 
       await getDeliveryDetails(req, res);
 
       expect(Delivery.findById).toHaveBeenCalledWith('del_missing');
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: 'Delivery not found' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: 'Delivery not found' }),
+      );
     });
 
     it('should return 500 on database error', async () => {
@@ -80,16 +82,18 @@ describe('Delivery Controller', () => {
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockRejectedValue(new Error('Database query failed'))
-          })
-        })
+            populate: jest.fn().mockRejectedValue(new Error('Database query failed')),
+          }),
+        }),
       });
 
       await getDeliveryDetails(req, res);
 
       expect(Delivery.findById).toHaveBeenCalledWith('del_error');
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false, message: 'Database query failed' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: 'Database query failed' }),
+      );
     });
   });
 
