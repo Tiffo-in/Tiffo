@@ -284,10 +284,16 @@ exports.fetchPaymentHistory = async (userId, { type, status, limit = 20, page = 
   if (type) query.type = type;
   if (status) query.status = status;
 
+  const parsedLimit = parseInt(limit);
+  const parsedPage = parseInt(page);
+
+  const safeLimit = Math.max(1, isNaN(parsedLimit) ? 20 : parsedLimit);
+  const safePage = Math.max(1, isNaN(parsedPage) ? 1 : parsedPage);
+
   const payments = await PaymentLog.find(query)
     .sort({ createdAt: -1 })
-    .limit(parseInt(limit))
-    .skip((parseInt(page) - 1) * parseInt(limit))
+    .limit(safeLimit)
+    .skip((safePage - 1) * safeLimit)
     .populate('subscriptionId', 'plan startDate endDate')
     .populate('partnerId', 'name email');
 
@@ -312,8 +318,8 @@ exports.fetchPaymentHistory = async (userId, { type, status, limit = 20, page = 
     summaryStats,
     pagination: {
       total,
-      page: parseInt(page),
-      pages: Math.ceil(total / parseInt(limit)),
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
     },
   };
 };
