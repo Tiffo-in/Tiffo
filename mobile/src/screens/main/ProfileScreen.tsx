@@ -113,7 +113,7 @@ export default function ProfileScreen() {
       <SafeAreaView style={S.safe}>
         <View style={S.guestContainer}>
           <View style={S.guestIllustration}>
-            <Text style={{ fontSize: 64 }}>👤</Text>
+            <Ionicons name="person-circle-outline" size={80} color={C.primary} />
           </View>
           <Text style={S.guestTitle}>Welcome to Tiffo</Text>
           <Text style={S.guestSubtitle}>
@@ -131,7 +131,10 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={S.safe}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {/* Profile Hero */}
         <View style={S.hero}>
           <View style={S.avatarWrap}>
@@ -180,7 +183,7 @@ export default function ProfileScreen() {
           <Text style={S.logoutTxt}>Sign Out</Text>
         </TouchableOpacity>
 
-        <Text style={S.version}>Tiffo v1.0.0 • Made with ❤️ in India</Text>
+        <Text style={S.version}>Tiffo v1.0.0 • Made with Passion in India</Text>
       </ScrollView>
     </SafeAreaView>
   );

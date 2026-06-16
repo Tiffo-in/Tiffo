@@ -44,20 +44,56 @@ const FILTER_CATS = [
 ];
 
 const TRENDING = [
-  { label: 'Dal Baati', emoji: '🍛' },
-  { label: 'Rajma Rice', emoji: '🫘' },
-  { label: 'Sambar', emoji: '🥘' },
-  { label: 'Poha', emoji: '🍚' },
-  { label: 'Khichdi', emoji: '🍲' },
+  { label: 'Dal Baati', icon: 'search-outline' as const },
+  { label: 'Rajma Rice', icon: 'search-outline' as const },
+  { label: 'Sambar', icon: 'search-outline' as const },
+  { label: 'Poha', icon: 'search-outline' as const },
+  { label: 'Khichdi', icon: 'search-outline' as const },
 ];
 
 const CAT_TILES = [
-  { label: 'Gujarati', emoji: '🫕', bg: '#FEF3E2', bgDark: '#281800' },
-  { label: 'Punjabi', emoji: '🍛', bg: '#FFECEE', bgDark: '#2D0B0E' },
-  { label: 'South Indian', emoji: '🥘', bg: '#E9F5EE', bgDark: '#0A2015' },
-  { label: 'Bengali', emoji: '🐟', bg: '#E8F0FE', bgDark: '#0D1C33' },
-  { label: 'Maharashtrian', emoji: '🌶️', bg: '#FEF3E2', bgDark: '#281800' },
-  { label: 'Healthy', emoji: '🥗', bg: '#E9F5EE', bgDark: '#0A2015' },
+  {
+    label: 'Gujarati',
+    icon: 'restaurant-outline' as const,
+    color: '#E28743',
+    bg: '#FEF3E2',
+    bgDark: '#281800',
+  },
+  {
+    label: 'Punjabi',
+    icon: 'flame-outline' as const,
+    color: '#E23744',
+    bg: '#FFECEE',
+    bgDark: '#2D0B0E',
+  },
+  {
+    label: 'South Indian',
+    icon: 'leaf-outline' as const,
+    color: '#257D3C',
+    bg: '#E9F5EE',
+    bgDark: '#0A2015',
+  },
+  {
+    label: 'Bengali',
+    icon: 'fish-outline' as const,
+    color: '#1A73E8',
+    bg: '#E8F0FE',
+    bgDark: '#0D1C33',
+  },
+  {
+    label: 'Maharashtrian',
+    icon: 'restaurant-outline' as const,
+    color: '#E9A03F',
+    bg: '#FEF3E2',
+    bgDark: '#281800',
+  },
+  {
+    label: 'Healthy',
+    icon: 'nutrition-outline' as const,
+    color: '#257D3C',
+    bg: '#E9F5EE',
+    bgDark: '#0A2015',
+  },
 ];
 
 export default function ExploreScreen() {
@@ -172,7 +208,12 @@ export default function ExploreScreen() {
         </View>
       ) : searched && results.length === 0 ? (
         <View style={S.center}>
-          <Text style={{ fontSize: 40, marginBottom: 14 }}>🔍</Text>
+          <Ionicons
+            name="search-outline"
+            size={48}
+            color={C.textSecondary}
+            style={{ marginBottom: 14 }}
+          />
           <Text style={{ fontSize: 17, fontWeight: '700', color: C.textPrimary }}>
             No results found
           </Text>
@@ -181,8 +222,11 @@ export default function ExploreScreen() {
           </Text>
         </View>
       ) : !searched ? (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
-          <Text style={S.trendHeading}>🔥 Trending Searches</Text>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <Ionicons name="flame" size={16} color={C.primary} />
+            <Text style={[S.trendHeading, { marginBottom: 0 }]}>Trending Searches</Text>
+          </View>
           <View style={S.trendRow}>
             {TRENDING.map((t) => (
               <TouchableOpacity
@@ -193,12 +237,30 @@ export default function ExploreScreen() {
                   doSearch(t.label);
                 }}
               >
-                <Text style={{ fontSize: 16, marginRight: 6 }}>{t.emoji}</Text>
+                <Ionicons
+                  name={t.icon}
+                  size={14}
+                  color={C.textSecondary}
+                  style={{ marginRight: 6 }}
+                />
                 <Text style={S.trendTxt}>{t.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={[S.trendHeading, { marginTop: 24 }]}>🍱 Browse Categories</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              marginTop: 24,
+              marginBottom: 12,
+            }}
+          >
+            <Ionicons name="grid-outline" size={16} color={C.primary} />
+            <Text style={[S.trendHeading, { marginTop: 0, marginBottom: 0 }]}>
+              Browse Categories
+            </Text>
+          </View>
           <View style={S.catGrid}>
             {CAT_TILES.map((cat) => (
               <TouchableOpacity
@@ -206,7 +268,7 @@ export default function ExploreScreen() {
                 style={[S.catTile, { backgroundColor: isDark ? cat.bgDark : cat.bg }]}
                 onPress={() => handleCat(cat.label)}
               >
-                <Text style={{ fontSize: 28, marginBottom: 6 }}>{cat.emoji}</Text>
+                <Ionicons name={cat.icon} size={32} color={cat.color} style={{ marginBottom: 6 }} />
                 <Text style={S.catTileLabel}>{cat.label}</Text>
               </TouchableOpacity>
             ))}
@@ -217,7 +279,7 @@ export default function ExploreScreen() {
           <FlatList
             data={results}
             keyExtractor={(item) => item._id}
-            contentContainerStyle={{ padding: 16 }}
+            contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
               <Text style={{ fontSize: 13, color: C.textTertiary, marginBottom: 12 }}>

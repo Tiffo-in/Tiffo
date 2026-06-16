@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
@@ -258,46 +259,64 @@ export default function SavedAddressesScreen() {
     );
   };
 
-  const fetchGPS = () => {
+  const fetchGPS = async () => {
     setGpsLoading(true);
-    if (typeof navigator !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setGpsCoords({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-          setGpsLoading(false);
-          success('GPS Success', 'Accurate GPS coordinates retrieved successfully!');
-        },
-        (err) => {
-          setGpsLoading(false);
-          error(
-            'GPS Location Failed',
-            'Could not retrieve GPS location coordinates. Fallback city geocoding will be used.',
-          );
-        },
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
-      );
-    } else {
-      // Fallback GPS simulation based on current input city
-      if (!city.trim()) {
-        setGpsLoading(false);
-        warning(
-          'City Required',
-          'Please enter a City name first so we can simulate the GPS coordinates for that city.',
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        error(
+          'Permission Denied',
+          'Location permissions are required to fetch current GPS coordinates.',
         );
+        setGpsLoading(false);
         return;
       }
-      setTimeout(() => {
-        const coords = geocodeCity(city);
-        setGpsCoords(coords);
-        setGpsLoading(false);
-        success(
-          'GPS Simulated',
-          `GPS coordinates simulated successfully for ${city} (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})!`,
-        );
-      }, 800);
+
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const coords = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+      setGpsCoords(coords);
+
+      // Auto-geocode to fill out the form
+      try {
+        const [geocode] = await Location.reverseGeocodeAsync({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+
+        if (geocode) {
+          if (geocode.city || geocode.subregion) {
+            setCity(geocode.city || geocode.subregion || '');
+          }
+          if (geocode.region) {
+            setStateName(geocode.region);
+          }
+          if (geocode.postalCode) {
+            setPincode(geocode.postalCode);
+          }
+          const streetParts = [geocode.name, geocode.street, geocode.district].filter(Boolean);
+          if (streetParts.length > 0) {
+            setStreet(streetParts.join(', '));
+          }
+        }
+      } catch (geoErr) {
+        console.warn('Reverse geocoding failed:', geoErr);
+      }
+
+      success('GPS Success', 'Accurate GPS coordinates and address loaded successfully!');
+    } catch (err) {
+      console.error(err);
+      error(
+        'GPS Location Failed',
+        'Could not retrieve GPS location coordinates. Please enter details manually.',
+      );
+    } finally {
+      setGpsLoading(false);
     }
   };
 
@@ -323,7 +342,12 @@ export default function SavedAddressesScreen() {
 
             {addresses.length === 0 ? (
               <View style={S.emptyCard}>
-                <Text style={S.emptyIcon}>📍</Text>
+                <Ionicons
+                  name="location-outline"
+                  size={48}
+                  color={C.textSecondary}
+                  style={{ marginBottom: 12 }}
+                />
                 <Text style={S.emptyText}>No Saved Addresses Found</Text>
                 <Text style={S.emptySubtext}>
                   Add an address to easily place orders and manage deliveries.

@@ -37,7 +37,7 @@ jest.mock('../../services/socketService', () => ({
   emitNotification: jest.fn(),
 }));
 jest.mock('../../services/paymentService', () => ({
-  fetchPaymentHistory: jest.fn()
+  fetchPaymentHistory: jest.fn(),
 }));
 
 const {

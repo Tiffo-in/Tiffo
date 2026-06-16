@@ -63,6 +63,7 @@ const EarningsScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.scroll}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -118,7 +119,12 @@ const EarningsScreen = () => {
             <Text style={styles.sectionTitle}>Payout History</Text>
             {payouts.length === 0 ? (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyEmoji}>💳</Text>
+                <Ionicons
+                  name="card-outline"
+                  size={36}
+                  color="#64748B"
+                  style={{ marginBottom: 10 }}
+                />
                 <Text style={styles.emptyText}>No payouts yet</Text>
               </View>
             ) : (

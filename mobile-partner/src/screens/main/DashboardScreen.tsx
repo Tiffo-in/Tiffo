@@ -68,6 +68,7 @@ const DashboardScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.scroll}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#F59E0B" />
         }
@@ -75,7 +76,7 @@ const DashboardScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>{getGreeting()} 👨‍🍳</Text>
+            <Text style={styles.greeting}>{getGreeting()}</Text>
             <Text style={styles.partnerName}>{user?.name}</Text>
           </View>
           <View style={styles.avatarCircle}>

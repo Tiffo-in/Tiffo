@@ -243,11 +243,16 @@ export default function SubscriptionScreen() {
             tintColor={C.primary}
           />
         }
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
       >
         {!isAuthenticated ? (
           <View style={S.empty}>
-            <Text style={{ fontSize: 52, marginBottom: 16 }}>🔒</Text>
+            <Ionicons
+              name="lock-closed-outline"
+              size={52}
+              color={C.textSecondary}
+              style={{ marginBottom: 16 }}
+            />
             <Text style={S.emptyTitle}>Sign in required</Text>
             <Text style={S.emptySub}>
               Sign in to view and manage your active tiffin subscriptions
@@ -260,7 +265,12 @@ export default function SubscriptionScreen() {
           <ActivityIndicator color={C.primary} size="large" style={{ marginTop: 60 }} />
         ) : subs.length === 0 ? (
           <View style={S.empty}>
-            <Text style={{ fontSize: 52, marginBottom: 16 }}>🍽️</Text>
+            <Ionicons
+              name="restaurant-outline"
+              size={52}
+              color={C.textSecondary}
+              style={{ marginBottom: 16 }}
+            />
             <Text style={S.emptyTitle}>No subscriptions yet</Text>
             <Text style={S.emptySub}>
               Subscribe to daily tiffin plans from local kitchen partners

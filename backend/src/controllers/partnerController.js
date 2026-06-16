@@ -140,17 +140,18 @@ exports.updatePartnerProfile = async (req, res) => {
   try {
     const { businessName, description, address, contact, businessHours } = req.body;
 
-    const partner = await Partner.findOneAndUpdate(
-      { user: req.user.id },
-      {
-        businessName,
-        description,
-        address,
-        contact,
-        businessHours,
-      },
-      { new: true, upsert: true },
-    );
+    let partner = await Partner.findOne({ user: req.user.id });
+    if (!partner) {
+      partner = new Partner({ user: req.user.id, businessName });
+    }
+
+    if (businessName !== undefined) partner.businessName = businessName;
+    if (description !== undefined) partner.description = description;
+    if (address !== undefined) partner.address = address;
+    if (contact !== undefined) partner.contact = contact;
+    if (businessHours !== undefined) partner.businessHours = businessHours;
+
+    await partner.save();
 
     res.json({ success: true, data: partner });
   } catch (error) {

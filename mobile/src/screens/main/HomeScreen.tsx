@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
+import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   View,
@@ -14,6 +16,9 @@ import {
   Animated,
   Dimensions,
   FlatList,
+  Modal,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -28,24 +33,36 @@ import { Tiffin, ApiResponse } from '../../types';
 const { width: SW } = Dimensions.get('window');
 
 const CATEGORIES = [
-  { label: 'All', icon: '🍽️' },
-  { label: 'Gujarati', icon: '🫕' },
-  { label: 'Punjabi', icon: '🍛' },
-  { label: 'South Indian', icon: '🥘' },
-  { label: 'Bengali', icon: '🐟' },
-  { label: 'Maharashtrian', icon: '🌶️' },
-  { label: 'Healthy', icon: '🥗' },
+  { label: 'All', icon: 'restaurant-outline' as const },
+  { label: 'Gujarati', icon: 'restaurant-outline' as const },
+  { label: 'Punjabi', icon: 'flame-outline' as const },
+  { label: 'South Indian', icon: 'leaf-outline' as const },
+  { label: 'Bengali', icon: 'fish-outline' as const },
+  { label: 'Maharashtrian', icon: 'restaurant-outline' as const },
+  { label: 'Healthy', icon: 'nutrition-outline' as const },
 ];
 
 const BANNERS = [
-  { id: '1', title: '50% OFF', subtitle: 'On your first subscription', bg: '#E23744', emoji: '🎉' },
-  { id: '2', title: 'FREE delivery', subtitle: 'On all monthly plans', bg: '#FC8019', emoji: '🛵' },
+  {
+    id: '1',
+    title: '50% OFF',
+    subtitle: 'On your first subscription',
+    bg: '#E23744',
+    icon: 'gift-outline' as const,
+  },
+  {
+    id: '2',
+    title: 'FREE delivery',
+    subtitle: 'On all monthly plans',
+    bg: '#FC8019',
+    icon: 'bicycle-outline' as const,
+  },
   {
     id: '3',
     title: 'Fresh daily',
     subtitle: 'Cooked with love every morning',
     bg: '#257E3E',
-    emoji: '🍱',
+    icon: 'restaurant-outline' as const,
   },
 ];
 
@@ -138,8 +155,9 @@ const TiffinCard = ({
             <View style={[S.vegDot, { backgroundColor: item.isVeg ? C.veg : C.nonVeg }]} />
           </View>
           {index === 0 && (
-            <View style={S.offerBadge}>
-              <Text style={S.offerText}>🎁 50% OFF</Text>
+            <View style={[S.offerBadge, { flexDirection: 'row', alignItems: 'center', gap: 3 }]}>
+              <Ionicons name="gift" size={11} color="#fff" />
+              <Text style={S.offerText}>50% OFF</Text>
             </View>
           )}
         </View>
@@ -214,7 +232,7 @@ const BannerCarousel = ({ C }: { C: ColorScheme }) => {
                 {item.subtitle}
               </Text>
             </View>
-            <Text style={{ fontSize: 42 }}>{item.emoji}</Text>
+            <Ionicons name={item.icon} size={42} color="#fff" />
           </View>
         )}
       />
@@ -245,6 +263,22 @@ export default function HomeScreen() {
 
   const [activeLocCoords, setActiveLocCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [activeLocName, setActiveLocName] = useState<string>('Home');
+  const [locModalVisible, setLocModalVisible] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [gpsLoading, setGpsLoading] = useState(false);
+
+  const loadSavedAddresses = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('saved_addresses');
+      if (stored) {
+        setSavedAddresses(JSON.parse(stored));
+      } else {
+        setSavedAddresses([]);
+      }
+    } catch (e) {
+      console.error('Failed to load saved addresses:', e);
+    }
+  };
 
   // Sync with user's primary address on load or profile update
   useEffect(() => {
@@ -262,57 +296,65 @@ export default function HomeScreen() {
       setActiveLocName('Select Location...');
       setActiveLocCoords(null);
     }
+    loadSavedAddresses();
   }, [user]);
 
-  const handleRequestGPS = () => {
-    confirm(
-      'Use GPS Location',
-      'Would you like to fetch your current GPS coordinates to find nearest tiffins?',
-      () => {
-        if (typeof navigator !== 'undefined' && navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              setActiveLocName('Near You (GPS)');
-              setActiveLocCoords({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              });
-              success('GPS Connected', 'Now showing tiffins nearest to your position!');
-            },
-            (err) => {
-              showError(
-                'GPS Location Failed',
-                'Could not acquire accurate GPS coordinates. Please manage saved addresses instead.',
-              );
-            },
-            { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
-          );
+  const handleGPSLocation = async () => {
+    setGpsLoading(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        showError(
+          'Permission Denied',
+          'Location permissions are required to fetch GPS coordinates.',
+        );
+        setGpsLoading(false);
+        return;
+      }
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+      setActiveLocCoords(coords);
+
+      try {
+        const [geocode] = await Location.reverseGeocodeAsync({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        if (geocode?.city || geocode?.subregion || geocode?.district) {
+          const name = geocode.city || geocode.subregion || geocode.district || 'Near You';
+          setActiveLocName(`Near ${name} (GPS)`);
+          success('Location Set', `Location updated to near ${name}!`);
         } else {
-          // Geolocation not present (common in node/native environment without expo-location compiled)
-          confirm(
-            'GPS Service Simulation',
-            'Native GPS service is unavailable in this environment. Would you like to simulate a GPS coordinates fetch for Pune City to find nearest tiffins?',
-            () => {
-              setActiveLocName('Locating...');
-              setTimeout(() => {
-                setActiveLocName('Near Pune (Simulated)');
-                setActiveLocCoords({
-                  lat: 18.5204,
-                  lng: 73.8567,
-                });
-                success('GPS Simulated', 'Now showing tiffins nearest to Pune City!');
-              }, 800);
-            },
-            undefined,
-            'Simulate GPS',
-            'Cancel',
-          );
+          setActiveLocName('Near You (GPS)');
+          success('Location Set', 'Location updated to current GPS position!');
         }
-      },
-      undefined,
-      'Get Location',
-      'Cancel',
+      } catch (err) {
+        setActiveLocName('Near You (GPS)');
+        success('Location Set', 'Location updated to current GPS position!');
+      }
+      setLocModalVisible(false);
+    } catch (err) {
+      console.error(err);
+      showError('GPS Failed', 'Could not retrieve your current GPS coordinates.');
+    } finally {
+      setGpsLoading(false);
+    }
+  };
+
+  const handleSelectAddress = (addr: any) => {
+    setActiveLocName(
+      addr.street ? `${addr.type}: ${addr.street.split(',')[0]}` : `${addr.type}: ${addr.city}`,
     );
+    if (addr.coordinates?.lat && addr.coordinates?.lng) {
+      setActiveLocCoords({ lat: addr.coordinates.lat, lng: addr.coordinates.lng });
+    } else {
+      setActiveLocCoords(null);
+    }
+    success('Address Selected', `Active location set to ${addr.type}!`);
+    setLocModalVisible(false);
   };
 
   const {
@@ -345,20 +387,29 @@ export default function HomeScreen() {
 
   const greeting = () => {
     const h = new Date().getHours();
-    return h < 12 ? '🌅 Good morning' : h < 17 ? '☀️ Good afternoon' : '🌙 Good evening';
+    const prefix = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    return user?.name ? `${prefix}, ${user.name.split(' ')[0]}` : prefix;
   };
 
   return (
     <SafeAreaView style={S.safe}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={C.primary} />
         }
       >
         {/* Header */}
         <View style={S.header}>
-          <TouchableOpacity style={S.locRow} onPress={handleRequestGPS} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={S.locRow}
+            onPress={() => {
+              loadSavedAddresses();
+              setLocModalVisible(true);
+            }}
+            activeOpacity={0.7}
+          >
             <Ionicons name="location-sharp" size={16} color={C.primary} />
             <Text style={S.locTxt} numberOfLines={1}>
               {activeLocName}
@@ -401,7 +452,11 @@ export default function HomeScreen() {
               style={[S.chip, activeCat === c.label && S.chipActive]}
               onPress={() => filterCat(c.label)}
             >
-              <Text style={{ fontSize: 14 }}>{c.icon}</Text>
+              <Ionicons
+                name={c.icon}
+                size={14}
+                color={activeCat === c.label ? C.primary : C.textSecondary}
+              />
               <Text style={[S.chipTxt, activeCat === c.label && S.chipTxtActive]}>{c.label}</Text>
             </TouchableOpacity>
           ))}
@@ -432,7 +487,12 @@ export default function HomeScreen() {
           </>
         ) : isError ? (
           <View style={S.empty}>
-            <Text style={{ fontSize: 48, marginBottom: 12 }}>⚠️</Text>
+            <Ionicons
+              name="warning-outline"
+              size={48}
+              color={C.textSecondary}
+              style={{ marginBottom: 12 }}
+            />
             <Text style={{ fontSize: 18, fontWeight: '700', color: C.textPrimary }}>
               Oops! Something went wrong
             </Text>
@@ -462,7 +522,12 @@ export default function HomeScreen() {
           </View>
         ) : filtered.length === 0 ? (
           <View style={S.empty}>
-            <Text style={{ fontSize: 48, marginBottom: 12 }}>🍽️</Text>
+            <Ionicons
+              name="restaurant-outline"
+              size={48}
+              color={C.textSecondary}
+              style={{ marginBottom: 12 }}
+            />
             <Text style={{ fontSize: 18, fontWeight: '700', color: C.textPrimary }}>
               No meals found
             </Text>
@@ -483,6 +548,92 @@ export default function HomeScreen() {
         )}
         <View style={{ height: 24 }} />
       </ScrollView>
+
+      <Modal
+        visible={locModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setLocModalVisible(false)}
+      >
+        <View style={S.modalOverlay}>
+          <View style={S.modalContent}>
+            <View style={S.modalHeader}>
+              <Text style={S.modalTitle}>Select delivery location</Text>
+              <TouchableOpacity onPress={() => setLocModalVisible(false)}>
+                <Ionicons name="close" size={24} color={C.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* GPS Button */}
+            <TouchableOpacity
+              style={[S.gpsBtn, gpsLoading && S.gpsBtnActive]}
+              onPress={handleGPSLocation}
+              disabled={gpsLoading}
+              activeOpacity={0.8}
+            >
+              {gpsLoading ? (
+                <ActivityIndicator color={C.primary} size="small" />
+              ) : (
+                <>
+                  <Ionicons name="location-outline" size={20} color={C.primary} />
+                  <Text style={S.gpsBtnTxt}>Use current location (GPS)</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            <View style={S.modalDivider} />
+
+            <View style={S.savedAddressesHeader}>
+              <Text style={S.modalSubTitle}>SAVED ADDRESSES</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setLocModalVisible(false);
+                  nav.navigate('SavedAddresses');
+                }}
+              >
+                <Text style={S.manageAddressesBtnTxt}>Manage</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={S.modalAddressesList} showsVerticalScrollIndicator={false}>
+              {savedAddresses.length === 0 ? (
+                <View style={S.emptyAddresses}>
+                  <Text style={S.emptyAddressesTxt}>No saved addresses found.</Text>
+                </View>
+              ) : (
+                savedAddresses.map((addr) => (
+                  <TouchableOpacity
+                    key={addr.id}
+                    style={S.addressItem}
+                    onPress={() => handleSelectAddress(addr)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={S.addressIconWrap}>
+                      <Ionicons
+                        name={
+                          addr.type === 'Home'
+                            ? 'home-outline'
+                            : addr.type === 'Work'
+                              ? 'business-outline'
+                              : 'location-outline'
+                        }
+                        size={18}
+                        color={C.primary}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={S.addressTypeTxt}>{addr.type}</Text>
+                      <Text style={S.addressDetailsTxt} numberOfLines={2}>
+                        {addr.street}, {addr.city}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -626,4 +777,108 @@ const createStyles = (C: ColorScheme) =>
     viewBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
     skLine: { height: 13, backgroundColor: C.skeletonBase, borderRadius: 6 },
     empty: { alignItems: 'center', paddingVertical: 60 },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: C.background,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      padding: 24,
+      maxHeight: '75%',
+      paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: '800',
+      color: C.textPrimary,
+    },
+    modalSubTitle: {
+      fontSize: 12,
+      fontWeight: '800',
+      color: C.textSecondary,
+      letterSpacing: 0.5,
+    },
+    gpsBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+      borderColor: C.primary,
+      borderRadius: 12,
+      height: 48,
+      gap: 8,
+      backgroundColor: C.primaryMuted,
+    },
+    gpsBtnActive: {
+      backgroundColor: C.primary,
+      borderColor: C.primary,
+    },
+    gpsBtnTxt: {
+      color: C.primary,
+      fontSize: 14,
+      fontWeight: '700',
+    },
+    modalDivider: {
+      height: 1,
+      backgroundColor: C.divider,
+      marginVertical: 18,
+    },
+    savedAddressesHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    manageAddressesBtnTxt: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: C.primary,
+    },
+    modalAddressesList: {
+      maxHeight: 240,
+    },
+    emptyAddresses: {
+      paddingVertical: 20,
+      alignItems: 'center',
+    },
+    emptyAddressesTxt: {
+      fontSize: 13,
+      color: C.textSecondary,
+    },
+    addressItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: C.divider,
+      gap: 12,
+    },
+    addressIconWrap: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      backgroundColor: C.primaryMuted,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    addressTypeTxt: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: C.textPrimary,
+      marginBottom: 2,
+    },
+    addressDetailsTxt: {
+      fontSize: 12,
+      color: C.textSecondary,
+      lineHeight: 16,
+    },
   });

@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState, useMemo } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -24,6 +26,24 @@ interface NotificationItem {
   read: boolean;
 }
 
+const formatTime = (timeStr: string) => {
+  try {
+    const date = new Date(timeStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    if (isNaN(diffMs)) return timeStr;
+
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHrs = Math.floor(diffMins / 60);
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHrs < 24) return `${diffHrs}h ago`;
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  } catch (e) {
+    return timeStr;
+  }
+};
+
 export default function NotificationsScreen() {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
@@ -35,38 +55,85 @@ export default function NotificationsScreen() {
   const [prefSystem, setPrefSystem] = useState(true);
 
   // Historical notifications
-  const [items, setItems] = useState<NotificationItem[]>([
-    {
-      id: 'n1',
-      type: 'order',
-      title: '🍱 Lunch Dispatched',
-      body: 'Your North Indian Veg Lunch meal pack is out for delivery. Tracker active!',
-      time: '2 hrs ago',
-      read: false,
-    },
-    {
-      id: 'n2',
-      type: 'promo',
-      title: '🎉 20% Weekly Meal Package Discount',
-      body: 'Use code MEAL20 to unlock huge savings on subscriptions this week!',
-      time: 'Yesterday',
-      read: true,
-    },
-    {
-      id: 'n3',
-      type: 'system',
-      title: '✅ Subscription Pause Confirmed',
-      body: 'Your tiffin delivery is paused for June 2nd, as requested.',
-      time: '3 days ago',
-      read: true,
-    },
-  ]);
+  const [items, setItems] = useState<NotificationItem[]>([]);
+
+  const loadNotifications = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('notifications_history');
+      if (stored) {
+        setItems(JSON.parse(stored));
+      } else {
+        // Seed with default mock alerts
+        const mockAlerts: NotificationItem[] = [
+          {
+            id: 'n1',
+            type: 'order',
+            title: 'Lunch Dispatched',
+            body: 'Your North Indian Veg Lunch meal pack is out for delivery. Tracker active!',
+            time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            read: false,
+          },
+          {
+            id: 'n2',
+            type: 'promo',
+            title: '20% Weekly Meal Package Discount',
+            body: 'Use code MEAL20 to unlock huge savings on subscriptions this week!',
+            time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+            read: true,
+          },
+          {
+            id: 'n3',
+            type: 'system',
+            title: 'Subscription Pause Confirmed',
+            body: 'Your tiffin delivery is paused for June 2nd, as requested.',
+            time: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            read: true,
+          },
+        ];
+        await AsyncStorage.setItem('notifications_history', JSON.stringify(mockAlerts));
+        setItems(mockAlerts);
+      }
+    } catch (e) {
+      console.error('Failed to load notifications history:', e);
+    }
+  };
+
+  // Reload history when the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      loadNotifications();
+      // Mark all as read when user opens the screen
+      const markAllAsRead = async () => {
+        try {
+          const stored = await AsyncStorage.getItem('notifications_history');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const updated = parsed.map((item: any) => ({ ...item, read: true }));
+            await AsyncStorage.setItem('notifications_history', JSON.stringify(updated));
+            setItems(updated);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      // Mark all read after a short delay so the user can see what was unread
+      const t = setTimeout(markAllAsRead, 1500);
+      return () => clearTimeout(t);
+    }, []),
+  );
 
   const handleClearAll = () => {
     confirm(
       'Clear History',
       'Are you sure you want to clear all notifications?',
-      () => setItems([]),
+      async () => {
+        try {
+          await AsyncStorage.removeItem('notifications_history');
+          setItems([]);
+        } catch (e) {
+          console.error(e);
+        }
+      },
       undefined,
       'Clear All',
       'Cancel',
@@ -166,7 +233,12 @@ export default function NotificationsScreen() {
 
         {items.length === 0 ? (
           <View style={S.emptyInbox}>
-            <Text style={{ fontSize: 44, marginBottom: 12 }}>🔔</Text>
+            <Ionicons
+              name="notifications-outline"
+              size={44}
+              color={C.textSecondary}
+              style={{ marginBottom: 12 }}
+            />
             <Text style={S.emptyInboxTitle}>Inbox is Empty</Text>
             <Text style={S.emptyInboxDesc}>
               When you receive notifications, they will be archived here for easy viewing.
@@ -181,7 +253,7 @@ export default function NotificationsScreen() {
               <View style={{ flex: 1 }}>
                 <View style={S.notifRow}>
                   <Text style={S.notifTitle}>{item.title}</Text>
-                  <Text style={S.notifTime}>{item.time}</Text>
+                  <Text style={S.notifTime}>{formatTime(item.time)}</Text>
                 </View>
                 <Text style={S.notifBody}>{item.body}</Text>
               </View>

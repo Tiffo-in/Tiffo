@@ -216,13 +216,18 @@ const OrdersScreen = () => {
           data={deliveries}
           keyExtractor={(item) => item._id}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#F59E0B" />
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyEmoji}>📦</Text>
+              <Ionicons
+                name="cube-outline"
+                size={48}
+                color="#64748B"
+                style={{ marginBottom: 12 }}
+              />
               <Text style={styles.emptyText}>No deliveries scheduled for today</Text>
             </View>
           }

@@ -31,10 +31,10 @@ const PLANS: Record<string, { days: number; discount: string; label: string }> =
 };
 
 const NUTRIENTS = [
-  { label: 'Calories', value: '~450 kcal', icon: '🔥' },
-  { label: 'Protein', value: '18g', icon: '💪' },
-  { label: 'Carbs', value: '55g', icon: '🌾' },
-  { label: 'Fresh', value: 'Daily', icon: '✅' },
+  { label: 'Calories', value: '~450 kcal', icon: 'flame-outline' as const },
+  { label: 'Protein', value: '18g', icon: 'barbell-outline' as const },
+  { label: 'Carbs', value: '55g', icon: 'leaf-outline' as const },
+  { label: 'Fresh', value: 'Daily', icon: 'checkmark-circle-outline' as const },
 ];
 
 export default function TiffinDetailScreen({ route, navigation }: Props) {
@@ -95,7 +95,7 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
           backgroundColor: C.background,
         }}
       >
-        <Text style={{ fontSize: 40 }}>😕</Text>
+        <Ionicons name="alert-circle-outline" size={48} color={C.textSecondary} />
         <Text style={{ fontSize: 16, color: C.textSecondary, marginTop: 12 }}>
           {isError ? (error as any)?.message || 'Failed to load meal details' : 'Meal not found'}
         </Text>
@@ -216,7 +216,7 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
           <View style={S.nutriRow}>
             {NUTRIENTS.map((n) => (
               <View key={n.label} style={S.nutriItem}>
-                <Text style={{ fontSize: 20 }}>{n.icon}</Text>
+                <Ionicons name={n.icon} size={20} color={C.primary} />
                 <Text style={S.nutriVal}>{n.value}</Text>
                 <Text style={S.nutriLabel}>{n.label}</Text>
               </View>

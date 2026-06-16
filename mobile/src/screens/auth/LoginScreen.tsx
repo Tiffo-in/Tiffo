@@ -81,7 +81,7 @@ export default function LoginScreen({ navigation }: Props) {
       </Animated.View>
 
       <View style={S.form}>
-        <Text style={S.formTitle}>Welcome back 👋</Text>
+        <Text style={S.formTitle}>Welcome back</Text>
         <Text style={S.formSub}>Sign in to continue to your account</Text>
 
         <View style={[S.inputWrap, emailFocused && S.inputFocused]}>
@@ -157,7 +157,7 @@ export default function LoginScreen({ navigation }: Props) {
 
         {/* TODO: Implement Google Auth
         <TouchableOpacity style={S.socialBtn}>
-          <Text style={{ fontSize: 20 }}>🌐</Text>
+          <Ionicons name="logo-google" size={20} color={C.textPrimary} />
           <Text style={S.socialTxt}>Continue with Google</Text>
         </TouchableOpacity>
         */}
