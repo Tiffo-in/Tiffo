@@ -540,63 +540,89 @@ exports.getPartnerStats = async (req, res) => {
     const partner = await resolvePartner(req, res);
     if (!partner) return;
 
-    // 1. Active subscriptions count
-    const activeSubscriptions = await Subscription.countDocuments({
-      partner: partner._id, // Bug 1 fix
-      status: 'active',
-    });
-
-    // 2. Today's deliveries
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    const todayDeliveries = await Delivery.countDocuments({
-      partner: partner._id, // Bug 1 fix
-      deliveryDate: { $gte: todayStart, $lte: todayEnd },
-    });
-
-    const pendingDeliveries = await Delivery.countDocuments({
-      partner: partner._id, // Bug 1 fix
-      deliveryDate: { $gte: todayStart, $lte: todayEnd },
-      status: { $in: ['scheduled', 'preparing', 'out_for_delivery'] },
-    });
-
-    // 3. Monthly earnings — sum totalAmount of paid subscriptions active this month
     const startOfMonth = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
-
-    const monthlyPaidSubs = await Subscription.find({
-      partner: partner._id, // Bug 1 fix
-      paymentStatus: { $in: ['paid', 'captured'] },
-      createdAt: { $gte: startOfMonth },
-    }).select('totalAmount');
-
-    const monthlyEarnings = monthlyPaidSubs.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
-
-    // Previous month for % change
     const startOfLastMonth = new Date(todayStart.getFullYear(), todayStart.getMonth() - 1, 1);
     const endOfLastMonth = new Date(todayStart.getFullYear(), todayStart.getMonth(), 0, 23, 59, 59);
 
-    const lastMonthSubs = await Subscription.find({
-      partner: partner._id, // Bug 1 fix
-      paymentStatus: { $in: ['paid', 'captured'] },
-      createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
-    }).select('totalAmount');
+    // ⚡ Bolt: Group independent database queries with Promise.all and replace map/reduce with aggregate
+    const [
+      activeSubscriptions,
+      todayDeliveries,
+      pendingDeliveries,
+      monthlyEarningsAgg,
+      lastMonthEarningsAgg,
+      reviewStatsAgg,
+    ] = await Promise.all([
+      // 1. Active subscriptions count
+      Subscription.countDocuments({
+        partner: partner._id,
+        status: 'active',
+      }),
 
-    const lastMonthEarnings = lastMonthSubs.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+      // 2. Today's deliveries
+      Delivery.countDocuments({
+        partner: partner._id,
+        deliveryDate: { $gte: todayStart, $lte: todayEnd },
+      }),
+
+      Delivery.countDocuments({
+        partner: partner._id,
+        deliveryDate: { $gte: todayStart, $lte: todayEnd },
+        status: { $in: ['scheduled', 'preparing', 'out_for_delivery'] },
+      }),
+
+      // 3. Monthly earnings — sum totalAmount of paid subscriptions active this month
+      Subscription.aggregate([
+        {
+          $match: {
+            partner: partner._id,
+            paymentStatus: { $in: ['paid', 'captured'] },
+            createdAt: { $gte: startOfMonth },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      ]),
+
+      // Previous month for % change
+      Subscription.aggregate([
+        {
+          $match: {
+            partner: partner._id,
+            paymentStatus: { $in: ['paid', 'captured'] },
+            createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      ]),
+
+      // 4. Average rating + review count
+      Review.aggregate([
+        { $match: { partner: partner._id } },
+        {
+          $group: {
+            _id: null,
+            avgRating: { $avg: '$rating' },
+            reviewCount: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    const monthlyEarnings = monthlyEarningsAgg[0]?.total || 0;
+    const lastMonthEarnings = lastMonthEarningsAgg[0]?.total || 0;
+
     const earningsChange =
       lastMonthEarnings > 0
         ? Math.round(((monthlyEarnings - lastMonthEarnings) / lastMonthEarnings) * 100)
         : null;
 
-    // 4. Average rating + review count
-    const reviews = await Review.find({ partner: partner._id }).select('rating'); // Bug 1 fix
-    const reviewCount = reviews.length;
-    const avgRating =
-      reviewCount > 0
-        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)
-        : null;
+    const reviewCount = reviewStatsAgg[0]?.reviewCount || 0;
+    const avgRating = reviewStatsAgg[0]?.avgRating ? reviewStatsAgg[0].avgRating.toFixed(1) : null;
 
     res.json({
       success: true,
