@@ -55,7 +55,7 @@ describe('paymentService - fetchPaymentHistory', () => {
     const result = await fetchPaymentHistory(userId, { limit: 0, page: -5 });
 
     expect(chain.limit).toHaveBeenCalledWith(1); // Math.max(1, 0) => 1
-    expect(chain.skip).toHaveBeenCalledWith(0);  // Math.max(1, -5) => 1 => (1-1)*1 => 0
+    expect(chain.skip).toHaveBeenCalledWith(0); // Math.max(1, -5) => 1 => (1-1)*1 => 0
     expect(result.pagination.page).toBe(1);
     expect(result.pagination.pages).toBe(0);
   });
