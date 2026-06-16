@@ -3,6 +3,7 @@ const Subscription = require('../../models/Subscription');
 const Payment = require('../../models/Payment');
 const logger = require('../../utils/logger');
 const { emitNotification } = require('../../services/socketService');
+const escapeRegex = require('../../utils/escapeRegex');
 
 /**
  * Get all users with pagination and filters
@@ -19,9 +20,10 @@ exports.getUsers = async (req, res) => {
     const query = {};
 
     if (search) {
+      const safeSearch = escapeRegex(search);
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { email: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 
@@ -45,22 +47,29 @@ exports.getUsers = async (req, res) => {
       User.countDocuments(query),
     ]);
 
-    const users = await Promise.all(
-      usersData.map(async (user) => {
-        const [subscriptions, payments] = await Promise.all([
-          Subscription.countDocuments({ user: user._id }),
-          Payment.aggregate([
-            { $match: { user: user._id, status: 'paid' } },
-            { $group: { _id: null, total: { $sum: '$amount' } } },
-          ]),
-        ]);
-        return {
-          ...user,
-          subscriptions,
-          totalSpent: payments[0]?.total || 0,
-        };
-      }),
-    );
+    // ⚡ Bolt: Batch subscription and payment stats to avoid N+1 queries
+    // O(1) hash map lookup used to merge data back, reducing queries from 2N+2 to exactly 4
+    const userIds = usersData.map((user) => user._id);
+
+    const [subscriptionCounts, paymentStats] = await Promise.all([
+      Subscription.aggregate([
+        { $match: { user: { $in: userIds } } },
+        { $group: { _id: '$user', count: { $sum: 1 } } },
+      ]),
+      Payment.aggregate([
+        { $match: { user: { $in: userIds }, status: 'paid' } },
+        { $group: { _id: '$user', total: { $sum: '$amount' } } },
+      ]),
+    ]);
+
+    const subMap = new Map(subscriptionCounts.map((s) => [s._id.toString(), s.count]));
+    const payMap = new Map(paymentStats.map((p) => [p._id.toString(), p.total]));
+
+    const users = usersData.map((user) => ({
+      ...user,
+      subscriptions: subMap.get(user._id.toString()) || 0,
+      totalSpent: payMap.get(user._id.toString()) || 0,
+    }));
 
     res.json({
       success: true,

@@ -122,9 +122,20 @@ export default function RegisterScreen({ navigation }: Props) {
 
         {/* Benefits strip */}
         <View style={S.benefitsRow}>
-          {['🍛 Daily fresh', '🚴 Free delivery', '⏸️ Pause anytime'].map((b) => (
-            <View key={b} style={S.benefit}>
-              <Text style={S.benefitTxt}>{b}</Text>
+          {[
+            { label: 'Daily fresh', icon: 'restaurant-outline' as const },
+            { label: 'Free delivery', icon: 'bicycle-outline' as const },
+            { label: 'Pause anytime', icon: 'pause-circle-outline' as const },
+          ].map((b) => (
+            <View
+              key={b.label}
+              style={[
+                S.benefit,
+                { flexDirection: 'row', gap: 4, justifyContent: 'center', alignItems: 'center' },
+              ]}
+            >
+              <Ionicons name={b.icon} size={12} color={C.primary} />
+              <Text style={S.benefitTxt}>{b.label}</Text>
             </View>
           ))}
         </View>

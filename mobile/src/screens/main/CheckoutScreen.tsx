@@ -63,7 +63,7 @@ export default function CheckoutScreen({ route, navigation }: Props) {
       if (payMethod === 'cod') {
         await api.post('/payments/cod', { subscriptionId });
         success(
-          'Order Placed! 🎉',
+          'Order Placed!',
           'Your subscription is confirmed. Pay cash on first delivery.',
           () => navigation.navigate('MainTabs'),
         );
@@ -89,7 +89,7 @@ export default function CheckoutScreen({ route, navigation }: Props) {
           try {
             await api.post('/payments/verify', { ...data, subscriptionId });
             success(
-              'Payment Successful! 🎉',
+              'Payment Successful!',
               'Your subscription is active. Meals start tomorrow!',
               () => navigation.navigate('MainTabs'),
             );
@@ -277,7 +277,7 @@ export default function CheckoutScreen({ route, navigation }: Props) {
         <View>
           <Text style={S.footerTotal}>₹{total}</Text>
           <Text style={S.footerSub}>
-            {payMethod === 'online' ? '🔒 Secure payment' : '💵 Pay on delivery'}
+            {payMethod === 'online' ? 'Secure payment' : 'Pay on delivery'}
           </Text>
         </View>
         <TouchableOpacity

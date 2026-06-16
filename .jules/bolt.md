@@ -7,3 +7,7 @@
 ## 2024-06-13 - N+1 Query in Subscription Delivery Stats
 **Learning:** The `fetchUserSubscriptions` and `fetchOrderHistory` methods in the subscription service were looping over subscriptions with a `Promise.all` and querying the `Delivery` collection inside the loop. This resulted in an N+1 query problem that significantly impacted backend performance as the number of subscriptions grew.
 **Action:** Always prefer using a single MongoDB aggregation (`aggregate` with `$match` and `$group`) instead of making multiple queries within loops like `Promise.all`.
+
+## 2023-10-27 - [Avoid N+1 Queries in Map Loops]
+**Learning:** Found an N+1 performance bottleneck in `getUsers` where `Promise.all` inside a `.map` loop caused `2N` database queries for subscription counts and payment aggregates per paginated user list. This severely impacts load times on larger sets.
+**Action:** Replace `map(async (...) => { await Promise.all(...) })` loops querying DB with batched aggregation queries using `$in`, followed by mapping results using an O(1) hash map lookup. This reduces total DB queries from `2N+2` to exactly 4. Always use `$in` aggregation and hash maps for listing related stats.

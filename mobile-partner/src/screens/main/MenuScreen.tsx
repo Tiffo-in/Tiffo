@@ -65,7 +65,26 @@ const MenuScreen = () => {
     <View style={[styles.card, !item.isActive && styles.cardInactive]}>
       <View style={styles.cardLeft}>
         <View style={styles.iconArea}>
-          <Text style={{ fontSize: 28 }}>{item.isVeg ? '🥦' : '🍗'}</Text>
+          <View
+            style={{
+              width: 18,
+              height: 18,
+              borderWidth: 1.5,
+              borderColor: item.isVeg ? '#10B981' : '#EF4444',
+              borderRadius: 3,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <View
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: item.isVeg ? '#10B981' : '#EF4444',
+              }}
+            />
+          </View>
         </View>
         <View style={styles.cardInfo}>
           <Text
@@ -113,7 +132,7 @@ const MenuScreen = () => {
           data={tiffins}
           keyExtractor={(item) => item._id}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -126,7 +145,12 @@ const MenuScreen = () => {
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyEmoji}>🍽️</Text>
+              <Ionicons
+                name="restaurant-outline"
+                size={48}
+                color="#64748B"
+                style={{ marginBottom: 16 }}
+              />
               <Text style={styles.emptyTitle}>No tiffins found</Text>
               <Text style={styles.emptyText}>Add tiffin plans from the Tiffo web dashboard.</Text>
             </View>

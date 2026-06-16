@@ -1,4 +1,11 @@
-const { fetchPaymentHistory } = require('../paymentService');
+const {
+  createSubscriptionOrder,
+  verifySubscriptionPayment,
+  processRefundForSubscription,
+  fetchPaymentHistory,
+} = require('../paymentService');
+
+const Subscription = require('../../models/Subscription');
 const PaymentLog = require('../../models/PaymentLog');
 
 jest.mock('../../models/User');

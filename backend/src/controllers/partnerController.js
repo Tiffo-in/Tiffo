@@ -140,17 +140,18 @@ exports.updatePartnerProfile = async (req, res) => {
   try {
     const { businessName, description, address, contact, businessHours } = req.body;
 
-    const partner = await Partner.findOneAndUpdate(
-      { user: req.user.id },
-      {
-        businessName,
-        description,
-        address,
-        contact,
-        businessHours,
-      },
-      { new: true, upsert: true },
-    );
+    let partner = await Partner.findOne({ user: req.user.id });
+    if (!partner) {
+      partner = new Partner({ user: req.user.id, businessName });
+    }
+
+    if (businessName !== undefined) partner.businessName = businessName;
+    if (description !== undefined) partner.description = description;
+    if (address !== undefined) partner.address = address;
+    if (contact !== undefined) partner.contact = contact;
+    if (businessHours !== undefined) partner.businessHours = businessHours;
+
+    await partner.save();
 
     res.json({ success: true, data: partner });
   } catch (error) {
@@ -223,46 +224,87 @@ exports.getEarnings = async (req, res) => {
     const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
 
-    const todayPayments = await Payment.find({
-      partner: partner._id,
-      transactionDate: { $gte: today },
-      status: 'success',
-    });
+    const [earningsStats] = await Payment.aggregate([
+      {
+        $match: {
+          partner: partner._id,
+          status: 'success',
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalEarnings: { $sum: '$amount' },
+          todayEarnings: {
+            $sum: {
+              $cond: [{ $gte: ['$transactionDate', today] }, '$amount', 0],
+            },
+          },
+          yesterdayEarnings: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ['$transactionDate', yesterday] },
+                    { $lt: ['$transactionDate', today] },
+                  ],
+                },
+                '$amount',
+                0,
+              ],
+            },
+          },
+          thisWeekEarnings: {
+            $sum: {
+              $cond: [{ $gte: ['$transactionDate', startOfWeek] }, '$amount', 0],
+            },
+          },
+          lastWeekEarnings: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ['$transactionDate', startOfLastWeek] },
+                    { $lt: ['$transactionDate', startOfWeek] },
+                  ],
+                },
+                '$amount',
+                0,
+              ],
+            },
+          },
+          thisMonthEarnings: {
+            $sum: {
+              $cond: [{ $gte: ['$transactionDate', startOfMonth] }, '$amount', 0],
+            },
+          },
+          lastMonthEarnings: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ['$transactionDate', startOfLastMonth] },
+                    { $lte: ['$transactionDate', endOfLastMonth] },
+                  ],
+                },
+                '$amount',
+                0,
+              ],
+            },
+          },
+        },
+      },
+    ]);
 
-    const yesterdayPayments = await Payment.find({
-      partner: partner._id,
-      transactionDate: { $gte: yesterday, $lt: today },
-      status: 'success',
-    });
-
-    const weekPayments = await Payment.find({
-      partner: partner._id,
-      transactionDate: { $gte: startOfWeek },
-      status: 'success',
-    });
-
-    const lastWeekPayments = await Payment.find({
-      partner: partner._id,
-      transactionDate: { $gte: startOfLastWeek, $lt: startOfWeek },
-      status: 'success',
-    });
-
-    const monthPayments = await Payment.find({
-      partner: partner._id,
-      transactionDate: { $gte: startOfMonth },
-      status: 'success',
-    });
-
-    const lastMonthPayments = await Payment.find({
-      partner: partner._id,
-      transactionDate: { $gte: startOfLastMonth, $lte: endOfLastMonth },
-      status: 'success',
-    });
-
-    const allPayments = await Payment.find({
-      partner: partner._id,
-      status: 'success',
-    });
+    const stats = earningsStats || {
+      todayEarnings: 0,
+      yesterdayEarnings: 0,
+      thisWeekEarnings: 0,
+      lastWeekEarnings: 0,
+      thisMonthEarnings: 0,
+      lastMonthEarnings: 0,
+      totalEarnings: 0,
+    };
 
     const recentPayments = await Payment.find({
       partner: partner._id,
@@ -272,32 +314,19 @@ exports.getEarnings = async (req, res) => {
       .sort({ transactionDate: -1 })
       .limit(10);
 
-    const sumAmounts = (payments) => payments.reduce((sum, p) => sum + p.amount, 0);
-
-    const todayEarnings = sumAmounts(todayPayments);
-    const yesterdayEarnings = sumAmounts(yesterdayPayments);
-
-    const thisWeekEarnings = sumAmounts(weekPayments);
-    const lastWeekEarnings = sumAmounts(lastWeekPayments);
-
-    const thisMonthEarnings = sumAmounts(monthPayments);
-    const lastMonthEarnings = sumAmounts(lastMonthPayments);
-
-    const totalEarnings = sumAmounts(allPayments);
-
     const getChange = (current, previous) => {
       if (previous === 0) return current > 0 ? 100 : 0;
       return Math.round(((current - previous) / previous) * 100);
     };
 
     const earnings = {
-      today: todayEarnings,
-      thisWeek: thisWeekEarnings,
-      thisMonth: thisMonthEarnings,
-      total: totalEarnings,
-      todayChange: getChange(todayEarnings, yesterdayEarnings),
-      weekChange: getChange(thisWeekEarnings, lastWeekEarnings),
-      monthChange: getChange(thisMonthEarnings, lastMonthEarnings),
+      today: stats.todayEarnings,
+      thisWeek: stats.thisWeekEarnings,
+      thisMonth: stats.thisMonthEarnings,
+      total: stats.totalEarnings,
+      todayChange: getChange(stats.todayEarnings, stats.yesterdayEarnings),
+      weekChange: getChange(stats.thisWeekEarnings, stats.lastWeekEarnings),
+      monthChange: getChange(stats.thisMonthEarnings, stats.lastMonthEarnings),
     };
 
     const payments = recentPayments.map((payment) => ({
@@ -457,6 +486,20 @@ exports.getAnalytics = async (req, res) => {
     // Merge visits into dailyData
     const last7DaysVisits = analyticsRecords.filter((record) => record.date >= sevenDaysAgo);
 
+    // Convert arrays into lookup objects by date string for O(1) access
+    const visitsLookup = last7DaysVisits.reduce((acc, record) => {
+      const dateStr = record.date.toISOString().split('T')[0];
+      if (!acc[dateStr]) {
+        acc[dateStr] = record;
+      }
+      return acc;
+    }, {});
+
+    const subscriptionsLookup = dailyData.reduce((acc, record) => {
+      acc[record._id] = record;
+      return acc;
+    }, {});
+
     // Generate an array of the last 7 dates as strings (YYYY-MM-DD)
     const chartData = [];
     for (let i = 0; i <= 6; i++) {
@@ -464,10 +507,8 @@ exports.getAnalytics = async (req, res) => {
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
 
-      const visitRecord = last7DaysVisits.find(
-        (r) => r.date.toISOString().split('T')[0] === dateStr,
-      );
-      const subRecord = dailyData.find((r) => r._id === dateStr);
+      const visitRecord = visitsLookup[dateStr];
+      const subRecord = subscriptionsLookup[dateStr];
 
       chartData.push({
         date: dateStr,

@@ -13,6 +13,7 @@ config.watchFolders = [workspaceRoot];
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'shared-mobile/node_modules'),
 ];
 
 // 3. Force Metro to resolve (sub)dependencies only from the `nodeModulesPaths`

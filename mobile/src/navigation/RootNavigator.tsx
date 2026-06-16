@@ -1,10 +1,13 @@
 // Root Navigation Flow for Tiffo Mobile Application
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, View, Text, StyleSheet, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { getSocket } from '../../../shared-mobile/src/services/socketService';
 import { useAuth } from '../contexts/AuthContext';
 
 // Auth screens
@@ -26,6 +29,7 @@ import SubscriptionScreen from '../screens/main/SubscriptionScreen';
 
 // Stack screens
 import TiffinDetailScreen from '../screens/main/TiffinDetailScreen';
+import { registerForNotifications, showLocalNotification } from '../services/notificationService';
 import { useTheme } from '../theme/useTheme';
 
 export type MainTabParams = {
@@ -68,22 +72,31 @@ const TAB_CONFIG: Record<
 
 const MainTabs = () => {
   const C = useTheme();
+  const insets = useSafeAreaInsets();
+  const bottomInset = insets.bottom;
+  const isIOS = Platform.OS === 'ios';
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
+          position: 'absolute',
+          bottom: bottomInset > 0 ? bottomInset + 10 : 16,
+          left: 16,
+          right: 16,
           backgroundColor: C.tabBackground,
-          borderTopColor: C.borderLight,
-          borderTopWidth: 1,
-          height: Platform.OS === 'ios' ? 82 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 22 : 10,
-          paddingTop: 8,
+          borderRadius: 32,
+          height: 64,
+          paddingBottom: 5,
+          paddingTop: 5,
+          borderWidth: 1,
+          borderColor: C.borderLight,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.08,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
           shadowRadius: 12,
-          elevation: 12,
+          elevation: 8,
         },
         tabBarActiveTintColor: C.tabActive,
         tabBarInactiveTintColor: C.tabInactive,
@@ -118,6 +131,59 @@ const RootNavigator = () => {
   const { isAuthenticated, loading } = useAuth();
   const C = useTheme();
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // 1. Request/verify notification permissions on mount
+    registerForNotifications().catch((err) => {
+      console.warn('Failed to register notifications:', err);
+    });
+
+    // 2. Setup socket notification listener
+    let timeoutId: NodeJS.Timeout;
+    const setupSocketListener = () => {
+      const socket = getSocket();
+      if (socket) {
+        socket.on('notification', async (data: any) => {
+          console.log('Real-time socket notification received:', data);
+          try {
+            // Trigger local system tray notification banner
+            await showLocalNotification(data.title || 'Notification', data.body || '', data);
+
+            // Read history from AsyncStorage, append new notification, save back
+            const stored = await AsyncStorage.getItem('notifications_history');
+            const history = stored ? JSON.parse(stored) : [];
+            const newNotif = {
+              id: data.id || Date.now().toString(),
+              type: data.type || 'system',
+              title: data.title || 'Notification',
+              body: data.body || '',
+              time: new Date().toISOString(),
+              read: false,
+            };
+            history.unshift(newNotif);
+            await AsyncStorage.setItem('notifications_history', JSON.stringify(history));
+          } catch (e) {
+            console.error('Failed to process incoming socket notification:', e);
+          }
+        });
+      } else {
+        // Socket connection may still be initializing, check again in 1s
+        timeoutId = setTimeout(setupSocketListener, 1000);
+      }
+    };
+
+    setupSocketListener();
+
+    return () => {
+      clearTimeout(timeoutId);
+      const socket = getSocket();
+      if (socket) {
+        socket.off('notification');
+      }
+    };
+  }, [isAuthenticated]);
+
   if (loading) {
     return (
       <View
@@ -139,7 +205,7 @@ const RootNavigator = () => {
             marginBottom: 20,
           }}
         >
-          <Text style={{ fontSize: 36 }}>🍱</Text>
+          <Ionicons name="restaurant-outline" size={36} color="#fff" />
         </View>
         <ActivityIndicator size="large" color={C.primary} />
         <Text style={{ fontSize: 14, color: C.textSecondary, marginTop: 12 }}>Loading...</Text>

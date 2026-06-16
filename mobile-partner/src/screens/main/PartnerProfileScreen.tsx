@@ -26,7 +26,11 @@ const PartnerProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {/* Avatar */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarCircle}>

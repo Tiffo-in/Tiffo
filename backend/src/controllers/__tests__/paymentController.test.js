@@ -1,12 +1,3 @@
-/**
- * Unit tests for paymentController.js
- *
- * Strategy:
- *  - All Mongoose models are mocked — no real DB connections.
- *  - The razorpayService is mocked — no real API calls.
- *  - Tests cover: createOrder, verifyPayment, processRefund, getPaymentHistory
- */
-
 const {
   createOrder,
   verifyPayment,
@@ -14,36 +5,21 @@ const {
   getPaymentHistory,
 } = require('../paymentController');
 
-const Subscription = require('../../models/Subscription');
-const PaymentLog = require('../../models/PaymentLog');
+const paymentService = require('../../services/paymentService');
 
-// ── Mock all external dependencies ──────────────────────────────────────────
-jest.mock('../../models/User');
-jest.mock('../../models/Partner');
-jest.mock('../../models/Subscription');
-jest.mock('../../models/PaymentLog');
-jest.mock('../../utils/logger', () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn() }));
-jest.mock('../../services/razorpayService', () => ({
-  createLinkedAccount: jest.fn(),
-  addBankAccount: jest.fn(),
-  createOrderWithTransfer: jest.fn(),
-  verifyPaymentSignature: jest.fn(),
-  createRefund: jest.fn(),
-}));
-jest.mock('../../services/deliveryService', () => ({
-  generateDeliveriesForSubscription: jest.fn(),
-}));
-jest.mock('../../services/socketService', () => ({
-  emitNotification: jest.fn(),
+jest.mock('../../services/paymentService', () => ({
+  createSubscriptionOrder: jest.fn(),
+  verifySubscriptionPayment: jest.fn(),
+  processRefundForSubscription: jest.fn(),
+  fetchPaymentHistory: jest.fn(),
+  setupPartnerPaymentAccount: jest.fn(),
+  confirmCod: jest.fn(),
 }));
 
-const {
-  createOrderWithTransfer,
-  verifyPaymentSignature,
-  createRefund,
-} = require('../../services/razorpayService');
+jest.mock('../../utils/logger', () => ({
+  error: jest.fn(),
+}));
 
-// ── Shared helpers ─────────────────────────────────────────────────────────
 const makeRes = () => ({
   status: jest.fn().mockReturnThis(),
   json: jest.fn().mockReturnThis(),
@@ -56,71 +32,36 @@ const makeReq = (overrides = {}) => ({
   ...overrides,
 });
 
-const mockPartner = {
-  _id: 'partner123',
-  razorpayAccountId: 'acc_mock123',
-  commissionRate: 0.1,
-};
-
-const mockSubscription = (overrides = {}) => ({
-  _id: 'sub123',
-  user: 'user123',
-  partner: mockPartner,
-  tiffin: { _id: 'tiffin123', name: 'Dal Makhani Box' },
-  grandTotal: 1000,
-  totalAmount: 1000,
-  paymentStatus: 'pending',
-  status: 'pending',
-  orderId: null,
-  paymentId: null,
-  platformCommission: null,
-  providerAmount: null,
-  save: jest.fn().mockResolvedValue(true),
-  ...overrides,
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
 describe('Payment Controller', () => {
   afterEach(() => jest.clearAllMocks());
 
-  // ── createOrder ──────────────────────────────────────────────────────────
   describe('createOrder', () => {
-    it('should return 404 if subscription not found', async () => {
-      const req = makeReq({ body: { subscriptionId: 'nonexistent' } });
+    it('should return 200 with order data on success', async () => {
+      const req = makeReq({ body: { subscriptionId: 'sub123' } });
       const res = makeRes();
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(null) }),
+
+      paymentService.createSubscriptionOrder.mockResolvedValue({
+        orderId: 'order_123',
+        currency: 'INR',
       });
+      process.env.RAZORPAY_KEY_ID = 'test_key';
 
       await createOrder(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(paymentService.createSubscriptionOrder).toHaveBeenCalledWith('user123', 'sub123');
+      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Subscription not found' }),
+        expect.objectContaining({ orderId: 'order_123', razorpayKey: 'test_key' }),
       );
     });
 
-    it('should return 403 if subscription belongs to a different user', async () => {
+    it('should return 400 for known errors', async () => {
       const req = makeReq({ body: { subscriptionId: 'sub123' } });
       const res = makeRes();
-      const sub = mockSubscription({ user: 'differentUser' });
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
-      });
 
-      await createOrder(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Unauthorized' }));
-    });
-
-    it('should return 400 if subscription is already paid', async () => {
-      const req = makeReq({ body: { subscriptionId: 'sub123' } });
-      const res = makeRes();
-      const sub = mockSubscription({ paymentStatus: 'paid' });
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
-      });
+      paymentService.createSubscriptionOrder.mockRejectedValue(
+        new Error('Subscription already paid'),
+      );
 
       await createOrder(req, res);
 
@@ -130,322 +71,94 @@ describe('Payment Controller', () => {
       );
     });
 
-    it('should return 400 if partner has no Razorpay account', async () => {
+    it('should return 500 on unexpected errors', async () => {
       const req = makeReq({ body: { subscriptionId: 'sub123' } });
       const res = makeRes();
-      const sub = mockSubscription({ partner: { ...mockPartner, razorpayAccountId: null } });
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
-      });
 
-      await createOrder(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Partner payment account not setup' }),
-      );
-    });
-
-    it('should return 200 with orderId and call createOrderWithTransfer on success', async () => {
-      const req = makeReq({ body: { subscriptionId: 'sub123' } });
-      const res = makeRes();
-      const sub = mockSubscription();
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
-      });
-      createOrderWithTransfer.mockResolvedValue({ success: true, orderId: 'order_abc' });
-      PaymentLog.create.mockResolvedValue({});
-
-      await createOrder(req, res);
-
-      expect(createOrderWithTransfer).toHaveBeenCalledWith(
-        expect.objectContaining({
-          amount: 1000,
-          currency: 'INR',
-          partnerAccountId: 'acc_mock123',
-        }),
-      );
-      expect(sub.save).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          orderId: 'order_abc',
-          currency: 'INR',
-        }),
-      );
-    });
-
-    it('should correctly calculate platform commission and provider amount', async () => {
-      const req = makeReq({ body: { subscriptionId: 'sub123' } });
-      const res = makeRes();
-      const sub = mockSubscription({
-        grandTotal: 2000,
-        partner: { ...mockPartner, commissionRate: 0.15 },
-      });
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
-      });
-      createOrderWithTransfer.mockResolvedValue({ success: true, orderId: 'order_xyz' });
-      PaymentLog.create.mockResolvedValue({});
-
-      await createOrder(req, res);
-
-      // 15% of 2000 = 300 platform commission, 1700 provider
-      expect(sub.platformCommission).toBe(300);
-      expect(sub.providerAmount).toBe(1700);
-    });
-
-    it('should return 500 if createOrderWithTransfer fails', async () => {
-      const req = makeReq({ body: { subscriptionId: 'sub123' } });
-      const res = makeRes();
-      const sub = mockSubscription();
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
-      });
-      createOrderWithTransfer.mockResolvedValue({ success: false, error: 'Razorpay error' });
+      paymentService.createSubscriptionOrder.mockRejectedValue(new Error('Unexpected error'));
 
       await createOrder(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Failed to create order' }),
-      );
     });
   });
 
-  // ── verifyPayment ─────────────────────────────────────────────────────────
   describe('verifyPayment', () => {
-    const validBody = {
-      razorpay_payment_id: 'pay_123',
-      razorpay_order_id: 'order_abc',
-      razorpay_signature: 'sig_xyz',
-      subscriptionId: 'sub123',
-    };
-
-    it('should return 400 and log failure if signature is invalid', async () => {
-      const req = makeReq({ body: validBody });
+    it('should return 200 on success', async () => {
+      const req = makeReq();
       const res = makeRes();
-      verifyPaymentSignature.mockReturnValue(false);
-      PaymentLog.create.mockResolvedValue({});
+      const mockSub = { _id: 'sub123', status: 'active', paymentStatus: 'paid' };
+
+      paymentService.verifySubscriptionPayment.mockResolvedValue(mockSub);
 
       await verifyPayment(req, res);
 
-      expect(PaymentLog.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          status: 'failed',
-          errorCode: 'SIGNATURE_MISMATCH',
-        }),
-      );
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Invalid payment signature' }),
-      );
-    });
-
-    it('should return 404 if subscription not found after valid signature', async () => {
-      const req = makeReq({ body: validBody });
-      const res = makeRes();
-      verifyPaymentSignature.mockReturnValue(true);
-      Subscription.findById.mockResolvedValue(null);
-
-      await verifyPayment(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(404);
-    });
-
-    it('should activate subscription and return 200 on valid signature', async () => {
-      const req = makeReq({ body: validBody });
-      const res = makeRes();
-      const sub = mockSubscription();
-      verifyPaymentSignature.mockReturnValue(true);
-      // Mock Subscription.findById to support chaining .populate() for the second call
-      Subscription.findById.mockReturnValue({
-        populate: jest.fn().mockResolvedValue(sub),
-        then: function (resolve) {
-          resolve(sub);
-        }, // Allows await Subscription.findById()
-      });
-      PaymentLog.findOneAndUpdate.mockResolvedValue({});
-
-      await verifyPayment(req, res);
-
-      // Subscription must be marked paid and active
-      expect(sub.paymentStatus).toBe('paid');
-      expect(sub.status).toBe('active');
-      expect(sub.paymentId).toBe('pay_123');
-      expect(sub.save).toHaveBeenCalled();
-
-      // Payment log must be updated to success
-      expect(PaymentLog.findOneAndUpdate).toHaveBeenCalledWith(
-        { orderId: 'order_abc' },
-        expect.objectContaining({ status: 'success', paymentId: 'pay_123' }),
-      );
-
+      expect(paymentService.verifySubscriptionPayment).toHaveBeenCalledWith(req.body);
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          subscription: expect.objectContaining({ status: 'active', paymentStatus: 'paid' }),
-        }),
-      );
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
     });
 
-    it('should NOT update subscription if signature is invalid (prevents race condition exploits)', async () => {
-      const req = makeReq({ body: validBody });
+    it('should return 400 for invalid signature', async () => {
+      const req = makeReq();
       const res = makeRes();
-      verifyPaymentSignature.mockReturnValue(false);
-      PaymentLog.create.mockResolvedValue({});
+
+      paymentService.verifySubscriptionPayment.mockRejectedValue(
+        new Error('Invalid payment signature'),
+      );
 
       await verifyPayment(req, res);
 
-      // Subscription.findById should NOT be called after a failed verification
-      expect(Subscription.findById).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(400);
     });
   });
 
-  // ── processRefund ─────────────────────────────────────────────────────────
   describe('processRefund', () => {
-    it('should return 404 if subscription not found', async () => {
-      const req = makeReq({ body: { subscriptionId: 'ghost', amount: 500, reason: 'test' } });
+    it('should return 200 on success', async () => {
+      const req = makeReq({ body: { subscriptionId: 'sub123', amount: 500, reason: 'test' } });
       const res = makeRes();
-      Subscription.findById.mockResolvedValue(null);
+
+      paymentService.processRefundForSubscription.mockResolvedValue('ref_123');
 
       await processRefund(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(paymentService.processRefundForSubscription).toHaveBeenCalledWith(
+        'sub123',
+        500,
+        'test',
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true, refundId: 'ref_123' }),
+      );
     });
 
-    it('should return 400 if subscription has no paymentId', async () => {
-      const req = makeReq({ body: { subscriptionId: 'sub123', amount: 500, reason: 'test' } });
+    it('should return 400 for missing payment', async () => {
+      const req = makeReq();
       const res = makeRes();
-      Subscription.findById.mockResolvedValue(mockSubscription({ paymentId: null }));
+
+      paymentService.processRefundForSubscription.mockRejectedValue(
+        new Error('No payment found for this subscription'),
+      );
 
       await processRefund(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: 'No payment found for this subscription',
-        }),
-      );
-    });
-
-    it('should process refund, cancel subscription, and log it on success', async () => {
-      const req = makeReq({
-        body: { subscriptionId: 'sub123', amount: 800, reason: 'Customer request' },
-      });
-      const res = makeRes();
-      const sub = mockSubscription({ paymentId: 'pay_456' });
-      Subscription.findById.mockResolvedValue(sub);
-      createRefund.mockResolvedValue({ success: true, refundId: 'ref_789' });
-      PaymentLog.create.mockResolvedValue({});
-
-      await processRefund(req, res);
-
-      expect(createRefund).toHaveBeenCalledWith('pay_456', 800, expect.any(Object));
-      expect(sub.paymentStatus).toBe('refunded');
-      expect(sub.status).toBe('cancelled');
-      expect(sub.save).toHaveBeenCalled();
-      expect(PaymentLog.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'refund',
-          status: 'success',
-          refundId: 'ref_789',
-        }),
-      );
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          refundId: 'ref_789',
-        }),
-      );
-    });
-
-    it('should return 500 if Razorpay refund fails', async () => {
-      const req = makeReq({ body: { subscriptionId: 'sub123', amount: 500, reason: 'test' } });
-      const res = makeRes();
-      Subscription.findById.mockResolvedValue(mockSubscription({ paymentId: 'pay_456' }));
-      createRefund.mockResolvedValue({ success: false, error: 'Razorpay declined' });
-
-      await processRefund(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Refund failed' }));
     });
   });
 
-  // ── getPaymentHistory ─────────────────────────────────────────────────────
   describe('getPaymentHistory', () => {
-    it('should return paginated payment logs for the authenticated user', async () => {
-      const req = makeReq({ query: { limit: '10', page: '1' } });
+    it('should return 200 and history on success', async () => {
+      const req = makeReq({ query: { page: 1 } });
       const res = makeRes();
-      const mockLogs = [
-        { _id: 'log1', amount: 500, status: 'success', type: 'payment' },
-        { _id: 'log2', amount: 1000, status: 'success', type: 'payment' },
-      ];
 
-      // Build a proper chain: .sort().limit().skip().populate().populate()
-      PaymentLog.find.mockImplementation(() => {
-        return {
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue(mockLogs),
-          }),
-          then: function (resolve) {
-            resolve(mockLogs);
-          },
-          filter: function (fn) {
-            return mockLogs.filter(fn);
-          },
-        };
-      });
-      PaymentLog.countDocuments.mockResolvedValue(2);
+      const mockResult = { payments: [], pagination: {} };
+      paymentService.fetchPaymentHistory.mockResolvedValue(mockResult);
 
       await getPaymentHistory(req, res);
 
+      expect(paymentService.fetchPaymentHistory).toHaveBeenCalledWith('user123', { page: 1 });
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          payments: mockLogs,
-          pagination: expect.objectContaining({ total: 2, page: 1 }),
-          summaryStats: expect.any(Object),
-        }),
-      );
-    });
-
-    it('should filter by type and status when provided', async () => {
-      const req = makeReq({ query: { type: 'refund', status: 'success', limit: '5', page: '1' } });
-      const res = makeRes();
-      PaymentLog.find.mockImplementation(() => {
-        return {
-          sort: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue([]),
-          }),
-          then: function (resolve) {
-            resolve([]);
-          },
-          filter: function () {
-            return [];
-          },
-        };
-      });
-      PaymentLog.countDocuments.mockResolvedValue(0);
-
-      await getPaymentHistory(req, res);
-
-      expect(PaymentLog.find).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userId: 'user123',
-          type: 'refund',
-          status: 'success',
-        }),
-      );
+      expect(res.json).toHaveBeenCalledWith(mockResult);
     });
   });
 });

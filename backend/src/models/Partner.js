@@ -137,6 +137,17 @@ partnerSchema.pre('save', function (next) {
       type: 'Point',
       coordinates: [this.address.coordinates.lng, this.address.coordinates.lat],
     };
+  } else {
+    // If no address coordinates are provided, verify if we have a valid pre-existing GeoJSON location
+    const hasValidLocation =
+      this.location &&
+      this.location.type === 'Point' &&
+      Array.isArray(this.location.coordinates) &&
+      this.location.coordinates.length === 2;
+
+    if (!hasValidLocation) {
+      this.location = undefined;
+    }
   }
   next();
 });
