@@ -67,7 +67,9 @@ describe('Payment Service', () => {
         populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(null) }),
       });
 
-      await expect(createSubscriptionOrder('user123', 'nonexistent')).rejects.toThrow('Subscription not found');
+      await expect(createSubscriptionOrder('user123', 'nonexistent')).rejects.toThrow(
+        'Subscription not found',
+      );
     });
 
     it('should throw 403 if subscription belongs to a different user', async () => {
@@ -85,7 +87,9 @@ describe('Payment Service', () => {
         populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
       });
 
-      await expect(createSubscriptionOrder('user123', 'sub123')).rejects.toThrow('Subscription already paid');
+      await expect(createSubscriptionOrder('user123', 'sub123')).rejects.toThrow(
+        'Subscription already paid',
+      );
     });
 
     it('should throw error if partner has no Razorpay account', async () => {
@@ -94,7 +98,9 @@ describe('Payment Service', () => {
         populate: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(sub) }),
       });
 
-      await expect(createSubscriptionOrder('user123', 'sub123')).rejects.toThrow('Partner payment account not setup');
+      await expect(createSubscriptionOrder('user123', 'sub123')).rejects.toThrow(
+        'Partner payment account not setup',
+      );
     });
 
     it('should return orderData and call createOrderWithTransfer on success', async () => {
@@ -153,7 +159,9 @@ describe('Payment Service', () => {
       verifyPaymentSignature.mockReturnValue(false);
       PaymentLog.create.mockResolvedValue({});
 
-      await expect(verifySubscriptionPayment(validBody)).rejects.toThrow('Invalid payment signature');
+      await expect(verifySubscriptionPayment(validBody)).rejects.toThrow(
+        'Invalid payment signature',
+      );
 
       expect(PaymentLog.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -199,13 +207,17 @@ describe('Payment Service', () => {
     it('should throw 404 if subscription not found', async () => {
       Subscription.findById.mockResolvedValue(null);
 
-      await expect(processRefundForSubscription('ghost', 500, 'test')).rejects.toThrow('Subscription not found');
+      await expect(processRefundForSubscription('ghost', 500, 'test')).rejects.toThrow(
+        'Subscription not found',
+      );
     });
 
     it('should throw error if subscription has no paymentId', async () => {
       Subscription.findById.mockResolvedValue(mockSubscription({ paymentId: null }));
 
-      await expect(processRefundForSubscription('sub123', 500, 'test')).rejects.toThrow('No payment found for this subscription');
+      await expect(processRefundForSubscription('sub123', 500, 'test')).rejects.toThrow(
+        'No payment found for this subscription',
+      );
     });
 
     it('should process refund, cancel subscription, and log it on success', async () => {
@@ -251,7 +263,12 @@ describe('Payment Service', () => {
       });
       PaymentLog.countDocuments.mockResolvedValue(0);
 
-      await fetchPaymentHistory('user123', { type: 'refund', status: 'success', limit: '5', page: '1' });
+      await fetchPaymentHistory('user123', {
+        type: 'refund',
+        status: 'success',
+        limit: '5',
+        page: '1',
+      });
 
       expect(PaymentLog.find).toHaveBeenCalledWith(
         expect.objectContaining({

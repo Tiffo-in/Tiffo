@@ -40,26 +40,35 @@ describe('Payment Controller', () => {
       const req = makeReq({ body: { subscriptionId: 'sub123' } });
       const res = makeRes();
 
-      paymentService.createSubscriptionOrder.mockResolvedValue({ orderId: 'order_123', currency: 'INR' });
+      paymentService.createSubscriptionOrder.mockResolvedValue({
+        orderId: 'order_123',
+        currency: 'INR',
+      });
       process.env.RAZORPAY_KEY_ID = 'test_key';
 
       await createOrder(req, res);
 
       expect(paymentService.createSubscriptionOrder).toHaveBeenCalledWith('user123', 'sub123');
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ orderId: 'order_123', razorpayKey: 'test_key' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ orderId: 'order_123', razorpayKey: 'test_key' }),
+      );
     });
 
     it('should return 400 for known errors', async () => {
       const req = makeReq({ body: { subscriptionId: 'sub123' } });
       const res = makeRes();
 
-      paymentService.createSubscriptionOrder.mockRejectedValue(new Error('Subscription already paid'));
+      paymentService.createSubscriptionOrder.mockRejectedValue(
+        new Error('Subscription already paid'),
+      );
 
       await createOrder(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Subscription already paid' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Subscription already paid' }),
+      );
     });
 
     it('should return 500 on unexpected errors', async () => {
@@ -93,7 +102,9 @@ describe('Payment Controller', () => {
       const req = makeReq();
       const res = makeRes();
 
-      paymentService.verifySubscriptionPayment.mockRejectedValue(new Error('Invalid payment signature'));
+      paymentService.verifySubscriptionPayment.mockRejectedValue(
+        new Error('Invalid payment signature'),
+      );
 
       await verifyPayment(req, res);
 
@@ -110,16 +121,24 @@ describe('Payment Controller', () => {
 
       await processRefund(req, res);
 
-      expect(paymentService.processRefundForSubscription).toHaveBeenCalledWith('sub123', 500, 'test');
+      expect(paymentService.processRefundForSubscription).toHaveBeenCalledWith(
+        'sub123',
+        500,
+        'test',
+      );
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, refundId: 'ref_123' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true, refundId: 'ref_123' }),
+      );
     });
 
     it('should return 400 for missing payment', async () => {
       const req = makeReq();
       const res = makeRes();
 
-      paymentService.processRefundForSubscription.mockRejectedValue(new Error('No payment found for this subscription'));
+      paymentService.processRefundForSubscription.mockRejectedValue(
+        new Error('No payment found for this subscription'),
+      );
 
       await processRefund(req, res);
 
