@@ -1,4 +1,8 @@
-const { createSupportRequest, getSupportRequests, updateSupportStatus } = require('../supportController');
+const {
+  createSupportRequest,
+  getSupportRequests,
+  updateSupportStatus,
+} = require('../supportController');
 const SupportRequest = require('../../models/SupportRequest');
 
 jest.mock('../../models/SupportRequest');
@@ -60,7 +64,12 @@ describe('Support Controller', () => {
       };
       mockReq.user = { _id: 'user123' };
 
-      const mockCreatedRequest = { ...mockReq.body, userId: 'user123', _id: 'request124', status: 'pending' };
+      const mockCreatedRequest = {
+        ...mockReq.body,
+        userId: 'user123',
+        _id: 'request124',
+        status: 'pending',
+      };
       SupportRequest.create.mockResolvedValue(mockCreatedRequest);
 
       await createSupportRequest(mockReq, mockRes, mockNext);
@@ -192,7 +201,7 @@ describe('Support Controller', () => {
       expect(SupportRequest.findByIdAndUpdate).toHaveBeenCalledWith(
         'req_not_found',
         { status: 'resolved' },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       );
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -213,7 +222,7 @@ describe('Support Controller', () => {
       expect(SupportRequest.findByIdAndUpdate).toHaveBeenCalledWith(
         'req1',
         { status: 'investigating' },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
