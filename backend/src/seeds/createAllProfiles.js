@@ -19,6 +19,7 @@ const PROFILES = {
     phone: process.env.SEED_ADMIN_PHONE || '+91 99999 99999',
     role: 'admin',
     isVerified: true,
+    isEmailVerified: true,
   },
   user: {
     name: process.env.SEED_USER_NAME || 'Test Customer',
@@ -27,6 +28,7 @@ const PROFILES = {
     phone: process.env.SEED_USER_PHONE || '+91 88888 88888',
     role: 'user',
     isVerified: true,
+    isEmailVerified: true,
     address: {
       street: '123 MG Road',
       city: 'Mumbai',
@@ -41,6 +43,7 @@ const PROFILES = {
     phone: process.env.SEED_PARTNER_PHONE || '+91 77777 77777',
     role: 'partner',
     isVerified: true,
+    isEmailVerified: true,
     address: {
       street: '456 FC Road',
       city: 'Pune',
@@ -108,6 +111,10 @@ const createAllProfiles = async () => {
       if (existing) {
         console.log(`⚠️  ${type.toUpperCase()} already exists: ${data.email}`);
         results.existing.push({ type, email: data.email });
+        if (!existing.isEmailVerified) {
+          existing.isEmailVerified = true;
+          await existing.save();
+        }
 
         // If partner exists, ensure Partner record exists too
         if (type === 'partner') {
@@ -120,7 +127,11 @@ const createAllProfiles = async () => {
       } else {
         // Create the user
         const hashedPassword = await bcrypt.hash(data.password, 12);
-        const user = await User.create({ ...data, password: hashedPassword });
+        const user = await User.create({
+          ...data,
+          password: hashedPassword,
+          isEmailVerified: true,
+        });
 
         console.log(`✅ ${type.toUpperCase()} created: ${data.email}`);
         results.created.push({ type, email: data.email });

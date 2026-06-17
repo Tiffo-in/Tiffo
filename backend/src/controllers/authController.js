@@ -1,9 +1,11 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/User');
 const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
 const { setCsrfCookie } = require('../middlewares/csrf');
+const { sendVerificationEmail } = require('../services/emailService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -53,6 +55,7 @@ const register = async (req, res) => {
       });
     }
 
+    const token = crypto.randomBytes(32).toString('hex');
     const user = await User.create({
       name,
       email,
@@ -60,9 +63,19 @@ const register = async (req, res) => {
       phone,
       role: 'user', // always default — never trust client-supplied role
       address,
+      isEmailVerified: false,
+      emailVerificationToken: token,
+      emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
     });
 
-    sendTokenResponse(user, 201, res);
+    const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/verify-email?token=${token}`;
+    await sendVerificationEmail(user, verificationUrl);
+
+    res.status(201).json({
+      success: true,
+      message:
+        'Registration successful! Please check your email to verify your account before logging in.',
+    });
   } catch (error) {
     logger.error('register error:', { stack: error.stack });
     res.status(400).json({ success: false, message: error.message });
@@ -86,6 +99,15 @@ const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
+      });
+    }
+
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Please verify your email address before logging in.',
+        isEmailVerified: false,
       });
     }
 
@@ -172,6 +194,7 @@ const registerPartner = async (req, res) => {
       });
     }
 
+    const token = crypto.randomBytes(32).toString('hex');
     const user = await User.create({
       name,
       email,
@@ -179,6 +202,9 @@ const registerPartner = async (req, res) => {
       phone,
       role: 'partner', // safe — this is the dedicated partner endpoint
       address,
+      isEmailVerified: false,
+      emailVerificationToken: token,
+      emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
     });
 
     // Create the matching Partner profile document
@@ -189,7 +215,13 @@ const registerPartner = async (req, res) => {
       address,
     });
 
-    sendTokenResponse(user, 201, res);
+    const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/verify-email?token=${token}`;
+    await sendVerificationEmail(user, verificationUrl);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Please check your email to verify your partner account.',
+    });
   } catch (error) {
     logger.error('registerPartner error:', { stack: error.stack });
     res.status(400).json({ success: false, message: error.message });
@@ -246,6 +278,7 @@ const googleLogin = async (req, res) => {
         phone: 'Not provided',
         role: targetRole,
         isActive: true,
+        isEmailVerified: true,
       });
 
       if (targetRole === 'partner') {
@@ -300,6 +333,81 @@ const logout = (req, res) => {
   });
 };
 
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?verified=false&reason=missing_token`,
+      );
+    }
+
+    const user = await User.findOne({
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?verified=false&reason=invalid_or_expired_token`,
+      );
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpires = null;
+    await user.save();
+
+    logger.info(`Email verified for user: ${user.email}`);
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?verified=true`,
+    );
+  } catch (error) {
+    logger.error('verifyEmail error:', { stack: error.stack });
+    return res.redirect(
+      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?verified=false&reason=server_error`,
+    );
+  }
+};
+
+const resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Please provide email' });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({ success: false, message: 'Email is already verified' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    user.emailVerificationToken = token;
+    user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000;
+    await user.save();
+
+    const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/verify-email?token=${token}`;
+    await sendVerificationEmail(user, verificationUrl);
+
+    res.json({
+      success: true,
+      message: 'Verification email resent successfully! Please check your inbox.',
+    });
+  } catch (error) {
+    logger.error('resendVerification error:', { stack: error.stack });
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = {
   register,
   registerPartner,
@@ -309,4 +417,6 @@ module.exports = {
   updateProfile,
   changePassword,
   googleLogin,
+  verifyEmail,
+  resendVerification,
 };

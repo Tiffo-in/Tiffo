@@ -17,6 +17,7 @@ const ADMIN_DATA = {
   phone: process.env.ADMIN_PHONE || '+91 99999 99999',
   role: 'admin',
   isVerified: true,
+  isEmailVerified: true,
 };
 
 const createAdmin = async () => {
@@ -42,6 +43,7 @@ const createAdmin = async () => {
       console.log('   Updating to admin role...');
       existingAdmin.role = 'admin';
       existingAdmin.isVerified = true;
+      existingAdmin.isEmailVerified = true;
       await existingAdmin.save();
       console.log('✅ Existing user updated to admin');
     } else {

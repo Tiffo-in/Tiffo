@@ -8,6 +8,8 @@ const {
   updateProfile,
   changePassword,
   googleLogin,
+  verifyEmail,
+  resendVerification,
 } = require('../controllers/authController');
 const { protect } = require('../middlewares/auth');
 const { authLimiter } = require('../middlewares/rateLimiter');
@@ -28,6 +30,10 @@ router.post('/register/partner', authLimiter, registerValidator, validate, regis
 
 // Google Sign-In / Sign-Up endpoint
 router.post('/google', authLimiter, googleLogin);
+
+// Email verification routes
+router.get('/verify-email', verifyEmail);
+router.post('/resend-verification', authLimiter, resendVerification);
 
 /**
  * @openapi

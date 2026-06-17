@@ -485,9 +485,13 @@ const seed = async () => {
       let user = await User.findOne({ email: u.email });
       if (user) {
         console.log(`   ⚠️  Exists: ${u.email}`);
+        if (!user.isEmailVerified) {
+          user.isEmailVerified = true;
+          await user.save();
+        }
       } else {
         const { password, ...rest } = u;
-        user = await User.create({ ...rest, password });
+        user = await User.create({ ...rest, password, isEmailVerified: true });
         console.log(`   ✅ Created (${u.role}): ${u.email}`);
       }
       userMap[u.email] = user;
