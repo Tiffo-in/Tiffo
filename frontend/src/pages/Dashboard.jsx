@@ -13,7 +13,7 @@ import {
   CreditCardIcon,
   UserCircleIcon,
   ArrowRightIcon,
-  SparklesIcon
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
@@ -24,7 +24,7 @@ const Dashboard = () => {
     activeSubscriptions: 0,
     mealsThisMonth: 0,
     totalSpent: 0,
-    loyaltyPoints: 0
+    loyaltyPoints: 0,
   });
 
   // Fetch real stats on mount
@@ -50,7 +50,7 @@ const Dashboard = () => {
   const tabs = [
     { id: 'subscriptions', label: 'My Subscriptions', icon: HomeIcon, emoji: '📦' },
     { id: 'orders', label: 'Order History', icon: ClipboardDocumentListIcon, emoji: '📋' },
-    { id: 'payments', label: 'Payment Methods', icon: CreditCardIcon, emoji: '💳' }
+    { id: 'payments', label: 'Payment Methods', icon: CreditCardIcon, emoji: '💳' },
   ];
 
   const stats = [
@@ -59,29 +59,29 @@ const Dashboard = () => {
       value: statsLoading ? '—' : statsData.activeSubscriptions,
       icon: '🍱',
       color: 'from-green-400 to-emerald-500',
-      bgColor: 'bg-green-50'
+      bgColor: 'bg-green-50',
     },
     {
       label: 'Meals This Month',
       value: statsLoading ? '—' : statsData.mealsThisMonth,
       icon: '🥗',
       color: 'from-blue-400 to-cyan-500',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
     },
     {
       label: 'Total Spent',
       value: statsLoading ? '—' : `₹${statsData.totalSpent.toLocaleString('en-IN')}`,
       icon: '💰',
       color: 'from-amber-400 to-orange-500',
-      bgColor: 'bg-amber-50'
+      bgColor: 'bg-amber-50',
     },
     {
       label: 'Loyalty Points',
       value: statsLoading ? '—' : statsData.loyaltyPoints,
       icon: '⭐',
       color: 'from-purple-400 to-pink-500',
-      bgColor: 'bg-purple-50'
-    }
+      bgColor: 'bg-purple-50',
+    },
   ];
 
   return (
@@ -94,7 +94,7 @@ const Dashboard = () => {
           <div className="absolute -bottom-10 -left-10 w-56 h-56 bg-white/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[110px] pb-10 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -107,8 +107,8 @@ const Dashboard = () => {
               </div>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-white">
-                    Welcome back, {displayUser.name}!
-                  </h1>
+                  Welcome back, {displayUser.name}!
+                </h1>
                 <p className="text-white/80 mt-1 flex items-center">
                   <SparklesIcon className="w-4 h-4 mr-1" />
                   Your tiffin journey continues
@@ -117,7 +117,10 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center space-x-3">
-              <Link to="/tiffins" className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-5 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2">
+              <Link
+                to="/tiffins"
+                className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-5 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+              >
                 <span>Browse Tiffins</span>
                 <ArrowRightIcon className="w-4 h-4" />
               </Link>
@@ -150,7 +153,9 @@ const Dashboard = () => {
               className="bg-white dark:bg-neutral-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 border border-neutral-100 dark:border-neutral-700"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className={`w-12 h-12 ${stat.bgColor} rounded-xl flex items-center justify-center text-2xl`}>
+                <div
+                  className={`w-12 h-12 ${stat.bgColor} rounded-xl flex items-center justify-center text-2xl`}
+                >
                   {stat.icon}
                 </div>
                 <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${stat.color}`} />
@@ -181,20 +186,20 @@ const Dashboard = () => {
                       onClick={() => setActiveTab(tab.id)}
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-300 text-left group ${isActive
-                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md'
-                        : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700'
-                        }`}
+                      className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-300 text-left group ${
+                        isActive
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md'
+                          : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700'
+                      }`}
                     >
-                      <span className={`text-xl ${isActive ? '' : 'group-hover:scale-110'} transition-transform`}>
+                      <span
+                        className={`text-xl ${isActive ? '' : 'group-hover:scale-110'} transition-transform`}
+                      >
                         {tab.emoji}
                       </span>
                       <span className="font-medium">{tab.label}</span>
                       {isActive && (
-                        <motion.div
-                          layoutId="activeIndicator"
-                          className="ml-auto"
-                        >
+                        <motion.div layoutId="activeIndicator" className="ml-auto">
                           <CheckCircleIcon className="w-5 h-5" />
                         </motion.div>
                       )}
@@ -225,8 +230,6 @@ const Dashboard = () => {
                   </Link>
                 </div>
               </div>
-
-
             </div>
           </motion.div>
 

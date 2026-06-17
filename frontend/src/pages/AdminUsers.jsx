@@ -187,7 +187,7 @@ const AdminUsers = () => {
           <div className="absolute -top-10 -right-10 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 pt-[110px] pb-8 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link

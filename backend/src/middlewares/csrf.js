@@ -50,6 +50,12 @@ const csrfProtection = (req, res, next) => {
     return next();
   }
 
+  // If there is no session cookie, CSRF protection is not needed because there is no authenticated session to protect.
+  // This prevents breaking guest/public endpoints (like waitlist, public support, blog view counting, and ad clicks/impressions).
+  if (!req.cookies?.token || req.cookies.token === 'none') {
+    return next();
+  }
+
   const headerToken = req.headers['x-csrf-token'];
   const cookieToken = req.cookies?.csrf_token;
 

@@ -12,7 +12,7 @@ const ReportFraud = () => {
     partnerName: '',
     orderId: '',
     description: '',
-    evidence: ''
+    evidence: '',
   });
 
   const handleSubmit = async (e) => {
@@ -29,7 +29,7 @@ const ReportFraud = () => {
           partnerName: '',
           orderId: '',
           description: '',
-          evidence: ''
+          evidence: '',
         });
       }
     } catch (error) {
@@ -38,36 +38,39 @@ const ReportFraud = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 pt-[110px] pb-8">
       <div className="max-w-4xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
             <h1 className="text-3xl font-bold text-red-800 mb-2">🚨 Report Fraud</h1>
-            <p className="text-red-700">Help us maintain a safe platform by reporting fraudulent activities.</p>
+            <p className="text-red-700">
+              Help us maintain a safe platform by reporting fraudulent activities.
+            </p>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-md p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Your Name *
+                  </label>
                   <input
                     type="text"
                     value={formData.reporterName}
-                    onChange={(e) => setFormData({...formData, reporterName: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, reporterName: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Email *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Your Email *
+                  </label>
                   <input
                     type="email"
                     value={formData.reporterEmail}
-                    onChange={(e) => setFormData({...formData, reporterEmail: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, reporterEmail: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                     required
                   />
@@ -75,20 +78,24 @@ const ReportFraud = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Your Phone Number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Your Phone Number
+                </label>
                 <input
                   type="tel"
                   value={formData.reporterPhone}
-                  onChange={(e) => setFormData({...formData, reporterPhone: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, reporterPhone: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type of Fraud *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Type of Fraud *
+                </label>
                 <select
                   value={formData.fraudType}
-                  onChange={(e) => setFormData({...formData, fraudType: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, fraudType: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   required
                 >
@@ -104,30 +111,36 @@ const ReportFraud = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Partner/Restaurant Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Partner/Restaurant Name
+                  </label>
                   <input
                     type="text"
                     value={formData.partnerName}
-                    onChange={(e) => setFormData({...formData, partnerName: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, partnerName: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Order ID (if applicable)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Order ID (if applicable)
+                  </label>
                   <input
                     type="text"
                     value={formData.orderId}
-                    onChange={(e) => setFormData({...formData, orderId: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, orderId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Detailed Description *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Detailed Description *
+                </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={5}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Please provide detailed information about the fraudulent activity..."
@@ -136,10 +149,12 @@ const ReportFraud = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Evidence/Screenshots</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Evidence/Screenshots
+                </label>
                 <textarea
                   value={formData.evidence}
-                  onChange={(e) => setFormData({...formData, evidence: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, evidence: e.target.value })}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Describe any evidence you have (screenshots, receipts, etc.)"

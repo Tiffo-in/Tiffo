@@ -88,7 +88,7 @@ const CustomerAnalytics = () => {
           <div className="absolute bottom-0 left-0 w-60 h-60 bg-white/5 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 pt-[110px] pb-8 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link

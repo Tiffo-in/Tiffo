@@ -223,7 +223,7 @@ const TiffinDetail = () => {
         {/* Back button */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors flex items-center gap-2"
+          className="absolute top-[110px] left-4 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors flex items-center gap-2"
         >
           ← Back
         </button>
@@ -233,7 +233,7 @@ const TiffinDetail = () => {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 rounded-full font-bold text-sm shadow-lg"
+            className="absolute top-[110px] right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 rounded-full font-bold text-sm shadow-lg"
           >
             🏷️ Up to {maxDiscount}% OFF
           </motion.div>

@@ -6,7 +6,7 @@ import {
   CheckCircleIcon,
   ClockIcon,
   TruckIcon,
-  XCircleIcon
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import api from '../services/api';
@@ -38,8 +38,8 @@ const Orders = () => {
   const markDelivered = async (orderId) => {
     try {
       await api.patch(`/deliveries/${orderId}/status`, { status: 'delivered' });
-      setTodayOrders(prev =>
-        prev.map(o => o.id === orderId ? { ...o, status: 'delivered' } : o)
+      setTodayOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: 'delivered' } : o))
       );
       toast.success('Order marked as delivered!');
     } catch (err) {
@@ -54,35 +54,35 @@ const Orders = () => {
           color: 'bg-green-100 text-green-700 border-green-200',
           icon: CheckCircleIcon,
           iconColor: 'text-green-500',
-          bgGradient: 'from-green-500 to-emerald-500'
+          bgGradient: 'from-green-500 to-emerald-500',
         };
       case 'preparing':
         return {
           color: 'bg-amber-100 text-amber-700 border-amber-200',
           icon: ClockIcon,
           iconColor: 'text-amber-500',
-          bgGradient: 'from-amber-500 to-orange-500'
+          bgGradient: 'from-amber-500 to-orange-500',
         };
       case 'scheduled':
         return {
           color: 'bg-blue-100 text-blue-700 border-blue-200',
           icon: TruckIcon,
           iconColor: 'text-blue-500',
-          bgGradient: 'from-blue-500 to-cyan-500'
+          bgGradient: 'from-blue-500 to-cyan-500',
         };
       case 'cancelled':
         return {
           color: 'bg-red-100 text-red-700 border-red-200',
           icon: XCircleIcon,
           iconColor: 'text-red-500',
-          bgGradient: 'from-red-500 to-rose-500'
+          bgGradient: 'from-red-500 to-rose-500',
         };
       default:
         return {
           color: 'bg-neutral-100 text-neutral-700 border-neutral-200',
           icon: ClockIcon,
           iconColor: 'text-neutral-500',
-          bgGradient: 'from-neutral-500 to-neutral-600'
+          bgGradient: 'from-neutral-500 to-neutral-600',
         };
     }
   };
@@ -100,15 +100,14 @@ const Orders = () => {
     }
   };
 
-  const filteredOrders = filter === 'all'
-    ? todayOrders
-    : todayOrders.filter(order => order.status === filter);
+  const filteredOrders =
+    filter === 'all' ? todayOrders : todayOrders.filter((order) => order.status === filter);
 
   const orderStats = {
     total: todayOrders.length,
-    delivered: todayOrders.filter(o => o.status === 'delivered').length,
-    preparing: todayOrders.filter(o => o.status === 'preparing').length,
-    scheduled: todayOrders.filter(o => o.status === 'scheduled').length
+    delivered: todayOrders.filter((o) => o.status === 'delivered').length,
+    preparing: todayOrders.filter((o) => o.status === 'preparing').length,
+    scheduled: todayOrders.filter((o) => o.status === 'scheduled').length,
   };
 
   if (loading) {
@@ -118,12 +117,12 @@ const Orders = () => {
           <div className="animate-pulse">
             <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-2xl mb-8"></div>
             <div className="grid grid-cols-4 gap-4 mb-8">
-              {[1, 2, 3, 4].map(i => (
+              {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-24 bg-neutral-200 rounded-xl"></div>
               ))}
             </div>
             <div className="space-y-4">
-              {[1, 2, 3].map(i => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="h-40 bg-neutral-200 rounded-2xl"></div>
               ))}
             </div>
@@ -142,7 +141,7 @@ const Orders = () => {
           <div className="absolute -bottom-20 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 pt-[110px] pb-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -158,9 +157,7 @@ const Orders = () => {
                     <h1 className="text-2xl font-bold text-white">Today's Orders</h1>
                     <CheckBadgeIcon className="w-6 h-6 text-green-300" />
                   </div>
-                  <p className="text-white/80 text-sm mt-0.5">
-                    Manage your daily deliveries
-                  </p>
+                  <p className="text-white/80 text-sm mt-0.5">Manage your daily deliveries</p>
                 </div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
@@ -181,10 +178,34 @@ const Orders = () => {
           className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 -mt-12"
         >
           {[
-            { label: 'Total Orders', value: orderStats.total, emoji: '📦', color: 'bg-blue-50', textColor: 'text-blue-600' },
-            { label: 'Delivered', value: orderStats.delivered, emoji: '✅', color: 'bg-green-50', textColor: 'text-green-600' },
-            { label: 'Preparing', value: orderStats.preparing, emoji: '👨‍🍳', color: 'bg-amber-50', textColor: 'text-amber-600' },
-            { label: 'Scheduled', value: orderStats.scheduled, emoji: '🚚', color: 'bg-purple-50', textColor: 'text-purple-600' }
+            {
+              label: 'Total Orders',
+              value: orderStats.total,
+              emoji: '📦',
+              color: 'bg-blue-50',
+              textColor: 'text-blue-600',
+            },
+            {
+              label: 'Delivered',
+              value: orderStats.delivered,
+              emoji: '✅',
+              color: 'bg-green-50',
+              textColor: 'text-green-600',
+            },
+            {
+              label: 'Preparing',
+              value: orderStats.preparing,
+              emoji: '👨‍🍳',
+              color: 'bg-amber-50',
+              textColor: 'text-amber-600',
+            },
+            {
+              label: 'Scheduled',
+              value: orderStats.scheduled,
+              emoji: '🚚',
+              color: 'bg-purple-50',
+              textColor: 'text-purple-600',
+            },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -194,7 +215,9 @@ const Orders = () => {
               whileHover={{ y: -4, scale: 1.02 }}
               className="bg-white rounded-2xl p-5 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
             >
-              <div className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center mb-3`}>
+              <div
+                className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center mb-3`}
+              >
                 <span className="text-2xl">{stat.emoji}</span>
               </div>
               <p className={`text-2xl font-bold ${stat.textColor} mb-1`}>{stat.value}</p>
@@ -214,21 +237,25 @@ const Orders = () => {
             { id: 'all', label: 'All Orders', count: orderStats.total },
             { id: 'scheduled', label: 'Scheduled', count: orderStats.scheduled },
             { id: 'preparing', label: 'Preparing', count: orderStats.preparing },
-            { id: 'delivered', label: 'Delivered', count: orderStats.delivered }
-          ].map(tab => (
+            { id: 'delivered', label: 'Delivered', count: orderStats.delivered },
+          ].map((tab) => (
             <motion.button
               key={tab.id}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setFilter(tab.id)}
-              className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${filter === tab.id
-                ? 'bg-primary-500 text-white shadow-lg'
-                : 'bg-white text-neutral-600 border border-neutral-200 hover:border-primary-200 hover:bg-primary-50'
-                }`}
+              className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                filter === tab.id
+                  ? 'bg-primary-500 text-white shadow-lg'
+                  : 'bg-white text-neutral-600 border border-neutral-200 hover:border-primary-200 hover:bg-primary-50'
+              }`}
             >
               {tab.label}
-              <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filter === tab.id ? 'bg-white/20' : 'bg-neutral-100'
-                }`}>
+              <span
+                className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  filter === tab.id ? 'bg-white/20' : 'bg-neutral-100'
+                }`}
+              >
                 {tab.count}
               </span>
             </motion.button>
@@ -268,7 +295,9 @@ const Orders = () => {
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-4">
-                        <div className={`w-14 h-14 ${mealConfig.color} rounded-2xl flex items-center justify-center`}>
+                        <div
+                          className={`w-14 h-14 ${mealConfig.color} rounded-2xl flex items-center justify-center`}
+                        >
                           <span className="text-2xl">{mealConfig.emoji}</span>
                         </div>
                         <div>
@@ -281,7 +310,9 @@ const Orders = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border ${statusConfig.color}`}>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border ${statusConfig.color}`}
+                        >
                           <StatusIcon className={`w-4 h-4 ${statusConfig.iconColor}`} />
                           <span className="capitalize">{order.status}</span>
                         </span>
@@ -297,7 +328,9 @@ const Orders = () => {
                           <PhoneIcon className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Contact</p>
+                          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">
+                            Contact
+                          </p>
                           <p className="text-neutral-900 font-medium">{order.phone}</p>
                         </div>
                       </div>
@@ -306,7 +339,9 @@ const Orders = () => {
                           <MapPinIcon className="w-5 h-5 text-green-600" />
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Delivery Address</p>
+                          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">
+                            Delivery Address
+                          </p>
                           <p className="text-neutral-900 font-medium">
                             {order.address.street}, {order.address.city} - {order.address.pincode}
                           </p>

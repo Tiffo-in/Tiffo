@@ -6,7 +6,7 @@ import {
   ArrowTrendingUpIcon,
   CheckCircleIcon,
   ClockIcon,
-  XCircleIcon
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import api from '../services/api';
@@ -16,7 +16,7 @@ const Earnings = () => {
     today: 0,
     thisWeek: 0,
     thisMonth: 0,
-    total: 0
+    total: 0,
   });
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,9 @@ const Earnings = () => {
     try {
       const response = await api.get('/partner/earnings');
       if (response.data.success) {
-        setEarnings(response.data.data.earnings || { today: 0, thisWeek: 0, thisMonth: 0, total: 0 });
+        setEarnings(
+          response.data.data.earnings || { today: 0, thisWeek: 0, thisMonth: 0, total: 0 }
+        );
         setPayments(response.data.data.payments || []);
       }
     } catch (error) {
@@ -46,35 +48,39 @@ const Earnings = () => {
         return {
           color: 'bg-green-100 text-green-700 border-green-200',
           icon: CheckCircleIcon,
-          iconColor: 'text-green-500'
+          iconColor: 'text-green-500',
         };
       case 'pending':
         return {
           color: 'bg-amber-100 text-amber-700 border-amber-200',
           icon: ClockIcon,
-          iconColor: 'text-amber-500'
+          iconColor: 'text-amber-500',
         };
       case 'failed':
         return {
           color: 'bg-red-100 text-red-700 border-red-200',
           icon: XCircleIcon,
-          iconColor: 'text-red-500'
+          iconColor: 'text-red-500',
         };
       default:
         return {
           color: 'bg-neutral-100 text-neutral-700 border-neutral-200',
           icon: ClockIcon,
-          iconColor: 'text-neutral-500'
+          iconColor: 'text-neutral-500',
         };
     }
   };
 
   const getMethodIcon = (method) => {
     switch (method.toLowerCase()) {
-      case 'upi': return '📱';
-      case 'card': return '💳';
-      case 'cash': return '💵';
-      default: return '💰';
+      case 'upi':
+        return '📱';
+      case 'card':
+        return '💳';
+      case 'cash':
+        return '💵';
+      default:
+        return '💰';
     }
   };
 
@@ -82,7 +88,7 @@ const Earnings = () => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -93,8 +99,10 @@ const Earnings = () => {
       icon: '💰',
       color: 'bg-green-50',
       textColor: 'text-green-600',
-      change: earnings.todayChange ? `${earnings.todayChange > 0 ? '+' : ''}${earnings.todayChange}% vs yesterday` : '',
-      changeType: (earnings.todayChange ?? 0) >= 0 ? 'positive' : 'negative'
+      change: earnings.todayChange
+        ? `${earnings.todayChange > 0 ? '+' : ''}${earnings.todayChange}% vs yesterday`
+        : '',
+      changeType: (earnings.todayChange ?? 0) >= 0 ? 'positive' : 'negative',
     },
     {
       label: 'This Week',
@@ -102,8 +110,10 @@ const Earnings = () => {
       icon: '📊',
       color: 'bg-blue-50',
       textColor: 'text-blue-600',
-      change: earnings.weekChange ? `${earnings.weekChange > 0 ? '+' : ''}${earnings.weekChange}% vs last week` : '',
-      changeType: (earnings.weekChange ?? 0) >= 0 ? 'positive' : 'negative'
+      change: earnings.weekChange
+        ? `${earnings.weekChange > 0 ? '+' : ''}${earnings.weekChange}% vs last week`
+        : '',
+      changeType: (earnings.weekChange ?? 0) >= 0 ? 'positive' : 'negative',
     },
     {
       label: 'This Month',
@@ -111,8 +121,10 @@ const Earnings = () => {
       icon: '📈',
       color: 'bg-purple-50',
       textColor: 'text-purple-600',
-      change: earnings.monthChange ? `${earnings.monthChange > 0 ? '+' : ''}${earnings.monthChange}% vs last month` : '',
-      changeType: (earnings.monthChange ?? 0) >= 0 ? 'positive' : 'negative'
+      change: earnings.monthChange
+        ? `${earnings.monthChange > 0 ? '+' : ''}${earnings.monthChange}% vs last month`
+        : '',
+      changeType: (earnings.monthChange ?? 0) >= 0 ? 'positive' : 'negative',
     },
     {
       label: 'Total Earnings',
@@ -121,14 +133,14 @@ const Earnings = () => {
       color: 'bg-amber-50',
       textColor: 'text-amber-600',
       change: 'All time',
-      changeType: 'neutral'
-    }
+      changeType: 'neutral',
+    },
   ];
 
   // Dynamically calculate summaries from payments list
   const paymentMethodsSummary = useMemo(() => {
     const methods = { UPI: 0, Card: 0, Cash: 0 };
-    payments.forEach(p => {
+    payments.forEach((p) => {
       const amt = parseFloat(p.amount) || 0;
       if (p.method?.toLowerCase() === 'upi') methods.UPI += amt;
       else if (p.method?.toLowerCase() === 'card') methods.Card += amt;
@@ -138,13 +150,13 @@ const Earnings = () => {
     return [
       { method: 'UPI', amount: methods.UPI, icon: '📱', color: 'bg-purple-500' },
       { method: 'Card', amount: methods.Card, icon: '💳', color: 'bg-blue-500' },
-      { method: 'Cash', amount: methods.Cash, icon: '💵', color: 'bg-green-500' }
+      { method: 'Cash', amount: methods.Cash, icon: '💵', color: 'bg-green-500' },
     ];
   }, [payments]);
 
   const paymentStatusSummary = useMemo(() => {
     const statuses = { paid: 0, pending: 0, failed: 0 };
-    payments.forEach(p => {
+    payments.forEach((p) => {
       const amt = parseFloat(p.amount) || 0;
       if (p.status === 'paid' || p.status === 'success') statuses.paid += amt;
       else if (p.status === 'pending') statuses.pending += amt;
@@ -153,25 +165,38 @@ const Earnings = () => {
     return [
       { status: 'Paid', amount: statuses.paid, color: 'text-green-600', bg: 'bg-green-100' },
       { status: 'Pending', amount: statuses.pending, color: 'text-amber-600', bg: 'bg-amber-100' },
-      { status: 'Failed', amount: statuses.failed, color: 'text-red-600', bg: 'bg-red-100' }
+      { status: 'Failed', amount: statuses.failed, color: 'text-red-600', bg: 'bg-red-100' },
     ];
   }, [payments]);
 
   const planRevenueSummary = useMemo(() => {
     const plans = { daily: 0, weekly: 0, monthly: 0 };
     let total = 0;
-    payments.forEach(p => {
+    payments.forEach((p) => {
       const amt = parseFloat(p.amount) || 0;
       total += amt;
-      if (p.plan?.toLowerCase() === 'daily' || p.plan?.toLowerCase() === 'one-time') plans.daily += amt;
+      if (p.plan?.toLowerCase() === 'daily' || p.plan?.toLowerCase() === 'one-time')
+        plans.daily += amt;
       else if (p.plan?.toLowerCase() === 'weekly') plans.weekly += amt;
       else if (p.plan?.toLowerCase() === 'monthly') plans.monthly += amt;
     });
 
     return [
-      { plan: 'Daily', amount: plans.daily, percentage: total > 0 ? Math.round((plans.daily / total) * 100) : 0 },
-      { plan: 'Weekly', amount: plans.weekly, percentage: total > 0 ? Math.round((plans.weekly / total) * 100) : 0 },
-      { plan: 'Monthly', amount: plans.monthly, percentage: total > 0 ? Math.round((plans.monthly / total) * 100) : 0 }
+      {
+        plan: 'Daily',
+        amount: plans.daily,
+        percentage: total > 0 ? Math.round((plans.daily / total) * 100) : 0,
+      },
+      {
+        plan: 'Weekly',
+        amount: plans.weekly,
+        percentage: total > 0 ? Math.round((plans.weekly / total) * 100) : 0,
+      },
+      {
+        plan: 'Monthly',
+        amount: plans.monthly,
+        percentage: total > 0 ? Math.round((plans.monthly / total) * 100) : 0,
+      },
     ];
   }, [payments]);
 
@@ -182,7 +207,7 @@ const Earnings = () => {
           <div className="animate-pulse">
             <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-2xl mb-8"></div>
             <div className="grid grid-cols-4 gap-4 mb-8">
-              {[1, 2, 3, 4].map(i => (
+              {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-28 bg-neutral-200 rounded-xl"></div>
               ))}
             </div>
@@ -202,7 +227,7 @@ const Earnings = () => {
           <div className="absolute -bottom-20 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 pt-[110px] pb-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,13 +275,20 @@ const Earnings = () => {
               whileHover={{ y: -4, scale: 1.02 }}
               className="bg-white rounded-2xl p-5 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
             >
-              <div className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center mb-3`}>
+              <div
+                className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center mb-3`}
+              >
                 <span className="text-2xl">{stat.icon}</span>
               </div>
-              <p className={`text-2xl font-bold ${stat.textColor} mb-1`}>{formatCurrency(stat.value)}</p>
+              <p className={`text-2xl font-bold ${stat.textColor} mb-1`}>
+                {formatCurrency(stat.value)}
+              </p>
               <p className="text-sm text-neutral-500 mb-1">{stat.label}</p>
-              <p className={`text-xs font-medium ${stat.changeType === 'positive' ? 'text-green-600' : 'text-neutral-400'
-                }`}>
+              <p
+                className={`text-xs font-medium ${
+                  stat.changeType === 'positive' ? 'text-green-600' : 'text-neutral-400'
+                }`}
+              >
                 {stat.change}
               </p>
             </motion.div>
@@ -291,19 +323,33 @@ const Earnings = () => {
             <div className="text-center py-12">
               <div className="text-6xl mb-4">💳</div>
               <h3 className="text-xl font-bold text-neutral-700 mb-2">No payments yet</h3>
-              <p className="text-neutral-500">Payments will appear here once customers start subscribing.</p>
+              <p className="text-neutral-500">
+                Payments will appear here once customers start subscribing.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="bg-neutral-50">
-                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">Customer</th>
-                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">Amount</th>
-                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">Plan</th>
-                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">Date</th>
-                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">Method</th>
-                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">Status</th>
+                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">
+                      Customer
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">
+                      Amount
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">
+                      Plan
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">
+                      Date
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">
+                      Method
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-neutral-600 text-sm uppercase tracking-wide">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -326,11 +372,15 @@ const Earnings = () => {
                                 {payment.customerName.charAt(0)}
                               </span>
                             </div>
-                            <span className="font-medium text-neutral-900">{payment.customerName}</span>
+                            <span className="font-medium text-neutral-900">
+                              {payment.customerName}
+                            </span>
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <span className="font-bold text-green-600 text-lg">{formatCurrency(payment.amount)}</span>
+                          <span className="font-bold text-green-600 text-lg">
+                            {formatCurrency(payment.amount)}
+                          </span>
                         </td>
                         <td className="py-4 px-6">
                           <span className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm font-medium">
@@ -342,7 +392,7 @@ const Earnings = () => {
                             {new Date(payment.paymentDate).toLocaleDateString('en-IN', {
                               day: 'numeric',
                               month: 'short',
-                              year: 'numeric'
+                              year: 'numeric',
                             })}
                           </span>
                         </td>
@@ -353,7 +403,9 @@ const Earnings = () => {
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border ${statusConfig.color}`}>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border ${statusConfig.color}`}
+                          >
                             <StatusIcon className={`w-4 h-4 ${statusConfig.iconColor}`} />
                             <span className="capitalize">{payment.status}</span>
                           </span>
@@ -412,7 +464,9 @@ const Earnings = () => {
             <div className="space-y-4">
               {paymentStatusSummary.map((item) => (
                 <div key={item.status} className="flex items-center justify-between">
-                  <span className={`px-3 py-1 ${item.bg} ${item.color} rounded-full text-sm font-medium`}>
+                  <span
+                    className={`px-3 py-1 ${item.bg} ${item.color} rounded-full text-sm font-medium`}
+                  >
                     {item.status}
                   </span>
                   <span className={`font-bold ${item.color}`}>{formatCurrency(item.amount)}</span>
@@ -437,7 +491,9 @@ const Earnings = () => {
                 <div key={item.plan}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-neutral-700">{item.plan}</span>
-                    <span className="font-bold text-neutral-900">{formatCurrency(item.amount)}</span>
+                    <span className="font-bold text-neutral-900">
+                      {formatCurrency(item.amount)}
+                    </span>
                   </div>
                   <div className="w-full bg-neutral-100 rounded-full h-2">
                     <motion.div

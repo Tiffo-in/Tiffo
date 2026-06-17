@@ -17,7 +17,7 @@ import {
   SparklesIcon,
   BellIcon,
   Cog6ToothIcon,
-  MegaphoneIcon
+  MegaphoneIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon, TrophyIcon, FireIcon } from '@heroicons/react/24/solid';
 
@@ -33,7 +33,7 @@ const PartnerDashboard = () => {
     monthlyEarnings: 0,
     earningsChange: null,
     avgRating: null,
-    reviewCount: 0
+    reviewCount: 0,
   });
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const PartnerDashboard = () => {
       changeType: 'neutral',
       icon: UserGroupIcon,
       color: 'from-blue-500 to-cyan-500',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
     },
     {
       label: "Today's Deliveries",
@@ -78,7 +78,7 @@ const PartnerDashboard = () => {
       changeType: statsData.pendingDeliveries > 0 ? 'neutral' : 'positive',
       icon: ClipboardDocumentListIcon,
       color: 'from-green-500 to-emerald-500',
-      bgColor: 'bg-green-50'
+      bgColor: 'bg-green-50',
     },
     {
       label: 'Monthly Earnings',
@@ -91,7 +91,7 @@ const PartnerDashboard = () => {
       changeType: (statsData.earningsChange ?? 0) >= 0 ? 'positive' : 'negative',
       icon: CurrencyRupeeIcon,
       color: 'from-amber-500 to-orange-500',
-      bgColor: 'bg-amber-50'
+      bgColor: 'bg-amber-50',
     },
     {
       label: 'Customer Rating',
@@ -100,8 +100,8 @@ const PartnerDashboard = () => {
       changeType: 'neutral',
       icon: TrophyIcon,
       color: 'from-purple-500 to-pink-500',
-      bgColor: 'bg-purple-50'
-    }
+      bgColor: 'bg-purple-50',
+    },
   ];
 
   // Quick Actions
@@ -115,7 +115,7 @@ const PartnerDashboard = () => {
       route: '/partner/profile',
       color: 'from-primary-500 to-primary-600',
       highlight: true,
-      badge: 'Required'
+      badge: 'Required',
     },
     {
       id: 'ads',
@@ -125,7 +125,7 @@ const PartnerDashboard = () => {
       emoji: '📢',
       route: '/partner/ads',
       color: 'from-fuchsia-500 to-rose-500',
-      badge: 'Beta'
+      badge: 'Beta',
     },
     {
       id: 'tiffins',
@@ -134,7 +134,7 @@ const PartnerDashboard = () => {
       icon: ClipboardDocumentListIcon,
       emoji: '🍱',
       route: '/partner/tiffins',
-      color: 'from-secondary-500 to-secondary-600'
+      color: 'from-secondary-500 to-secondary-600',
     },
     {
       id: 'orders',
@@ -144,7 +144,7 @@ const PartnerDashboard = () => {
       emoji: '📋',
       route: '/partner/orders',
       color: 'from-blue-500 to-cyan-500',
-      badge: statsData.pendingDeliveries > 0 ? `${statsData.pendingDeliveries} new` : undefined
+      badge: statsData.pendingDeliveries > 0 ? `${statsData.pendingDeliveries} new` : undefined,
     },
     {
       id: 'earnings',
@@ -153,7 +153,7 @@ const PartnerDashboard = () => {
       icon: CurrencyRupeeIcon,
       emoji: '💰',
       route: '/partner/earnings',
-      color: 'from-green-500 to-emerald-500'
+      color: 'from-green-500 to-emerald-500',
     },
     {
       id: 'analytics',
@@ -162,8 +162,8 @@ const PartnerDashboard = () => {
       icon: ChartBarIcon,
       emoji: '📊',
       route: '/partner/analytics',
-      color: 'from-purple-500 to-pink-500'
-    }
+      color: 'from-purple-500 to-pink-500',
+    },
   ];
 
   return (
@@ -177,7 +177,7 @@ const PartnerDashboard = () => {
           <div className="absolute top-1/2 right-1/4 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[110px] pb-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -242,14 +242,19 @@ const PartnerDashboard = () => {
                     className="bg-white rounded-2xl p-5 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <div className={`w-12 h-12 ${stat.bgColor} rounded-xl flex items-center justify-center`}>
+                      <div
+                        className={`w-12 h-12 ${stat.bgColor} rounded-xl flex items-center justify-center`}
+                      >
                         <span className="text-2xl">{emojis[index]}</span>
                       </div>
                     </div>
                     <p className="text-2xl font-bold text-neutral-900 mb-1">{stat.value}</p>
                     <p className="text-sm text-neutral-500 mb-1">{stat.label}</p>
-                    <p className={`text-xs font-medium ${stat.changeType === 'positive' ? 'text-green-600' : 'text-neutral-400'
-                      }`}>
+                    <p
+                      className={`text-xs font-medium ${
+                        stat.changeType === 'positive' ? 'text-green-600' : 'text-neutral-400'
+                      }`}
+                    >
                       {stat.change}
                     </p>
                   </motion.div>
@@ -271,14 +276,16 @@ const PartnerDashboard = () => {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-neutral-900">Quick Actions</h2>
-            <Link to="/partner/profile" className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center">
+            <Link
+              to="/partner/profile"
+              className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center"
+            >
               View All Settings <ArrowRightIcon className="w-4 h-4 ml-1" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {quickActions.map((action, index) => {
-
               return (
                 <motion.div
                   key={action.id}
@@ -288,30 +295,40 @@ const PartnerDashboard = () => {
                   whileHover={{ y: -6, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate(action.route)}
-                  className={`relative bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border-2 group overflow-hidden ${action.highlight ? 'border-primary-200' : 'border-transparent hover:border-neutral-100'
-                    }`}
+                  className={`relative bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border-2 group overflow-hidden ${
+                    action.highlight
+                      ? 'border-primary-200'
+                      : 'border-transparent hover:border-neutral-100'
+                  }`}
                 >
                   {/* Top gradient bar */}
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${action.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`} />
+                  <div
+                    className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${action.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}
+                  />
 
                   {/* Badge */}
                   {action.badge && (
-                    <span className={`absolute top-4 right-4 px-2 py-1 text-xs font-bold rounded-full ${action.badge === 'Required' ? 'bg-primary-100 text-primary-700' : 'bg-green-100 text-green-700'
-                      }`}>
+                    <span
+                      className={`absolute top-4 right-4 px-2 py-1 text-xs font-bold rounded-full ${
+                        action.badge === 'Required'
+                          ? 'bg-primary-100 text-primary-700'
+                          : 'bg-green-100 text-green-700'
+                      }`}
+                    >
                       {action.badge}
                     </span>
                   )}
 
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <div
+                    className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                  >
                     <span className="text-2xl">{action.emoji}</span>
                   </div>
 
                   <h3 className="text-lg font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors">
                     {action.title}
                   </h3>
-                  <p className="text-sm text-neutral-500 leading-relaxed">
-                    {action.description}
-                  </p>
+                  <p className="text-sm text-neutral-500 leading-relaxed">{action.description}</p>
 
                   <div className="mt-4 flex items-center text-primary-600 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
                     Open <ArrowRightIcon className="w-4 h-4 ml-1" />
@@ -427,10 +444,16 @@ const PartnerDashboard = () => {
               <div className="mb-4 md:mb-0">
                 <div className="flex items-center space-x-2 mb-2">
                   <FireIcon className="w-5 h-5 text-white" />
-                  <span className="text-white/90 font-semibold text-sm uppercase tracking-wider">Pro Tip</span>
+                  <span className="text-white/90 font-semibold text-sm uppercase tracking-wider">
+                    Pro Tip
+                  </span>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Complete your profile to get more customers!</h3>
-                <p className="text-white/80">Partners with complete profiles get 3x more visibility in search results.</p>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Complete your profile to get more customers!
+                </h3>
+                <p className="text-white/80">
+                  Partners with complete profiles get 3x more visibility in search results.
+                </p>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}

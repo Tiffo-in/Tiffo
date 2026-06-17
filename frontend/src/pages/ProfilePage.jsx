@@ -10,7 +10,7 @@ import {
   PencilIcon,
   XMarkIcon,
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
@@ -50,7 +50,7 @@ const PasswordInput = ({ label, value, onChange, placeholder }) => {
         />
         <button
           type="button"
-          onClick={() => setShow(s => !s)}
+          onClick={() => setShow((s) => !s)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
         >
           {show ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
@@ -63,18 +63,23 @@ const PasswordInput = ({ label, value, onChange, placeholder }) => {
 // ─── Main component ───────────────────────────────────────────────────────────
 const ProfilePage = () => {
   const dispatch = useDispatch();
-  const [loading, setLoading]     = useState(true);
-  const [saving, setSaving]       = useState(false);
-  const [pwSaving, setPwSaving]   = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [pwSaving, setPwSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const [profile, setProfile] = useState({
-    name: '', email: '', phone: '', avatar: '',
-    address: { street: '', city: '', state: '', pincode: '' }
+    name: '',
+    email: '',
+    phone: '',
+    avatar: '',
+    address: { street: '', city: '', state: '', pincode: '' },
   });
 
   const [passwords, setPasswords] = useState({
-    currentPassword: '', newPassword: '', confirmPassword: ''
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
@@ -85,16 +90,16 @@ const ProfilePage = () => {
         if (res.data.success) {
           const u = res.data.user;
           setProfile({
-            name:  u.name  || '',
+            name: u.name || '',
             email: u.email || '',
             phone: u.phone || '',
             avatar: u.avatar || '',
             address: {
-              street:  u.address?.street  || '',
-              city:    u.address?.city    || '',
-              state:   u.address?.state   || '',
-              pincode: u.address?.pincode || ''
-            }
+              street: u.address?.street || '',
+              city: u.address?.city || '',
+              state: u.address?.state || '',
+              pincode: u.address?.pincode || '',
+            },
           });
         }
       } catch (err) {
@@ -108,14 +113,17 @@ const ProfilePage = () => {
 
   // ── Save profile ───────────────────────────────────────────────────────────
   const handleSave = async () => {
-    if (!profile.name.trim()) { toast.error('Name is required'); return; }
+    if (!profile.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
     try {
       setSaving(true);
       const res = await api.put('/auth/me', {
-        name:    profile.name,
-        phone:   profile.phone,
-        avatar:  profile.avatar,
-        address: profile.address
+        name: profile.name,
+        phone: profile.phone,
+        avatar: profile.avatar,
+        address: profile.address,
       });
       if (res.data.success) {
         // Update Redux store with fresh user data from API (no localStorage needed)
@@ -134,16 +142,18 @@ const ProfilePage = () => {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwords.newPassword !== passwords.confirmPassword) {
-      toast.error('New passwords do not match'); return;
+      toast.error('New passwords do not match');
+      return;
     }
     if (passwords.newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters'); return;
+      toast.error('Password must be at least 6 characters');
+      return;
     }
     try {
       setPwSaving(true);
       const res = await api.put('/auth/password', {
         currentPassword: passwords.currentPassword,
-        newPassword:     passwords.newPassword
+        newPassword: passwords.newPassword,
       });
       if (res.data.success) {
         toast.success('Password updated successfully!');
@@ -175,8 +185,12 @@ const ProfilePage = () => {
           <div className="absolute -top-10 -right-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         </div>
-        <div className="max-w-3xl mx-auto px-4 py-10 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="flex items-center space-x-5">
+        <div className="max-w-3xl mx-auto px-4 pt-[110px] pb-10 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center space-x-5"
+          >
             <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl text-4xl overflow-hidden">
               {profile.avatar ? (
                 <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
@@ -194,11 +208,9 @@ const ProfilePage = () => {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-
         {/* ── Personal Info ─────────────────────────────────────────────── */}
         <Section icon={UserIcon} title="Personal Information">
           <div className="space-y-4">
-            
             {isEditing && (
               <ImageUpload
                 label="Profile Picture"
@@ -210,11 +222,13 @@ const ProfilePage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Full Name *</label>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Full Name *
+                </label>
                 <input
                   type="text"
                   value={profile.name}
-                  onChange={e => setProfile(p => ({ ...p, name: e.target.value }))}
+                  onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
                   disabled={!isEditing}
                   className="input-field"
                   placeholder="Your name"
@@ -235,12 +249,13 @@ const ProfilePage = () => {
 
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
-                <PhoneIcon className="w-4 h-4 inline mr-1" />Phone Number
+                <PhoneIcon className="w-4 h-4 inline mr-1" />
+                Phone Number
               </label>
               <input
                 type="tel"
                 value={profile.phone}
-                onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
+                onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))}
                 disabled={!isEditing}
                 className="input-field"
                 placeholder="+91 98765 43210"
@@ -285,19 +300,22 @@ const ProfilePage = () => {
         <Section icon={MapPinIcon} title="Delivery Address">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { key: 'street',  label: 'Street Address', placeholder: '123 Main Road', span: true },
-              { key: 'city',    label: 'City',           placeholder: 'New Delhi' },
-              { key: 'state',   label: 'State',          placeholder: 'Delhi' },
-              { key: 'pincode', label: 'Pincode',        placeholder: '110001' },
+              { key: 'street', label: 'Street Address', placeholder: '123 Main Road', span: true },
+              { key: 'city', label: 'City', placeholder: 'New Delhi' },
+              { key: 'state', label: 'State', placeholder: 'Delhi' },
+              { key: 'pincode', label: 'Pincode', placeholder: '110001' },
             ].map(({ key, label, placeholder, span }) => (
               <div key={key} className={span ? 'md:col-span-2' : ''}>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">{label}</label>
                 <input
                   type="text"
                   value={profile.address[key]}
-                  onChange={e => setProfile(p => ({
-                    ...p, address: { ...p.address, [key]: e.target.value }
-                  }))}
+                  onChange={(e) =>
+                    setProfile((p) => ({
+                      ...p,
+                      address: { ...p.address, [key]: e.target.value },
+                    }))
+                  }
                   disabled={!isEditing}
                   className="input-field"
                   placeholder={placeholder}
@@ -313,20 +331,20 @@ const ProfilePage = () => {
             <PasswordInput
               label="Current Password"
               value={passwords.currentPassword}
-              onChange={e => setPasswords(p => ({ ...p, currentPassword: e.target.value }))}
+              onChange={(e) => setPasswords((p) => ({ ...p, currentPassword: e.target.value }))}
               placeholder="Enter current password"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <PasswordInput
                 label="New Password"
                 value={passwords.newPassword}
-                onChange={e => setPasswords(p => ({ ...p, newPassword: e.target.value }))}
+                onChange={(e) => setPasswords((p) => ({ ...p, newPassword: e.target.value }))}
                 placeholder="Min. 6 characters"
               />
               <PasswordInput
                 label="Confirm New Password"
                 value={passwords.confirmPassword}
-                onChange={e => setPasswords(p => ({ ...p, confirmPassword: e.target.value }))}
+                onChange={(e) => setPasswords((p) => ({ ...p, confirmPassword: e.target.value }))}
                 placeholder="Repeat new password"
               />
             </div>
@@ -343,7 +361,6 @@ const ProfilePage = () => {
             </div>
           </form>
         </Section>
-
       </div>
     </div>
   );

@@ -52,11 +52,7 @@ const Blog = () => {
     if (!newsletterEmail.trim()) return;
     setNewsletterLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/support/newsletter`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newsletterEmail }),
-      });
+      await api.post('/support/newsletter', { email: newsletterEmail });
       // Treat any 2xx or even network issue as success — newsletter is non-critical
       setNewsletterSent(true);
       setNewsletterEmail('');

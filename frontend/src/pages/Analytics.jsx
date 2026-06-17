@@ -7,7 +7,7 @@ import {
   LightBulbIcon,
   TrophyIcon,
   FireIcon,
-  RocketLaunchIcon
+  RocketLaunchIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import api from '../services/api';
@@ -19,7 +19,7 @@ const Analytics = () => {
     totalSubscriptions: 0,
     conversionRate: 0,
     todayVisits: 0,
-    todaySubscriptions: 0
+    todaySubscriptions: 0,
   });
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,8 +43,8 @@ const Analytics = () => {
     }
   };
 
-  const maxVisits = Math.max(...chartData.map(d => d.visits), 1);
-  const maxSubs = Math.max(...chartData.map(d => d.subscriptions), 1);
+  const maxVisits = Math.max(...chartData.map((d) => d.visits), 1);
+  const maxSubs = Math.max(...chartData.map((d) => d.subscriptions), 1);
 
   if (loading) {
     return (
@@ -53,7 +53,7 @@ const Analytics = () => {
           <div className="animate-pulse">
             <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-2xl mb-8"></div>
             <div className="grid grid-cols-3 gap-4 mb-8">
-              {[1, 2, 3].map(i => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="h-28 bg-neutral-200 rounded-xl"></div>
               ))}
             </div>
@@ -73,7 +73,7 @@ const Analytics = () => {
           <div className="absolute -bottom-20 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 pt-[110px] pb-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -120,7 +120,7 @@ const Analytics = () => {
               icon: '👥',
               color: 'bg-blue-50',
               textColor: 'text-blue-600',
-              iconBg: 'from-blue-500 to-cyan-500'
+              iconBg: 'from-blue-500 to-cyan-500',
             },
             {
               label: 'Subscriptions',
@@ -129,7 +129,7 @@ const Analytics = () => {
               icon: '📋',
               color: 'bg-green-50',
               textColor: 'text-green-600',
-              iconBg: 'from-green-500 to-emerald-500'
+              iconBg: 'from-green-500 to-emerald-500',
             },
             {
               label: 'Conversion Rate',
@@ -138,8 +138,8 @@ const Analytics = () => {
               icon: '📈',
               color: 'bg-amber-50',
               textColor: 'text-amber-600',
-              iconBg: 'from-amber-500 to-orange-500'
-            }
+              iconBg: 'from-amber-500 to-orange-500',
+            },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -150,10 +150,14 @@ const Analytics = () => {
               className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`w-14 h-14 ${stat.color} rounded-2xl flex items-center justify-center`}>
+                <div
+                  className={`w-14 h-14 ${stat.color} rounded-2xl flex items-center justify-center`}
+                >
                   <span className="text-2xl">{stat.icon}</span>
                 </div>
-                <div className={`w-10 h-10 bg-gradient-to-r ${stat.iconBg} rounded-xl flex items-center justify-center shadow-lg`}>
+                <div
+                  className={`w-10 h-10 bg-gradient-to-r ${stat.iconBg} rounded-xl flex items-center justify-center shadow-lg`}
+                >
                   <ArrowTrendingUpIcon className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -196,7 +200,9 @@ const Analytics = () => {
                   <span className="text-2xl">🎯</span>
                   <span className="text-neutral-700 font-medium">Subscriptions Today</span>
                 </div>
-                <span className="text-2xl font-bold text-green-600">{analytics.todaySubscriptions}</span>
+                <span className="text-2xl font-bold text-green-600">
+                  {analytics.todaySubscriptions}
+                </span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-100">
                 <div className="flex items-center gap-3">
@@ -204,7 +210,10 @@ const Analytics = () => {
                   <span className="text-neutral-700 font-medium">Today's Conversion</span>
                 </div>
                 <span className="text-2xl font-bold text-amber-600">
-                  {analytics.todayVisits > 0 ? Math.round((analytics.todaySubscriptions / analytics.todayVisits) * 100) : 0}%
+                  {analytics.todayVisits > 0
+                    ? Math.round((analytics.todaySubscriptions / analytics.todayVisits) * 100)
+                    : 0}
+                  %
                 </span>
               </div>
             </div>
@@ -226,19 +235,28 @@ const Analytics = () => {
               <div className="flex justify-between items-center p-4 bg-neutral-50 rounded-xl">
                 <span className="text-neutral-700 font-medium">Avg. Daily Visits</span>
                 <span className="text-lg font-bold text-neutral-900">
-                  {Math.round(chartData.reduce((sum, day) => sum + day.visits, 0) / chartData.length)}
+                  {Math.round(
+                    chartData.reduce((sum, day) => sum + day.visits, 0) / chartData.length
+                  )}
                 </span>
               </div>
               <div className="flex justify-between items-center p-4 bg-neutral-50 rounded-xl">
                 <span className="text-neutral-700 font-medium">Avg. Daily Subscriptions</span>
                 <span className="text-lg font-bold text-neutral-900">
-                  {Math.round(chartData.reduce((sum, day) => sum + day.subscriptions, 0) / chartData.length)}
+                  {Math.round(
+                    chartData.reduce((sum, day) => sum + day.subscriptions, 0) / chartData.length
+                  )}
                 </span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
                 <span className="text-neutral-700 font-medium">Best Performing Day</span>
                 <span className="text-lg font-bold text-green-600">
-                  {new Date(chartData.reduce((best, day) => day.subscriptions > best.subscriptions ? day : best, chartData[0])?.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                  {new Date(
+                    chartData.reduce(
+                      (best, day) => (day.subscriptions > best.subscriptions ? day : best),
+                      chartData[0]
+                    )?.date
+                  ).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                 </span>
               </div>
             </div>
@@ -287,7 +305,10 @@ const Analytics = () => {
                   className="flex items-center gap-4 p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
                 >
                   <div className="w-16 text-sm font-semibold text-neutral-600">
-                    {new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {new Date(day.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
                   </div>
 
                   {/* Visits Bar */}
@@ -324,10 +345,13 @@ const Analytics = () => {
 
                   {/* Conversion Rate */}
                   <div className="w-20 text-right">
-                    <span className={`px-3 py-1 rounded-full text-sm font-bold ${Math.round((day.subscriptions / day.visits) * 100) >= 15
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-amber-100 text-amber-700'
-                      }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-bold ${
+                        Math.round((day.subscriptions / day.visits) * 100) >= 15
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}
+                    >
                       {Math.round((day.subscriptions / day.visits) * 100)}%
                     </span>
                   </div>
@@ -359,35 +383,52 @@ const Analytics = () => {
             </div>
             <div className="p-6 space-y-4">
               {/* Conversion rate insight */}
-              <div className={`flex items-start gap-3 p-4 rounded-xl border ${
-                analytics.conversionRate >= 15
-                  ? 'bg-green-50 border-green-100'
-                  : 'bg-amber-50 border-amber-100'
-              }`}>
+              <div
+                className={`flex items-start gap-3 p-4 rounded-xl border ${
+                  analytics.conversionRate >= 15
+                    ? 'bg-green-50 border-green-100'
+                    : 'bg-amber-50 border-amber-100'
+                }`}
+              >
                 <span className="text-xl">{analytics.conversionRate >= 15 ? '✅' : '⚠️'}</span>
                 <div>
-                  <p className={`font-medium ${analytics.conversionRate >= 15 ? 'text-green-800' : 'text-amber-800'}`}>
-                    {analytics.conversionRate >= 15 ? 'Great conversion rate!' : 'Conversion rate needs attention'}
+                  <p
+                    className={`font-medium ${analytics.conversionRate >= 15 ? 'text-green-800' : 'text-amber-800'}`}
+                  >
+                    {analytics.conversionRate >= 15
+                      ? 'Great conversion rate!'
+                      : 'Conversion rate needs attention'}
                   </p>
-                  <p className={`text-sm ${analytics.conversionRate >= 15 ? 'text-green-600' : 'text-amber-600'}`}>
-                    Your {analytics.conversionRate}% rate is {analytics.conversionRate >= 15 ? 'above' : 'below'} the 15% industry target.
+                  <p
+                    className={`text-sm ${analytics.conversionRate >= 15 ? 'text-green-600' : 'text-amber-600'}`}
+                  >
+                    Your {analytics.conversionRate}% rate is{' '}
+                    {analytics.conversionRate >= 15 ? 'above' : 'below'} the 15% industry target.
                   </p>
                 </div>
               </div>
               {/* Peak day insight */}
-              {chartData.length > 0 && (() => {
-                const best = chartData.reduce((b, d) => d.visits > b.visits ? d : b, chartData[0]);
-                const dayName = new Date(best.date).toLocaleDateString('en-IN', { weekday: 'long' });
-                return (
-                  <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <span className="text-xl">📅</span>
-                    <div>
-                      <p className="font-medium text-blue-800">Peak day detected</p>
-                      <p className="text-sm text-blue-600">Highest traffic: <strong>{dayName}</strong> with {best.visits} visits.</p>
+              {chartData.length > 0 &&
+                (() => {
+                  const best = chartData.reduce(
+                    (b, d) => (d.visits > b.visits ? d : b),
+                    chartData[0]
+                  );
+                  const dayName = new Date(best.date).toLocaleDateString('en-IN', {
+                    weekday: 'long',
+                  });
+                  return (
+                    <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <span className="text-xl">📅</span>
+                      <div>
+                        <p className="font-medium text-blue-800">Peak day detected</p>
+                        <p className="text-sm text-blue-600">
+                          Highest traffic: <strong>{dayName}</strong> with {best.visits} visits.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
               {/* Today performance */}
               <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
                 <span className="text-xl">⚡</span>
@@ -429,7 +470,9 @@ const Analytics = () => {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium text-neutral-700">Monthly Subscriptions</span>
-                      <span className="text-sm font-bold text-green-600">{current}/{goal}</span>
+                      <span className="text-sm font-bold text-green-600">
+                        {current}/{goal}
+                      </span>
                     </div>
                     <div className="w-full bg-neutral-200 rounded-full h-3 overflow-hidden">
                       <motion.div
@@ -440,7 +483,9 @@ const Analytics = () => {
                       />
                     </div>
                     <p className="text-xs text-neutral-500 mt-1">
-                      {remaining > 0 ? `${remaining} more to hit your goal! 🎯` : 'Goal reached! 🎉'}
+                      {remaining > 0
+                        ? `${remaining} more to hit your goal! 🎯`
+                        : 'Goal reached! 🎉'}
                     </p>
                   </div>
                 );
@@ -456,7 +501,9 @@ const Analytics = () => {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium text-neutral-700">Conversion Rate Goal</span>
-                      <span className="text-sm font-bold text-amber-600">{current}%/{goal}%</span>
+                      <span className="text-sm font-bold text-amber-600">
+                        {current}%/{goal}%
+                      </span>
                     </div>
                     <div className="w-full bg-neutral-200 rounded-full h-3 overflow-hidden">
                       <motion.div
@@ -482,7 +529,9 @@ const Analytics = () => {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium text-neutral-700">Weekly Visits Target</span>
-                      <span className="text-sm font-bold text-blue-600">{weekTotal}/{goal}</span>
+                      <span className="text-sm font-bold text-blue-600">
+                        {weekTotal}/{goal}
+                      </span>
                     </div>
                     <div className="w-full bg-neutral-200 rounded-full h-3 overflow-hidden">
                       <motion.div
