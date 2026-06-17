@@ -14,3 +14,7 @@
 ## 2026-06-15 - Batched Queries over Promise.all
 **Learning:** Nested `await User.findById` in `Promise.all(map(...))` creates an N+1 query problem, heavily degrading performance when lists grow large (like message conversations).
 **Action:** Replace `Promise.all` with a single batched query using `$in` and an O(1) hash map lookup whenever iterating over an array to fetch related database records.
+
+## 2026-06-16 - Promise.all and MongoDB Aggregation in Dashboard Stats
+**Learning:** Sequential `await` database queries in dashboard statistics endpoints (like `getPartnerStats`) create a waterfall effect blocking the event loop. Furthermore, fetching full document arrays just to `reduce` them in Node.js consumes excessive memory and CPU.
+**Action:** Replace sequential queries with concurrent execution using `Promise.all`. Offload calculations (sums, averages) to MongoDB using `.aggregate()` rather than fetching documents and using `.reduce()` in Node.js.

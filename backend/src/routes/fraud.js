@@ -5,7 +5,7 @@ const {
   getFraudReports,
   updateFraudReportStatus,
 } = require('../controllers/fraudController');
-const { protect, authorize } = require('../middlewares/auth');
+const { protect } = require('../middlewares/auth');
 const { adminAuth } = require('../middlewares/adminAuth');
 
 // Public route for submitting reports

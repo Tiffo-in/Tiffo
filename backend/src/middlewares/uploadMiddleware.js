@@ -1,5 +1,4 @@
 const multer = require('multer');
-const path = require('path');
 
 // Use memory storage so we can buffer the image and stream directly to Cloudinary without writing to local disk
 const storage = multer.memoryStorage();
