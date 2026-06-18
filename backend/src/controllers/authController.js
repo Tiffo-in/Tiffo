@@ -12,7 +12,7 @@ const generateToken = (id) => {
   });
 };
 
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = (user, statusCode, req, res) => {
   const token = generateToken(user._id);
 
   const options = {
@@ -23,7 +23,7 @@ const sendTokenResponse = (user, statusCode, res) => {
   };
 
   // Set CSRF double-submit cookie (non-httpOnly so JS can read it)
-  setCsrfCookie(user._id.toString(), res);
+  setCsrfCookie(user._id.toString(), res, req);
 
   res
     .status(statusCode)
@@ -121,7 +121,7 @@ const login = async (req, res) => {
     }
 
     logger.info(`User login: ${user.email} (${user.role})`);
-    sendTokenResponse(user, 200, res);
+    sendTokenResponse(user, 200, req, res);
   } catch (error) {
     logger.error('login error:', { stack: error.stack });
     res.status(500).json({ success: false, message: 'Login failed. Please try again.' });
@@ -305,7 +305,7 @@ const googleLogin = async (req, res) => {
       logger.info(`Google User logged in: ${email} (${user.role})`);
     }
 
-    sendTokenResponse(user, 200, res);
+    sendTokenResponse(user, 200, req, res);
   } catch (error) {
     logger.error('googleLogin error:', { stack: error.stack });
     res.status(500).json({ success: false, message: 'Google authentication failed' });

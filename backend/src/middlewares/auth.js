@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const logger = require('../utils/logger');
+const { setCsrfCookie } = require('./csrf');
 
 const protect = async (req, res, next) => {
   try {
@@ -40,6 +41,12 @@ const protect = async (req, res, next) => {
     }
 
     req.user = user;
+
+    // Refresh/Set CSRF cookie for cookie-based sessions to prevent cookie expiration/loss issues
+    if (req.cookies && req.cookies.token && req.cookies.token !== 'none') {
+      setCsrfCookie(user._id.toString(), res, req);
+    }
+
     next();
   } catch (error) {
     logger.warn('Auth token validation failed:', { message: error.message });

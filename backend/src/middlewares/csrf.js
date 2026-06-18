@@ -85,16 +85,35 @@ const csrfProtection = (req, res, next) => {
  * Call this from sendTokenResponse in authController.
  * @param {string} userId
  * @param {object} res - Express response
+ * @param {object} [req] - Express request (optional, used to auto-detect domain scoping)
  */
-const setCsrfCookie = (userId, res) => {
+const setCsrfCookie = (userId, res, req = null) => {
   const token = generateCsrfToken(userId);
-  res.cookie('csrf_token', token, {
+  const cookieOptions = {
     // NOT httpOnly — JS must be able to read this to put it in the header
     httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  });
+  };
+
+  // Resolve cookie domain scoping for subdomain sharing in production/staging environments
+  if (process.env.COOKIE_DOMAIN) {
+    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  } else if (req && req.hostname) {
+    const hostname = req.hostname;
+    const isLocalhost =
+      hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('::1');
+    const isIpAddress = /^[0-9.]+$/.test(hostname);
+    if (!isLocalhost && !isIpAddress) {
+      const parts = hostname.split('.');
+      if (parts.length >= 2) {
+        cookieOptions.domain = `.${parts.slice(-2).join('.')}`;
+      }
+    }
+  }
+
+  res.cookie('csrf_token', token, cookieOptions);
   return token;
 };
 
