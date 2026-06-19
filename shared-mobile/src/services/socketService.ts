@@ -3,7 +3,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 declare const __DEV__: boolean;
 
-const SOCKET_URL = 'https://api.tiffo.in';
+import Constants from 'expo-constants';
+
+const getSocketUrl = () => {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  const debuggerHost = Constants.expoConfig?.hostUri;
+  if (debuggerHost) {
+    const ip = debuggerHost.split(':')[0];
+    return `http://${ip}:5005`;
+  }
+
+  return 'https://api.tiffo.in';
+};
+
+const SOCKET_URL = getSocketUrl();
 
 let socket: Socket | null = null;
 

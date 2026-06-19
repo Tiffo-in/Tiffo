@@ -1,8 +1,24 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// In development, this is your Mac's IP when testing on a physical device.
-const API_URL = 'https://api.tiffo.in/api'; 
+import Constants from 'expo-constants';
+
+// In development, automatically point to the host machine's IP running Metro
+const getBaseUrl = () => {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  
+  const debuggerHost = Constants.expoConfig?.hostUri;
+  if (debuggerHost) {
+    const ip = debuggerHost.split(':')[0];
+    return `http://${ip}:5005`;
+  }
+  
+  return 'https://api.tiffo.in';
+};
+
+const API_URL = `${getBaseUrl()}/api`; 
 
 export const createApi = (tokenKey: string, userKey: string) => {
   const api = axios.create({
