@@ -99,14 +99,16 @@ exports.getReviewsByTiffin = async (req, res) => {
     const { tiffinId } = req.params;
     const { page = 1, limit = 10, sort = '-createdAt' } = req.query;
 
-    const reviews = await Review.find({ tiffin: tiffinId })
-      .populate('user', 'name email')
-      .sort(sort)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .exec();
-
-    const count = await Review.countDocuments({ tiffin: tiffinId });
+    // ⚡ Bolt: Execute paginated find and count queries concurrently
+    const [reviews, count] = await Promise.all([
+      Review.find({ tiffin: tiffinId })
+        .populate('user', 'name email')
+        .sort(sort)
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec(),
+      Review.countDocuments({ tiffin: tiffinId }),
+    ]);
 
     res.json({
       success: true,
@@ -135,15 +137,17 @@ exports.getReviewsByPartner = async (req, res) => {
       query.tiffin = tiffinId;
     }
 
-    const reviews = await Review.find(query)
-      .populate('user', 'name email')
-      .populate('tiffin', 'name')
-      .sort(sort)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .exec();
-
-    const count = await Review.countDocuments(query);
+    // ⚡ Bolt: Execute paginated find and count queries concurrently
+    const [reviews, count] = await Promise.all([
+      Review.find(query)
+        .populate('user', 'name email')
+        .populate('tiffin', 'name')
+        .sort(sort)
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec(),
+      Review.countDocuments(query),
+    ]);
 
     res.json({
       success: true,
@@ -365,15 +369,17 @@ exports.getMyReviews = async (req, res) => {
     const userId = req.user.id;
     const { page = 1, limit = 10 } = req.query;
 
-    const reviews = await Review.find({ user: userId })
-      .populate('tiffin', 'name price')
-      .populate('partner', 'businessName')
-      .sort('-createdAt')
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .exec();
-
-    const count = await Review.countDocuments({ user: userId });
+    // ⚡ Bolt: Execute paginated find and count queries concurrently
+    const [reviews, count] = await Promise.all([
+      Review.find({ user: userId })
+        .populate('tiffin', 'name price')
+        .populate('partner', 'businessName')
+        .sort('-createdAt')
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec(),
+      Review.countDocuments({ user: userId }),
+    ]);
 
     res.json({
       success: true,

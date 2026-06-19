@@ -84,14 +84,16 @@ exports.getPartnerDeliveries = async (req, res) => {
       query.deliveryDate = { $gte: startDate, $lte: endDate };
     }
 
-    const deliveries = await Delivery.find(query)
-      .populate('user', 'name phone address')
-      .populate('subscription', 'plan')
-      .sort({ deliveryDate: -1, createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
-
-    const total = await Delivery.countDocuments(query);
+    // ⚡ Bolt: Execute paginated find and count queries concurrently
+    const [deliveries, total] = await Promise.all([
+      Delivery.find(query)
+        .populate('user', 'name phone address')
+        .populate('subscription', 'plan')
+        .sort({ deliveryDate: -1, createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      Delivery.countDocuments(query),
+    ]);
 
     res.json({
       success: true,
