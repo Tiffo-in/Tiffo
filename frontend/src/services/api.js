@@ -30,7 +30,13 @@ api.interceptors.request.use(
     if (!safeMethods.includes(config.method?.toLowerCase())) {
       const csrfToken = getCsrfToken();
       if (csrfToken) {
-        config.headers['X-CSRF-Token'] = csrfToken;
+        // Support both old Axios (plain object) and new Axios (AxiosHeaders class)
+        if (config.headers && typeof config.headers.set === 'function') {
+          config.headers.set('X-CSRF-Token', csrfToken);
+        } else {
+          if (!config.headers) config.headers = {};
+          config.headers['X-CSRF-Token'] = csrfToken;
+        }
       }
     }
     return config;

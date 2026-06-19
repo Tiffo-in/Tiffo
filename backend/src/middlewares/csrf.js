@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 /**
  * Stateless CSRF protection using HMAC double-submit cookie pattern.
@@ -60,6 +61,12 @@ const csrfProtection = (req, res, next) => {
   const cookieToken = req.cookies?.csrf_token;
 
   if (!headerToken || !cookieToken) {
+    logger.warn('CSRF validation failed: token missing', {
+      path: reqPath,
+      method: req.method,
+      hasHeader: !!headerToken,
+      hasCookie: !!cookieToken,
+    });
     return res.status(403).json({
       success: false,
       message: 'CSRF token missing',
@@ -71,6 +78,10 @@ const csrfProtection = (req, res, next) => {
   const cookieBuf = Buffer.from(cookieToken, 'hex');
 
   if (headerBuf.length !== cookieBuf.length || !crypto.timingSafeEqual(headerBuf, cookieBuf)) {
+    logger.warn('CSRF validation failed: token mismatch/invalid', {
+      path: reqPath,
+      method: req.method,
+    });
     return res.status(403).json({
       success: false,
       message: 'Invalid CSRF token',
