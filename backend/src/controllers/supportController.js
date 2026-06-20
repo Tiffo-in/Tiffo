@@ -44,11 +44,11 @@ exports.getSupportRequests = async (req, res, next) => {
       query.status = req.query.status;
     }
 
-    const total = await SupportRequest.countDocuments(query);
-    const requests = await SupportRequest.find(query)
-      .sort({ createdAt: -1 })
-      .skip(startIndex)
-      .limit(limit);
+    // ⚡ Bolt: Execute paginated find and count queries concurrently
+    const [total, requests] = await Promise.all([
+      SupportRequest.countDocuments(query),
+      SupportRequest.find(query).sort({ createdAt: -1 }).skip(startIndex).limit(limit),
+    ]);
 
     res.status(200).json({
       success: true,

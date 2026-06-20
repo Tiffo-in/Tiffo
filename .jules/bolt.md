@@ -18,3 +18,6 @@
 ## 2026-06-16 - Promise.all and MongoDB Aggregation in Dashboard Stats
 **Learning:** Sequential `await` database queries in dashboard statistics endpoints (like `getPartnerStats`) create a waterfall effect blocking the event loop. Furthermore, fetching full document arrays just to `reduce` them in Node.js consumes excessive memory and CPU.
 **Action:** Replace sequential queries with concurrent execution using `Promise.all`. Offload calculations (sums, averages) to MongoDB using `.aggregate()` rather than fetching documents and using `.reduce()` in Node.js.
+## 2024-05-24 - Parallel Database Queries for Pagination
+**Learning:** Sequential execution of `.find()` and `.countDocuments()` is a common but unnecessary performance bottleneck in paginated APIs. These operations are independent and can be executed simultaneously.
+**Action:** Always wrap independent Mongoose queries in `Promise.all` to execute them concurrently, reducing total query latency.
