@@ -80,12 +80,17 @@ const getTiffins = async (req, res) => {
       total = tiffins.length;
       paginatedTiffins = tiffins.slice(startIndex, startIndex + Number(limit));
     } else {
-      total = await Tiffin.countDocuments(query);
-      paginatedTiffins = await Tiffin.find(query)
-        .sort({ 'rating.average': -1 })
-        .skip(startIndex)
-        .limit(Number(limit))
-        .populate('partner', 'businessName rating address deliveryRadius location');
+      // ⚡ Bolt: Execute paginated find and count queries concurrently
+      const [count, results] = await Promise.all([
+        Tiffin.countDocuments(query),
+        Tiffin.find(query)
+          .sort({ 'rating.average': -1 })
+          .skip(startIndex)
+          .limit(Number(limit))
+          .populate('partner', 'businessName rating address deliveryRadius location'),
+      ]);
+      total = count;
+      paginatedTiffins = results;
     }
 
     res.json({
