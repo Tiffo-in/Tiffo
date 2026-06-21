@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -13,19 +15,25 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { MenuStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
 
 interface Tiffin {
   _id: string;
-  name: string;
-  description?: string;
-  price: number;
-  category: string;
-  isVeg?: boolean;
+  title: string;
+  description: string;
+  price: {
+    daily: number;
+    weekly?: number;
+    monthly?: number;
+  };
+  mealType: string;
+  dietary?: string[];
   isActive: boolean;
 }
 
 const MenuScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<MenuStackParams>>();
   const [tiffins, setTiffins] = useState<Tiffin[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -33,7 +41,7 @@ const MenuScreen = () => {
 
   const fetchMenu = async () => {
     try {
-      const res = await api.get('/partner/tiffins');
+      const res = await api.get('/tiffins/mine');
       setTiffins(res.data?.data || []);
     } catch {
       setTiffins([]);
@@ -45,12 +53,16 @@ const MenuScreen = () => {
 
   useEffect(() => {
     fetchMenu();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchMenu();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const toggleActive = async (tiffinId: string, currentValue: boolean) => {
     setToggling(tiffinId);
     try {
-      await api.patch(`/tiffins/${tiffinId}`, { isActive: !currentValue });
+      await api.put(`/tiffins/${tiffinId}`, { isActive: !currentValue });
       setTiffins((prev) =>
         prev.map((t) => (t._id === tiffinId ? { ...t, isActive: !currentValue } : t)),
       );
@@ -61,68 +73,79 @@ const MenuScreen = () => {
     }
   };
 
-  const renderItem = ({ item }: { item: Tiffin }) => (
-    <View style={[styles.card, !item.isActive && styles.cardInactive]}>
-      <View style={styles.cardLeft}>
-        <View style={styles.iconArea}>
-          <View
-            style={{
-              width: 18,
-              height: 18,
-              borderWidth: 1.5,
-              borderColor: item.isVeg ? '#10B981' : '#EF4444',
-              borderRadius: 3,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
+  const renderItem = ({ item }: { item: Tiffin }) => {
+    const isVegetarian = item.dietary?.includes('vegetarian') || item.dietary?.includes('vegan');
+    return (
+      <View style={[styles.card, !item.isActive && styles.cardInactive]}>
+        <View style={styles.cardLeft}>
+          <View style={styles.iconArea}>
             <View
               style={{
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: item.isVeg ? '#10B981' : '#EF4444',
+                width: 18,
+                height: 18,
+                borderWidth: 1.5,
+                borderColor: isVegetarian ? '#10B981' : '#EF4444',
+                borderRadius: 3,
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
-            />
+            >
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: isVegetarian ? '#10B981' : '#EF4444',
+                }}
+              />
+            </View>
+          </View>
+          <View style={styles.cardInfo}>
+            <Text
+              style={[styles.cardName, !item.isActive && styles.cardNameInactive]}
+              numberOfLines={1}
+            >
+              {item.title}
+            </Text>
+            <Text style={styles.cardCategory}>{item.mealType.toUpperCase()}</Text>
+            <Text style={styles.cardPrice}>₹{item.price?.daily}/day</Text>
           </View>
         </View>
-        <View style={styles.cardInfo}>
-          <Text
-            style={[styles.cardName, !item.isActive && styles.cardNameInactive]}
-            numberOfLines={1}
-          >
-            {item.name}
+
+        <View style={styles.cardRight}>
+          {toggling === item._id ? (
+            <ActivityIndicator color="#F59E0B" size="small" />
+          ) : (
+            <Switch
+              value={item.isActive}
+              onValueChange={() => toggleActive(item._id, item.isActive)}
+              trackColor={{ false: '#334155', true: '#065F46' }}
+              thumbColor={item.isActive ? '#10B981' : '#94A3B8'}
+            />
+          )}
+          <Text style={[styles.toggleLabel, { color: item.isActive ? '#10B981' : '#64748B' }]}>
+            {item.isActive ? 'Active' : 'Paused'}
           </Text>
-          <Text style={styles.cardCategory}>{item.category}</Text>
-          <Text style={styles.cardPrice}>₹{item.price}/day</Text>
         </View>
       </View>
-
-      <View style={styles.cardRight}>
-        {toggling === item._id ? (
-          <ActivityIndicator color="#F59E0B" size="small" />
-        ) : (
-          <Switch
-            value={item.isActive}
-            onValueChange={() => toggleActive(item._id, item.isActive)}
-            trackColor={{ false: '#334155', true: '#065F46' }}
-            thumbColor={item.isActive ? '#10B981' : '#94A3B8'}
-          />
-        )}
-        <Text style={[styles.toggleLabel, { color: item.isActive ? '#10B981' : '#64748B' }]}>
-          {item.isActive ? 'Active' : 'Paused'}
-        </Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.pageHeader}>
-        <Text style={styles.pageTitle}>My Menu</Text>
-        <Text style={styles.pageSubtitle}>
-          {tiffins.filter((t) => t.isActive).length} of {tiffins.length} items active
-        </Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.pageTitle}>My Menu</Text>
+          <Text style={styles.pageSubtitle}>
+            {tiffins.filter((t) => t.isActive).length} of {tiffins.length} items active
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('CreateTiffin')}
+        >
+          <Ionicons name="add-circle" size={32} color="#F59E0B" />
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -152,7 +175,9 @@ const MenuScreen = () => {
                 style={{ marginBottom: 16 }}
               />
               <Text style={styles.emptyTitle}>No tiffins found</Text>
-              <Text style={styles.emptyText}>Add tiffin plans from the Tiffo web dashboard.</Text>
+              <Text style={styles.emptyText}>
+                Add a new tiffin plan to start serving customers.
+              </Text>
             </View>
           }
         />
@@ -163,7 +188,17 @@ const MenuScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#0F172A' },
-  pageHeader: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
+  pageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  addButton: {
+    padding: 4,
+  },
   pageTitle: { fontSize: 22, fontWeight: '800', color: '#F8FAFC' },
   pageSubtitle: { fontSize: 13, color: '#64748B', marginTop: 2 },
   card: {

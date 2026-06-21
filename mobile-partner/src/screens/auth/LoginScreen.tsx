@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { AuthStackParams } from '../../navigation/RootNavigator';
@@ -44,73 +45,76 @@ const LoginScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Header */}
-        <View style={styles.header}>
-          <Image
-            source={require('../../../assets/logo.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-          <Text style={styles.appName}>Tiffo Partner</Text>
-          <Text style={styles.tagline}>Kitchen Partner Dashboard</Text>
-        </View>
-
-        {/* Form */}
-        <View style={styles.formCard}>
-          <Text style={styles.formTitle}>Partner Sign In</Text>
-          <Text style={styles.formSubtitle}>Access your kitchen dashboard</Text>
-
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="partner@example.com"
-            placeholderTextColor="#64748B"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Your password"
-            placeholderTextColor="#64748B"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-
-          <TouchableOpacity
-            style={[styles.loginBtn, loading && styles.loginBtnDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.loginBtnText}>Sign In to Dashboard</Text>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.noteBox}>
-            <Text style={styles.noteText}>
-              This app is exclusively for registered Tiffo kitchen partners. To join as a partner,
-              visit our website.
-            </Text>
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          {/* Header */}
+          <View style={styles.header}>
+            <Image
+              source={require('../../../assets/logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.appName}>Tiffo Partner</Text>
+            <Text style={styles.tagline}>Kitchen Partner Dashboard</Text>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+          {/* Form */}
+          <View style={styles.formCard}>
+            <Text style={styles.formTitle}>Partner Sign In</Text>
+            <Text style={styles.formSubtitle}>Access your kitchen dashboard</Text>
+
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="partner@example.com"
+              placeholderTextColor="#64748B"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
+
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Your password"
+              placeholderTextColor="#64748B"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+
+            <TouchableOpacity
+              style={[styles.loginBtn, loading && styles.loginBtnDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.loginBtnText}>Sign In to Dashboard</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.signUpLink}
+              onPress={() => navigation.navigate('Register')}
+            >
+              <Text style={styles.signUpLinkLabel}>Don't have an account? Register Here</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: '#0F172A' },
   flex: { flex: 1, backgroundColor: '#0F172A' },
   container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   header: { alignItems: 'center', marginBottom: 36 },
@@ -150,15 +154,16 @@ const styles = StyleSheet.create({
   },
   loginBtnDisabled: { backgroundColor: '#92400E' },
   loginBtnText: { color: '#0F172A', fontSize: 16, fontWeight: '700' },
-  noteBox: {
-    backgroundColor: '#0F172A',
-    borderRadius: 10,
-    padding: 12,
+  signUpLink: {
     marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#1E3A5F',
+    alignItems: 'center',
+    paddingVertical: 4,
   },
-  noteText: { fontSize: 12, color: '#64748B', textAlign: 'center', lineHeight: 18 },
+  signUpLinkLabel: {
+    color: '#F59E0B',
+    fontSize: 14,
+    fontWeight: '700',
+  },
 });
 
 export default LoginScreen;

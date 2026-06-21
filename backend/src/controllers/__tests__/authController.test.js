@@ -10,6 +10,7 @@ jest.mock('../../utils/logger', () => ({
 // Mock the CSRF helper so auth tests don't need JWT_SECRET set
 jest.mock('../../middlewares/csrf', () => ({
   setCsrfCookie: jest.fn(),
+  getCookieDomain: jest.fn().mockReturnValue(undefined),
 }));
 // Mock the email service helper
 jest.mock('../../services/emailService', () => ({

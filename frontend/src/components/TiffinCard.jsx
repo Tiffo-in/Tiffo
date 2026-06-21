@@ -17,32 +17,28 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
 
   // Compute discount info
   const discount = tiffin.discount;
-  const discountActive = discount?.isActive &&
-    (!discount.expiresAt || new Date() < new Date(discount.expiresAt));
-  const maxDiscount = discountActive
-    ? Math.max(discount.weekly || 0, discount.monthly || 0)
-    : 0;
+  const discountActive =
+    discount?.isActive && (!discount.expiresAt || new Date() < new Date(discount.expiresAt));
+  const maxDiscount = discountActive ? Math.max(discount.weekly || 0, discount.monthly || 0) : 0;
 
   // Use effectivePrice if present (set by backend virtual), else fallback
   const dailyPrice = tiffin.price?.daily || 0;
 
   return (
-    <Link to={`/tiffins/${tiffin._id}`}>
+    <Link to={`/tiffins/${tiffin.slug || tiffin._id}`}>
       <motion.div
         whileHover={{ y: -8 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         className="bg-white dark:bg-neutral-800 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-neutral-100 dark:border-neutral-700"
       >
         {/* Image Container */}
         <div className="relative overflow-hidden h-56">
           {/* Shimmer Loading Effect */}
-          {!imageLoaded && (
-            <div className="absolute inset-0 skeleton" />
-          )}
+          {!imageLoaded && <div className="absolute inset-0 skeleton" />}
 
           <motion.img
             whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
             src={tiffin.images?.[0] || randomImage}
             alt={tiffin.title}
             onLoad={() => setImageLoaded(true)}
@@ -56,10 +52,16 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
           <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
             {/* Veg/Non-veg Indicator */}
             <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-md flex items-center space-x-1.5">
-              <div className={`w-4 h-4 border-2 ${tiffin.dietary?.includes('Vegetarian') ? 'border-green-600' : 'border-red-600'} rounded-sm flex items-center justify-center`}>
-                <div className={`w-2 h-2 rounded-full ${tiffin.dietary?.includes('Vegetarian') ? 'bg-green-600' : 'bg-red-600'}`}></div>
+              <div
+                className={`w-4 h-4 border-2 ${tiffin.dietary?.includes('Vegetarian') ? 'border-green-600' : 'border-red-600'} rounded-sm flex items-center justify-center`}
+              >
+                <div
+                  className={`w-2 h-2 rounded-full ${tiffin.dietary?.includes('Vegetarian') ? 'bg-green-600' : 'bg-red-600'}`}
+                ></div>
               </div>
-              <span className={`text-xs font-medium ${tiffin.dietary?.includes('Vegetarian') ? 'text-green-700' : 'text-red-700'}`}>
+              <span
+                className={`text-xs font-medium ${tiffin.dietary?.includes('Vegetarian') ? 'text-green-700' : 'text-red-700'}`}
+              >
                 {tiffin.dietary?.includes('Vegetarian') ? 'Veg' : 'Non-Veg'}
               </span>
             </div>
@@ -93,16 +95,12 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
             whileHover={{ scale: 1.1 }}
           >
             <StarIcon className="h-3.5 w-3.5" />
-            <span className="text-sm font-bold">
-              {tiffin.rating?.average?.toFixed(1) || '4.0'}
-            </span>
+            <span className="text-sm font-bold">{tiffin.rating?.average?.toFixed(1) || '4.0'}</span>
           </motion.div>
 
           {/* Price Tag */}
           <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-neutral-800/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-lg">
-            <span className="text-lg font-bold text-neutral-900">
-              ₹{dailyPrice}
-            </span>
+            <span className="text-lg font-bold text-neutral-900">₹{dailyPrice}</span>
             <span className="text-neutral-500 text-xs ml-1">/day</span>
           </div>
         </div>
@@ -143,7 +141,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
               <motion.span
                 className="inline-block ml-1"
                 animate={{ x: [0, 3, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
               >
                 →
               </motion.span>

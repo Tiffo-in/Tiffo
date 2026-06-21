@@ -6,16 +6,6 @@ declare const __DEV__: boolean;
 import Constants from 'expo-constants';
 
 const getSocketUrl = () => {
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
-  }
-
-  const debuggerHost = Constants.expoConfig?.hostUri;
-  if (debuggerHost) {
-    const ip = debuggerHost.split(':')[0];
-    return `http://${ip}:5005`;
-  }
-
   return 'https://api.tiffo.in';
 };
 

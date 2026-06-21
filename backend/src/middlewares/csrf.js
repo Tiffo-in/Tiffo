@@ -26,6 +26,30 @@ const generateCsrfToken = (userId) => {
 };
 
 /**
+ * Resolve cookie domain scoping for subdomain sharing in production/staging environments.
+ * @param {object} req - Express request
+ * @returns {string|undefined} Resolved domain
+ */
+const getCookieDomain = (req) => {
+  if (process.env.COOKIE_DOMAIN) {
+    return process.env.COOKIE_DOMAIN;
+  }
+  if (req && req.hostname) {
+    const hostname = req.hostname;
+    const isLocalhost =
+      hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('::1');
+    const isIpAddress = /^[0-9.]+$/.test(hostname);
+    if (!isLocalhost && !isIpAddress) {
+      const parts = hostname.split('.');
+      if (parts.length >= 2) {
+        return `.${parts.slice(-2).join('.')}`;
+      }
+    }
+  }
+  return undefined;
+};
+
+/**
  * Express middleware — validates the CSRF double-submit cookie.
  * Skip safe methods (GET, HEAD, OPTIONS).
  * Reads expected token from the signed cookie 'csrf_token',
@@ -38,7 +62,12 @@ const csrfProtection = (req, res, next) => {
   }
 
   // Exempt auth creation routes since there is no session to protect yet
-  const exemptRoutes = ['/api/auth/login', '/api/auth/register', '/api/auth/register/partner'];
+  const exemptRoutes = [
+    '/api/auth/login',
+    '/api/auth/register',
+    '/api/auth/register/partner',
+    '/api/auth/google',
+  ];
   // Handle paths with or without trailing slashes/query params by checking baseUrl + path
   const reqPath = req.baseUrl ? req.baseUrl + req.path : req.path;
   if (exemptRoutes.includes(reqPath)) {
@@ -47,7 +76,7 @@ const csrfProtection = (req, res, next) => {
 
   // If the request uses a Bearer token (mobile apps), it is immune to CSRF.
   // Browsers don't automatically attach Authorization headers to cross-site requests.
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+  if (req.headers.authorization && req.headers.authorization.toLowerCase().startsWith('bearer')) {
     return next();
   }
 
@@ -108,24 +137,13 @@ const setCsrfCookie = (userId, res, req = null) => {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   };
 
-  // Resolve cookie domain scoping for subdomain sharing in production/staging environments
-  if (process.env.COOKIE_DOMAIN) {
-    cookieOptions.domain = process.env.COOKIE_DOMAIN;
-  } else if (req && req.hostname) {
-    const hostname = req.hostname;
-    const isLocalhost =
-      hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('::1');
-    const isIpAddress = /^[0-9.]+$/.test(hostname);
-    if (!isLocalhost && !isIpAddress) {
-      const parts = hostname.split('.');
-      if (parts.length >= 2) {
-        cookieOptions.domain = `.${parts.slice(-2).join('.')}`;
-      }
-    }
+  const domain = getCookieDomain(req);
+  if (domain) {
+    cookieOptions.domain = domain;
   }
 
   res.cookie('csrf_token', token, cookieOptions);
   return token;
 };
 
-module.exports = { csrfProtection, generateCsrfToken, setCsrfCookie };
+module.exports = { csrfProtection, generateCsrfToken, setCsrfCookie, getCookieDomain };

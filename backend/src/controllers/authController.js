@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
-const { setCsrfCookie } = require('../middlewares/csrf');
+const { setCsrfCookie, getCookieDomain } = require('../middlewares/csrf');
 const { sendVerificationEmail } = require('../services/emailService');
 
 const generateToken = (id) => {
@@ -21,6 +21,11 @@ const sendTokenResponse = (user, statusCode, req, res) => {
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   };
+
+  const domain = getCookieDomain(req);
+  if (domain) {
+    options.domain = domain;
+  }
 
   // Set CSRF double-submit cookie (non-httpOnly so JS can read it)
   setCsrfCookie(user._id.toString(), res, req);
@@ -313,18 +318,24 @@ const googleLogin = async (req, res) => {
 };
 
 const logout = (req, res) => {
+  const cookieOptions = {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
+  const domain = getCookieDomain(req);
+  if (domain) {
+    cookieOptions.domain = domain;
+  }
+
   // Clear both auth and CSRF cookies on logout
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    ...cookieOptions,
   });
 
-  res.clearCookie('csrf_token', {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  });
+  res.clearCookie('csrf_token', cookieOptions);
 
   res.status(200).json({
     success: true,

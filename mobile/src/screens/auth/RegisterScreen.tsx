@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -98,117 +99,121 @@ export default function RegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView style={S.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView
-        contentContainerStyle={S.scroll}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={S.topHeader}>
-          <TouchableOpacity style={S.backBtn} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={20} color={C.textPrimary} />
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView style={S.safe}>
+      <KeyboardAvoidingView style={S.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={S.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={S.topHeader}>
+            <TouchableOpacity style={S.backBtn} onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={20} color={C.textPrimary} />
+            </TouchableOpacity>
+          </View>
 
-        <View style={S.header}>
-          <Image
-            source={require('../../../assets/logo.png')}
-            style={S.logoImage}
-            resizeMode="contain"
-          />
-          <Text style={S.title}>Create your account</Text>
-          <Text style={S.subtitle}>Join thousands enjoying homemade meals daily</Text>
-        </View>
+          <View style={S.header}>
+            <Image
+              source={require('../../../assets/logo.png')}
+              style={S.logoImage}
+              resizeMode="contain"
+            />
+            <Text style={S.title}>Create your account</Text>
+            <Text style={S.subtitle}>Join thousands enjoying homemade meals daily</Text>
+          </View>
 
-        {/* Benefits strip */}
-        <View style={S.benefitsRow}>
-          {[
-            { label: 'Daily fresh', icon: 'restaurant-outline' as const },
-            { label: 'Free delivery', icon: 'bicycle-outline' as const },
-            { label: 'Pause anytime', icon: 'pause-circle-outline' as const },
-          ].map((b) => (
-            <View
-              key={b.label}
-              style={[
-                S.benefit,
-                { flexDirection: 'row', gap: 4, justifyContent: 'center', alignItems: 'center' },
-              ]}
-            >
-              <Ionicons name={b.icon} size={12} color={C.primary} />
-              <Text style={S.benefitTxt}>{b.label}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={S.form}>
-          {FIELDS.map((f) => (
-            <View key={f.key} style={S.fieldWrap}>
-              <Text style={S.label}>{f.label}</Text>
-              <View style={[S.inputWrap, focused === f.key && S.inputFocused]}>
-                <Ionicons
-                  name={f.icon}
-                  size={18}
-                  color={focused === f.key ? C.primary : C.textTertiary}
-                  style={S.inputIcon}
-                />
-                <TextInput
-                  style={S.input}
-                  placeholder={f.placeholder}
-                  placeholderTextColor={C.textTertiary}
-                  keyboardType={f.keyboard}
-                  autoCapitalize={f.caps}
-                  secureTextEntry={f.secure && !showPass}
-                  value={(values as any)[f.key]}
-                  onChangeText={(v: string) => set(f.key, v)}
-                  onFocus={() => setFocused(f.key)}
-                  onBlur={() => setFocused('')}
-                />
-                {f.secure && (
-                  <TouchableOpacity onPress={() => setShowPass(!showPass)}>
-                    <Ionicons
-                      name={showPass ? 'eye-off-outline' : 'eye-outline'}
-                      size={18}
-                      color={C.textTertiary}
-                    />
-                  </TouchableOpacity>
-                )}
+          {/* Benefits strip */}
+          <View style={S.benefitsRow}>
+            {[
+              { label: 'Daily fresh', icon: 'restaurant-outline' as const },
+              { label: 'Free delivery', icon: 'bicycle-outline' as const },
+              { label: 'Pause anytime', icon: 'pause-circle-outline' as const },
+            ].map((b) => (
+              <View
+                key={b.label}
+                style={[
+                  S.benefit,
+                  { flexDirection: 'row', gap: 4, justifyContent: 'center', alignItems: 'center' },
+                ]}
+              >
+                <Ionicons name={b.icon} size={12} color={C.primary} />
+                <Text style={S.benefitTxt}>{b.label}</Text>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
 
-          <TouchableOpacity
-            style={[S.submitBtn, loading && S.submitDisabled]}
-            onPress={handleRegister}
-            disabled={loading}
-            activeOpacity={0.85}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={S.submitTxt}>Create Account</Text>
-            )}
-          </TouchableOpacity>
+          <View style={S.form}>
+            {FIELDS.map((f) => (
+              <View key={f.key} style={S.fieldWrap}>
+                <Text style={S.label}>{f.label}</Text>
+                <View style={[S.inputWrap, focused === f.key && S.inputFocused]}>
+                  <Ionicons
+                    name={f.icon}
+                    size={18}
+                    color={focused === f.key ? C.primary : C.textTertiary}
+                    style={S.inputIcon}
+                  />
+                  <TextInput
+                    style={S.input}
+                    placeholder={f.placeholder}
+                    placeholderTextColor={C.textTertiary}
+                    keyboardType={f.keyboard}
+                    autoCapitalize={f.caps}
+                    secureTextEntry={f.secure && !showPass}
+                    value={(values as any)[f.key]}
+                    onChangeText={(v: string) => set(f.key, v)}
+                    onFocus={() => setFocused(f.key)}
+                    onBlur={() => setFocused('')}
+                  />
+                  {f.secure && (
+                    <TouchableOpacity onPress={() => setShowPass(!showPass)}>
+                      <Ionicons
+                        name={showPass ? 'eye-off-outline' : 'eye-outline'}
+                        size={18}
+                        color={C.textTertiary}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            ))}
 
-          <Text style={S.terms}>
-            By creating an account, you agree to our <Text style={{ color: C.primary }}>Terms</Text>{' '}
-            & <Text style={{ color: C.primary }}>Privacy Policy</Text>
-          </Text>
+            <TouchableOpacity
+              style={[S.submitBtn, loading && S.submitDisabled]}
+              onPress={handleRegister}
+              disabled={loading}
+              activeOpacity={0.85}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={S.submitTxt}>Create Account</Text>
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={S.switchRow}>
-            <Text style={S.switchTxt}>Already have an account? </Text>
-            <Text style={S.switchCta}>Sign in</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <Text style={S.terms}>
+              By creating an account, you agree to our{' '}
+              <Text style={{ color: C.primary }}>Terms</Text> &{' '}
+              <Text style={{ color: C.primary }}>Privacy Policy</Text>
+            </Text>
+
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={S.switchRow}>
+              <Text style={S.switchTxt}>Already have an account? </Text>
+              <Text style={S.switchCta}>Sign in</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const createStyles = (C: ColorScheme) =>
   StyleSheet.create({
-    flex: { flex: 1, backgroundColor: C.background },
+    safe: { flex: 1, backgroundColor: C.background },
+    flex: { flex: 1 },
     scroll: { flexGrow: 1, paddingBottom: 40 },
-    topHeader: { paddingHorizontal: 16, paddingTop: 52, paddingBottom: 8 },
+    topHeader: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 },
     backBtn: {
       width: 40,
       height: 40,

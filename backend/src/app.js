@@ -53,6 +53,7 @@ const sitemapRoutes = require('./routes/sitemap');
 const { swaggerUi, specs } = require('./config/swagger');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Create HTTP server for Socket.io
 const server = http.createServer(app);

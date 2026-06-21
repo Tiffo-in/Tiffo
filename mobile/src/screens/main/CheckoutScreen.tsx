@@ -14,6 +14,7 @@ import {
   Platform,
 } from 'react-native';
 import RazorpayCheckout from 'react-native-razorpay';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAlert } from '../../contexts/AlertContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
@@ -113,190 +114,194 @@ export default function CheckoutScreen({ route, navigation }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: C.background }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={{ flex: 1, backgroundColor: C.background }} edges={['bottom']}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Address */}
-        <View style={S.card}>
-          <View style={S.cardTitleRow}>
-            <View style={S.cardIconWrap}>
-              <Ionicons name="location-outline" size={18} color={C.primary} />
+        <ScrollView
+          contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Address */}
+          <View style={S.card}>
+            <View style={S.cardTitleRow}>
+              <View style={S.cardIconWrap}>
+                <Ionicons name="location-outline" size={18} color={C.primary} />
+              </View>
+              <Text style={S.cardTitle}>Delivery Address</Text>
             </View>
-            <Text style={S.cardTitle}>Delivery Address</Text>
+            <TextInput
+              style={[S.input, S.textArea]}
+              placeholder="House/Flat No, Street, Landmark, City, Pincode"
+              placeholderTextColor={C.textTertiary}
+              multiline
+              numberOfLines={3}
+              value={address}
+              onChangeText={setAddress}
+              textAlignVertical="top"
+            />
           </View>
-          <TextInput
-            style={[S.input, S.textArea]}
-            placeholder="House/Flat No, Street, Landmark, City, Pincode"
-            placeholderTextColor={C.textTertiary}
-            multiline
-            numberOfLines={3}
-            value={address}
-            onChangeText={setAddress}
-            textAlignVertical="top"
-          />
-        </View>
 
-        {/* Delivery Time */}
-        <View style={S.card}>
-          <View style={S.cardTitleRow}>
-            <View style={S.cardIconWrap}>
-              <Ionicons name="time-outline" size={18} color={C.primary} />
+          {/* Delivery Time */}
+          <View style={S.card}>
+            <View style={S.cardTitleRow}>
+              <View style={S.cardIconWrap}>
+                <Ionicons name="time-outline" size={18} color={C.primary} />
+              </View>
+              <Text style={S.cardTitle}>Preferred Delivery Time</Text>
             </View>
-            <Text style={S.cardTitle}>Preferred Delivery Time</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {TIMES.map((t) => (
+                <TouchableOpacity
+                  key={t}
+                  style={[S.timeSlot, time === t && S.timeSlotActive]}
+                  onPress={() => setTime(t)}
+                >
+                  <Text style={[S.timeText, time === t && S.timeTextActive]}>{t}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {TIMES.map((t) => (
-              <TouchableOpacity
-                key={t}
-                style={[S.timeSlot, time === t && S.timeSlotActive]}
-                onPress={() => setTime(t)}
-              >
-                <Text style={[S.timeText, time === t && S.timeTextActive]}>{t}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
 
-        {/* Instructions */}
-        <View style={S.card}>
-          <View style={S.cardTitleRow}>
-            <View style={S.cardIconWrap}>
-              <Ionicons name="chatbubble-outline" size={18} color={C.primary} />
-            </View>
-            <Text style={S.cardTitle}>
-              Special Instructions{' '}
-              <Text style={{ color: C.textTertiary, fontWeight: '400', fontSize: 12 }}>
-                (Optional)
+          {/* Instructions */}
+          <View style={S.card}>
+            <View style={S.cardTitleRow}>
+              <View style={S.cardIconWrap}>
+                <Ionicons name="chatbubble-outline" size={18} color={C.primary} />
+              </View>
+              <Text style={S.cardTitle}>
+                Special Instructions{' '}
+                <Text style={{ color: C.textTertiary, fontWeight: '400', fontSize: 12 }}>
+                  (Optional)
+                </Text>
               </Text>
+            </View>
+            <TextInput
+              style={S.input}
+              placeholder="E.g. Less spicy, no onion, leave at door..."
+              placeholderTextColor={C.textTertiary}
+              value={instructions}
+              onChangeText={setInstructions}
+            />
+          </View>
+
+          {/* Payment Method */}
+          <View style={S.card}>
+            <View style={S.cardTitleRow}>
+              <View style={S.cardIconWrap}>
+                <Ionicons name="wallet-outline" size={18} color={C.primary} />
+              </View>
+              <Text style={S.cardTitle}>Payment Method</Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {(['online', 'cod'] as const).map((m) => {
+                const isOnline = m === 'online';
+                return (
+                  <TouchableOpacity
+                    key={m}
+                    disabled={isOnline}
+                    style={[
+                      S.payOption,
+                      payMethod === m && S.payOptionActive,
+                      isOnline && { opacity: 0.5, borderColor: C.border },
+                    ]}
+                    onPress={() => setPayMethod(m)}
+                  >
+                    <Ionicons
+                      name={isOnline ? 'card-outline' : 'cash-outline'}
+                      size={22}
+                      color={
+                        isOnline ? C.textTertiary : payMethod === m ? C.primary : C.textSecondary
+                      }
+                    />
+                    <Text
+                      style={[
+                        S.payLabel,
+                        payMethod === m && S.payLabelActive,
+                        isOnline && { color: C.textTertiary },
+                      ]}
+                    >
+                      {isOnline ? 'Pay Online (Soon)' : 'Cash on Delivery'}
+                    </Text>
+                    <Text style={[S.payDesc, isOnline && { color: C.textTertiary }]}>
+                      {isOnline ? 'Coming Soon' : 'Pay when delivered'}
+                    </Text>
+                    {payMethod === m && !isOnline && (
+                      <View style={S.payCheck}>
+                        <Ionicons name="checkmark" size={10} color="#fff" />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Bill Summary */}
+          <View style={S.card}>
+            <View style={S.cardTitleRow}>
+              <View style={S.cardIconWrap}>
+                <Ionicons name="receipt-outline" size={18} color={C.primary} />
+              </View>
+              <Text style={S.cardTitle}>Bill Summary</Text>
+            </View>
+            {[
+              { label: `Item Total (${plan} plan)`, value: `₹${price}`, special: false },
+              { label: 'GST (5%)', value: `₹${gst}`, special: false },
+              { label: 'Delivery Fee', value: 'FREE', special: true },
+            ].map((r) => (
+              <View key={r.label} style={S.billRow}>
+                <Text style={S.billLabel}>{r.label}</Text>
+                <Text style={[S.billVal, r.special && { color: C.veg, fontWeight: '700' }]}>
+                  {r.value}
+                </Text>
+              </View>
+            ))}
+            <View style={S.divider} />
+            <View style={S.billRow}>
+              <Text style={S.totalLabel}>Total to Pay</Text>
+              <Text style={S.totalVal}>₹{total}</Text>
+            </View>
+          </View>
+
+          {/* Savings Banner */}
+          <View style={S.savingsBanner}>
+            <Ionicons name="pricetag-outline" size={16} color={C.veg} />
+            <Text style={S.savingsTxt}>
+              You save ₹{Math.round(price * 0.1)} with free delivery + no platform fee!
             </Text>
           </View>
-          <TextInput
-            style={S.input}
-            placeholder="E.g. Less spicy, no onion, leave at door..."
-            placeholderTextColor={C.textTertiary}
-            value={instructions}
-            onChangeText={setInstructions}
-          />
-        </View>
+        </ScrollView>
 
-        {/* Payment Method */}
-        <View style={S.card}>
-          <View style={S.cardTitleRow}>
-            <View style={S.cardIconWrap}>
-              <Ionicons name="wallet-outline" size={18} color={C.primary} />
-            </View>
-            <Text style={S.cardTitle}>Payment Method</Text>
+        {/* Sticky Footer */}
+        <View style={S.footer}>
+          <View>
+            <Text style={S.footerTotal}>₹{total}</Text>
+            <Text style={S.footerSub}>
+              {payMethod === 'online' ? 'Secure payment' : 'Pay on delivery'}
+            </Text>
           </View>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {(['online', 'cod'] as const).map((m) => {
-              const isOnline = m === 'online';
-              return (
-                <TouchableOpacity
-                  key={m}
-                  disabled={isOnline}
-                  style={[
-                    S.payOption,
-                    payMethod === m && S.payOptionActive,
-                    isOnline && { opacity: 0.5, borderColor: C.border },
-                  ]}
-                  onPress={() => setPayMethod(m)}
-                >
-                  <Ionicons
-                    name={isOnline ? 'card-outline' : 'cash-outline'}
-                    size={22}
-                    color={
-                      isOnline ? C.textTertiary : payMethod === m ? C.primary : C.textSecondary
-                    }
-                  />
-                  <Text
-                    style={[
-                      S.payLabel,
-                      payMethod === m && S.payLabelActive,
-                      isOnline && { color: C.textTertiary },
-                    ]}
-                  >
-                    {isOnline ? 'Pay Online (Soon)' : 'Cash on Delivery'}
-                  </Text>
-                  <Text style={[S.payDesc, isOnline && { color: C.textTertiary }]}>
-                    {isOnline ? 'Coming Soon' : 'Pay when delivered'}
-                  </Text>
-                  {payMethod === m && !isOnline && (
-                    <View style={S.payCheck}>
-                      <Ionicons name="checkmark" size={10} color="#fff" />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <TouchableOpacity
+            style={[S.confirmBtn, loading && S.confirmDisabled]}
+            onPress={handleConfirmOrder}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <>
+                <Text style={S.confirmTxt}>
+                  {payMethod === 'online' ? 'Pay Now' : 'Place Order'}
+                </Text>
+                <Ionicons name="arrow-forward" size={16} color="#fff" style={{ marginLeft: 6 }} />
+              </>
+            )}
+          </TouchableOpacity>
         </View>
-
-        {/* Bill Summary */}
-        <View style={S.card}>
-          <View style={S.cardTitleRow}>
-            <View style={S.cardIconWrap}>
-              <Ionicons name="receipt-outline" size={18} color={C.primary} />
-            </View>
-            <Text style={S.cardTitle}>Bill Summary</Text>
-          </View>
-          {[
-            { label: `Item Total (${plan} plan)`, value: `₹${price}`, special: false },
-            { label: 'GST (5%)', value: `₹${gst}`, special: false },
-            { label: 'Delivery Fee', value: 'FREE', special: true },
-          ].map((r) => (
-            <View key={r.label} style={S.billRow}>
-              <Text style={S.billLabel}>{r.label}</Text>
-              <Text style={[S.billVal, r.special && { color: C.veg, fontWeight: '700' }]}>
-                {r.value}
-              </Text>
-            </View>
-          ))}
-          <View style={S.divider} />
-          <View style={S.billRow}>
-            <Text style={S.totalLabel}>Total to Pay</Text>
-            <Text style={S.totalVal}>₹{total}</Text>
-          </View>
-        </View>
-
-        {/* Savings Banner */}
-        <View style={S.savingsBanner}>
-          <Ionicons name="pricetag-outline" size={16} color={C.veg} />
-          <Text style={S.savingsTxt}>
-            You save ₹{Math.round(price * 0.1)} with free delivery + no platform fee!
-          </Text>
-        </View>
-      </ScrollView>
-
-      {/* Sticky Footer */}
-      <View style={S.footer}>
-        <View>
-          <Text style={S.footerTotal}>₹{total}</Text>
-          <Text style={S.footerSub}>
-            {payMethod === 'online' ? 'Secure payment' : 'Pay on delivery'}
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={[S.confirmBtn, loading && S.confirmDisabled]}
-          onPress={handleConfirmOrder}
-          disabled={loading}
-          activeOpacity={0.85}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <>
-              <Text style={S.confirmTxt}>{payMethod === 'online' ? 'Pay Now' : 'Place Order'}</Text>
-              <Ionicons name="arrow-forward" size={16} color="#fff" style={{ marginLeft: 6 }} />
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -397,7 +402,7 @@ const createStyles = (C: ColorScheme) =>
       alignItems: 'center',
       backgroundColor: C.surfaceCard,
       padding: 16,
-      paddingBottom: 32,
+      paddingBottom: 16,
       borderTopWidth: 1,
       borderTopColor: C.border,
       shadowColor: '#000',

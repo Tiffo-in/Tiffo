@@ -7,7 +7,7 @@ exports.fetchUserSubscriptions = async (userId) => {
     user: userId,
     status: { $in: ['active', 'paused'] },
   })
-    .populate('tiffin', 'title price cuisine images')
+    .populate('tiffin', 'title price cuisine images slug')
     .populate('partner', 'businessName')
     .sort({ createdAt: -1 });
 
@@ -59,7 +59,7 @@ exports.fetchSubscriptionDetails = async (subscriptionId, userId) => {
     _id: subscriptionId,
     user: userId,
   })
-    .populate('tiffin', 'title price cuisine images description')
+    .populate('tiffin', 'title price cuisine images description slug')
     .populate('partner', 'businessName phone email');
 
   if (!subscription) {
@@ -95,7 +95,7 @@ exports.fetchOrderHistory = async (userId) => {
     user: userId,
     status: { $in: ['completed', 'cancelled'] },
   })
-    .populate('tiffin', 'title price cuisine images')
+    .populate('tiffin', 'title price cuisine images slug')
     .populate('partner', 'businessName')
     .sort({ endDate: -1 });
 

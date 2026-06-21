@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
@@ -40,6 +41,7 @@ const NUTRIENTS = [
 export default function TiffinDetailScreen({ route, navigation }: Props) {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
+  const insets = useSafeAreaInsets();
   const { tiffinId } = route.params;
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const { isAuthenticated } = useAuth();
@@ -148,7 +150,9 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: C.background }}>
       {/* Fading header */}
-      <Animated.View style={[S.headerOverlay, { opacity: headerOpacity }]}>
+      <Animated.View
+        style={[S.headerOverlay, { opacity: headerOpacity, paddingTop: insets.top + 12 }]}
+      >
         <Text style={S.headerTitle} numberOfLines={1}>
           {tiffin.name}
         </Text>
@@ -174,11 +178,19 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
             resizeMode="cover"
           />
           <View style={S.heroGradient} />
-          <TouchableOpacity style={S.backBtn} onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            style={[S.backBtn, { top: insets.top + 12 }]}
+            onPress={() => navigation.goBack()}
+          >
             <Ionicons name="arrow-back" size={20} color="#fff" />
           </TouchableOpacity>
           {tiffin.isVeg !== undefined && (
-            <View style={[S.vegChip, { borderColor: tiffin.isVeg ? C.veg : C.nonVeg }]}>
+            <View
+              style={[
+                S.vegChip,
+                { borderColor: tiffin.isVeg ? C.veg : C.nonVeg, top: insets.top + 12 },
+              ]}
+            >
               <View style={[S.vegDot, { backgroundColor: tiffin.isVeg ? C.veg : C.nonVeg }]} />
               <Text style={[S.vegText, { color: tiffin.isVeg ? C.veg : C.nonVeg }]}>
                 {tiffin.isVeg ? 'Pure Veg' : 'Non-Veg'}
@@ -290,7 +302,7 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
       </Animated.ScrollView>
 
       {/* CTA Bar */}
-      <View style={S.ctaBar}>
+      <View style={[S.ctaBar, { paddingBottom: insets.bottom > 0 ? insets.bottom + 12 : 16 }]}>
         <View>
           <Text style={S.ctaPrice}>₹{computedPrice.toLocaleString('en-IN')}</Text>
           <Text style={S.ctaPlan}>{selectedPlan} plan • Free delivery</Text>
@@ -315,7 +327,6 @@ const createStyles = (C: ColorScheme) =>
       right: 0,
       zIndex: 100,
       backgroundColor: C.background,
-      paddingTop: 52,
       paddingBottom: 12,
       paddingHorizontal: 16,
       borderBottomWidth: 1,
@@ -334,7 +345,6 @@ const createStyles = (C: ColorScheme) =>
     },
     backBtn: {
       position: 'absolute',
-      top: 52,
       left: 16,
       width: 36,
       height: 36,
@@ -345,7 +355,6 @@ const createStyles = (C: ColorScheme) =>
     },
     vegChip: {
       position: 'absolute',
-      top: 52,
       right: 16,
       flexDirection: 'row',
       alignItems: 'center',
@@ -468,7 +477,6 @@ const createStyles = (C: ColorScheme) =>
       backgroundColor: C.surfaceCard,
       paddingHorizontal: 20,
       paddingVertical: 16,
-      paddingBottom: 28,
       borderTopWidth: 1,
       borderTopColor: C.border,
       shadowColor: '#000',

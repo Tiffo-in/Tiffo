@@ -1,12 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../contexts/AuthContext';
+import { ProfileStackParams } from '../../navigation/RootNavigator';
 
 const PartnerProfileScreen = () => {
   const { user, logout } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParams>>();
 
   const handleLogout = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -16,12 +20,36 @@ const PartnerProfileScreen = () => {
   };
 
   const menuItems = [
-    { icon: 'storefront-outline' as const, label: 'Business Profile' },
-    { icon: 'card-outline' as const, label: 'Bank & Payment Details' },
-    { icon: 'document-text-outline' as const, label: 'Tax Documents (PAN/GST)' },
-    { icon: 'notifications-outline' as const, label: 'Notifications' },
-    { icon: 'help-circle-outline' as const, label: 'Help & Support' },
-    { icon: 'shield-checkmark-outline' as const, label: 'Partner Agreement' },
+    {
+      icon: 'storefront-outline' as const,
+      label: 'Business Profile',
+      routeName: 'BusinessProfile' as const,
+    },
+    {
+      icon: 'card-outline' as const,
+      label: 'Bank & Payment Details',
+      routeName: 'BankPaymentDetails' as const,
+    },
+    {
+      icon: 'document-text-outline' as const,
+      label: 'Tax Documents (PAN/GST)',
+      routeName: 'TaxDocuments' as const,
+    },
+    {
+      icon: 'notifications-outline' as const,
+      label: 'Notifications',
+      routeName: 'Notifications' as const,
+    },
+    {
+      icon: 'help-circle-outline' as const,
+      label: 'Help & Support',
+      routeName: 'HelpSupport' as const,
+    },
+    {
+      icon: 'shield-checkmark-outline' as const,
+      label: 'Partner Agreement',
+      routeName: 'PartnerAgreement' as const,
+    },
   ];
 
   return (
@@ -70,6 +98,7 @@ const PartnerProfileScreen = () => {
               key={item.label}
               style={[styles.menuRow, i < menuItems.length - 1 && styles.menuRowBorder]}
               activeOpacity={0.7}
+              onPress={() => navigation.navigate(item.routeName)}
             >
               <View style={styles.menuIconWrap}>
                 <Ionicons name={item.icon} size={18} color="#F59E0B" />

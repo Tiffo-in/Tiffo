@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tiffinSchema = new mongoose.Schema(
   {
@@ -96,6 +97,11 @@ const tiffinSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+      lowercase: true,
+    },
     // Menu items: list of dishes included in this tiffin
     menuItems: [
       {
@@ -157,5 +163,32 @@ tiffinSchema.virtual('effectivePrice').get(function () {
 
 tiffinSchema.set('toJSON', { virtuals: true });
 tiffinSchema.set('toObject', { virtuals: true });
+
+// Generate unique slug from title before saving
+tiffinSchema.pre('save', async function (next) {
+  if (this.isModified('title') || !this.slug) {
+    let generatedSlug = slugify(this.title, {
+      lower: true,
+      strict: true,
+      remove: /[*+~.()'"!:@]/g,
+    });
+
+    const Tiffin = mongoose.model('Tiffin');
+    let uniqueSlug = generatedSlug;
+    let count = 0;
+    let isUnique = false;
+    while (!isUnique) {
+      const existing = await Tiffin.findOne({ slug: uniqueSlug, _id: { $ne: this._id } });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        count++;
+        uniqueSlug = `${generatedSlug}-${count}`;
+      }
+    }
+    this.slug = uniqueSlug;
+  }
+  next();
+});
 
 module.exports = mongoose.model('Tiffin', tiffinSchema);

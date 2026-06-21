@@ -106,7 +106,7 @@ exports.getCustomerSubscription = async (req, res) => {
       status: 'active',
     })
       .populate('user', 'name email phone')
-      .populate('tiffin', 'title price description');
+      .populate('tiffin', 'title price description slug');
 
     if (!subscription) {
       return res.status(404).json({ success: false, message: 'Subscription not found' });
@@ -361,7 +361,7 @@ exports.getCustomerDetails = async (req, res) => {
       status: 'active',
     })
       .populate('user', 'name email phone')
-      .populate('tiffin', 'title price description');
+      .populate('tiffin', 'title price description slug');
 
     if (!subscription) {
       return res.status(404).json({ success: false, message: 'Customer not found' });

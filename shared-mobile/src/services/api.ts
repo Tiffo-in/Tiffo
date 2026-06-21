@@ -5,16 +5,6 @@ import Constants from 'expo-constants';
 
 // In development, automatically point to the host machine's IP running Metro
 const getBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
-  }
-  
-  const debuggerHost = Constants.expoConfig?.hostUri;
-  if (debuggerHost) {
-    const ip = debuggerHost.split(':')[0];
-    return `http://${ip}:5005`;
-  }
-  
   return 'https://api.tiffo.in';
 };
 
@@ -34,7 +24,12 @@ export const createApi = (tokenKey: string, userKey: string) => {
     async (config) => {
       const token = await AsyncStorage.getItem(tokenKey);
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        if (config.headers && typeof config.headers.set === 'function') {
+          config.headers.set('Authorization', `Bearer ${token}`);
+        } else {
+          if (!config.headers) config.headers = {} as any;
+          (config.headers as any)['Authorization'] = `Bearer ${token}`;
+        }
       }
       return config;
     },

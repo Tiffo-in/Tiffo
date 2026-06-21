@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Tiffin = require('../models/Tiffin');
 const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
@@ -114,10 +115,20 @@ const getTiffins = async (req, res) => {
 
 const getTiffin = async (req, res) => {
   try {
-    const tiffin = await Tiffin.findById(req.params.id).populate(
-      'partner',
-      'businessName rating address contact businessHours',
-    );
+    const { id } = req.params;
+    let tiffin;
+
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      tiffin = await Tiffin.findById(id).populate(
+        'partner',
+        'businessName rating address contact businessHours',
+      );
+    } else {
+      tiffin = await Tiffin.findOne({ slug: id }).populate(
+        'partner',
+        'businessName rating address contact businessHours',
+      );
+    }
 
     if (!tiffin) {
       return res.status(404).json({

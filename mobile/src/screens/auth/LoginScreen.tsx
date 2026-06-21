@@ -14,6 +14,7 @@ import {
   StatusBar,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -67,114 +68,119 @@ export default function LoginScreen({ navigation }: Props) {
   const logoOpacity = logoAnim;
 
   return (
-    <KeyboardAvoidingView style={S.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <StatusBar barStyle={C.background === '#111111' ? 'light-content' : 'dark-content'} />
+    <SafeAreaView style={S.safe}>
+      <KeyboardAvoidingView style={S.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <StatusBar barStyle={C.background === '#111111' ? 'light-content' : 'dark-content'} />
 
-      <Animated.View style={[S.brand, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
-        <Image
-          source={require('../../../assets/logo.png')}
-          style={S.logoImage}
-          resizeMode="contain"
-        />
-        <Text style={S.appName}>tiffo</Text>
-        <Text style={S.tagline}>Homemade meals, delivered daily</Text>
-      </Animated.View>
+        <Animated.View
+          style={[S.brand, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}
+        >
+          <Image
+            source={require('../../../assets/logo.png')}
+            style={S.logoImage}
+            resizeMode="contain"
+          />
+          <Text style={S.appName}>tiffo</Text>
+          <Text style={S.tagline}>Homemade meals, delivered daily</Text>
+        </Animated.View>
 
-      <View style={S.form}>
-        <Text style={S.formTitle}>Welcome back</Text>
-        <Text style={S.formSub}>Sign in to continue to your account</Text>
+        <View style={S.form}>
+          <Text style={S.formTitle}>Welcome back</Text>
+          <Text style={S.formSub}>Sign in to continue to your account</Text>
 
-        <View style={[S.inputWrap, emailFocused && S.inputFocused]}>
-          <Ionicons
-            name="mail-outline"
-            size={18}
-            color={emailFocused ? C.primary : C.textTertiary}
-            style={S.inputIcon}
-          />
-          <TextInput
-            style={S.input}
-            placeholder="Email address"
-            placeholderTextColor={C.textTertiary}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
-          />
-        </View>
-
-        <View style={[S.inputWrap, passFocused && S.inputFocused]}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={18}
-            color={passFocused ? C.primary : C.textTertiary}
-            style={S.inputIcon}
-          />
-          <TextInput
-            style={S.input}
-            placeholder="Password"
-            placeholderTextColor={C.textTertiary}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
-            onFocus={() => setPassFocused(true)}
-            onBlur={() => setPassFocused(false)}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <View style={[S.inputWrap, emailFocused && S.inputFocused]}>
             <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+              name="mail-outline"
               size={18}
-              color={C.textTertiary}
+              color={emailFocused ? C.primary : C.textTertiary}
+              style={S.inputIcon}
             />
+            <TextInput
+              style={S.input}
+              placeholder="Email address"
+              placeholderTextColor={C.textTertiary}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
+            />
+          </View>
+
+          <View style={[S.inputWrap, passFocused && S.inputFocused]}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={18}
+              color={passFocused ? C.primary : C.textTertiary}
+              style={S.inputIcon}
+            />
+            <TextInput
+              style={S.input}
+              placeholder="Password"
+              placeholderTextColor={C.textTertiary}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+              onFocus={() => setPassFocused(true)}
+              onBlur={() => setPassFocused(false)}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                size={18}
+                color={C.textTertiary}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={S.forgot}>
+            <Text style={S.forgotTxt}>Forgot Password?</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[S.loginBtn, loading && S.loginBtnDisabled]}
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={S.loginBtnTxt}>Sign In</Text>
+            )}
+          </TouchableOpacity>
+
+          {/*
+          <View style={S.dividerRow}>
+            <View style={S.dividerLine} />
+            <Text style={S.dividerTxt}>or continue with</Text>
+            <View style={S.dividerLine} />
+          </View>
+          */}
+
+          {/* TODO: Implement Google Auth
+          <TouchableOpacity style={S.socialBtn}>
+            <Ionicons name="logo-google" size={20} color={C.textPrimary} />
+            <Text style={S.socialTxt}>Continue with Google</Text>
+          </TouchableOpacity>
+          */}
+
+          <TouchableOpacity onPress={() => navigation.navigate('Register')} style={S.switchRow}>
+            <Text style={S.switchTxt}>Don't have an account? </Text>
+            <Text style={S.switchCta}>Create one</Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={S.forgot}>
-          <Text style={S.forgotTxt}>Forgot Password?</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[S.loginBtn, loading && S.loginBtnDisabled]}
-          onPress={handleLogin}
-          disabled={loading}
-          activeOpacity={0.85}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={S.loginBtnTxt}>Sign In</Text>
-          )}
-        </TouchableOpacity>
-
-        {/*
-        <View style={S.dividerRow}>
-          <View style={S.dividerLine} />
-          <Text style={S.dividerTxt}>or continue with</Text>
-          <View style={S.dividerLine} />
-        </View>
-        */}
-
-        {/* TODO: Implement Google Auth
-        <TouchableOpacity style={S.socialBtn}>
-          <Ionicons name="logo-google" size={20} color={C.textPrimary} />
-          <Text style={S.socialTxt}>Continue with Google</Text>
-        </TouchableOpacity>
-        */}
-
-        <TouchableOpacity onPress={() => navigation.navigate('Register')} style={S.switchRow}>
-          <Text style={S.switchTxt}>Don't have an account? </Text>
-          <Text style={S.switchCta}>Create one</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const createStyles = (C: ColorScheme) =>
   StyleSheet.create({
-    flex: { flex: 1, backgroundColor: C.background },
-    brand: { alignItems: 'center', paddingTop: 64, paddingBottom: 32 },
+    safe: { flex: 1, backgroundColor: C.background },
+    flex: { flex: 1 },
+    brand: { alignItems: 'center', paddingTop: 20, paddingBottom: 32 },
     logoImage: {
       width: 72,
       height: 72,

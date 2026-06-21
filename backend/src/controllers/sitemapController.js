@@ -24,7 +24,7 @@ exports.getSitemap = async (req, res) => {
 
     // Fetch dynamic data
     const [tiffins, blogs] = await Promise.all([
-      Tiffin.find({ isActive: true }).select('_id updatedAt').lean(),
+      Tiffin.find({ isActive: true }).select('slug updatedAt').lean(),
       Blog.find({ status: 'published' }).select('slug updatedAt').lean(),
     ]);
 
@@ -45,7 +45,7 @@ exports.getSitemap = async (req, res) => {
     tiffins.forEach((tiffin) => {
       xml += `
   <url>
-    <loc>${frontendUrl}/tiffins/${tiffin._id}</loc>
+    <loc>${frontendUrl}/tiffins/${tiffin.slug || tiffin._id}</loc>
     <lastmod>${tiffin.updatedAt.toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>

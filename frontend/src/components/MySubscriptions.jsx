@@ -301,7 +301,11 @@ const MySubscriptions = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => navigate(`/tiffins/${subscription.tiffin?._id}`)}
+                      onClick={() =>
+                        navigate(
+                          `/tiffins/${subscription.tiffin?.slug || subscription.tiffin?._id}`
+                        )
+                      }
                       className="px-6 py-3 text-neutral-500 hover:text-primary-600 rounded-xl font-medium transition-colors"
                     >
                       Manage
@@ -476,7 +480,7 @@ const SubscriptionModal = ({ subscription, onClose }) => {
               <button
                 onClick={() => {
                   onClose();
-                  navigate(`/tiffins/${subscription.tiffin?._id}`);
+                  navigate(`/tiffins/${subscription.tiffin?.slug || subscription.tiffin?._id}`);
                 }}
                 className="flex-1 btn-primary"
               >

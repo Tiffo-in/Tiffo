@@ -74,15 +74,18 @@ describe('Tiffin Controller', () => {
   });
 
   describe('getTiffin', () => {
-    it('should return 200 and the tiffin if found', async () => {
-      const mockTiffin = { _id: '1', name: 'Tiffin 1' };
+    const validId = '507f1f77bcf86cd799439011';
+
+    it('should return 200 and the tiffin if found by ID', async () => {
+      const mockTiffin = { _id: validId, name: 'Tiffin 1' };
       Tiffin.findById.mockReturnValue({
         populate: jest.fn().mockResolvedValue(mockTiffin),
       });
-      mockReq.params.id = '1';
+      mockReq.params.id = validId;
 
       await getTiffin(mockReq, mockRes);
 
+      expect(Tiffin.findById).toHaveBeenCalledWith(validId);
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: true,
@@ -91,14 +94,51 @@ describe('Tiffin Controller', () => {
       );
     });
 
-    it('should return 404 if tiffin not found', async () => {
-      Tiffin.findById.mockReturnValue({
-        populate: jest.fn().mockResolvedValue(null),
+    it('should return 200 and the tiffin if found by slug', async () => {
+      const mockTiffin = { _id: validId, slug: 'tiffin-1', name: 'Tiffin 1' };
+      Tiffin.findOne.mockReturnValue({
+        populate: jest.fn().mockResolvedValue(mockTiffin),
       });
-      mockReq.params.id = 'nonexistent';
+      mockReq.params.id = 'tiffin-1';
 
       await getTiffin(mockReq, mockRes);
 
+      expect(Tiffin.findOne).toHaveBeenCalledWith({ slug: 'tiffin-1' });
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: mockTiffin,
+        }),
+      );
+    });
+
+    it('should return 404 if tiffin not found by ID', async () => {
+      Tiffin.findById.mockReturnValue({
+        populate: jest.fn().mockResolvedValue(null),
+      });
+      mockReq.params.id = validId;
+
+      await getTiffin(mockReq, mockRes);
+
+      expect(Tiffin.findById).toHaveBeenCalledWith(validId);
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: 'Tiffin not found',
+        }),
+      );
+    });
+
+    it('should return 404 if tiffin not found by slug', async () => {
+      Tiffin.findOne.mockReturnValue({
+        populate: jest.fn().mockResolvedValue(null),
+      });
+      mockReq.params.id = 'nonexistent-slug';
+
+      await getTiffin(mockReq, mockRes);
+
+      expect(Tiffin.findOne).toHaveBeenCalledWith({ slug: 'nonexistent-slug' });
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({

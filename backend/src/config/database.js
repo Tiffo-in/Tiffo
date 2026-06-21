@@ -17,6 +17,19 @@ const connectDB = async () => {
         `Database Migration: Marked ${updateResult.modifiedCount} existing users as email-verified`,
       );
     }
+
+    // Migration: Generate slugs for all existing tiffins that don't have one
+    const Tiffin = require('../models/Tiffin');
+    const tiffinsWithoutSlug = await Tiffin.find({ slug: { $exists: false } });
+    if (tiffinsWithoutSlug.length > 0) {
+      logger.info(
+        `Database Migration: Found ${tiffinsWithoutSlug.length} tiffins without slug. Generating slugs...`,
+      );
+      for (const tiffin of tiffinsWithoutSlug) {
+        await tiffin.save(); // triggers pre-save hook to generate unique slug
+      }
+      logger.info('Database Migration: Slugs generated successfully.');
+    }
   } catch (error) {
     logger.error('Database connection error:', { stack: error.stack });
     process.exit(1);
