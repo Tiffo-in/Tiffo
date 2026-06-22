@@ -156,13 +156,15 @@ const getMessages = async (req, res) => {
       });
     }
 
-    const messages = await Message.find({ conversation: conversationId })
-      .populate('sender', 'name avatar')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
-
-    const total = await Message.countDocuments({ conversation: conversationId });
+    // ⚡ Bolt: Execute paginated find and count queries concurrently
+    const [messages, total] = await Promise.all([
+      Message.find({ conversation: conversationId })
+        .populate('sender', 'name avatar')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit)),
+      Message.countDocuments({ conversation: conversationId }),
+    ]);
 
     res.json({
       success: true,
