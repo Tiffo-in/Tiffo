@@ -11,3 +11,7 @@
 **Vulnerability:** Insecure random password generation using Math.random() in Google login fallback.
 **Learning:** Math.random() is not cryptographically secure and can be predicted, posing a risk when generating temporary passwords.
 **Prevention:** Always use the built-in `crypto` module (e.g., `crypto.randomBytes()`) for generating secure random tokens or passwords.
+## 2026-06-23 - Prevent ReDoS in Tiffin Search
+**Vulnerability:** Regular Expression Denial of Service (ReDoS) and regex injection via unescaped 'cuisine' query parameter.
+**Learning:** Passing unvalidated/unescaped user input directly into the `RegExp` constructor allows attackers to craft complex queries that degrade server performance.
+**Prevention:** Always use `escapeRegex` utility to sanitize string inputs before using them in dynamic regex matching within controllers.
