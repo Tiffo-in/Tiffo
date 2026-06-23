@@ -42,8 +42,13 @@ const protect = async (req, res, next) => {
 
     req.user = user;
 
-    // Refresh/Set CSRF cookie for cookie-based sessions to prevent cookie expiration/loss issues
-    if (req.cookies && req.cookies.token && req.cookies.token !== 'none') {
+    // Set CSRF cookie for cookie-based sessions if it's missing to prevent race conditions on subsequent requests
+    if (
+      req.cookies &&
+      req.cookies.token &&
+      req.cookies.token !== 'none' &&
+      !req.cookies.csrf_token
+    ) {
       setCsrfCookie(user._id.toString(), res, req);
     }
 
