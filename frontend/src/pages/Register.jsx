@@ -156,8 +156,7 @@ const Register = () => {
         <div
           className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-[20s] ease-out"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=2000&auto=format&fit=crop')",
+            backgroundImage: "url('/register.jpeg')",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-900/70 to-transparent" />

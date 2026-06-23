@@ -51,24 +51,24 @@ const Home = () => {
       id: 1,
       title: 'North Indian Thali',
       price: 'Starting ₹99/day',
-      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop',
+      image: '/north.jpeg',
       alt: 'Delicious North Indian Tiffin',
       offset: false,
     },
     {
       id: 2,
-      title: 'South Indian Special',
-      price: 'Starting ₹89/day',
-      image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=300&fit=crop',
-      alt: 'Healthy South Indian Meal',
+      title: 'Daily Tiffin Service',
+      price: 'Starting ₹79/day',
+      image: '/tiffin.jpeg',
+      alt: 'Fresh Homemade Tiffins',
       offset: true,
     },
     {
       id: 3,
-      title: 'Gujarati Cuisine',
-      price: 'Starting ₹79/day',
-      image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop',
-      alt: 'Traditional Gujarati Tiffin',
+      title: 'South Indian Special',
+      price: 'Starting ₹89/day',
+      image: '/south.jpeg',
+      alt: 'Healthy South Indian Meal',
       offset: false,
     },
   ];
@@ -256,7 +256,7 @@ const Home = () => {
       </section>
 
       {/* Features Section - Premium 2x2 Grid */}
-      <section className="py-32 relative overflow-hidden bg-white dark:bg-neutral-950">
+      <section className="py-32 relative overflow-hidden bg-neutral-50 dark:bg-neutral-950">
         {/* Decorative background */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary-50/40 via-transparent to-transparent dark:from-primary-900/10 pointer-events-none" />
 
@@ -295,7 +295,7 @@ const Home = () => {
                 viewport={{ once: true, margin: '-100px' }}
                 transition={{ duration: 0.7, delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
-                className="bg-neutral-50 dark:bg-neutral-900/50 backdrop-blur-xl p-10 lg:p-12 rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 group border-2 border-neutral-200/50 dark:border-neutral-800/50 relative overflow-hidden"
+                className="bg-white dark:bg-neutral-900/50 backdrop-blur-xl p-10 lg:p-12 rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 group border-2 border-neutral-200/50 dark:border-neutral-800/50 relative overflow-hidden"
               >
                 {/* Ambient glow on hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -320,7 +320,7 @@ const Home = () => {
       </section>
 
       {/* Featured Tiffins - Enhanced Display */}
-      <section className="py-32 bg-neutral-100/50 dark:bg-neutral-900/30 border-y border-neutral-200/50 dark:border-neutral-800/50 relative">
+      <section className="py-32 bg-neutral-50 dark:bg-neutral-950 border-y border-neutral-200/50 dark:border-neutral-800/50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <motion.div
@@ -366,9 +366,7 @@ const Home = () => {
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                     className="h-full"
                   >
-                    <div className="h-full bg-white dark:bg-neutral-900 rounded-[2rem] p-3 shadow-xl hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 border border-neutral-100 dark:border-neutral-800 group">
-                      <TiffinCard tiffin={tiffin} />
-                    </div>
+                    <TiffinCard tiffin={tiffin} />
                   </motion.div>
                 ))}
               </div>
@@ -378,7 +376,7 @@ const Home = () => {
       </section>
 
       {/* Modern App Download Section */}
-      <section className="py-32 relative overflow-hidden bg-white dark:bg-neutral-950">
+      <section className="py-32 relative overflow-hidden bg-neutral-50 dark:bg-neutral-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 40 }}

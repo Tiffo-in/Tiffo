@@ -161,6 +161,14 @@ tiffinSchema.virtual('effectivePrice').get(function () {
   };
 });
 
+// ── Virtual: check if tiffin is vegetarian/vegan ─────────────────────────────
+tiffinSchema.virtual('isVeg').get(function () {
+  return !!(
+    this.dietary &&
+    (this.dietary.includes('vegetarian') || this.dietary.includes('vegan'))
+  );
+});
+
 tiffinSchema.set('toJSON', { virtuals: true });
 tiffinSchema.set('toObject', { virtuals: true });
 

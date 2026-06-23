@@ -1,19 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { StarIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/solid';
-
-const foodImages = [
-  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-  'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445',
-  'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-];
+import { StarIcon, MapPinIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
 
 const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-
-  const randomImage = useMemo(() => foodImages[Math.floor(Math.random() * foodImages.length)], []);
 
   // Compute discount info
   const discount = tiffin.discount;
@@ -24,6 +15,10 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
   // Use effectivePrice if present (set by backend virtual), else fallback
   const dailyPrice = tiffin.price?.daily || 0;
 
+  // Determine if vegetarian or vegan
+  const isVeg =
+    tiffin.isVeg || tiffin.dietary?.some((d) => ['vegetarian', 'vegan'].includes(d.toLowerCase()));
+
   return (
     <Link to={`/tiffins/${tiffin.slug || tiffin._id}`}>
       <motion.div
@@ -32,38 +27,77 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
         className="bg-white dark:bg-neutral-800 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-neutral-100 dark:border-neutral-700"
       >
         {/* Image Container */}
-        <div className="relative overflow-hidden h-56">
+        <div className="relative overflow-hidden h-56 bg-neutral-900">
           {/* Shimmer Loading Effect */}
-          {!imageLoaded && <div className="absolute inset-0 skeleton" />}
+          {!imageLoaded && tiffin.images?.[0] && <div className="absolute inset-0 skeleton" />}
 
-          <motion.img
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            src={tiffin.images?.[0] || randomImage}
-            alt={tiffin.title}
-            onLoad={() => setImageLoaded(true)}
-            className="w-full h-full object-cover"
-          />
+          {tiffin.images?.[0] ? (
+            <motion.img
+              whileHover={{ scale: 1.08 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              src={tiffin.images[0]}
+              alt={tiffin.title}
+              onLoad={() => setImageLoaded(true)}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 flex flex-col items-center justify-center relative">
+              {/* Minimal kitchen grid pattern */}
+              <div
+                className="absolute inset-0 opacity-[0.08] pointer-events-none text-white"
+                style={{
+                  backgroundImage:
+                    'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
+                  backgroundSize: '24px 24px',
+                }}
+              />
+              <span className="text-4xl mb-2 select-none filter drop-shadow">🍱</span>
+              {/* Partner Logo Circle inside Card */}
+              <div className="w-9 h-9 rounded-full border border-white/20 bg-white/10 dark:bg-neutral-800/80 backdrop-blur-md overflow-hidden flex items-center justify-center shadow-md">
+                {tiffin.partner?.logo ? (
+                  <img
+                    src={tiffin.partner.logo}
+                    alt={tiffin.partner.businessName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs font-black text-white select-none">
+                    {(tiffin.partner?.businessName?.[0] || 'T').toUpperCase()}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Gradient overlay on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
           {/* Badges Container */}
           <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-            {/* Veg/Non-veg Indicator */}
-            <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-md flex items-center space-x-1.5">
-              <div
-                className={`w-4 h-4 border-2 ${tiffin.dietary?.includes('Vegetarian') ? 'border-green-600' : 'border-red-600'} rounded-sm flex items-center justify-center`}
-              >
+            <div className="flex gap-2">
+              {/* Veg/Non-veg Indicator */}
+              <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-md flex items-center space-x-1.5">
                 <div
-                  className={`w-2 h-2 rounded-full ${tiffin.dietary?.includes('Vegetarian') ? 'bg-green-600' : 'bg-red-600'}`}
-                ></div>
+                  className={`w-4 h-4 border-2 ${isVeg ? 'border-green-600' : 'border-red-600'} rounded-sm flex items-center justify-center`}
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}
+                  ></div>
+                </div>
+                <span
+                  className={`text-xs font-medium ${isVeg ? 'text-green-700' : 'text-red-700'}`}
+                >
+                  {isVeg ? 'Veg' : 'Non-Veg'}
+                </span>
               </div>
-              <span
-                className={`text-xs font-medium ${tiffin.dietary?.includes('Vegetarian') ? 'text-green-700' : 'text-red-700'}`}
-              >
-                {tiffin.dietary?.includes('Vegetarian') ? 'Veg' : 'Non-Veg'}
-              </span>
+
+              {/* Verified Badge */}
+              {tiffin.partner?.verified && (
+                <div className="bg-blue-600 text-white px-2.5 py-1.5 rounded-lg shadow-md flex items-center space-x-1 font-semibold">
+                  <CheckBadgeIcon className="h-3.5 w-3.5 fill-current" />
+                  <span className="text-[10px] uppercase tracking-wider">Verified</span>
+                </div>
+              )}
             </div>
 
             {/* Right side: Distance OR Discount badge */}
