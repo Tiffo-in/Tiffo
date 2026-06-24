@@ -67,6 +67,7 @@ const csrfProtection = (req, res, next) => {
     '/api/auth/register',
     '/api/auth/register/partner',
     '/api/auth/google',
+    '/api/auth/logout',
   ];
   // Handle paths with or without trailing slashes/query params by checking baseUrl + path
   const reqPath = req.baseUrl ? req.baseUrl + req.path : req.path;
@@ -133,7 +134,7 @@ const setCsrfCookie = (userId, res, req = null) => {
     // NOT httpOnly — JS must be able to read this to put it in the header
     httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   };
 
