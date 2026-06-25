@@ -4,6 +4,7 @@ const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
 const PartnerAnalytics = require('../models/PartnerAnalytics');
+const escapeRegex = require('../utils/escapeRegex');
 
 const getTiffins = async (req, res) => {
   try {
@@ -23,7 +24,7 @@ const getTiffins = async (req, res) => {
     let query = { isActive: true };
 
     if (mealType) query.mealType = mealType;
-    if (cuisine) query.cuisine = new RegExp(cuisine, 'i');
+    if (cuisine) query.cuisine = new RegExp(escapeRegex(cuisine), 'i');
     if (dietary) query.dietary = { $in: dietary.split(',') };
     if (minPrice || maxPrice) {
       query['price.daily'] = {};
