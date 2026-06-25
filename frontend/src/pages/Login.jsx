@@ -134,8 +134,7 @@ const Login = () => {
         <div
           className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-[20s] ease-out"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?q=80&w=2000&auto=format&fit=crop')",
+            backgroundImage: "url('/login.jpeg')",
           }}
         />
 

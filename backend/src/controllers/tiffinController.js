@@ -64,7 +64,7 @@ const getTiffins = async (req, res) => {
       // Since we handle pagination in memory when sorted by distance, we get all matching tiffins first
       let tiffins = await Tiffin.find(query).populate(
         'partner',
-        'businessName rating address deliveryRadius location',
+        'businessName rating address deliveryRadius location logo verified',
       );
 
       tiffins = tiffins
@@ -88,7 +88,7 @@ const getTiffins = async (req, res) => {
           .sort({ 'rating.average': -1 })
           .skip(startIndex)
           .limit(Number(limit))
-          .populate('partner', 'businessName rating address deliveryRadius location'),
+          .populate('partner', 'businessName rating address deliveryRadius location logo verified'),
       ]);
       total = count;
       paginatedTiffins = results;
@@ -127,12 +127,12 @@ const getTiffin = async (req, res) => {
     if (mongoose.Types.ObjectId.isValid(id)) {
       tiffin = await Tiffin.findById(id).populate(
         'partner',
-        'businessName rating address contact businessHours',
+        'businessName rating address contact businessHours logo verified',
       );
     } else {
       tiffin = await Tiffin.findOne({ slug: id }).populate(
         'partner',
-        'businessName rating address contact businessHours',
+        'businessName rating address contact businessHours logo verified',
       );
     }
 

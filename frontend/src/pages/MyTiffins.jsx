@@ -32,6 +32,7 @@ const MyTiffins = () => {
     address: { street: '', city: '', state: '', pincode: '' },
     contact: { phone: '', email: '' },
     foodImages: [],
+    logo: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -152,6 +153,7 @@ const MyTiffins = () => {
           address: response.data.address || { street: '', city: '', state: '', pincode: '' },
           contact: response.data.contact || { phone: '', email: '' },
           foodImages: response.data.foodImages || [],
+          logo: response.data.logo || '',
         });
       }
     } catch (error) {
@@ -276,6 +278,7 @@ const MyTiffins = () => {
           {activeTab === 'menu' && (
             <MyTiffinsMenu
               menuTiffins={menuTiffins}
+              setMenuTiffins={setMenuTiffins}
               menuTiffinsLoading={menuTiffinsLoading}
               selectedMenuTiffin={selectedMenuTiffin}
               setSelectedMenuTiffin={setSelectedMenuTiffin}

@@ -19,7 +19,7 @@ const sendTokenResponse = (user, statusCode, req, res) => {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
   };
 
   const domain = getCookieDomain(req);
@@ -320,7 +320,7 @@ const googleLogin = async (req, res) => {
 const logout = (req, res) => {
   const cookieOptions = {
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
   };
 
   const domain = getCookieDomain(req);

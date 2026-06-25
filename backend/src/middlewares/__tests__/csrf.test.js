@@ -60,7 +60,7 @@ describe('CSRF Middleware', () => {
       );
     });
 
-    it('should set secure and sameSite none in production', () => {
+    it('should set secure and sameSite lax in production', () => {
       process.env.NODE_ENV = 'production';
       const userId = 'user123';
       setCsrfCookie(userId, mockRes);
@@ -70,7 +70,7 @@ describe('CSRF Middleware', () => {
         expect.any(String),
         expect.objectContaining({
           secure: true,
-          sameSite: 'none',
+          sameSite: 'lax',
         }),
       );
     });

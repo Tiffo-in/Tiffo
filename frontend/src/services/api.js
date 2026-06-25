@@ -17,7 +17,9 @@ const api = axios.create({
  * server can verify it against the cookie value (double-submit cookie pattern).
  */
 const getCsrfToken = () => {
-  const match = document.cookie.split(';').find((row) => row.trim().startsWith('csrf_token='));
+  const cookies = document.cookie.split(';');
+  // Find the last csrf_token to align with Express cookie-parser (last-one-wins)
+  const match = cookies.reverse().find((row) => row.trim().startsWith('csrf_token='));
   return match ? match.substring(match.indexOf('=') + 1) : null;
 };
 
