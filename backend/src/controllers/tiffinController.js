@@ -24,7 +24,6 @@ const getTiffins = async (req, res) => {
     let query = { isActive: true };
 
     if (mealType) query.mealType = mealType;
-    // 🛡️ Sentinel: Escape user input to prevent ReDoS before passing to RegExp
     if (cuisine) query.cuisine = new RegExp(escapeRegex(cuisine), 'i');
     if (dietary) query.dietary = { $in: dietary.split(',') };
     if (minPrice || maxPrice) {
