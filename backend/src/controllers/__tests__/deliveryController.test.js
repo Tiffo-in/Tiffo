@@ -33,13 +33,14 @@ describe('Delivery Controller', () => {
   });
 
   describe('getDeliveryDetails', () => {
-    it('should return 200 and delivery data on success', async () => {
+    it('should return 200 and delivery data for authorized user (partner)', async () => {
       req.params.deliveryId = 'del_123';
+      req.user = { id: 'partner_id_123', role: 'partner' };
       const mockDelivery = {
         _id: 'del_123',
         user: { _id: 'u1', name: 'John Doe', phone: '123', address: '123 Main St' },
         subscription: { _id: 's1', plan: 'Weekly' },
-        partner: { _id: 'p1', businessName: 'Tiffins Co.', phone: '987' },
+        partner: { _id: 'p1', businessName: 'Tiffins Co.', phone: '987', user: 'partner_id_123' },
       };
 
       Delivery.findById.mockReturnValue({
@@ -54,6 +55,32 @@ describe('Delivery Controller', () => {
 
       expect(Delivery.findById).toHaveBeenCalledWith('del_123');
       expect(res.json).toHaveBeenCalledWith({ success: true, data: mockDelivery });
+    });
+
+    it('should return 403 for unauthorized user', async () => {
+      req.params.deliveryId = 'del_123';
+      req.user = { id: 'unauth_user', role: 'user' };
+      const mockDelivery = {
+        _id: 'del_123',
+        user: { _id: 'u1', name: 'John Doe', phone: '123', address: '123 Main St' },
+        subscription: { _id: 's1', plan: 'Weekly' },
+        partner: { _id: 'p1', businessName: 'Tiffins Co.', phone: '987', user: 'partner_id_123' },
+      };
+
+      Delivery.findById.mockReturnValue({
+        populate: jest.fn().mockReturnValue({
+          populate: jest.fn().mockReturnValue({
+            populate: jest.fn().mockResolvedValue(mockDelivery),
+          }),
+        }),
+      });
+
+      await getDeliveryDetails(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: false, message: 'Unauthorized to view this delivery' }),
+      );
     });
 
     it('should return 404 if delivery not found', async () => {

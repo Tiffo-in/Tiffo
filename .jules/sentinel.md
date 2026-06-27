@@ -19,3 +19,7 @@
 **Vulnerability:** User input for cuisine search was passed directly to the `RegExp` constructor without escaping.
 **Learning:** Even simple search queries can be exploited if user input is used to construct a regular expression directly, leading to Regular Expression Denial of Service (ReDoS).
 **Prevention:** Always escape user input using `escapeRegex` before passing it to `new RegExp()` or using it in MongoDB `$regex` queries.
+## 2026-06-27 - IDOR in Delivery Details
+**Vulnerability:** Any authenticated user could view the details of any delivery by guessing its ID because the `getDeliveryDetails` controller lacked authorization checks.
+**Learning:** The controller assumed that authentication was sufficient, but failed to enforce tenant isolation (authorization) to ensure the requesting user owned the resource (customer or partner). Also, the `Partner` model uses a `user` reference field, which requires populating `partner.user` to correctly verify partner ownership.
+**Prevention:** Always verify `req.user.id` against the resource owner's ID (`user` or `partner.user`) before returning sensitive data in controllers.
