@@ -19,4 +19,9 @@ config.resolver.nodeModulesPaths = [
 // 3. Force Metro to resolve (sub)dependencies only from the `nodeModulesPaths`
 config.resolver.disableHierarchicalLookup = true;
 
+// 4. Map 'shared-mobile' to its source directory
+config.resolver.extraNodeModules = {
+  'shared-mobile': path.resolve(workspaceRoot, 'shared-mobile'),
+};
+
 module.exports = config;

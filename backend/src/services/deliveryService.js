@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
  * Generate Delivery records for a newly activated subscription.
  * Handles skipping non-working days for the partner and tiffin.
  */
-const generateDeliveriesForSubscription = async (subscription) => {
+const generateDeliveriesForSubscription = async (subscription, session = null) => {
   try {
     const tiffin = subscription.tiffin;
     const partner = subscription.partner;
@@ -68,7 +68,7 @@ const generateDeliveriesForSubscription = async (subscription) => {
     }
 
     if (deliveriesToCreate.length > 0) {
-      await Delivery.insertMany(deliveriesToCreate);
+      await Delivery.insertMany(deliveriesToCreate, session ? { session } : {});
       logger.info(
         `Generated ${deliveriesToCreate.length} deliveries for subscription ${subscription._id}`,
       );

@@ -6,8 +6,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View, Text, StyleSheet, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getSocket } from 'shared-mobile';
 
-import { getSocket } from '../../../shared-mobile/src/services/socketService';
 import { useAuth } from '../contexts/AuthContext';
 
 // Auth screens

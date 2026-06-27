@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const crypto = require('crypto');
 const Subscription = require('../models/Subscription');
 const PaymentLog = require('../models/PaymentLog');
@@ -75,6 +76,9 @@ exports.handleRazorpayWebhook = async (req, res) => {
  * Handle payment captured event
  */
 async function handlePaymentCaptured(payload) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const payment = payload.payment.entity;
     const orderId = payment.order_id;
@@ -82,32 +86,32 @@ async function handlePaymentCaptured(payload) {
 
     logger.info(`Payment captured: ${paymentId} for order: ${orderId}`);
 
-    const subscription = await Subscription.findOne({ orderId });
+    const subscription = await Subscription.findOne({ orderId }).session(session);
 
     if (!subscription) {
       logger.error(`Payment captured: subscription not found for order: ${orderId}`);
+      await session.abortTransaction();
+      session.endSession();
       return;
     }
 
     subscription.paymentStatus = 'captured';
     subscription.status = 'active';
     subscription.paidAt = new Date();
-    await subscription.save();
+    await subscription.save({ session });
 
     // Generate deliveries for this subscription
-    const populatedForDeliveries = await Subscription.findById(subscription._id).populate(
-      'tiffin partner',
-    );
-    if (populatedForDeliveries) {
-      await generateDeliveriesForSubscription(populatedForDeliveries);
+    const populatedForDeliveries = await Subscription.findById(subscription._id)
+      .populate('tiffin partner')
+      .session(session);
 
-      // Notify customer that meal calendar is ready
-      if (populatedForDeliveries.user) {
-        emitNotification(populatedForDeliveries.user._id, {
-          title: 'Subscription Active 🎉',
-          message: `Your ${populatedForDeliveries.tiffin.title} subscription is active. Your meal calendar has been updated!`,
-          type: 'success',
-        });
+    if (populatedForDeliveries) {
+      const deliveryResult = await generateDeliveriesForSubscription(
+        populatedForDeliveries,
+        session,
+      );
+      if (!deliveryResult.success) {
+        throw new Error(`Delivery generation failed: ${deliveryResult.message}`);
       }
     }
 
@@ -119,9 +123,24 @@ async function handlePaymentCaptured(payload) {
         processedAt: new Date(),
         metadata: { ...payment },
       },
+      { session },
     );
 
+    await session.commitTransaction();
+    session.endSession();
+
     logger.info(`Subscription ${subscription._id} activated after payment ${paymentId}`);
+
+    // Trigger non-database side effects (notifications, emails) outside transaction
+    if (populatedForDeliveries) {
+      if (populatedForDeliveries.user) {
+        emitNotification(populatedForDeliveries.user._id, {
+          title: 'Subscription Active 🎉',
+          message: `Your ${populatedForDeliveries.tiffin.title} subscription is active. Your meal calendar has been updated!`,
+          type: 'success',
+        });
+      }
+    }
 
     const populatedSub = await Subscription.findById(subscription._id).populate(
       'user partner tiffin',
@@ -130,6 +149,8 @@ async function handlePaymentCaptured(payload) {
       await sendPaymentConfirmation(populatedSub.user, populatedSub, payment);
     }
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     logger.error(`Error handling payment.captured: ${error.message}`, { stack: error.stack });
   }
 }
