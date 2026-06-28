@@ -296,32 +296,36 @@ exports.incrementViews = async (req, res) => {
  */
 exports.getBlogStats = async (req, res) => {
   try {
-    const [totalPosts, publishedPosts, draftPosts, archivedPosts, totalViews] = await Promise.all([
+    const [
+      totalPosts,
+      publishedPosts,
+      draftPosts,
+      archivedPosts,
+      totalViews,
+      categoryStats,
+      mostViewed,
+      recentPosts,
+    ] = await Promise.all([
       Blog.countDocuments(),
       Blog.countDocuments({ status: 'published' }),
       Blog.countDocuments({ status: 'draft' }),
       Blog.countDocuments({ status: 'archived' }),
       Blog.aggregate([{ $group: { _id: null, total: { $sum: '$views' } } }]),
+      // Category distribution
+      Blog.aggregate([
+        { $match: { status: 'published' } },
+        { $group: { _id: '$category', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+      // Most viewed posts
+      Blog.find({ status: 'published' })
+        .select('title slug views publishedAt')
+        .sort({ views: -1 })
+        .limit(5)
+        .lean(),
+      // Recent posts
+      Blog.find().select('title slug status createdAt').sort({ createdAt: -1 }).limit(5).lean(),
     ]);
-
-    // Category distribution
-    const categoryStats = await Blog.aggregate([
-      { $match: { status: 'published' } },
-      { $group: { _id: '$category', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-    ]);
-
-    // Most viewed posts
-    const mostViewed = await Blog.find({ status: 'published' })
-      .select('title slug views publishedAt')
-      .sort({ views: -1 })
-      .limit(5);
-
-    // Recent posts
-    const recentPosts = await Blog.find()
-      .select('title slug status createdAt')
-      .sort({ createdAt: -1 })
-      .limit(5);
 
     res.json({
       success: true,
