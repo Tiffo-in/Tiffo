@@ -372,28 +372,35 @@ exports.getCustomerDetails = async (req, res) => {
     const endDate = new Date(subscription.endDate);
     const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
-    // Get payment history
-    const payments = await Payment.find({
-      subscription: subscription._id,
-    })
-      .sort({ createdAt: -1 })
-      .limit(10);
-
-    // Get reviews/feedback
-    const reviews = await Review.find({
-      partner: partner._id, // Bug 1 fix
-      user: customerId,
-    })
-      .sort({ createdAt: -1 })
-      .limit(5);
-
     // Get delivery status for current month
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const deliveries = await Delivery.find({
-      partner: partner._id, // Bug 1 fix
-      user: customerId,
-      deliveryDate: { $gte: startOfMonth },
-    });
+
+    // ⚡ Bolt: Execute independent queries concurrently and use .lean() for read-only data
+    const [payments, reviews, deliveries] = await Promise.all([
+      // Get payment history
+      Payment.find({
+        subscription: subscription._id,
+      })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean(),
+
+      // Get reviews/feedback
+      Review.find({
+        partner: partner._id, // Bug 1 fix
+        user: customerId,
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+
+      // Get delivery status for current month
+      Delivery.find({
+        partner: partner._id, // Bug 1 fix
+        user: customerId,
+        deliveryDate: { $gte: startOfMonth },
+      }).lean(),
+    ]);
 
     const deliveredCount = deliveries.filter((d) => d.status === 'delivered').length;
     const totalScheduled = deliveries.length;
