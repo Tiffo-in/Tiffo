@@ -98,3 +98,34 @@ exports.updateSupportStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Subscribe to newsletter
+ * @route   POST /api/support/newsletter
+ * @access  Public
+ */
+exports.subscribeNewsletter = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    const Waitlist = require('../models/Waitlist');
+
+    // Add to Waitlist collection with source = 'newsletter'
+    await Waitlist.findOneAndUpdate(
+      { email },
+      { email, source: 'newsletter' },
+      { upsert: true, new: true, runValidators: true },
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Successfully subscribed to the newsletter!',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

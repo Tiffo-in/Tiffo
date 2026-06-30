@@ -4,6 +4,7 @@ const {
   createSupportRequest,
   getSupportRequests,
   updateSupportStatus,
+  subscribeNewsletter,
 } = require('../controllers/supportController');
 const { protect } = require('../middlewares/auth');
 const { adminAuth } = require('../middlewares/adminAuth');
@@ -33,6 +34,9 @@ router.post(
   },
   createSupportRequest,
 );
+
+// Newsletter subscription endpoint
+router.post('/newsletter', subscribeNewsletter);
 
 // Admin only routes
 router.use(protect);

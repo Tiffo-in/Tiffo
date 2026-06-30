@@ -60,6 +60,7 @@ const TiffinDetail = React.lazy(() => import('./pages/TiffinDetail'));
 const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const PaymentFailed = React.lazy(() => import('./pages/PaymentFailed'));
 const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
 const About = React.lazy(() => import('./pages/About'));
 const Careers = React.lazy(() => import('./pages/Careers'));
@@ -74,6 +75,7 @@ const AdminDeliveries = React.lazy(() => import('./pages/AdminDeliveries'));
 const AdminBlog = React.lazy(() => import('./pages/AdminBlog'));
 const BlogEditor = React.lazy(() => import('./components/BlogEditor'));
 const AdminSupport = React.lazy(() => import('./pages/AdminSupport'));
+const AdminBanners = React.lazy(() => import('./pages/AdminBanners'));
 const AdminFraud = React.lazy(() => import('./pages/AdminFraud'));
 
 // ── Error Boundary ────────────────────────────────────────────────────────────
@@ -153,6 +155,7 @@ function App() {
                         <Route path="/blog" element={<Blog />} />
                         <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/payment/success" element={<PaymentSuccess />} />
                         <Route path="/payment/failed" element={<PaymentFailed />} />
                         <Route path="/about" element={<About />} />
@@ -337,6 +340,14 @@ function App() {
                           element={
                             <RoleRoute role="admin">
                               <AdminFraud />
+                            </RoleRoute>
+                          }
+                        />
+                        <Route
+                          path="/admin/banners"
+                          element={
+                            <RoleRoute role="admin">
+                              <AdminBanners />
                             </RoleRoute>
                           }
                         />
