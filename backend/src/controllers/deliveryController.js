@@ -48,10 +48,24 @@ exports.getDeliveryDetails = async (req, res) => {
     const delivery = await Delivery.findById(req.params.deliveryId)
       .populate('user', 'name phone address')
       .populate('subscription')
-      .populate('partner', 'businessName phone');
+      .populate('partner', 'businessName phone user');
 
     if (!delivery) {
       return res.status(404).json({ success: false, message: 'Delivery not found' });
+    }
+
+    const userId = req.user.id || req.user._id;
+    const isCustomer = delivery.user && delivery.user._id.toString() === userId.toString();
+    const isPartner =
+      delivery.partner &&
+      delivery.partner.user &&
+      delivery.partner.user.toString() === userId.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isCustomer && !isPartner && !isAdmin) {
+      return res
+        .status(403)
+        .json({ success: false, message: 'Unauthorized to view this delivery' });
     }
 
     res.json({ success: true, data: delivery });
