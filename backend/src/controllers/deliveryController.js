@@ -105,7 +105,8 @@ exports.getPartnerDeliveries = async (req, res) => {
         .populate('subscription', 'plan')
         .sort({ deliveryDate: -1, createdAt: -1 })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(), // ⚡ Bolt: Added .lean() to skip hydrating Mongoose documents for read-only queries, reducing memory usage and CPU overhead
       Delivery.countDocuments(query),
     ]);
 
@@ -358,7 +359,8 @@ exports.getAdminDeliveries = async (req, res) => {
         .populate('subscription', 'plan')
         .sort({ deliveryDate: -1, createdAt: -1 })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(), // ⚡ Bolt: Added .lean() to skip hydrating Mongoose documents for read-only queries, reducing memory usage and CPU overhead
       Delivery.countDocuments(query),
     ]);
 
