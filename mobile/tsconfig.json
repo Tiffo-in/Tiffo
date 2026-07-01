@@ -14,7 +14,12 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ESNext",
-    "strict": true
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "shared-mobile": ["../shared-mobile/src"],
+      "shared-mobile/*": ["../shared-mobile/*"]
+    }
   },
   "exclude": [
     "node_modules",

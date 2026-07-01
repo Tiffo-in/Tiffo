@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install production dependencies
-RUN npm ci --only=production
+RUN npm install --only=production --legacy-peer-deps --no-audit --no-fund
 
 # Copy the rest of the application code
 COPY . .

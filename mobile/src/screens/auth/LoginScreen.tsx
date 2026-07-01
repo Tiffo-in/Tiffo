@@ -51,13 +51,20 @@ export default function LoginScreen({ navigation }: Props) {
       warning('Missing Fields', 'Please enter your email and password.');
       return;
     }
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email.trim())) {
+      warning('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
     try {
       setLoading(true);
       await login(email.trim().toLowerCase(), password);
     } catch (err: any) {
       error(
         'Login Failed',
-        err.response?.data?.message || 'Please check your credentials and try again.',
+        err.response?.data?.message ||
+          err.message ||
+          'Please check your credentials and try again.',
       );
     } finally {
       setLoading(false);
@@ -134,7 +141,7 @@ export default function LoginScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={S.forgot}>
+          <TouchableOpacity style={S.forgot} onPress={() => navigation.navigate('ForgotPassword')}>
             <Text style={S.forgotTxt}>Forgot Password?</Text>
           </TouchableOpacity>
 

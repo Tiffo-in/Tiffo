@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { initSocket, disconnectSocket } from 'shared-mobile';
 
-import { initSocket, disconnectSocket } from '../../../shared-mobile/src/services/socketService';
 import authService, { AuthState, PartnerUser } from '../services/authService';
 
 interface AuthContextType extends AuthState {

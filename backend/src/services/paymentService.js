@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Partner = require('../models/Partner');
 const Subscription = require('../models/Subscription');
@@ -150,133 +151,198 @@ exports.verifySubscriptionPayment = async ({
   razorpay_signature,
   subscriptionId,
 }) => {
-  const isValid = verifyPaymentSignature(
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-  );
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (!isValid) {
-    await PaymentLog.create({
-      type: 'payment',
-      status: 'failed',
-      orderId: razorpay_order_id,
-      paymentId: razorpay_payment_id,
-      subscriptionId: subscriptionId,
-      errorCode: 'SIGNATURE_MISMATCH',
-      errorDescription: 'Payment signature verification failed',
-      failedAt: new Date(),
-    });
-    throw new Error('Invalid payment signature');
-  }
+  try {
+    const isValid = verifyPaymentSignature(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    );
 
-  const subscription = await Subscription.findById(subscriptionId);
-  if (!subscription) {
-    const error = new Error('Subscription not found');
-    error.status = 404;
-    throw error;
-  }
+    if (!isValid) {
+      await PaymentLog.create(
+        [
+          {
+            type: 'payment',
+            status: 'failed',
+            orderId: razorpay_order_id,
+            paymentId: razorpay_payment_id,
+            subscriptionId: subscriptionId,
+            errorCode: 'SIGNATURE_MISMATCH',
+            errorDescription: 'Payment signature verification failed',
+            failedAt: new Date(),
+          },
+        ],
+        { session },
+      );
+      throw new Error('Invalid payment signature');
+    }
 
-  subscription.paymentId = razorpay_payment_id;
-  subscription.razorpaySignature = razorpay_signature;
-  subscription.paymentStatus = 'paid';
-  subscription.status = 'active';
-  subscription.paidAt = new Date();
-  await subscription.save();
+    const subscription = await Subscription.findById(subscriptionId).session(session);
+    if (!subscription) {
+      const error = new Error('Subscription not found');
+      error.status = 404;
+      throw error;
+    }
 
-  const populatedForDeliveries = await Subscription.findById(subscription._id).populate(
-    'tiffin partner',
-  );
-  if (populatedForDeliveries) {
-    await generateDeliveriesForSubscription(populatedForDeliveries);
-    if (populatedForDeliveries.user) {
+    subscription.paymentId = razorpay_payment_id;
+    subscription.razorpaySignature = razorpay_signature;
+    subscription.paymentStatus = 'paid';
+    subscription.status = 'active';
+    subscription.paidAt = new Date();
+    await subscription.save({ session });
+
+    const populatedForDeliveries = await Subscription.findById(subscription._id)
+      .populate('tiffin partner')
+      .session(session);
+
+    if (populatedForDeliveries) {
+      const deliveryResult = await generateDeliveriesForSubscription(
+        populatedForDeliveries,
+        session,
+      );
+      if (!deliveryResult.success) {
+        throw new Error(`Delivery generation failed: ${deliveryResult.message}`);
+      }
+    }
+
+    await PaymentLog.findOneAndUpdate(
+      { orderId: razorpay_order_id },
+      {
+        status: 'success',
+        paymentId: razorpay_payment_id,
+        processedAt: new Date(),
+      },
+      { session },
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // Trigger notifications after successful transaction commit
+    if (populatedForDeliveries && populatedForDeliveries.user) {
       emitNotification(populatedForDeliveries.user._id, {
         title: 'Subscription Active 🎉',
         message: `Your ${populatedForDeliveries.tiffin.title} subscription is active. Your meal calendar has been updated!`,
         type: 'success',
       });
     }
+
+    return subscription;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
   }
-
-  await PaymentLog.findOneAndUpdate(
-    { orderId: razorpay_order_id },
-    {
-      status: 'success',
-      paymentId: razorpay_payment_id,
-      processedAt: new Date(),
-    },
-  );
-
-  return subscription;
 };
 
 exports.confirmCod = async (subscriptionId) => {
-  const subscription = await Subscription.findById(subscriptionId);
-  if (!subscription) {
-    const error = new Error('Subscription not found');
-    error.status = 404;
-    throw error;
-  }
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  subscription.paymentMethod = 'cod';
-  subscription.paymentStatus = 'pending';
-  subscription.status = 'active';
-  await subscription.save();
+  try {
+    const subscription = await Subscription.findById(subscriptionId).session(session);
+    if (!subscription) {
+      const error = new Error('Subscription not found');
+      error.status = 404;
+      throw error;
+    }
 
-  const populatedForDeliveries = await Subscription.findById(subscription._id).populate(
-    'tiffin partner',
-  );
-  if (populatedForDeliveries) {
-    await generateDeliveriesForSubscription(populatedForDeliveries);
-    if (populatedForDeliveries.user) {
+    subscription.paymentMethod = 'cod';
+    subscription.paymentStatus = 'pending';
+    subscription.status = 'active';
+    await subscription.save({ session });
+
+    const populatedForDeliveries = await Subscription.findById(subscription._id)
+      .populate('tiffin partner')
+      .session(session);
+
+    if (populatedForDeliveries) {
+      const deliveryResult = await generateDeliveriesForSubscription(
+        populatedForDeliveries,
+        session,
+      );
+      if (!deliveryResult.success) {
+        throw new Error(`Delivery generation failed: ${deliveryResult.message}`);
+      }
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // Trigger notifications after successful transaction commit
+    if (populatedForDeliveries && populatedForDeliveries.user) {
       emitNotification(populatedForDeliveries.user._id, {
         title: 'Order Confirmed (COD) 🎉',
         message: `Your ${populatedForDeliveries.tiffin.title} subscription is active. Pay cash upon first delivery!`,
         type: 'success',
       });
     }
-  }
 
-  return subscription;
+    return subscription;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
 exports.processRefundForSubscription = async (subscriptionId, amount, reason) => {
-  const subscription = await Subscription.findById(subscriptionId);
-  if (!subscription) {
-    const error = new Error('Subscription not found');
-    error.status = 404;
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const subscription = await Subscription.findById(subscriptionId).session(session);
+    if (!subscription) {
+      const error = new Error('Subscription not found');
+      error.status = 404;
+      throw error;
+    }
+
+    if (!subscription.paymentId) {
+      throw new Error('No payment found for this subscription');
+    }
+
+    const refundResult = await createRefund(subscription.paymentId, amount, {
+      reason,
+      subscription_id: subscriptionId,
+    });
+
+    if (!refundResult.success) {
+      throw new Error(`Refund failed: ${refundResult.error}`);
+    }
+
+    subscription.paymentStatus = 'refunded';
+    subscription.status = 'cancelled';
+    await subscription.save({ session });
+
+    await PaymentLog.create(
+      [
+        {
+          type: 'refund',
+          status: 'success',
+          paymentId: subscription.paymentId,
+          refundId: refundResult.refundId,
+          amount: amount || subscription.totalAmount,
+          subscriptionId: subscriptionId,
+          metadata: { reason },
+          processedAt: new Date(),
+        },
+      ],
+      { session },
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return refundResult.refundId;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     throw error;
   }
-
-  if (!subscription.paymentId) {
-    throw new Error('No payment found for this subscription');
-  }
-
-  const refundResult = await createRefund(subscription.paymentId, amount, {
-    reason,
-    subscription_id: subscriptionId,
-  });
-
-  if (!refundResult.success) {
-    throw new Error(`Refund failed: ${refundResult.error}`);
-  }
-
-  subscription.paymentStatus = 'refunded';
-  subscription.status = 'cancelled';
-  await subscription.save();
-
-  await PaymentLog.create({
-    type: 'refund',
-    status: 'success',
-    paymentId: subscription.paymentId,
-    refundId: refundResult.refundId,
-    amount: amount || subscription.totalAmount,
-    subscriptionId: subscriptionId,
-    metadata: { reason },
-    processedAt: new Date(),
-  });
-
-  return refundResult.refundId;
 };
 
 exports.fetchPaymentHistory = async (userId, { type, status, limit = 20, page = 1 }) => {

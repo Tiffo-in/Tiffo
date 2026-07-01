@@ -126,7 +126,8 @@ describe('CSRF Middleware', () => {
 
     describe('when session cookie is present', () => {
       beforeEach(() => {
-        mockReq.cookies.token = 'some_jwt_session_token';
+        const jwt = require('jsonwebtoken');
+        mockReq.cookies.token = jwt.sign({ id: 'user123' }, process.env.JWT_SECRET);
       });
 
       it('should return 403 if CSRF header is missing', () => {

@@ -8,6 +8,7 @@ const dashboardController = require('../controllers/admin/adminDashboardControll
 const userController = require('../controllers/admin/adminUserController');
 const partnerController = require('../controllers/admin/adminPartnerController');
 const financeController = require('../controllers/admin/adminFinanceController');
+const bannerController = require('../controllers/admin/adminBannerController');
 
 // All routes require authentication and admin role verification
 router.use(protect);
@@ -40,5 +41,11 @@ router.post('/payments/:id/refund', financeController.adminProcessRefund);
 // Dispute Resolution
 router.get('/payments/disputes', financeController.getDisputedPayments);
 router.patch('/payments/disputes/:id/resolve', financeController.resolveDispute);
+
+// Banner Management
+router.get('/banners', bannerController.getBanners);
+router.post('/banners', bannerController.createBanner);
+router.put('/banners/:id', bannerController.updateBanner);
+router.delete('/banners/:id', bannerController.deleteBanner);
 
 module.exports = router;

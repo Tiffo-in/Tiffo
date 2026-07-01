@@ -13,6 +13,7 @@ import {
   BellAlertIcon,
   ChatBubbleLeftRightIcon,
   ShieldExclamationIcon,
+  PhotoIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { useSocket } from '../hooks/useSocket';
@@ -329,6 +330,18 @@ const AdminDashboard = () => {
                   <ShieldExclamationIcon className="w-8 h-8 text-rose-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Fraud Reports</h3>
                   <p className="text-sm text-neutral-500">Investigate cases</p>
+                </motion.div>
+              </Link>
+
+              <Link to="/admin/banners">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="p-5 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/30 dark:to-teal-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <PhotoIcon className="w-8 h-8 text-teal-600 mb-3" />
+                  <h3 className="font-bold text-neutral-900">App Banners</h3>
+                  <p className="text-sm text-neutral-500">Manage promo slides</p>
                 </motion.div>
               </Link>
             </div>

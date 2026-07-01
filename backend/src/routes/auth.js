@@ -10,6 +10,8 @@ const {
   googleLogin,
   verifyEmail,
   resendVerification,
+  forgotPassword,
+  resetPassword,
 } = require('../controllers/authController');
 const { protect } = require('../middlewares/auth');
 const { authLimiter } = require('../middlewares/rateLimiter');
@@ -34,6 +36,10 @@ router.post('/google', authLimiter, googleLogin);
 // Email verification routes
 router.get('/verify-email', verifyEmail);
 router.post('/resend-verification', authLimiter, resendVerification);
+
+// Password recovery routes
+router.post('/forgot-password', authLimiter, forgotPassword);
+router.post('/reset-password', authLimiter, resetPassword);
 
 /**
  * @openapi

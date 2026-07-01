@@ -75,24 +75,41 @@ export default function RegisterScreen({ navigation }: Props) {
   const set = (key: string, val: string) => setValues((v) => ({ ...v, [key]: val }));
 
   const handleRegister = async () => {
-    if (!values.name.trim() || !values.email.trim() || !values.password.trim()) {
+    const nameTrim = values.name.trim();
+    const emailTrim = values.email.trim().toLowerCase();
+    const phoneTrim = values.phone.trim();
+    const password = values.password;
+
+    if (!nameTrim || !emailTrim || !password) {
       warning('Missing Fields', 'Please fill in Name, Email and Password.');
       return;
     }
-    if (values.password.length < 8) {
+    if (nameTrim.length < 2) {
+      warning('Invalid Name', 'Name must be at least 2 characters long.');
+      return;
+    }
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(emailTrim)) {
+      warning('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (phoneTrim && !phoneRegex.test(phoneTrim)) {
+      warning('Invalid Phone', 'Please enter a valid 10-digit Indian phone number.');
+      return;
+    }
+    if (password.length < 8) {
       warning('Weak Password', 'Password must be at least 8 characters.');
       return;
     }
     try {
       setLoading(true);
-      await register(
-        values.name.trim(),
-        values.email.trim().toLowerCase(),
-        values.password,
-        values.phone.trim(),
-      );
+      await register(nameTrim, emailTrim, password, phoneTrim);
     } catch (err: any) {
-      error('Registration Failed', err.response?.data?.message || 'Could not create account.');
+      error(
+        'Registration Failed',
+        err.response?.data?.message || err.message || 'Could not create account.',
+      );
     } finally {
       setLoading(false);
     }

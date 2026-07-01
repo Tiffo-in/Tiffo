@@ -24,7 +24,6 @@
 ## 2024-05-24 - Parallel Database Queries for Pagination
 **Learning:** Sequential execution of `.find()` and `.countDocuments()` is a common but unnecessary performance bottleneck in paginated APIs. These operations are independent and can be executed simultaneously.
 **Action:** Always wrap independent Mongoose queries in `Promise.all` to execute them concurrently, reducing total query latency.
-
-## 2026-06-28 - Replacing Sequential Queries with Concurrency in Blog Controller
-**Learning:** Sequential database queries inside API endpoints act as unnecessary bottlenecks. In `backend/src/controllers/blogController.js` for the `getBlogStats` route, multiple queries (e.g., aggregation and `.find()` operations) were chained after an initial `Promise.all` block. This resulted in delayed response times because subsequent queries waited for previous ones to resolve, despite having no dependencies on them. Mongoose supports concurrently executing independent queries and aggregation pipelines. Also added `.lean()` when calling `.find()` to skip hydrating Mongoose documents.
-**Action:** Consolidate all independent database queries (both `.countDocuments`, `.aggregate`, and `.find`) into a single `Promise.all` array to execute them concurrently whenever they do not have data dependencies on one another. Make sure to call `.lean()` on `.find()` queries where possible to avoid the overhead of full Mongoose document hydration.
+## 2026-06-27 - Grouping Independent Queries
+**Learning:** Controller functions (`getEarnings`, `getCustomerDetails`, `getAnalytics`) were making independent MongoDB queries sequentially (e.g., fetching `Payment.find`, then `Review.find`, then `Delivery.find`). This caused unnecessary latency due to sequential round-trips to the DB.
+**Action:** Always group independent read operations using `Promise.all()` to execute them concurrently when they don't depend on each other's outputs.

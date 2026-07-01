@@ -6,11 +6,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View, Text, StyleSheet, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getSocket } from 'shared-mobile';
 
-import { getSocket } from '../../../shared-mobile/src/services/socketService';
 import { useAuth } from '../contexts/AuthContext';
 
 // Auth screens
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 
@@ -45,6 +46,7 @@ export type RootStackParams = {
   Checkout: { tiffinId: string; plan: string; price: number };
   Login: undefined;
   Register: undefined;
+  ForgotPassword: undefined;
   EditProfile: undefined;
   SavedAddresses: undefined;
   PaymentMethods: undefined;
@@ -305,6 +307,7 @@ const RootNavigator = () => {
         <RootStack.Group screenOptions={{ presentation: 'modal', headerShown: false }}>
           <RootStack.Screen name="Login" component={LoginScreen} />
           <RootStack.Screen name="Register" component={RegisterScreen} />
+          <RootStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         </RootStack.Group>
       )}
     </RootStack.Navigator>

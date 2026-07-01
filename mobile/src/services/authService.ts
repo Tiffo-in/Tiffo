@@ -88,6 +88,10 @@ const authService = {
     await AsyncStorage.setItem('auth_user', JSON.stringify(user));
     return user;
   },
+
+  forgotPassword: async (email: string): Promise<void> => {
+    await api.post('/auth/forgot-password', { email });
+  },
 };
 
 export default authService;
