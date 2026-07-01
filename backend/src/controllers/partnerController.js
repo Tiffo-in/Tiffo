@@ -224,7 +224,7 @@ exports.getEarnings = async (req, res) => {
     const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
 
-    // ⚡ Bolt: Execute independent queries concurrently
+    // ⚡ Bolt: Execute independent queries concurrently and use .lean() for read operations
     const [earningsStatsResult, recentPayments] = await Promise.all([
       Payment.aggregate([
         {
@@ -303,7 +303,8 @@ exports.getEarnings = async (req, res) => {
         .populate('user', 'name')
         .populate('subscription', 'plan')
         .sort({ transactionDate: -1 })
-        .limit(10),
+        .limit(10)
+        .lean(),
     ]);
 
     const earningsStats = earningsStatsResult[0];
@@ -378,24 +379,31 @@ exports.getCustomerDetails = async (req, res) => {
 
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // ⚡ Bolt: Execute independent queries concurrently
+    // ⚡ Bolt: Execute independent queries concurrently and use .lean() for read-only data
     const [payments, reviews, deliveries] = await Promise.all([
+      // Get payment history
       Payment.find({
         subscription: subscription._id,
       })
         .sort({ createdAt: -1 })
-        .limit(10),
+        .limit(10)
+        .lean(),
+
+      // Get reviews/feedback
       Review.find({
         partner: partner._id, // Bug 1 fix
         user: customerId,
       })
         .sort({ createdAt: -1 })
-        .limit(5),
+        .limit(5)
+        .lean(),
+
+      // Get delivery status for current month
       Delivery.find({
         partner: partner._id, // Bug 1 fix
         user: customerId,
         deliveryDate: { $gte: startOfMonth },
-      }),
+      }).lean(),
     ]);
 
     const deliveredCount = deliveries.filter((d) => d.status === 'delivered').length;
@@ -457,7 +465,7 @@ exports.getAnalytics = async (req, res) => {
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
 
-    // ⚡ Bolt: Execute independent queries concurrently
+    // ⚡ Bolt: Execute independent queries concurrently and use .lean() where appropriate
     const [totalSubscriptions, todaySubscriptions, analyticsRecords, dailyData] = await Promise.all(
       [
         Subscription.countDocuments({ partner: partner._id }),
@@ -465,7 +473,7 @@ exports.getAnalytics = async (req, res) => {
           partner: partner._id,
           createdAt: { $gte: today },
         }),
-        PartnerAnalytics.find({ partner: partner._id }),
+        PartnerAnalytics.find({ partner: partner._id }).lean(),
         Subscription.aggregate([
           { $match: { partner: partner._id, createdAt: { $gte: sevenDaysAgo } } },
           {
@@ -481,7 +489,7 @@ exports.getAnalytics = async (req, res) => {
 
     const totalVisits = analyticsRecords.reduce((sum, record) => sum + record.visits, 0);
     const todayAnalytics = analyticsRecords.find(
-      (record) => record.date.getTime() === today.getTime(),
+      (record) => new Date(record.date).getTime() === today.getTime(),
     );
     const todayVisits = todayAnalytics ? todayAnalytics.visits : 0;
 
@@ -490,11 +498,13 @@ exports.getAnalytics = async (req, res) => {
       totalVisits > 0 ? Math.round((totalSubscriptions / totalVisits) * 100) : 0;
 
     // Merge visits into dailyData
-    const last7DaysVisits = analyticsRecords.filter((record) => record.date >= sevenDaysAgo);
+    const last7DaysVisits = analyticsRecords.filter(
+      (record) => new Date(record.date) >= sevenDaysAgo,
+    );
 
     // Convert arrays into lookup objects by date string for O(1) access
     const visitsLookup = last7DaysVisits.reduce((acc, record) => {
-      const dateStr = record.date.toISOString().split('T')[0];
+      const dateStr = new Date(record.date).toISOString().split('T')[0];
       if (!acc[dateStr]) {
         acc[dateStr] = record;
       }

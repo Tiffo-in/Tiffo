@@ -296,6 +296,7 @@ exports.incrementViews = async (req, res) => {
  */
 exports.getBlogStats = async (req, res) => {
   try {
+    // ⚡ Bolt: Execute independent queries concurrently and use .lean() for read-only data
     const [
       totalPosts,
       publishedPosts,
