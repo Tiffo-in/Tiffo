@@ -42,30 +42,6 @@ const CATEGORIES = [
   { label: 'Healthy', icon: 'nutrition-outline' as const },
 ];
 
-const BANNERS = [
-  {
-    id: '1',
-    title: '50% OFF',
-    subtitle: 'On your first subscription',
-    bg: '#E23744',
-    icon: 'gift-outline' as const,
-  },
-  {
-    id: '2',
-    title: 'FREE delivery',
-    subtitle: 'On all monthly plans',
-    bg: '#FC8019',
-    icon: 'bicycle-outline' as const,
-  },
-  {
-    id: '3',
-    title: 'Fresh daily',
-    subtitle: 'Cooked with love every morning',
-    bg: '#257E3E',
-    icon: 'restaurant-outline' as const,
-  },
-];
-
 const SkeletonCard = ({ C }: { C: ColorScheme }) => {
   const anim = useRef(new Animated.Value(0.5)).current;
   useEffect(() => {
@@ -194,30 +170,63 @@ const TiffinCard = ({
 const BannerCarousel = ({ C }: { C: ColorScheme }) => {
   const [idx, setIdx] = useState(0);
   const ref = useRef<FlatList>(null);
+
+  const { data: banners = [], isLoading } = useQuery<any[]>({
+    queryKey: ['banners'],
+    queryFn: async () => {
+      const res = await api.get('/banners');
+      return res.data?.data || [];
+    },
+  });
+
   useEffect(() => {
+    if (banners.length <= 1) return;
     const t = setInterval(() => {
-      const next = (idx + 1) % BANNERS.length;
+      const next = (idx + 1) % banners.length;
       ref.current?.scrollToIndex({ index: next, animated: true });
       setIdx(next);
     }, 3200);
     return () => clearInterval(t);
-  }, [idx]);
+  }, [idx, banners.length]);
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          marginHorizontal: 16,
+          marginTop: 8,
+          height: 90,
+          backgroundColor: C.surfaceCard,
+          borderRadius: 16,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <ActivityIndicator color={C.primary} />
+      </View>
+    );
+  }
+
+  if (banners.length === 0) {
+    return null;
+  }
+
   return (
     <View style={{ marginHorizontal: 16, marginTop: 8 }}>
       <FlatList
         ref={ref}
-        data={BANNERS}
+        data={banners}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={(e: any) =>
           setIdx(Math.round(e.nativeEvent.contentOffset.x / (SW - 32)))
         }
-        keyExtractor={(b: any) => b.id}
+        keyExtractor={(b: any) => b._id || b.id}
         renderItem={({ item }: { item: any }) => (
           <View
             style={{
-              backgroundColor: item.bg,
+              backgroundColor: item.bg || '#E23744',
               width: SW - 32,
               borderRadius: 16,
               padding: 20,
@@ -232,12 +241,12 @@ const BannerCarousel = ({ C }: { C: ColorScheme }) => {
                 {item.subtitle}
               </Text>
             </View>
-            <Ionicons name={item.icon} size={42} color="#fff" />
+            <Ionicons name={(item.icon || 'gift-outline') as any} size={42} color="#fff" />
           </View>
         )}
       />
       <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10, gap: 6 }}>
-        {BANNERS.map((_, i) => (
+        {banners.map((_, i) => (
           <View
             key={i}
             style={{

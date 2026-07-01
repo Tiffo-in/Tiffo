@@ -68,6 +68,8 @@ const csrfProtection = (req, res, next) => {
     '/api/auth/register/partner',
     '/api/auth/google',
     '/api/auth/logout',
+    '/api/auth/forgot-password',
+    '/api/auth/reset-password',
   ];
   // Handle paths with or without trailing slashes/query params by checking baseUrl + path
   const reqPath = req.baseUrl ? req.baseUrl + req.path : req.path;
@@ -81,9 +83,31 @@ const csrfProtection = (req, res, next) => {
     return next();
   }
 
-  // If there is no session cookie, CSRF protection is not needed because there is no authenticated session to protect.
-  // This prevents breaking guest/public endpoints (like waitlist, public support, blog view counting, and ad clicks/impressions).
-  if (!req.cookies?.token || req.cookies.token === 'none') {
+  // Validate JWT session token to ensure it's still valid/active.
+  // If the token is invalid or expired, clear the stale cookie and treat the user as guest (no session to protect).
+  const jwt = require('jsonwebtoken');
+  let hasValidSession = false;
+
+  if (req.cookies && req.cookies.token && req.cookies.token !== 'none') {
+    try {
+      jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+      hasValidSession = true;
+    } catch (err) {
+      // Clear invalid/expired cookie to prevent future validation failures and clean client state
+      const cookieOptions = {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      };
+      const domain = getCookieDomain(req);
+      if (domain) {
+        cookieOptions.domain = domain;
+      }
+      res.clearCookie('token', { ...cookieOptions, httpOnly: true });
+      res.clearCookie('csrf_token', cookieOptions);
+    }
+  }
+
+  if (!hasValidSession) {
     return next();
   }
 

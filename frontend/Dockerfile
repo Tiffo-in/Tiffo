@@ -2,7 +2,7 @@
 FROM node:22-alpine as build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 COPY . .
 
 # Support injection of build-time environment variables (e.g. for API URL / Google OAuth Client ID)

@@ -494,6 +494,75 @@ The TIFFO Team
   return await sendEmail(user.email, subject, html, text);
 };
 
+/**
+ * Send password reset email
+ */
+const sendPasswordResetEmail = async (user, resetUrl) => {
+  const subject = '🔐 Reset Your Password - TIFFO';
+
+  const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+                .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+                .button { background: #7f1d1d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; font-weight: bold; }
+                .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🍛 TIFFO</h1>
+                    <h2>Password Reset Request</h2>
+                </div>
+                <div class="content">
+                    <h3>Hello ${user.name},</h3>
+                    <p>You are receiving this email because you (or someone else) requested a password reset for your TIFFO account.</p>
+                    <p>Please click the button below to reset your password:</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="${resetUrl}" class="button" style="color: white; text-decoration: none;">Reset Password</a>
+                    </div>
+                    
+                    <p>Or copy and paste this link into your browser:</p>
+                    <p style="word-break: break-all;"><a href="${resetUrl}">${resetUrl}</a></p>
+                    
+                    <p>This link is valid for 1 hour. If you did not request this, please ignore this email and your password will remain unchanged.</p>
+                    
+                    <p>Thank you, <br>The TIFFO Team</p>
+                </div>
+                <div class="footer">
+                    <p>If you did not request a password reset, please ignore this email.</p>
+                    <p>&copy; ${new Date().getFullYear()} TIFFO. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+  const text = `
+Password Reset Request - TIFFO
+
+Hello ${user.name},
+
+You are receiving this email because you (or someone else) requested a password reset for your TIFFO account.
+
+Please reset your password by visiting the link below:
+
+${resetUrl}
+
+This link is valid for 1 hour. If you did not request this, please ignore this email and your password will remain unchanged.
+
+The TIFFO Team
+    `;
+
+  return await sendEmail(user.email, subject, html, text);
+};
+
 module.exports = {
   initializeEmailService,
   sendEmail,
@@ -503,4 +572,5 @@ module.exports = {
   sendAdminTransferFailureAlert,
   sendRefundConfirmation,
   sendVerificationEmail,
+  sendPasswordResetEmail,
 };

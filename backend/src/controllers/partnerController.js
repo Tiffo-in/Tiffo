@@ -224,77 +224,89 @@ exports.getEarnings = async (req, res) => {
     const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
 
-    const [earningsStats] = await Payment.aggregate([
-      {
-        $match: {
-          partner: partner._id,
-          status: 'success',
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalEarnings: { $sum: '$amount' },
-          todayEarnings: {
-            $sum: {
-              $cond: [{ $gte: ['$transactionDate', today] }, '$amount', 0],
-            },
-          },
-          yesterdayEarnings: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $gte: ['$transactionDate', yesterday] },
-                    { $lt: ['$transactionDate', today] },
-                  ],
-                },
-                '$amount',
-                0,
-              ],
-            },
-          },
-          thisWeekEarnings: {
-            $sum: {
-              $cond: [{ $gte: ['$transactionDate', startOfWeek] }, '$amount', 0],
-            },
-          },
-          lastWeekEarnings: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $gte: ['$transactionDate', startOfLastWeek] },
-                    { $lt: ['$transactionDate', startOfWeek] },
-                  ],
-                },
-                '$amount',
-                0,
-              ],
-            },
-          },
-          thisMonthEarnings: {
-            $sum: {
-              $cond: [{ $gte: ['$transactionDate', startOfMonth] }, '$amount', 0],
-            },
-          },
-          lastMonthEarnings: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $gte: ['$transactionDate', startOfLastMonth] },
-                    { $lte: ['$transactionDate', endOfLastMonth] },
-                  ],
-                },
-                '$amount',
-                0,
-              ],
-            },
+    // ⚡ Bolt: Execute independent queries concurrently
+    const [earningsStatsResult, recentPayments] = await Promise.all([
+      Payment.aggregate([
+        {
+          $match: {
+            partner: partner._id,
+            status: 'success',
           },
         },
-      },
+        {
+          $group: {
+            _id: null,
+            totalEarnings: { $sum: '$amount' },
+            todayEarnings: {
+              $sum: {
+                $cond: [{ $gte: ['$transactionDate', today] }, '$amount', 0],
+              },
+            },
+            yesterdayEarnings: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $gte: ['$transactionDate', yesterday] },
+                      { $lt: ['$transactionDate', today] },
+                    ],
+                  },
+                  '$amount',
+                  0,
+                ],
+              },
+            },
+            thisWeekEarnings: {
+              $sum: {
+                $cond: [{ $gte: ['$transactionDate', startOfWeek] }, '$amount', 0],
+              },
+            },
+            lastWeekEarnings: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $gte: ['$transactionDate', startOfLastWeek] },
+                      { $lt: ['$transactionDate', startOfWeek] },
+                    ],
+                  },
+                  '$amount',
+                  0,
+                ],
+              },
+            },
+            thisMonthEarnings: {
+              $sum: {
+                $cond: [{ $gte: ['$transactionDate', startOfMonth] }, '$amount', 0],
+              },
+            },
+            lastMonthEarnings: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $gte: ['$transactionDate', startOfLastMonth] },
+                      { $lte: ['$transactionDate', endOfLastMonth] },
+                    ],
+                  },
+                  '$amount',
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]),
+      Payment.find({
+        partner: partner._id,
+      })
+        .populate('user', 'name')
+        .populate('subscription', 'plan')
+        .sort({ transactionDate: -1 })
+        .limit(10),
     ]);
+
+    const earningsStats = earningsStatsResult[0];
 
     const stats = earningsStats || {
       todayEarnings: 0,
@@ -305,14 +317,6 @@ exports.getEarnings = async (req, res) => {
       lastMonthEarnings: 0,
       totalEarnings: 0,
     };
-
-    const recentPayments = await Payment.find({
-      partner: partner._id,
-    })
-      .populate('user', 'name')
-      .populate('subscription', 'plan')
-      .sort({ transactionDate: -1 })
-      .limit(10);
 
     const getChange = (current, previous) => {
       if (previous === 0) return current > 0 ? 100 : 0;
@@ -372,34 +376,26 @@ exports.getCustomerDetails = async (req, res) => {
     const endDate = new Date(subscription.endDate);
     const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
-    // Get delivery status for current month
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // ⚡ Bolt: Execute independent queries concurrently and use .lean() for read-only data
+    // ⚡ Bolt: Execute independent queries concurrently
     const [payments, reviews, deliveries] = await Promise.all([
-      // Get payment history
       Payment.find({
         subscription: subscription._id,
       })
         .sort({ createdAt: -1 })
-        .limit(10)
-        .lean(),
-
-      // Get reviews/feedback
+        .limit(10),
       Review.find({
         partner: partner._id, // Bug 1 fix
         user: customerId,
       })
         .sort({ createdAt: -1 })
-        .limit(5)
-        .lean(),
-
-      // Get delivery status for current month
+        .limit(5),
       Delivery.find({
         partner: partner._id, // Bug 1 fix
         user: customerId,
         deliveryDate: { $gte: startOfMonth },
-      }).lean(),
+      }),
     ]);
 
     const deliveredCount = deliveries.filter((d) => d.status === 'delivered').length;
@@ -457,14 +453,32 @@ exports.getAnalytics = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const totalSubscriptions = await Subscription.countDocuments({ partner: partner._id });
-    const todaySubscriptions = await Subscription.countDocuments({
-      partner: partner._id,
-      createdAt: { $gte: today },
-    });
+    // Last 7 days of real subscription data
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
 
-    // Fetch visits from PartnerAnalytics
-    const analyticsRecords = await PartnerAnalytics.find({ partner: partner._id });
+    // ⚡ Bolt: Execute independent queries concurrently
+    const [totalSubscriptions, todaySubscriptions, analyticsRecords, dailyData] = await Promise.all(
+      [
+        Subscription.countDocuments({ partner: partner._id }),
+        Subscription.countDocuments({
+          partner: partner._id,
+          createdAt: { $gte: today },
+        }),
+        PartnerAnalytics.find({ partner: partner._id }),
+        Subscription.aggregate([
+          { $match: { partner: partner._id, createdAt: { $gte: sevenDaysAgo } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+              subscriptions: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]),
+      ],
+    );
+
     const totalVisits = analyticsRecords.reduce((sum, record) => sum + record.visits, 0);
     const todayAnalytics = analyticsRecords.find(
       (record) => record.date.getTime() === today.getTime(),
@@ -474,21 +488,6 @@ exports.getAnalytics = async (req, res) => {
     // Conversion rate
     const conversionRate =
       totalVisits > 0 ? Math.round((totalSubscriptions / totalVisits) * 100) : 0;
-
-    // Last 7 days of real subscription data
-    const sevenDaysAgo = new Date(today);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-
-    const dailyData = await Subscription.aggregate([
-      { $match: { partner: partner._id, createdAt: { $gte: sevenDaysAgo } } },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          subscriptions: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]);
 
     // Merge visits into dailyData
     const last7DaysVisits = analyticsRecords.filter((record) => record.date >= sevenDaysAgo);

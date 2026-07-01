@@ -49,6 +49,7 @@ const fraudRoutes = require('./routes/fraud');
 const uploadRoutes = require('./routes/upload');
 const adRoutes = require('./routes/adRoutes');
 const waitlistRoutes = require('./routes/waitlist');
+const bannerRoutes = require('./routes/banners');
 const sitemapRoutes = require('./routes/sitemap');
 const { swaggerUi, specs } = require('./config/swagger');
 
@@ -154,6 +155,7 @@ app.use('/api/fraud', fraudRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ads', adRoutes);
 app.use('/api/waitlist', waitlistRoutes);
+app.use('/api/banners', bannerRoutes);
 app.use('/api/sitemap.xml', sitemapRoutes);
 
 // API Documentation

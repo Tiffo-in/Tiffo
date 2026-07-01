@@ -36,13 +36,16 @@ export const createApi = (tokenKey: string, userKey: string) => {
     (error) => Promise.reject(error)
   );
 
-  // Response interceptor: handle global 401 (token expired)
+  // Response interceptor: handle global 401 (token expired) and network errors
   api.interceptors.response.use(
     (response) => response,
     async (error) => {
       if (error.response?.status === 401) {
         await AsyncStorage.removeItem(tokenKey);
         await AsyncStorage.removeItem(userKey);
+      }
+      if (!error.response) {
+        error.message = 'Network error. Please check your internet connection and try again.';
       }
       return Promise.reject(error);
     }

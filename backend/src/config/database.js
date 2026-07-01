@@ -30,6 +30,36 @@ const connectDB = async () => {
       }
       logger.info('Database Migration: Slugs generated successfully.');
     }
+
+    // Migration: Seed default banners if empty
+    const Banner = require('../models/Banner');
+    const bannerCount = await Banner.countDocuments();
+    if (bannerCount === 0) {
+      await Banner.create([
+        {
+          title: '50% OFF',
+          subtitle: 'On your first subscription',
+          bg: '#E23744',
+          icon: 'gift-outline',
+          order: 1,
+        },
+        {
+          title: 'FREE delivery',
+          subtitle: 'On all monthly plans',
+          bg: '#FC8019',
+          icon: 'bicycle-outline',
+          order: 2,
+        },
+        {
+          title: 'Authentic Taste',
+          subtitle: 'Prepared by home chefs',
+          bg: '#2D9A47',
+          icon: 'restaurant-outline',
+          order: 3,
+        },
+      ]);
+      logger.info('Database Migration: Default banners auto-seeded successfully.');
+    }
   } catch (error) {
     logger.error('Database connection error:', { stack: error.stack });
     process.exit(1);
