@@ -134,35 +134,37 @@ exports.getDeliveryStats = async (req, res) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const stats = await Delivery.aggregate([
-      {
-        $match: {
-          partner: req.user._id,
-          deliveryDate: { $gte: startDate },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
-          outForDelivery: { $sum: { $cond: [{ $eq: ['$status', 'out_for_delivery'] }, 1, 0] } },
-          delivered: { $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] } },
-          cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } },
-        },
-      },
-    ]);
-
     // Today's deliveries
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const todayDeliveries = await Delivery.countDocuments({
-      partner: req.user.id,
-      deliveryDate: { $gte: today, $lt: tomorrow },
-    });
+    // ⚡ Bolt: Group independent database queries with Promise.all to reduce latency
+    const [stats, todayDeliveries] = await Promise.all([
+      Delivery.aggregate([
+        {
+          $match: {
+            partner: req.user._id,
+            deliveryDate: { $gte: startDate },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+            outForDelivery: { $sum: { $cond: [{ $eq: ['$status', 'out_for_delivery'] }, 1, 0] } },
+            delivered: { $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] } },
+            cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } },
+          },
+        },
+      ]),
+      Delivery.countDocuments({
+        partner: req.user.id,
+        deliveryDate: { $gte: today, $lt: tomorrow },
+      }),
+    ]);
 
     res.json({
       success: true,
