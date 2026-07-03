@@ -136,6 +136,7 @@ describe('Delivery Controller', () => {
       };
 
       Delivery.findOneAndUpdate.mockReturnValue({
+        lean: jest.fn().mockReturnThis(),
         populate: jest.fn().mockReturnThis(),
         exec: jest.fn().mockResolvedValue(mockDelivery),
       });
@@ -178,6 +179,7 @@ describe('Delivery Controller', () => {
       req.query = { page: '1', limit: '10' };
 
       Delivery.find.mockReturnValue({
+        lean: jest.fn().mockReturnThis(),
         populate: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
@@ -222,7 +224,8 @@ describe('Delivery Controller', () => {
 
       Delivery.updateMany.mockResolvedValue({ modifiedCount: 2 });
       Delivery.find.mockReturnValue({
-        populate: jest.fn().mockResolvedValue([{ _id: 'id1', user: { _id: 'u1' } }]),
+        populate: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockResolvedValue([{ _id: 'id1', user: { _id: 'u1' } }]),
       });
 
       await batchUpdateDeliveries(req, res);
@@ -254,6 +257,7 @@ describe('Delivery Controller', () => {
       req.user.role = 'admin';
 
       Delivery.find.mockReturnValue({
+        lean: jest.fn().mockReturnThis(),
         populate: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),

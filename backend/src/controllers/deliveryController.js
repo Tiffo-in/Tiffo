@@ -104,6 +104,7 @@ exports.getPartnerDeliveries = async (req, res) => {
         .populate('user', 'name phone address')
         .populate('subscription', 'plan')
         .sort({ deliveryDate: -1, createdAt: -1 })
+        .lean()
         .skip((page - 1) * limit)
         .limit(limit),
       Delivery.countDocuments(query),
@@ -214,7 +215,9 @@ exports.batchUpdateDeliveries = async (req, res) => {
     );
 
     // Emit updates for each delivery
-    const deliveries = await Delivery.find({ _id: { $in: deliveryIds } }).populate('user', '_id');
+    const deliveries = await Delivery.find({ _id: { $in: deliveryIds } })
+      .populate('user', '_id')
+      .lean();
 
     deliveries.forEach((delivery) => {
       emitDeliveryUpdate(delivery._id, delivery.user._id, req.user.id, status, { delivery });
@@ -357,6 +360,7 @@ exports.getAdminDeliveries = async (req, res) => {
         .populate('partner', 'businessName phone')
         .populate('subscription', 'plan')
         .sort({ deliveryDate: -1, createdAt: -1 })
+        .lean()
         .skip((page - 1) * limit)
         .limit(limit),
       Delivery.countDocuments(query),

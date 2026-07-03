@@ -180,7 +180,8 @@ exports.getTodayOrders = async (req, res) => {
     })
       .populate('user', 'name phone')
       .populate('subscription', 'deliveryAddress plan')
-      .sort({ deliveryTime: 1 });
+      .sort({ deliveryTime: 1 })
+      .lean();
 
     const orders = deliveries.map((delivery) => ({
       id: delivery._id,
