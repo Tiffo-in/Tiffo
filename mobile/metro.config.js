@@ -6,13 +6,15 @@ const workspaceRoot = path.resolve(projectRoot, '..');
 
 const config = getDefaultConfig(projectRoot);
 
-// 1. Watch all files within the monorepo
-config.watchFolders = [workspaceRoot];
+// 1. Watch only the project root and shared-mobile src directory
+config.watchFolders = [
+  projectRoot,
+  path.resolve(workspaceRoot, 'shared-mobile/src'),
+];
 
 // 2. Let Metro know where to resolve packages and in what order
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
-  path.resolve(workspaceRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'shared-mobile/node_modules'),
 ];
 
