@@ -136,7 +136,6 @@ describe('Delivery Controller', () => {
       };
 
       Delivery.findOneAndUpdate.mockReturnValue({
-        lean: jest.fn().mockReturnThis(),
         populate: jest.fn().mockReturnThis(),
         exec: jest.fn().mockResolvedValue(mockDelivery),
       });
@@ -183,8 +182,7 @@ describe('Delivery Controller', () => {
         populate: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        lean: jest.fn().mockResolvedValue([{ _id: 'd1' }]),
+        limit: jest.fn().mockResolvedValue([{ _id: 'd1' }]),
       });
       Delivery.countDocuments.mockResolvedValue(1);
 
@@ -262,8 +260,7 @@ describe('Delivery Controller', () => {
         populate: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        lean: jest.fn().mockResolvedValue([]),
+        limit: jest.fn().mockResolvedValue([]),
       });
       Delivery.countDocuments.mockResolvedValue(0);
 
