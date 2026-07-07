@@ -14,7 +14,8 @@ exports.getPendingPartners = async (req, res) => {
       isVerified: false,
     })
       .select('-password')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json({
       success: true,
