@@ -17,6 +17,9 @@ router.post('/', protect, createSubscription);
 // Get user subscriptions
 router.get('/', protect, getUserSubscriptions);
 
+// Get user subscriptions (alias for mobile app compatibility)
+router.get('/my', protect, getUserSubscriptions);
+
 // Get order history
 router.get('/history', protect, getOrderHistory);
 
@@ -28,8 +31,10 @@ router.get('/:id', protect, getSubscriptionDetails);
 
 // Pause subscription
 router.put('/:id/pause', protect, pauseSubscription);
+router.patch('/:id/pause', protect, pauseSubscription);
 
 // Resume subscription
 router.put('/:id/resume', protect, resumeSubscription);
+router.patch('/:id/resume', protect, resumeSubscription);
 
 module.exports = router;

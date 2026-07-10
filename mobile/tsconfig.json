@@ -26,5 +26,5 @@
     "babel.config.js",
     "metro.config.js"
   ],
-  "extends": "expo/tsconfig.base.json"
+  "extends": "./node_modules/expo/tsconfig.base.json"
 }

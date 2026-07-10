@@ -196,7 +196,7 @@ export default function SubscriptionScreen() {
       return;
     }
     try {
-      setSubs((await api.get('/subscriptions/my')).data?.data || []);
+      setSubs((await api.get('/subscriptions')).data?.data || []);
     } catch {
     } finally {
       setLoading(false);
@@ -288,13 +288,13 @@ export default function SubscriptionScreen() {
               C={C}
               onPause={async () => {
                 try {
-                  await api.patch(`/subscriptions/${sub._id}/pause`);
+                  await api.put(`/subscriptions/${sub._id}/pause`);
                   fetchSubs();
                 } catch {}
               }}
               onResume={async () => {
                 try {
-                  await api.patch(`/subscriptions/${sub._id}/resume`);
+                  await api.put(`/subscriptions/${sub._id}/resume`);
                   fetchSubs();
                 } catch {}
               }}
