@@ -48,7 +48,8 @@ exports.getDeliveryDetails = async (req, res) => {
     const delivery = await Delivery.findById(req.params.deliveryId)
       .populate('user', 'name phone address')
       .populate('subscription')
-      .populate('partner', 'businessName phone user');
+      .populate('partner', 'businessName phone user')
+      .lean(); // ⚡ Bolt: Added .lean() to skip hydrating Mongoose documents for read-only query, reducing memory usage and CPU overhead
 
     if (!delivery) {
       return res.status(404).json({ success: false, message: 'Delivery not found' });
