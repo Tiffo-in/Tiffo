@@ -106,6 +106,7 @@ exports.getReviewsByTiffin = async (req, res) => {
         .sort(sort)
         .limit(limit * 1)
         .skip((page - 1) * limit)
+        .lean()
         .exec(),
       Review.countDocuments({ tiffin: tiffinId }),
     ]);
@@ -145,6 +146,7 @@ exports.getReviewsByPartner = async (req, res) => {
         .sort(sort)
         .limit(limit * 1)
         .skip((page - 1) * limit)
+        .lean()
         .exec(),
       Review.countDocuments(query),
     ]);

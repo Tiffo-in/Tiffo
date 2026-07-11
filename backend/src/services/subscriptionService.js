@@ -179,16 +179,27 @@ exports.resumeUserSubscription = async (subscriptionId, userId) => {
 };
 
 exports.fetchUserStats = async (userId) => {
-  const activeSubscriptions = await Subscription.countDocuments({
-    user: userId,
-    status: { $in: ['active', 'paused'] },
-  });
-
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-  const userSubIds = await Subscription.find({ user: userId }).distinct('_id');
+  const [activeSubscriptions, userSubIds, paidSubs, completedOrders] = await Promise.all([
+    Subscription.countDocuments({
+      user: userId,
+      status: { $in: ['active', 'paused'] },
+    }),
+    Subscription.find({ user: userId }).distinct('_id'),
+    Subscription.find({
+      user: userId,
+      paymentStatus: { $in: ['paid', 'captured'] },
+    })
+      .select('totalAmount')
+      .lean(),
+    Subscription.countDocuments({
+      user: userId,
+      status: 'completed',
+    }),
+  ]);
 
   const mealsThisMonth = await Delivery.countDocuments({
     subscription: { $in: userSubIds },
@@ -196,17 +207,7 @@ exports.fetchUserStats = async (userId) => {
     deliveryDate: { $gte: startOfMonth, $lte: endOfMonth },
   });
 
-  const paidSubs = await Subscription.find({
-    user: userId,
-    paymentStatus: { $in: ['paid', 'captured'] },
-  }).select('totalAmount');
-
   const totalSpent = paidSubs.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
-
-  const completedOrders = await Subscription.countDocuments({
-    user: userId,
-    status: 'completed',
-  });
   const loyaltyPoints = completedOrders * 10 + activeSubscriptions * 5;
 
   return {

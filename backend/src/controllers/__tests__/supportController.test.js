@@ -107,7 +107,8 @@ describe('Support Controller', () => {
       SupportRequest.find.mockReturnValue({
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockRequests),
+        limit: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockResolvedValue(mockRequests),
       });
 
       await getSupportRequests(mockReq, mockRes, mockNext);
@@ -134,12 +135,14 @@ describe('Support Controller', () => {
       SupportRequest.countDocuments.mockResolvedValue(1);
 
       const skipMock = jest.fn().mockReturnThis();
-      const limitMock = jest.fn().mockResolvedValue(mockRequests);
+      const limitMock = jest.fn().mockReturnThis();
+      const leanMock = jest.fn().mockResolvedValue(mockRequests);
 
       SupportRequest.find.mockReturnValue({
         sort: jest.fn().mockReturnThis(),
         skip: skipMock,
         limit: limitMock,
+        lean: leanMock,
       });
 
       await getSupportRequests(mockReq, mockRes, mockNext);

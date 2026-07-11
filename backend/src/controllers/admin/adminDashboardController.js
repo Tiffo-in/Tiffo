@@ -114,8 +114,8 @@ exports.getDashboardStats = async (req, res) => {
 exports.getRecentActivity = async (req, res) => {
   try {
     const [recentUsers, recentSubscriptions] = await Promise.all([
-      User.find().select('name email role createdAt').sort({ createdAt: -1 }).limit(5),
-      Subscription.find().populate('user', 'name').sort({ createdAt: -1 }).limit(8),
+      User.find().select('name email role createdAt').sort({ createdAt: -1 }).limit(5).lean(),
+      Subscription.find().populate('user', 'name').sort({ createdAt: -1 }).limit(8).lean(),
     ]);
 
     const activities = [

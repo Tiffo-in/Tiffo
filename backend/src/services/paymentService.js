@@ -17,10 +17,11 @@ exports.setupPartnerPaymentAccount = async (
   partnerId,
   { businessName, bankDetails, taxDetails },
 ) => {
-  // Get user for personal details (email, phone, address)
-  const user = await User.findById(partnerId);
-  // Get partner business context
-  const partner = await Partner.findOne({ user: partnerId }).populate('user');
+  // Get user details and partner business context concurrently
+  const [user, partner] = await Promise.all([
+    User.findById(partnerId).lean(),
+    Partner.findOne({ user: partnerId }).populate('user'),
+  ]);
 
   if (!user || user.role !== 'partner' || !partner) {
     throw new Error('Only partners can setup payment accounts');
@@ -180,7 +181,9 @@ exports.verifySubscriptionPayment = async ({
       throw new Error('Invalid payment signature');
     }
 
-    const subscription = await Subscription.findById(subscriptionId).session(session);
+    const subscription = await Subscription.findById(subscriptionId)
+      .populate('tiffin partner')
+      .session(session);
     if (!subscription) {
       const error = new Error('Subscription not found');
       error.status = 404;
@@ -194,9 +197,7 @@ exports.verifySubscriptionPayment = async ({
     subscription.paidAt = new Date();
     await subscription.save({ session });
 
-    const populatedForDeliveries = await Subscription.findById(subscription._id)
-      .populate('tiffin partner')
-      .session(session);
+    const populatedForDeliveries = subscription;
 
     if (populatedForDeliveries) {
       const deliveryResult = await generateDeliveriesForSubscription(
@@ -243,7 +244,9 @@ exports.confirmCod = async (subscriptionId) => {
   session.startTransaction();
 
   try {
-    const subscription = await Subscription.findById(subscriptionId).session(session);
+    const subscription = await Subscription.findById(subscriptionId)
+      .populate('tiffin partner')
+      .session(session);
     if (!subscription) {
       const error = new Error('Subscription not found');
       error.status = 404;
@@ -255,9 +258,7 @@ exports.confirmCod = async (subscriptionId) => {
     subscription.status = 'active';
     await subscription.save({ session });
 
-    const populatedForDeliveries = await Subscription.findById(subscription._id)
-      .populate('tiffin partner')
-      .session(session);
+    const populatedForDeliveries = subscription;
 
     if (populatedForDeliveries) {
       const deliveryResult = await generateDeliveriesForSubscription(
@@ -356,17 +357,18 @@ exports.fetchPaymentHistory = async (userId, { type, status, limit = 20, page = 
   const safeLimit = Math.max(1, isNaN(parsedLimit) ? 20 : parsedLimit);
   const safePage = Math.max(1, isNaN(parsedPage) ? 1 : parsedPage);
 
-  const payments = await PaymentLog.find(query)
-    .sort({ createdAt: -1 })
-    .limit(safeLimit)
-    .skip((safePage - 1) * safeLimit)
-    .populate('subscriptionId', 'plan startDate endDate')
-    .populate('partnerId', 'name email');
+  const [payments, total, allPayments] = await Promise.all([
+    PaymentLog.find(query)
+      .sort({ createdAt: -1 })
+      .limit(safeLimit)
+      .skip((safePage - 1) * safeLimit)
+      .populate('subscriptionId', 'plan startDate endDate')
+      .populate('partnerId', 'name email')
+      .lean(),
+    PaymentLog.countDocuments(query),
+    PaymentLog.find({ userId }).lean(),
+  ]);
 
-  const total = await PaymentLog.countDocuments(query);
-
-  // Calculate global summary stats for the user (ignoring pagination filters)
-  const allPayments = await PaymentLog.find({ userId });
   const successful = allPayments.filter((p) => p.status === 'success' && p.type !== 'refund');
   const refunded = allPayments.filter((p) => p.type === 'refund');
   const failed = allPayments.filter((p) => p.status === 'failed');

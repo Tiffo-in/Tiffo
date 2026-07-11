@@ -39,7 +39,8 @@ describe('Tiffin Controller', () => {
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
-        populate: jest.fn().mockResolvedValue(mockTiffins),
+        populate: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockResolvedValue(mockTiffins),
       });
 
       mockReq.query = { page: '1', limit: '10' };

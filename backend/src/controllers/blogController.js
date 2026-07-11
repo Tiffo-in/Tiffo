@@ -157,7 +157,8 @@ exports.getAllPostsAdmin = async (req, res) => {
         .populate('author', 'name email')
         .sort(sortOptions)
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Blog.countDocuments(query),
     ]);
 
@@ -214,7 +215,8 @@ exports.getAllPosts = async (req, res) => {
         .populate('author', 'name')
         .sort(sortOptions)
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Blog.countDocuments(query),
     ]);
 
@@ -358,21 +360,22 @@ exports.getBlogStats = async (req, res) => {
  */
 exports.getCategories = async (req, res) => {
   try {
-    const categories = await Blog.aggregate([
-      { $match: { status: 'published' } },
-      { $group: { _id: '$category', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      {
-        $project: {
-          _id: 0,
-          name: '$_id',
-          count: 1,
+    const [categories, total] = await Promise.all([
+      Blog.aggregate([
+        { $match: { status: 'published' } },
+        { $group: { _id: '$category', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        {
+          $project: {
+            _id: 0,
+            name: '$_id',
+            count: 1,
+          },
         },
-      },
+      ]),
+      Blog.countDocuments({ status: 'published' }),
     ]);
 
-    // Add "All" category
-    const total = await Blog.countDocuments({ status: 'published' });
     const allCategories = [{ name: 'All', count: total }, ...categories];
 
     res.json({

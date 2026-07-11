@@ -14,7 +14,8 @@ exports.getPendingPartners = async (req, res) => {
       isVerified: false,
     })
       .select('-password')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json({
       success: true,
@@ -34,16 +35,17 @@ exports.updatePartnerStatus = async (req, res) => {
   try {
     const { status, reason } = req.body;
 
-    const partner = await User.findOne({
-      _id: req.params.id,
-      role: 'partner',
-    });
+    const [partner, partnerProfile] = await Promise.all([
+      User.findOne({
+        _id: req.params.id,
+        role: 'partner',
+      }),
+      Partner.findOne({ user: req.params.id }),
+    ]);
 
     if (!partner) {
       return res.status(404).json({ success: false, message: 'Partner not found' });
     }
-
-    const partnerProfile = await Partner.findOne({ user: partner._id });
 
     if (status === 'approved') {
       partner.isVerified = true;

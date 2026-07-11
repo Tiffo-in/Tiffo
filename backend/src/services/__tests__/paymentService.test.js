@@ -29,6 +29,7 @@ describe('paymentService - fetchPaymentHistory', () => {
     chain.limit = jest.fn().mockReturnValue(chain);
     chain.skip = jest.fn().mockReturnValue(chain);
     chain.populate = jest.fn().mockReturnValue(chain);
+    chain.lean = jest.fn().mockReturnValue(chain);
     chain.then = jest.fn((cb) => cb(mockPayments));
     return chain;
   };
@@ -38,7 +39,9 @@ describe('paymentService - fetchPaymentHistory', () => {
     const chain = createQueryMock(mockPayments);
 
     // First call to find is for paginated result, second is for summaryStats
-    PaymentLog.find.mockImplementationOnce(() => chain).mockResolvedValueOnce([]);
+    PaymentLog.find
+      .mockImplementationOnce(() => chain)
+      .mockImplementationOnce(() => createQueryMock([]));
 
     PaymentLog.countDocuments.mockResolvedValue(0);
 
@@ -55,7 +58,9 @@ describe('paymentService - fetchPaymentHistory', () => {
     const chain = createQueryMock(mockPayments);
 
     // Setup for find query chain
-    PaymentLog.find.mockImplementationOnce(() => chain).mockResolvedValueOnce([]);
+    PaymentLog.find
+      .mockImplementationOnce(() => chain)
+      .mockImplementationOnce(() => createQueryMock([]));
 
     PaymentLog.countDocuments.mockResolvedValue(0);
 
@@ -71,7 +76,9 @@ describe('paymentService - fetchPaymentHistory', () => {
     const mockPayments = [];
     const chain = createQueryMock(mockPayments);
 
-    PaymentLog.find.mockImplementationOnce(() => chain).mockResolvedValueOnce([]);
+    PaymentLog.find
+      .mockImplementationOnce(() => chain)
+      .mockImplementationOnce(() => createQueryMock([]));
 
     PaymentLog.countDocuments.mockResolvedValue(50);
 

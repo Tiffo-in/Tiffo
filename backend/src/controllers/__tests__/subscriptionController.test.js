@@ -364,7 +364,8 @@ describe('Subscription Controller', () => {
       Subscription.find
         .mockReturnValueOnce({ distinct: jest.fn().mockResolvedValue(['id1', 'id2']) }) // userSubIds
         .mockReturnValueOnce({
-          select: jest.fn().mockResolvedValue([{ totalAmount: 600 }, { totalAmount: 400 }]),
+          select: jest.fn().mockReturnThis(),
+          lean: jest.fn().mockResolvedValue([{ totalAmount: 600 }, { totalAmount: 400 }]),
         }); // paidSubs
 
       Delivery.countDocuments.mockResolvedValue(5); // mealsThisMonth

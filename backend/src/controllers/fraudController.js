@@ -48,7 +48,7 @@ exports.getFraudReports = async (req, res, next) => {
     // ⚡ Bolt: Execute paginated find and count queries concurrently
     const [total, reports] = await Promise.all([
       FraudReport.countDocuments(query),
-      FraudReport.find(query).sort({ createdAt: -1 }).skip(startIndex).limit(limit),
+      FraudReport.find(query).sort({ createdAt: -1 }).skip(startIndex).limit(limit).lean(),
     ]);
 
     res.status(200).json({

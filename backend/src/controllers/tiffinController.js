@@ -62,14 +62,13 @@ const getTiffins = async (req, res) => {
       query.partner = { $in: partnerIds };
 
       // Since we handle pagination in memory when sorted by distance, we get all matching tiffins first
-      let tiffins = await Tiffin.find(query).populate(
-        'partner',
-        'businessName rating address deliveryRadius location logo verified',
-      );
+      let tiffins = await Tiffin.find(query)
+        .populate('partner', 'businessName rating address deliveryRadius location logo verified')
+        .lean();
 
       tiffins = tiffins
         .map((tiffin) => {
-          const tiffinObj = tiffin.toObject();
+          const tiffinObj = { ...tiffin };
           tiffinObj.distance = parseFloat(
             partnerDistances[tiffinObj.partner._id.toString()].toFixed(2),
           );
@@ -88,7 +87,8 @@ const getTiffins = async (req, res) => {
           .sort({ 'rating.average': -1 })
           .skip(startIndex)
           .limit(Number(limit))
-          .populate('partner', 'businessName rating address deliveryRadius location logo verified'),
+          .populate('partner', 'businessName rating address deliveryRadius location logo verified')
+          .lean(),
       ]);
       total = count;
       paginatedTiffins = results;
@@ -171,7 +171,7 @@ const getTiffin = async (req, res) => {
 
 const createTiffin = async (req, res) => {
   try {
-    const partner = await Partner.findOne({ user: req.user.id });
+    const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
       return res.status(404).json({
         success: false,
@@ -198,7 +198,13 @@ const createTiffin = async (req, res) => {
 
 const updateTiffin = async (req, res) => {
   try {
-    const partner = await Partner.findOne({ user: req.user.id });
+    const partner = await Partner.findOne({ user: req.user.id }).lean();
+    if (!partner) {
+      return res.status(404).json({
+        success: false,
+        message: 'Partner profile not found',
+      });
+    }
     const tiffin = await Tiffin.findOneAndUpdate(
       { _id: req.params.id, partner: partner._id },
       req.body,
@@ -226,7 +232,13 @@ const updateTiffin = async (req, res) => {
 
 const deleteTiffin = async (req, res) => {
   try {
-    const partner = await Partner.findOne({ user: req.user.id });
+    const partner = await Partner.findOne({ user: req.user.id }).lean();
+    if (!partner) {
+      return res.status(404).json({
+        success: false,
+        message: 'Partner profile not found',
+      });
+    }
     const tiffin = await Tiffin.findOneAndDelete({
       _id: req.params.id,
       partner: partner._id,
@@ -254,7 +266,7 @@ const deleteTiffin = async (req, res) => {
 // PATCH /api/tiffins/:id/discount  — partner-only
 const updateDiscount = async (req, res) => {
   try {
-    const partner = await Partner.findOne({ user: req.user.id });
+    const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
       return res.status(404).json({ success: false, message: 'Partner profile not found' });
     }
@@ -301,7 +313,7 @@ const updateDiscount = async (req, res) => {
 // PATCH /api/tiffins/:id/menu  — partner-only: replace entire menuItems array
 const updateMenuItems = async (req, res) => {
   try {
-    const partner = await Partner.findOne({ user: req.user.id });
+    const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
       return res.status(404).json({ success: false, message: 'Partner profile not found' });
     }
@@ -351,12 +363,12 @@ const updateMenuItems = async (req, res) => {
 // GET /api/tiffins/mine  — partner's own tiffins (including inactive)
 const getMyTiffins = async (req, res) => {
   try {
-    const partner = await Partner.findOne({ user: req.user.id });
+    const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
       return res.status(404).json({ success: false, message: 'Partner profile not found' });
     }
 
-    const tiffins = await Tiffin.find({ partner: partner._id });
+    const tiffins = await Tiffin.find({ partner: partner._id }).lean();
     res.json({ success: true, data: tiffins });
   } catch (error) {
     logger.error(error.message, { stack: error.stack });
