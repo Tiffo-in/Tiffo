@@ -46,7 +46,9 @@ describe('Delivery Controller', () => {
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue(mockDelivery),
+            populate: jest.fn().mockReturnValue({
+              lean: jest.fn().mockResolvedValue(mockDelivery),
+            }),
           }),
         }),
       });
@@ -70,7 +72,9 @@ describe('Delivery Controller', () => {
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue(mockDelivery),
+            populate: jest.fn().mockReturnValue({
+              lean: jest.fn().mockResolvedValue(mockDelivery),
+            }),
           }),
         }),
       });
@@ -89,7 +93,9 @@ describe('Delivery Controller', () => {
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockResolvedValue(null),
+            populate: jest.fn().mockReturnValue({
+              lean: jest.fn().mockResolvedValue(null),
+            }),
           }),
         }),
       });
@@ -109,7 +115,9 @@ describe('Delivery Controller', () => {
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockRejectedValue(new Error('Database query failed')),
+            populate: jest.fn().mockReturnValue({
+              lean: jest.fn().mockRejectedValue(new Error('Database query failed')),
+            }),
           }),
         }),
       });
