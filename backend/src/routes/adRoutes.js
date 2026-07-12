@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const {
   getAdListings,
-  getRecommender,
   logImpressions,
   logClick,
   createCampaign,
@@ -15,7 +14,6 @@ const { protect } = require('../middlewares/auth');
 
 // Public tracking and retrieval
 router.get('/listings', getAdListings);
-router.get('/recommender', getRecommender);
 // Support optional auth for user id tracking
 router.post(
   '/impressions',

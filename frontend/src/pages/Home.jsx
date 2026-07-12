@@ -15,7 +15,6 @@ import {
   HeartIcon,
 } from '@heroicons/react/24/outline';
 import { SparklesIcon } from '@heroicons/react/24/solid';
-import AdRecommenderBubble from '../components/AdRecommenderBubble';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 
@@ -617,7 +616,6 @@ const Home = () => {
           </div>
         </div>
       </footer>
-      <AdRecommenderBubble />
     </div>
   );
 };

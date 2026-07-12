@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 import api from '../services/api';
 import AdTiffinCard from '../components/AdTiffinCard';
 import useImpressionTracker from '../hooks/useImpressionTracker';
-import AdRecommenderBubble from '../components/AdRecommenderBubble';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Tiffins = () => {
@@ -25,7 +24,7 @@ const Tiffins = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const LIMIT = 12;
-  
+
   // -- ADS STATE & OBSERVER --
   const [ads, setAds] = useState([]);
   const { observeRef } = useImpressionTracker();
@@ -37,7 +36,13 @@ const Tiffins = () => {
       if (!location) return;
       try {
         const res = await api.get('/ads/listings', {
-          params: { ...filters, lat: location.lat, lng: location.lng, radius: location.radius, limit: 3 }
+          params: {
+            ...filters,
+            lat: location.lat,
+            lng: location.lng,
+            radius: location.radius,
+            limit: 3,
+          },
         });
         if (isMounted && res.data?.data?.sponsored) {
           setAds(res.data.data.sponsored);
@@ -47,13 +52,15 @@ const Tiffins = () => {
       }
     };
     fetchAds();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [filters, location]);
 
   // Merge ads sequentially into the organic tiffins list (e.g. ad at index 0, 3, 6...)
   const displayItems = [];
   let adIndex = 0;
-  
+
   if (tiffins) {
     tiffins.forEach((tiffin, index) => {
       // Inject an ad every 4th item, if we have ads remaining
@@ -102,7 +109,7 @@ const Tiffins = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleLocationChange = (locationData) => {
@@ -111,7 +118,6 @@ const Tiffins = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pt-28 pb-16 relative overflow-hidden transition-colors duration-500">
-      
       {/* Premium Background Elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/10 dark:bg-primary-500/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-secondary-500/10 dark:bg-secondary-500/5 blur-[120px] rounded-full pointer-events-none" />
@@ -144,7 +150,12 @@ const Tiffins = () => {
           <div className="bg-white/70 dark:bg-neutral-900/70 backdrop-blur-2xl border border-white/50 dark:border-neutral-800/50 p-6 lg:p-8 rounded-[2rem] shadow-xl shadow-neutral-200/50 dark:shadow-none">
             <h3 className="text-sm font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-5 flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                />
               </svg>
               Refine Search
             </h3>
@@ -162,7 +173,14 @@ const Tiffins = () => {
                   <option value="snacks">Snacks 🍪</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none text-neutral-400">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
                 </div>
               </div>
 
@@ -180,7 +198,14 @@ const Tiffins = () => {
                   <option value="Bengali">Bengali</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none text-neutral-400">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
                 </div>
               </div>
 
@@ -197,7 +222,14 @@ const Tiffins = () => {
                   <option value="jain">Jain</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none text-neutral-400">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
                 </div>
               </div>
             </div>
@@ -216,8 +248,13 @@ const Tiffins = () => {
             animate={{ opacity: 1 }}
           >
             <div className="text-6xl mb-6">⚠️</div>
-            <p className="text-neutral-900 dark:text-white text-2xl font-black mb-3">Unable to load tiffins</p>
-            <p className="text-neutral-500 dark:text-neutral-400 mb-8 max-w-md mx-auto">There was a problem connecting to the server. Please check your connection and try again.</p>
+            <p className="text-neutral-900 dark:text-white text-2xl font-black mb-3">
+              Unable to load tiffins
+            </p>
+            <p className="text-neutral-500 dark:text-neutral-400 mb-8 max-w-md mx-auto">
+              There was a problem connecting to the server. Please check your connection and try
+              again.
+            </p>
             <button
               onClick={() => dispatch(getTiffins({ ...filters, limit: LIMIT, page: 1 }))}
               className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform"
@@ -234,19 +271,31 @@ const Tiffins = () => {
                 animate={{ opacity: 1, scale: 1 }}
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
                 </svg>
                 <span className="font-bold">
-                  Showing {tiffins.length} tiffin{tiffins.length !== 1 ? 's' : ''} within {location.radius} km
+                  Showing {tiffins.length} tiffin{tiffins.length !== 1 ? 's' : ''} within{' '}
+                  {location.radius} km
                 </span>
               </motion.div>
             )}
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayItems.map((item, index) => {
-                const uniqueKey = item.type === 'ad' ? `ad-${item.data._id}` : `org-${item.data._id}`;
-                
+                const uniqueKey =
+                  item.type === 'ad' ? `ad-${item.data._id}` : `org-${item.data._id}`;
+
                 if (item.type === 'ad') {
                   return (
                     <motion.div
@@ -272,7 +321,7 @@ const Tiffins = () => {
                 );
               })}
             </div>
-            
+
             {/* ─── Load More ─── */}
             {hasMore && (
               <div className="flex justify-center mt-16">
@@ -286,12 +335,25 @@ const Tiffins = () => {
                   {loadingMore ? (
                     <>
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
                       </svg>
                       Loading...
                     </>
-                  ) : 'Load More Tiffins ↓'}
+                  ) : (
+                    'Load More Tiffins ↓'
+                  )}
                 </motion.button>
               </div>
             )}
@@ -305,12 +367,17 @@ const Tiffins = () => {
             <motion.div
               className="text-7xl mb-8"
               animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >🔍</motion.div>
-            <h3 className="text-neutral-900 dark:text-white text-3xl font-black mb-3">No tiffins found</h3>
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              🔍
+            </motion.div>
+            <h3 className="text-neutral-900 dark:text-white text-3xl font-black mb-3">
+              No tiffins found
+            </h3>
             {location ? (
               <p className="text-neutral-500 dark:text-neutral-400 text-lg max-w-md mx-auto">
-                Try increasing your search radius or adjusting your filters to see more delicious options.
+                Try increasing your search radius or adjusting your filters to see more delicious
+                options.
               </p>
             ) : (
               <p className="text-neutral-500 dark:text-neutral-400 text-lg max-w-md mx-auto">
@@ -320,7 +387,6 @@ const Tiffins = () => {
           </motion.div>
         )}
       </div>
-      <AdRecommenderBubble />
     </div>
   );
 };
