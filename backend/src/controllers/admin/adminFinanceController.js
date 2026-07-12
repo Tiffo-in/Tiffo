@@ -30,6 +30,7 @@ exports.getAllPayments = async (req, res) => {
 
     const [payments, total, summary] = await Promise.all([
       Payment.find(query)
+        .lean()
         .populate('user', 'name email phone')
         .populate('partner', 'name email businessName')
         .populate('subscription', 'plan startDate endDate')
@@ -249,6 +250,7 @@ exports.getPayoutHistory = async (req, res) => {
 
     const [payouts, total, totalAmount] = await Promise.all([
       Payment.find(query)
+        .lean()
         .populate('partner', 'name email businessName')
         .select('partner amount payoutDate payoutId payoutStatus')
         .sort({ payoutDate: -1 })
@@ -331,6 +333,7 @@ exports.getDisputedPayments = async (req, res) => {
     if (status && status !== 'all') query.disputeStatus = status;
 
     const disputes = await Payment.find(query)
+      .lean()
       .populate('user', 'name email phone')
       .populate('partner', 'name email businessName')
       .sort({ disputeCreatedAt: -1 });

@@ -159,6 +159,7 @@ const getMessages = async (req, res) => {
     // ⚡ Bolt: Execute paginated find and count queries concurrently
     const [messages, total] = await Promise.all([
       Message.find({ conversation: conversationId })
+        .lean()
         .populate('sender', 'name avatar')
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
