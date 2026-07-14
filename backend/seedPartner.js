@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./src/models/User');
 const Partner = require('./src/models/Partner');
+const crypto = require('crypto');
 require('dotenv').config();
 
 async function seed() {
@@ -10,16 +11,19 @@ async function seed() {
   // Check if partner exists
   let user = await User.findOne({ email: 'partner@tiffo.com' });
   if (!user) {
+    const password = process.env.SEED_PASSWORD || crypto.randomBytes(12).toString('hex');
     user = new User({
       name: 'Sharma Kitchen',
       email: 'partner@tiffo.com',
-      password: 'password123',
+      password: password,
       phone: '9876543210',
       role: 'partner',
       isEmailVerified: true
     });
     await user.save();
     console.log('Created User');
+    console.log(`Email: partner@tiffo.com`);
+    console.log(`Password: ${password}`);
   }
 
   let partner = await Partner.findOne({ user: user._id });

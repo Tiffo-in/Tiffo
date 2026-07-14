@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 const User = require('./src/models/User');
 const Partner = require('./src/models/Partner');
 const Tiffin = require('./src/models/Tiffin');
+const crypto = require('crypto');
 require('dotenv').config();
+
+const defaultPassword = process.env.SEED_PASSWORD || crypto.randomBytes(12).toString('hex');
+
 
 const sampleData = {
     // Sample users and partners with real coordinates from different cities
@@ -11,7 +15,7 @@ const sampleData = {
             user: {
                 name: 'Rajesh Kumar',
                 email: 'rajesh@delhitiffin.com',
-                password: 'password123',
+                password: defaultPassword,
                 phone: '+91-9876543210',
                 role: 'partner'
             },
@@ -68,7 +72,7 @@ const sampleData = {
             user: {
                 name: 'Priya Sharma',
                 email: 'priya@southdelhi.com',
-                password: 'password123',
+                password: defaultPassword,
                 phone: '+91-9876543211',
                 role: 'partner'
             },
@@ -115,7 +119,7 @@ const sampleData = {
             user: {
                 name: 'Amit Patel',
                 email: 'amit@mumbaitiffin.com',
-                password: 'password123',
+                password: defaultPassword,
                 phone: '+91-9876543212',
                 role: 'partner'
             },
@@ -162,7 +166,7 @@ const sampleData = {
             user: {
                 name: 'Lakshmi Rao',
                 email: 'lakshmi@bangaloretiffin.com',
-                password: 'password123',
+                password: defaultPassword,
                 phone: '+91-9876543213',
                 role: 'partner'
             },
@@ -219,7 +223,7 @@ const sampleData = {
             user: {
                 name: 'Vikram Singh',
                 email: 'vikram@dwarkatiffin.com',
-                password: 'password123',
+                password: defaultPassword,
                 phone: '+91-9876543214',
                 role: 'partner'
             },
@@ -309,6 +313,7 @@ const seedDatabase = async () => {
         }
 
         console.log('\n🎉 Database seeded successfully!');
+        console.log(`\n🔑 Default Password used for all users: ${defaultPassword}`);
         console.log('\n📍 Sample Partner Locations:');
         console.log('  • Delhi Home Kitchen - Connaught Place (28.6139, 77.2090)');
         console.log('  • South Delhi Tiffin - Hauz Khas (28.5494, 77.2001)');
