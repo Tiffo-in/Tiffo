@@ -6,7 +6,7 @@ const logger = require('../../utils/logger');
 // @access  Private/Admin
 exports.getBanners = async (req, res, next) => {
   try {
-    const banners = await Banner.find().sort({ order: 1 });
+    const banners = await Banner.find().sort({ order: 1 }).lean(); // ⚡ Bolt: Added .lean() to skip hydrating Mongoose documents for read-only queries, reducing memory usage and CPU overhead
     res.status(200).json({ success: true, count: banners.length, data: banners });
   } catch (error) {
     next(error);
