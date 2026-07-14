@@ -21,14 +21,18 @@ const bcrypt = require('bcryptjs');
         console.log('Has password:', !!admin.password);
 
         // Test password comparison
-        const testPassword = 'admin123';
+        const testPassword = process.argv[2] || process.env.DEBUG_ADMIN_PASSWORD;
+        if (!testPassword) {
+            console.error('Please provide a password to test via command line argument or DEBUG_ADMIN_PASSWORD environment variable.');
+            process.exit(1);
+        }
         const match = await bcrypt.compare(testPassword, admin.password);
-        console.log('Password match for admin123:', match);
+        console.log('Password match:', match);
 
         // If password doesn't match, reset it
         if (!match) {
             console.log('Resetting admin password...');
-            const newHash = await bcrypt.hash('admin123', 12);
+            const newHash = await bcrypt.hash(testPassword, 12);
             await User.updateOne({ email: 'admin@tiffo.com' }, { password: newHash });
             console.log('Password reset successfully!');
         }

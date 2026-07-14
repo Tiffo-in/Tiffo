@@ -23,3 +23,7 @@
 **Vulnerability:** Any authenticated user could view the details of any delivery by guessing its ID because the `getDeliveryDetails` controller lacked authorization checks.
 **Learning:** The controller assumed that authentication was sufficient, but failed to enforce tenant isolation (authorization) to ensure the requesting user owned the resource (customer or partner). Also, the `Partner` model uses a `user` reference field, which requires populating `partner.user` to correctly verify partner ownership.
 **Prevention:** Always verify `req.user.id` against the resource owner's ID (`user` or `partner.user`) before returning sensitive data in controllers.
+## 2024-05-15 - Hardcoded Admin Password in Debug Script
+**Vulnerability:** A hardcoded admin password `admin123` was present in `backend/debugPassword.js`, which could lead to unauthorized testing or resetting of the admin password if executed in sensitive environments.
+**Learning:** Hardcoded credentials should never be committed to the repository, even in debug scripts. They pose a security risk as they can be discovered in the codebase or executed unintentionally.
+**Prevention:** Always use command line arguments (`process.argv`) or environment variables (`process.env`) to securely pass credentials to scripts. Validate that the credential is provided before proceeding with execution.
