@@ -23,3 +23,7 @@
 **Vulnerability:** Any authenticated user could view the details of any delivery by guessing its ID because the `getDeliveryDetails` controller lacked authorization checks.
 **Learning:** The controller assumed that authentication was sufficient, but failed to enforce tenant isolation (authorization) to ensure the requesting user owned the resource (customer or partner). Also, the `Partner` model uses a `user` reference field, which requires populating `partner.user` to correctly verify partner ownership.
 **Prevention:** Always verify `req.user.id` against the resource owner's ID (`user` or `partner.user`) before returning sensitive data in controllers.
+## 2026-07-14 - Hardcoded Password in Seed Scripts
+**Vulnerability:** Default database seed scripts (`seedCustomer.js`, `seedPartner.js`, `seedData.js`) contained a hardcoded dummy password (`password123`).
+**Learning:** Hardcoded credentials in seed scripts or configuration files risk becoming active defaults in production if not explicitly overridden, leading to potential unauthorized access or privilege escalation.
+**Prevention:** Instead of hardcoding secrets in source files, dynamically generate cryptographically secure random values (e.g., using `crypto.randomBytes()`) or use environment variables as a source of truth for passwords/tokens, logging the generated values securely for usability without committing them.
