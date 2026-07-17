@@ -35,7 +35,8 @@ exports.getAllPayments = async (req, res) => {
         .populate('subscription', 'plan startDate endDate')
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Payment.countDocuments(query),
       Payment.aggregate([
         { $match: query },
@@ -253,7 +254,8 @@ exports.getPayoutHistory = async (req, res) => {
         .select('partner amount payoutDate payoutId payoutStatus')
         .sort({ payoutDate: -1 })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Payment.countDocuments(query),
       Payment.aggregate([{ $match: query }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
     ]);
@@ -333,7 +335,8 @@ exports.getDisputedPayments = async (req, res) => {
     const disputes = await Payment.find(query)
       .populate('user', 'name email phone')
       .populate('partner', 'name email businessName')
-      .sort({ disputeCreatedAt: -1 });
+      .sort({ disputeCreatedAt: -1 })
+      .lean();
 
     res.json({
       success: true,
