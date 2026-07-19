@@ -28,7 +28,12 @@ exports.handleRazorpayWebhook = async (req, res) => {
     shasum.update(req.body); // req.body is raw Buffer — Bug 4 was fixed in app.js
     const digest = shasum.digest('hex');
 
-    if (digest !== webhookSignature) {
+    const digestBuf = Buffer.from(digest);
+    const signatureBuf = Buffer.from(webhookSignature || '');
+    if (
+      digestBuf.length !== signatureBuf.length ||
+      !crypto.timingSafeEqual(digestBuf, signatureBuf)
+    ) {
       logger.error('Razorpay webhook: invalid signature');
       return res.status(400).json({ error: 'Invalid signature' });
     }

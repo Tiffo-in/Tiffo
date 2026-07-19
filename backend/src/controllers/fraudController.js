@@ -7,7 +7,28 @@ const FraudReport = require('../models/FraudReport');
  */
 exports.createFraudReport = async (req, res, next) => {
   try {
-    const reportData = { ...req.body };
+    // Pick fields explicitly — this is a public endpoint, so `status` and
+    // `reporterUserId` must stay server-controlled.
+    const {
+      reporterName,
+      reporterEmail,
+      reporterPhone,
+      fraudType,
+      partnerName,
+      orderId,
+      description,
+      evidence,
+    } = req.body;
+    const reportData = {
+      reporterName,
+      reporterEmail,
+      reporterPhone,
+      fraudType,
+      partnerName,
+      orderId,
+      description,
+      evidence,
+    };
 
     // Attach user ID if logged in
     if (req.user) {

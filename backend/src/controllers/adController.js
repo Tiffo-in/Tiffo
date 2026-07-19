@@ -17,6 +17,29 @@ const getCurrentSlot = () => {
   return currentHour < 15 ? 'Lunch' : 'Dinner';
 };
 
+// Fields a partner may set on their own campaign. Money and counter fields
+// (walletBalance, spentToday, totalSpent, freeImpressions, impressionsCount,
+// clicksCount) are server-managed only — wallet balance changes exclusively
+// through verified Razorpay top-ups and click billing.
+const CAMPAIGN_WRITABLE_FIELDS = [
+  'tiffin',
+  'slot',
+  'maxBidPerClick',
+  'dailyBudget',
+  'hasTrialMealBoost',
+  'trialMealPrice',
+  'menuOfTheDay',
+  'isActive',
+];
+
+const pickCampaignFields = (body) =>
+  Object.fromEntries(
+    CAMPAIGN_WRITABLE_FIELDS.filter((field) => body[field] !== undefined).map((field) => [
+      field,
+      body[field],
+    ]),
+  );
+
 /**
  * Lazy daily reset: reset spentToday on any campaign whose lastSpentDate
  * is before the start of today. This avoids a cron job.
@@ -227,7 +250,7 @@ exports.createCampaign = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Partner profile required' });
 
     const campaign = await AdCampaign.create({
-      ...req.body,
+      ...pickCampaignFields(req.body),
       partner: partner._id,
       freeImpressions: 500, // give 500 free impressions on creation
     });
@@ -263,7 +286,7 @@ exports.updateCampaign = async (req, res) => {
     const partner = await Partner.findOne({ user: req.user.id });
     const campaign = await AdCampaign.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(req.params.id), partner: partner._id },
-      req.body,
+      pickCampaignFields(req.body),
       { new: true, runValidators: true },
     );
 

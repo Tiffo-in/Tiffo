@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Subscription = require('../models/Subscription');
 const Payment = require('../models/Payment');
 const Delivery = require('../models/Delivery');
+const Partner = require('../models/Partner');
 const logger = require('../utils/logger');
 
 /**
@@ -99,12 +100,24 @@ const exportOrdersCSV = async (req, res) => {
 
     const query = {};
 
-    if (status && status !== 'all') {
-      query.status = status;
+    // Access control: partners may export only their own orders (partner id is
+    // derived server-side, never from the query); admins may export any/all.
+    if (req.user.role === 'partner') {
+      const partner = await Partner.findOne({ user: req.user.id }).select('_id').lean();
+      if (!partner) {
+        return res.status(404).json({ success: false, message: 'Partner profile not found' });
+      }
+      query.partner = partner._id;
+    } else if (req.user.role === 'admin') {
+      if (partnerId) {
+        query.partner = partnerId;
+      }
+    } else {
+      return res.status(403).json({ success: false, message: 'Not authorized to export orders' });
     }
 
-    if (partnerId) {
-      query.partner = partnerId;
+    if (status && status !== 'all') {
+      query.status = status;
     }
 
     if (startDate || endDate) {

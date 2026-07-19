@@ -257,7 +257,27 @@ const googleLogin = async (req, res) => {
 
     const googleUser = await googleResponse.json();
 
-    if (!googleUser.email) {
+    // Verify the token was issued for THIS app. Without the audience check any
+    // Google ID token (issued to any other app) would mint a Tiffo session for
+    // that token's email — a token-substitution attack.
+    const expectedClientId = process.env.GOOGLE_CLIENT_ID;
+    if (expectedClientId) {
+      if (googleUser.aud !== expectedClientId) {
+        logger.warn('googleLogin rejected: audience mismatch', { aud: googleUser.aud });
+        return res.status(401).json({
+          success: false,
+          message: 'Google login failed: token was not issued for this application',
+        });
+      }
+    } else if (process.env.NODE_ENV === 'production') {
+      logger.error('googleLogin rejected: GOOGLE_CLIENT_ID is not configured');
+      return res.status(500).json({
+        success: false,
+        message: 'Google login is not available right now',
+      });
+    }
+
+    if (!googleUser.email || googleUser.email_verified !== 'true') {
       return res.status(400).json({
         success: false,
         message: 'Google login failed: email not verified/provided',
@@ -392,12 +412,15 @@ const resendVerification = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
+    // Uniform response whether or not the account exists (and regardless of
+    // verification state) — prevents email enumeration, same as forgot-password.
+    const uniformResponse = {
+      success: true,
+      message: 'If an unverified account exists for that email, a verification link has been sent.',
+    };
 
-    if (user.isEmailVerified) {
-      return res.status(400).json({ success: false, message: 'Email is already verified' });
+    if (!user || user.isEmailVerified) {
+      return res.json(uniformResponse);
     }
 
     const token = crypto.randomBytes(32).toString('hex');
@@ -408,10 +431,7 @@ const resendVerification = async (req, res) => {
     const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/verify-email?token=${token}`;
     await sendVerificationEmail(user, verificationUrl);
 
-    res.json({
-      success: true,
-      message: 'Verification email resent successfully! Please check your inbox.',
-    });
+    res.json(uniformResponse);
   } catch (error) {
     logger.error('resendVerification error:', { stack: error.stack });
     res.status(500).json({ success: false, message: 'Server error' });

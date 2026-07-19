@@ -6,6 +6,32 @@ const asyncHandler = require('../utils/asyncHandler');
 const PartnerAnalytics = require('../models/PartnerAnalytics');
 const escapeRegex = require('../utils/escapeRegex');
 
+// Fields a partner may set on their own tiffin listing. `partner`, `rating`,
+// and `slug` are server-managed — ratings come only from verified reviews.
+const TIFFIN_WRITABLE_FIELDS = [
+  'title',
+  'description',
+  'price',
+  'discount',
+  'mealType',
+  'cuisine',
+  'dietary',
+  'images',
+  'ingredients',
+  'nutritionInfo',
+  'availability',
+  'menuItems',
+  'isActive',
+];
+
+const pickTiffinFields = (body) =>
+  Object.fromEntries(
+    TIFFIN_WRITABLE_FIELDS.filter((field) => body[field] !== undefined).map((field) => [
+      field,
+      body[field],
+    ]),
+  );
+
 const getTiffins = async (req, res) => {
   try {
     const {
@@ -180,7 +206,7 @@ const createTiffin = async (req, res) => {
     }
 
     const tiffin = await Tiffin.create({
-      ...req.body,
+      ...pickTiffinFields(req.body),
       partner: partner._id,
     });
 
@@ -207,7 +233,7 @@ const updateTiffin = async (req, res) => {
     }
     const tiffin = await Tiffin.findOneAndUpdate(
       { _id: req.params.id, partner: partner._id },
-      req.body,
+      pickTiffinFields(req.body),
       { new: true, runValidators: true },
     );
 
