@@ -29,13 +29,15 @@ exports.getAllPayments = async (req, res) => {
     }
 
     const [payments, total, summary] = await Promise.all([
+      // ⚡ Bolt: Use .lean() to skip Mongoose document hydration for faster read-only queries and lower memory footprint.
       Payment.find(query)
         .populate('user', 'name email phone')
         .populate('partner', 'name email businessName')
         .populate('subscription', 'plan startDate endDate')
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Payment.countDocuments(query),
       Payment.aggregate([
         { $match: query },
@@ -248,12 +250,14 @@ exports.getPayoutHistory = async (req, res) => {
     }
 
     const [payouts, total, totalAmount] = await Promise.all([
+      // ⚡ Bolt: Use .lean() to skip Mongoose document hydration for faster read-only queries and lower memory footprint.
       Payment.find(query)
         .populate('partner', 'name email businessName')
         .select('partner amount payoutDate payoutId payoutStatus')
         .sort({ payoutDate: -1 })
         .skip((page - 1) * limit)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Payment.countDocuments(query),
       Payment.aggregate([{ $match: query }, { $group: { _id: null, total: { $sum: '$amount' } } }]),
     ]);
@@ -330,10 +334,12 @@ exports.getDisputedPayments = async (req, res) => {
     const query = { isDisputed: true };
     if (status && status !== 'all') query.disputeStatus = status;
 
+    // ⚡ Bolt: Use .lean() to skip Mongoose document hydration for faster read-only queries and lower memory footprint.
     const disputes = await Payment.find(query)
       .populate('user', 'name email phone')
       .populate('partner', 'name email businessName')
-      .sort({ disputeCreatedAt: -1 });
+      .sort({ disputeCreatedAt: -1 })
+      .lean();
 
     res.json({
       success: true,
