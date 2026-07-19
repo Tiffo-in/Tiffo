@@ -36,3 +36,7 @@
 ## 2026-07-02 - Sequential DB Queries in DeliveryStats Controller
 **Learning:** Sequential Mongoose operations like `Delivery.aggregate` and `Delivery.countDocuments` in `getDeliveryStats` act as an unnecessary bottleneck and add latency when their inputs do not depend on each other.
 **Action:** Always inspect controllers for independent database queries and execute them concurrently using `Promise.all` to reduce overall API latency.
+
+## 2026-07-19 - Lean Query Hydration Safety
+**Learning:** When applying `.lean()` to Mongoose queries for performance optimizations, ensure that subsequent code does not invoke Mongoose-specific document methods (like `.toObject()`, `.save()`, or `.populate()`) on the results, as `.lean()` returns plain JavaScript objects.
+**Action:** Always verify how the returned data is used down the call chain before converting Mongoose documents to plain objects with `.lean()`.
