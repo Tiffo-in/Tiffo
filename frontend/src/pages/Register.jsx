@@ -80,10 +80,15 @@ const Register = () => {
             '1008719970978-placeholder.apps.googleusercontent.com',
           callback: handleGoogleCredentialResponse,
         });
-        window.google.accounts.id.renderButton(document.getElementById('google-signin-button'), {
+        const container = document.getElementById('google-signin-button');
+        if (!container) return;
+        // GSI buttons render at a fixed pixel width (Google caps it at 400)
+        // and never shrink, so a hardcoded width overflows small screens —
+        // derive the width from the container instead.
+        window.google.accounts.id.renderButton(container, {
           theme: 'outline',
           size: 'large',
-          width: 220,
+          width: Math.min(400, container.offsetWidth || 400),
         });
       }
     };
@@ -218,7 +223,10 @@ const Register = () => {
       </div>
 
       {/* Right Panel - Registration Form */}
-      <div className="flex-1 flex flex-col justify-center items-center px-6 sm:px-12 py-12 relative dark:bg-neutral-950 overflow-y-auto">
+      {/* No justify-center here: with overflow-y-auto it would clip the top of an
+          overflowing form and make it unscrollable — the card's my-auto centers it
+          when it fits. pt-28 clears the fixed navbar (~88px). */}
+      <div className="flex-1 flex flex-col items-center px-6 sm:px-12 pt-28 pb-12 relative dark:bg-neutral-950 overflow-y-auto">
         <motion.div
           className="w-full max-w-[480px] my-auto"
           initial={{ opacity: 0, y: 20 }}
