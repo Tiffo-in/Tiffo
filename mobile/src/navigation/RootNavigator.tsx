@@ -31,7 +31,18 @@ import SubscriptionScreen from '../screens/main/SubscriptionScreen';
 // Stack screens
 import TiffinDetailScreen from '../screens/main/TiffinDetailScreen';
 import { registerForNotifications, showLocalNotification } from '../services/notificationService';
+import { ColorScheme } from '../theme/colors';
 import { useTheme } from '../theme/useTheme';
+
+// Shared native-stack header styling for every pushed screen.
+const stackHeaderOptions = (C: ColorScheme, title: string) => ({
+  headerShown: true,
+  title,
+  headerTintColor: C.primary,
+  headerTitleStyle: { fontWeight: '700' as const, fontSize: 17 },
+  headerStyle: { backgroundColor: C.background },
+  headerShadowVisible: false,
+});
 
 export type MainTabParams = {
   Home: undefined;
@@ -222,86 +233,37 @@ const RootNavigator = () => {
       <RootStack.Screen
         name="Checkout"
         component={CheckoutScreen}
-        options={{
-          headerShown: true,
-          title: 'Checkout',
-          headerTintColor: C.primary,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
-          headerStyle: { backgroundColor: C.background },
-          headerShadowVisible: false,
-        }}
+        options={stackHeaderOptions(C, 'Checkout')}
       />
       <RootStack.Screen
         name="EditProfile"
         component={EditProfileScreen}
-        options={{
-          headerShown: true,
-          title: 'Edit Profile',
-          headerTintColor: C.primary,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
-          headerStyle: { backgroundColor: C.background },
-          headerShadowVisible: false,
-        }}
+        options={stackHeaderOptions(C, 'Edit Profile')}
       />
       <RootStack.Screen
         name="SavedAddresses"
         component={SavedAddressesScreen}
-        options={{
-          headerShown: true,
-          title: 'Saved Addresses',
-          headerTintColor: C.primary,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
-          headerStyle: { backgroundColor: C.background },
-          headerShadowVisible: false,
-        }}
+        options={stackHeaderOptions(C, 'Saved Addresses')}
       />
       <RootStack.Screen
         name="PaymentMethods"
         component={PaymentMethodsScreen}
-        options={{
-          headerShown: true,
-          title: 'Payment Methods',
-          headerTintColor: C.primary,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
-          headerStyle: { backgroundColor: C.background },
-          headerShadowVisible: false,
-        }}
+        options={stackHeaderOptions(C, 'Payment Methods')}
       />
       <RootStack.Screen
         name="Notifications"
         component={NotificationsScreen}
-        options={{
-          headerShown: true,
-          title: 'Notifications',
-          headerTintColor: C.primary,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
-          headerStyle: { backgroundColor: C.background },
-          headerShadowVisible: false,
-        }}
+        options={stackHeaderOptions(C, 'Notifications')}
       />
       <RootStack.Screen
         name="HelpSupport"
         component={HelpSupportScreen}
-        options={{
-          headerShown: true,
-          title: 'Help & Support',
-          headerTintColor: C.primary,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
-          headerStyle: { backgroundColor: C.background },
-          headerShadowVisible: false,
-        }}
+        options={stackHeaderOptions(C, 'Help & Support')}
       />
       <RootStack.Screen
         name="PrivacyPolicy"
         component={PrivacyPolicyScreen}
-        options={{
-          headerShown: true,
-          title: 'Privacy Policy',
-          headerTintColor: C.primary,
-          headerTitleStyle: { fontWeight: '700', fontSize: 17 },
-          headerStyle: { backgroundColor: C.background },
-          headerShadowVisible: false,
-        }}
+        options={stackHeaderOptions(C, 'Privacy Policy')}
       />
       {!isAuthenticated && (
         <RootStack.Group screenOptions={{ presentation: 'modal', headerShown: false }}>

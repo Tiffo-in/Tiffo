@@ -3,12 +3,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Constants from 'expo-constants';
 
+declare const __DEV__: boolean;
+
 // In development, automatically point to the host machine's IP running Metro
+// (its hostUri is the dev machine's LAN address, where the local backend on
+// :5001 is reachable). Production builds always use the live API.
 const getBaseUrl = () => {
+  if (__DEV__) {
+    const hostUri = Constants.expoConfig?.hostUri;
+    const host = hostUri?.split(':')[0];
+    if (host) return `http://${host}:5001`;
+  }
   return 'https://api.tiffo.in';
 };
 
-const API_URL = `${getBaseUrl()}/api`; 
+const API_URL = `${getBaseUrl()}/api`;
 
 export const createApi = (tokenKey: string, userKey: string) => {
   const api = axios.create({

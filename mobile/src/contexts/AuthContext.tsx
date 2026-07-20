@@ -5,7 +5,7 @@ import authService, { AuthState, User } from '../services/authService';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, phone: string) => Promise<void>;
+  register: (name: string, email: string, password: string, phone: string) => Promise<string>;
   logout: () => Promise<void>;
   updateProfile: (name: string, phone: string, address?: any) => Promise<void>;
   loading: boolean;
@@ -53,10 +53,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initSocket('auth_token');
   };
 
+  // Registration does NOT authenticate — the backend issues no token until
+  // the email is verified. Returns the confirmation message for the UI.
   const register = async (name: string, email: string, password: string, phone: string) => {
-    const { user, token } = await authService.register(name, email, password, phone);
-    setState({ user, token, isAuthenticated: true });
-    initSocket('auth_token');
+    const { message } = await authService.register(name, email, password, phone);
+    return message;
   };
 
   const logout = async () => {

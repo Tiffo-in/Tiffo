@@ -41,14 +41,21 @@ const authService = {
   },
 
   /**
-   * Register new account.
+   * Register new account. The backend requires email verification before
+   * login, so this returns only the confirmation message — no token/user
+   * is issued at this point.
    */
-  register: async (name: string, email: string, password: string, phone: string) => {
+  register: async (
+    name: string,
+    email: string,
+    password: string,
+    phone: string,
+  ): Promise<{ message: string }> => {
     const res = await api.post('/auth/register', { name, email, password, phone });
-    const { token, user } = res.data;
-    await AsyncStorage.setItem('auth_token', token);
-    await AsyncStorage.setItem('auth_user', JSON.stringify(user));
-    return { user, token };
+    return {
+      message:
+        res.data?.message ?? 'Registration successful! Please check your email to verify your account.',
+    };
   },
 
   /**
