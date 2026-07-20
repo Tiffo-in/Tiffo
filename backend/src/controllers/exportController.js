@@ -103,8 +103,17 @@ const exportOrdersCSV = async (req, res) => {
       query.status = status;
     }
 
-    if (partnerId) {
-      query.partner = partnerId;
+    if (req.user.role === 'admin') {
+      if (partnerId) {
+        query.partner = partnerId;
+      }
+    } else if (req.user.role === 'partner') {
+      query.partner = req.user.id;
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized to export orders',
+      });
     }
 
     if (startDate || endDate) {
