@@ -32,7 +32,7 @@ const pickTiffinFields = (body) =>
     ]),
   );
 
-const getTiffins = async (req, res) => {
+const getTiffins = async (req, res, next) => {
   try {
     const {
       page = 1,
@@ -138,14 +138,11 @@ const getTiffins = async (req, res) => {
           : { enabled: false },
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const getTiffin = async (req, res) => {
+const getTiffin = async (req, res, next) => {
   try {
     const { id } = req.params;
     let tiffin;
@@ -188,14 +185,11 @@ const getTiffin = async (req, res) => {
       data: tiffin,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const createTiffin = async (req, res) => {
+const createTiffin = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
@@ -215,14 +209,11 @@ const createTiffin = async (req, res) => {
       data: tiffin,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const updateTiffin = async (req, res) => {
+const updateTiffin = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
@@ -249,14 +240,11 @@ const updateTiffin = async (req, res) => {
       data: tiffin,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const deleteTiffin = async (req, res) => {
+const deleteTiffin = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
@@ -282,15 +270,12 @@ const deleteTiffin = async (req, res) => {
       message: 'Tiffin deleted successfully',
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
 // PATCH /api/tiffins/:id/discount  — partner-only
-const updateDiscount = async (req, res) => {
+const updateDiscount = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
@@ -331,13 +316,12 @@ const updateDiscount = async (req, res) => {
       data: tiffin,
     });
   } catch (error) {
-    logger.error(error.message, { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // PATCH /api/tiffins/:id/menu  — partner-only: replace entire menuItems array
-const updateMenuItems = async (req, res) => {
+const updateMenuItems = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
@@ -381,13 +365,12 @@ const updateMenuItems = async (req, res) => {
       data: tiffin,
     });
   } catch (error) {
-    logger.error(error.message, { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // GET /api/tiffins/mine  — partner's own tiffins (including inactive)
-const getMyTiffins = async (req, res) => {
+const getMyTiffins = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id }).lean();
     if (!partner) {
@@ -397,8 +380,7 @@ const getMyTiffins = async (req, res) => {
     const tiffins = await Tiffin.find({ partner: partner._id }).lean();
     res.json({ success: true, data: tiffins });
   } catch (error) {
-    logger.error(error.message, { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 

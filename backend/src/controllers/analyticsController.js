@@ -1,13 +1,12 @@
 const User = require('../models/User');
 const Subscription = require('../models/Subscription');
 const Payment = require('../models/Payment');
-const logger = require('../utils/logger');
 
 /**
  * Get customer analytics data
  * GET /api/analytics/customers
  */
-exports.getCustomerAnalytics = async (req, res) => {
+exports.getCustomerAnalytics = async (req, res, next) => {
   try {
     const days = parseInt(req.query.days) || 30;
     const startDate = new Date();
@@ -200,11 +199,7 @@ exports.getCustomerAnalytics = async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Customer analytics error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -212,7 +207,7 @@ exports.getCustomerAnalytics = async (req, res) => {
  * Export analytics data to CSV
  * GET /api/analytics/export
  */
-exports.exportAnalytics = async (req, res) => {
+exports.exportAnalytics = async (req, res, next) => {
   try {
     const { type } = req.query; // 'customers', 'revenue', 'subscriptions'
 
@@ -300,11 +295,7 @@ exports.exportAnalytics = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(csv);
   } catch (error) {
-    logger.error('Export analytics error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 

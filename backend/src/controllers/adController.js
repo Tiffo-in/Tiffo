@@ -2,8 +2,15 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const AdCampaign = require('../models/AdCampaign');
 const AdImpression = require('../models/AdImpression');
+const AdClick = require('../models/AdClick');
 const Partner = require('../models/Partner');
 const mongoose = require('mongoose');
+
+// A viewer is billed at most once per campaign inside this window; further
+// clicks are acknowledged but free. Blunts scripted budget-drain attacks.
+const CLICK_BILLING_COOLDOWN_MS = 10 * 60 * 1000;
+// Hard daily ceiling of billed clicks per viewer per campaign.
+const MAX_BILLED_CLICKS_PER_VIEWER_PER_DAY = 3;
 
 // Init Razorpay
 const razorpay = new Razorpay({
@@ -61,7 +68,7 @@ const resetDailyBudgetsIfNeeded = async () => {
 
 // GET /api/ads/listings
 // Description: Get nearby ads mixed with organic results (or just ads for a specific feed)
-exports.getAdListings = async (req, res) => {
+exports.getAdListings = async (req, res, next) => {
   try {
     const { lat, lng, radius = 10 } = req.query;
 
@@ -168,13 +175,13 @@ exports.getAdListings = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // POST /api/ads/impressions
 // Called asynchronously by frontend when ad scrolls into view (IntersectionObserver)
-exports.logImpressions = async (req, res) => {
+exports.logImpressions = async (req, res, next) => {
   try {
     const { campaignIds } = req.body;
     if (!campaignIds || !Array.isArray(campaignIds)) {
@@ -204,18 +211,48 @@ exports.logImpressions = async (req, res) => {
 
     res.json({ success: true, message: 'Impressions logged' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // POST /api/ads/click/:id
-exports.logClick = async (req, res) => {
+exports.logClick = async (req, res, next) => {
   try {
     const campaignId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(campaignId)) {
+      return res.status(400).json({ success: false, message: 'Invalid campaign ID' });
+    }
+
     const campaign = await AdCampaign.findById(campaignId);
 
     if (!campaign) {
       return res.status(404).json({ success: false, message: 'Ad not found' });
+    }
+
+    // Click-fraud guard: bill a viewer at most once per cooldown window and
+    // at most MAX_BILLED_CLICKS_PER_VIEWER_PER_DAY times per day. Repeat
+    // clicks are acknowledged (so the frontend never errors) but not billed
+    // or counted, keeping CTR and spend honest.
+    const viewerId = req.user ? req.user.id : req.ip;
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const [recentClick, billedToday] = await Promise.all([
+      AdClick.findOne({
+        userId: viewerId,
+        campaignId: campaign._id,
+        createdAt: { $gte: new Date(Date.now() - CLICK_BILLING_COOLDOWN_MS) },
+      }).lean(),
+      AdClick.countDocuments({
+        userId: viewerId,
+        campaignId: campaign._id,
+        billed: true,
+        createdAt: { $gte: startOfToday },
+      }),
+    ]);
+
+    if (recentClick || billedToday >= MAX_BILLED_CLICKS_PER_VIEWER_PER_DAY) {
+      return res.json({ success: true, message: 'Click logged', partnerId: campaign.partner });
     }
 
     campaign.clicksCount += 1;
@@ -230,11 +267,14 @@ exports.logClick = async (req, res) => {
       campaign.lastSpentDate = new Date();
     }
 
-    await campaign.save();
+    await Promise.all([
+      campaign.save(),
+      AdClick.create({ userId: viewerId, campaignId: campaign._id, billed: true }),
+    ]);
 
     res.json({ success: true, message: 'Click logged', partnerId: campaign.partner });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -243,7 +283,7 @@ exports.logClick = async (req, res) => {
 // ==============================
 
 // POST /api/ads
-exports.createCampaign = async (req, res) => {
+exports.createCampaign = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id });
     if (!partner)
@@ -257,12 +297,12 @@ exports.createCampaign = async (req, res) => {
 
     res.status(201).json({ success: true, data: campaign });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // GET /api/ads/mine
-exports.getMyCampaigns = async (req, res) => {
+exports.getMyCampaigns = async (req, res, next) => {
   try {
     const partner = await Partner.findOne({ user: req.user.id });
     if (!partner)
@@ -271,12 +311,12 @@ exports.getMyCampaigns = async (req, res) => {
     const campaigns = await AdCampaign.find({ partner: partner._id }).populate('tiffin');
     res.json({ success: true, data: campaigns });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // PUT /api/ads/:id
-exports.updateCampaign = async (req, res) => {
+exports.updateCampaign = async (req, res, next) => {
   try {
     // Validate campaign ID
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -293,7 +333,7 @@ exports.updateCampaign = async (req, res) => {
     if (!campaign) return res.status(404).json({ success: false, message: 'Campaign not found' });
     res.json({ success: true, data: campaign });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -302,7 +342,7 @@ exports.updateCampaign = async (req, res) => {
 // ==============================
 
 // POST /api/ads/wallet/create-order
-exports.createWalletOrder = async (req, res) => {
+exports.createWalletOrder = async (req, res, next) => {
   try {
     const { amount } = req.body; // Amount in INR
     if (!amount || amount < 100)
@@ -323,12 +363,12 @@ exports.createWalletOrder = async (req, res) => {
     const order = await razorpay.orders.create(options);
     res.json({ success: true, order });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // POST /api/ads/wallet/verify
-exports.verifyWalletPayment = async (req, res) => {
+exports.verifyWalletPayment = async (req, res, next) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amountAdded } = req.body;
 
@@ -367,6 +407,6 @@ exports.verifyWalletPayment = async (req, res) => {
       walletBalance: campaign.walletBalance,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

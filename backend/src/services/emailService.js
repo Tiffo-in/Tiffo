@@ -563,6 +563,31 @@ The TIFFO Team
   return await sendEmail(user.email, subject, html, text);
 };
 
+// Throttled admin alert for webhook processing failures. A silently failing
+// payment webhook means paid-but-inactive subscriptions, so ops must hear
+// about it — but an outage must not turn into an alert storm.
+let lastWebhookAlertAt = 0;
+const WEBHOOK_ALERT_THROTTLE_MS = 15 * 60 * 1000;
+
+const sendAdminWebhookFailureAlert = async (event, errorMessage) => {
+  const now = Date.now();
+  if (now - lastWebhookAlertAt < WEBHOOK_ALERT_THROTTLE_MS) return;
+  lastWebhookAlertAt = now;
+
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@tiffo.com';
+  const subject = '🚨 Razorpay webhook processing failed';
+  const html = `
+    <p>A Razorpay webhook failed to process. Paid subscriptions may not be activating.</p>
+    <p><strong>Event:</strong> ${event || 'unknown'}</p>
+    <p><strong>Error:</strong> ${errorMessage}</p>
+    <p>Check the server logs (Sentry / Cloud Run) for the full stack trace.
+       Further alerts are muted for 15 minutes.</p>
+  `;
+  const text = `Razorpay webhook failed. Event: ${event || 'unknown'}. Error: ${errorMessage}`;
+
+  return await sendEmail(adminEmail, subject, html, text);
+};
+
 module.exports = {
   initializeEmailService,
   sendEmail,
@@ -570,6 +595,7 @@ module.exports = {
   sendPaymentFailure,
   sendPartnerPaymentNotification,
   sendAdminTransferFailureAlert,
+  sendAdminWebhookFailureAlert,
   sendRefundConfirmation,
   sendVerificationEmail,
   sendPasswordResetEmail,

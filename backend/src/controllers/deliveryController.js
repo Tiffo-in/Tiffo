@@ -43,7 +43,7 @@ exports.updateDeliveryStatus = async (req, res) => {
  * Get delivery details
  * GET /api/deliveries/:deliveryId
  */
-exports.getDeliveryDetails = async (req, res) => {
+exports.getDeliveryDetails = async (req, res, next) => {
   try {
     const delivery = await Delivery.findById(req.params.deliveryId)
       .populate('user', 'name phone address')
@@ -70,7 +70,7 @@ exports.getDeliveryDetails = async (req, res) => {
 
     res.json({ success: true, data: delivery });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -78,7 +78,7 @@ exports.getDeliveryDetails = async (req, res) => {
  * Get deliveries for partner
  * GET /api/deliveries/partner/my-deliveries
  */
-exports.getPartnerDeliveries = async (req, res) => {
+exports.getPartnerDeliveries = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -121,7 +121,7 @@ exports.getPartnerDeliveries = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -129,7 +129,7 @@ exports.getPartnerDeliveries = async (req, res) => {
  * Get delivery statistics for partner
  * GET /api/deliveries/partner/stats
  */
-exports.getDeliveryStats = async (req, res) => {
+exports.getDeliveryStats = async (req, res, next) => {
   try {
     const days = parseInt(req.query.days) || 7;
     const startDate = new Date();
@@ -181,7 +181,7 @@ exports.getDeliveryStats = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -238,7 +238,7 @@ exports.batchUpdateDeliveries = async (req, res) => {
  * Get admin delivery overview
  * GET /api/admin/deliveries/overview
  */
-exports.getAdminDeliveryOverview = async (req, res) => {
+exports.getAdminDeliveryOverview = async (req, res, next) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -280,14 +280,14 @@ exports.getAdminDeliveryOverview = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 /**
  * Get all deliveries for admin
  * GET /api/deliveries/admin
  */
-exports.getAdminDeliveries = async (req, res) => {
+exports.getAdminDeliveries = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
@@ -372,6 +372,6 @@ exports.getAdminDeliveries = async (req, res) => {
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

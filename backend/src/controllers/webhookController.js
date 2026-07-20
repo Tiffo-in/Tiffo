@@ -8,6 +8,7 @@ const {
   sendPaymentFailure,
   sendPartnerPaymentNotification,
   sendAdminTransferFailureAlert,
+  sendAdminWebhookFailureAlert,
   sendRefundConfirmation,
 } = require('../services/emailService');
 const { generateDeliveriesForSubscription } = require('../services/deliveryService');
@@ -73,6 +74,20 @@ exports.handleRazorpayWebhook = async (req, res) => {
     res.json({ status: 'ok' });
   } catch (error) {
     logger.error(`Razorpay webhook error: ${error.message}`, { stack: error.stack });
+
+    // Alert ops (throttled): a silently failing webhook means customers who
+    // paid but whose subscriptions never activated. Best-effort — an email
+    // failure must not mask the original error or change the 500 response.
+    let failedEvent;
+    try {
+      failedEvent = JSON.parse(req.body.toString()).event;
+    } catch {
+      failedEvent = 'unparseable payload';
+    }
+    sendAdminWebhookFailureAlert(failedEvent, error.message).catch((alertError) =>
+      logger.error(`Webhook failure alert email also failed: ${alertError.message}`),
+    );
+
     res.status(500).json({ error: 'Webhook processing failed' });
   }
 };

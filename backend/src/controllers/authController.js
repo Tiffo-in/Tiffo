@@ -45,7 +45,7 @@ const sendTokenResponse = (user, statusCode, req, res) => {
     });
 };
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const { name, email, password, phone, address } = req.body;
     // NOTE: `role` is intentionally NOT accepted from the request body.
@@ -81,8 +81,7 @@ const register = async (req, res) => {
         'Registration successful! Please check your email to verify your account before logging in.',
     });
   } catch (error) {
-    logger.error('register error:', { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -133,7 +132,7 @@ const login = async (req, res) => {
   }
 };
 
-const getMe = async (req, res) => {
+const getMe = async (req, res, next) => {
   try {
     // Explicitly exclude sensitive financial / PII fields from the public profile response
     const user = await User.findById(req.user.id).select(
@@ -144,12 +143,11 @@ const getMe = async (req, res) => {
       user,
     });
   } catch (error) {
-    logger.error('getMe error:', { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateProfile = async (req, res, next) => {
   try {
     const { name, phone, address } = req.body;
     const user = await User.findByIdAndUpdate(
@@ -159,12 +157,11 @@ const updateProfile = async (req, res) => {
     ).select('-password');
     res.json({ success: true, user });
   } catch (error) {
-    logger.error('updateProfile error:', { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-const changePassword = async (req, res) => {
+const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
@@ -180,13 +177,12 @@ const changePassword = async (req, res) => {
     await user.save();
     res.json({ success: true, message: 'Password updated successfully' });
   } catch (error) {
-    logger.error('changePassword error:', { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // Partner self-registration — creates user with role='partner' + Partner profile
-const registerPartner = async (req, res) => {
+const registerPartner = async (req, res, next) => {
   try {
     const { name, email, password, phone, address, businessName } = req.body;
 
@@ -227,8 +223,7 @@ const registerPartner = async (req, res) => {
       message: 'Registration successful! Please check your email to verify your partner account.',
     });
   } catch (error) {
-    logger.error('registerPartner error:', { stack: error.stack });
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 

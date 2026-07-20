@@ -1,11 +1,10 @@
 const Blog = require('../models/Blog');
-const logger = require('../utils/logger');
 
 /**
  * Create new blog post (Admin only)
  * POST /api/blog
  */
-exports.createBlogPost = async (req, res) => {
+exports.createBlogPost = async (req, res, next) => {
   try {
     const { title, excerpt, content, category, tags, featuredImage, status, seo, isFeatured } =
       req.body;
@@ -31,11 +30,7 @@ exports.createBlogPost = async (req, res) => {
       data: blogPost,
     });
   } catch (error) {
-    logger.error('Create blog post error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to create blog post',
-    });
+    next(error);
   }
 };
 
@@ -43,7 +38,7 @@ exports.createBlogPost = async (req, res) => {
  * Update blog post (Admin only)
  * PUT /api/blog/:id
  */
-exports.updateBlogPost = async (req, res) => {
+exports.updateBlogPost = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -83,11 +78,7 @@ exports.updateBlogPost = async (req, res) => {
       data: blogPost,
     });
   } catch (error) {
-    logger.error('Update blog post error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to update blog post',
-    });
+    next(error);
   }
 };
 
@@ -95,7 +86,7 @@ exports.updateBlogPost = async (req, res) => {
  * Delete blog post (Admin only)
  * DELETE /api/blog/:id
  */
-exports.deleteBlogPost = async (req, res) => {
+exports.deleteBlogPost = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -113,11 +104,7 @@ exports.deleteBlogPost = async (req, res) => {
       message: 'Blog post deleted successfully',
     });
   } catch (error) {
-    logger.error('Delete blog post error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to delete blog post',
-    });
+    next(error);
   }
 };
 
@@ -125,7 +112,7 @@ exports.deleteBlogPost = async (req, res) => {
  * Get all posts for admin (includes drafts)
  * GET /api/blog/admin/all
  */
-exports.getAllPostsAdmin = async (req, res) => {
+exports.getAllPostsAdmin = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -173,11 +160,7 @@ exports.getAllPostsAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Get all posts admin error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch blog posts',
-    });
+    next(error);
   }
 };
 
@@ -185,7 +168,7 @@ exports.getAllPostsAdmin = async (req, res) => {
  * Get published posts (Public)
  * GET /api/blog
  */
-exports.getAllPosts = async (req, res) => {
+exports.getAllPosts = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
@@ -231,11 +214,7 @@ exports.getAllPosts = async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Get all posts error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch blog posts',
-    });
+    next(error);
   }
 };
 
@@ -243,7 +222,7 @@ exports.getAllPosts = async (req, res) => {
  * Get single post by slug (Public)
  * GET /api/blog/:slug
  */
-exports.getPostBySlug = async (req, res) => {
+exports.getPostBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
@@ -261,11 +240,7 @@ exports.getPostBySlug = async (req, res) => {
       data: post,
     });
   } catch (error) {
-    logger.error('Get post by slug error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch blog post',
-    });
+    next(error);
   }
 };
 
@@ -273,7 +248,7 @@ exports.getPostBySlug = async (req, res) => {
  * Increment post views
  * POST /api/blog/:id/view
  */
-exports.incrementViews = async (req, res) => {
+exports.incrementViews = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -284,11 +259,7 @@ exports.incrementViews = async (req, res) => {
       message: 'View counted',
     });
   } catch (error) {
-    logger.error('Increment views error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to increment views',
-    });
+    next(error);
   }
 };
 
@@ -296,7 +267,7 @@ exports.incrementViews = async (req, res) => {
  * Get blog statistics (Admin)
  * GET /api/blog/admin/stats
  */
-exports.getBlogStats = async (req, res) => {
+exports.getBlogStats = async (req, res, next) => {
   try {
     // ⚡ Bolt: Execute independent queries concurrently and use .lean() for read-only data
     const [
@@ -346,11 +317,7 @@ exports.getBlogStats = async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Get blog stats error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch statistics',
-    });
+    next(error);
   }
 };
 
@@ -358,7 +325,7 @@ exports.getBlogStats = async (req, res) => {
  * Get all categories with post counts
  * GET /api/blog/categories
  */
-exports.getCategories = async (req, res) => {
+exports.getCategories = async (req, res, next) => {
   try {
     const [categories, total] = await Promise.all([
       Blog.aggregate([
@@ -383,11 +350,7 @@ exports.getCategories = async (req, res) => {
       data: allCategories,
     });
   } catch (error) {
-    logger.error('Get categories error:', { stack: error.stack });
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to fetch categories',
-    });
+    next(error);
   }
 };
 

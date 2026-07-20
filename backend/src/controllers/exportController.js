@@ -33,7 +33,7 @@ const generateCSV = (data, headers) => {
 /**
  * Export customers to CSV
  */
-const exportCustomersCSV = async (req, res) => {
+const exportCustomersCSV = async (req, res, next) => {
   try {
     const { role, status, startDate, endDate } = req.query;
 
@@ -84,10 +84,7 @@ const exportCustomersCSV = async (req, res) => {
     res.setHeader('Content-Disposition', 'attachment; filename="customers_' + Date.now() + '.csv"');
     res.send(csv);
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
