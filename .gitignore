@@ -100,3 +100,5 @@ Thumbs.db
 # Upload directories
 uploads/
 public/uploads/
+# Expo local state
+.expo/
