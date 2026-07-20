@@ -82,13 +82,28 @@ The ID token is validated against Google's `tokeninfo` endpoint but the `aud` cl
 - Backend `npm test` (jest): run after the security fixes — result recorded in the commit that accompanied this review.
 - Frontend `npm run lint` + `npm run build`: attempted locally but the dev machine's iCloud-synced Desktop kept evicting `node_modules` (reads timed out). **UNVERIFIED locally** — CI runs both on every PR and remains the gate.
 
-## Prioritized backlog (what was NOT done in this pass)
+## Prioritized backlog
 
-1. Route remaining `error.message` responses through the central error handler (S8).
-2. Remove `@tanstack/react-query` from `frontend/package.json` (Q3).
-3. ESLint override for `seeds/` console usage; clean unused test vars (Q2).
-4. Split the four oversized page components (Q4).
-5. Home scroll-reveal: visible-by-default animation strategy (UX1) — needs a design pass, not a hotfix.
-6. Real food photography program + single designed placeholder (UX2).
-7. Click-fraud anomaly detection for ad campaigns.
-8. Cypress e2e: wire an npm script and add the checkout happy path to CI.
+Update (July 20, 2026): a follow-up pass fixed most of this list — controller
+errors now route through the central handler (43 sites), `react-query` and
+dead frontend modules/tests were removed, seeds get a lint override, Home was
+split into section components with transform-only (never opacity-gated)
+reveals, ad clicks are deduped per viewer with a daily billing cap, webhook
+failures email ops (throttled), Cypress has hermetic stubbed specs plus npm
+scripts, the mobile registration flow was fixed with jest-expo regression
+tests, and the mobile apps auto-target a local backend in dev.
+
+Still open:
+
+1. Real food photography program + single designed placeholder (UX2) — needs
+   actual photos from partners; the upload pipeline is ready.
+2. Split the remaining oversized pages: `TiffinDetail.jsx` (916), `MyTiffins.jsx`
+   (671), `Register.jsx` (627) — Home is done and establishes the pattern
+   (`components/home/`).
+3. Run the Cypress suite in CI (needs a `start-server-and-test` style job; the
+   specs themselves are hermetic and backend-free).
+4. Partner-facing anomaly reporting for ad clicks (server-side dedupe is in;
+   a dashboard signal would close the loop).
+5. Move the repo off the iCloud-synced Desktop — eviction corrupted
+   node_modules and committed a duplicate source file; it also makes builds
+   ~10x slower.
