@@ -357,6 +357,31 @@ const SubscriptionModal = ({ subscription, onClose }) => {
     fetchDetails();
   }, [fetchDetails]);
 
+  const [busyId, setBusyId] = useState(null);
+
+  // A scheduled delivery can be skipped up to 8 PM IST the day before — mirror
+  // the server cutoff so we only show the button when it will actually work.
+  const canSkip = (delivery) => {
+    if (delivery.status !== 'scheduled') return false;
+    const day = new Date(delivery.deliveryDate);
+    day.setHours(0, 0, 0, 0);
+    const cutoff = day.getTime() - 4 * 60 * 60 * 1000;
+    return Date.now() < cutoff;
+  };
+
+  const toggleSkip = async (delivery, action) => {
+    setBusyId(delivery._id);
+    try {
+      const res = await api.patch(`/deliveries/${delivery._id}/${action}`);
+      toast.success(res.data.message || 'Updated');
+      await fetchDetails();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not update this delivery');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -474,11 +499,35 @@ const SubscriptionModal = ({ subscription, onClose }) => {
                           )}
                         </div>
                       </div>
-                      <DeliveryStatusChip status={delivery.status} />
+                      <div className="flex items-center gap-2">
+                        <DeliveryStatusChip status={delivery.status} />
+                        {canSkip(delivery) && (
+                          <button
+                            onClick={() => toggleSkip(delivery, 'skip')}
+                            disabled={busyId === delivery._id}
+                            className="text-xs font-semibold text-neutral-500 hover:text-primary-600 disabled:opacity-50"
+                          >
+                            Skip
+                          </button>
+                        )}
+                        {delivery.status === 'skipped' && (
+                          <button
+                            onClick={() => toggleSkip(delivery, 'unskip')}
+                            disabled={busyId === delivery._id}
+                            className="text-xs font-semibold text-primary-600 hover:text-primary-700 disabled:opacity-50"
+                          >
+                            Undo
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
+              <p className="text-xs text-neutral-400 mt-2">
+                Skipping a day adds a make-up delivery to the end of your plan — you never lose a
+                meal. Up to 4 skips per month.
+              </p>
             </div>
 
             {/* Actions */}

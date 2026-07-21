@@ -32,8 +32,15 @@ const deliverySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['scheduled', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'],
+      enum: ['scheduled', 'preparing', 'out_for_delivery', 'delivered', 'skipped', 'cancelled'],
       default: 'scheduled',
+    },
+    // Set on the make-up delivery generated when a day is skipped, pointing at
+    // the delivery that was skipped — lets unskip reverse the make-up cleanly.
+    makeupForDelivery: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Delivery',
+      default: null,
     },
     deliveryAddress: {
       street: String,
@@ -72,6 +79,7 @@ const deliverySchema = new mongoose.Schema(
     preparingAt: Date,
     outForDeliveryAt: Date,
     deliveredAt: Date,
+    skippedAt: Date,
     cancelledAt: Date,
   },
   {

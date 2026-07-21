@@ -1,6 +1,7 @@
 const Delivery = require('../models/Delivery');
 
 const { emitDeliveryUpdate, emitNotification } = require('../services/socketService');
+const skipService = require('../services/skipService');
 const logger = require('../utils/logger');
 const escapeRegex = require('../utils/escapeRegex');
 
@@ -303,6 +304,44 @@ exports.getAdminDeliveryOverview = async (req, res, next) => {
     next(error);
   }
 };
+/**
+ * Skip a scheduled delivery (customer). Extends the plan by a make-up day.
+ * PATCH /api/deliveries/:deliveryId/skip
+ */
+exports.skipDelivery = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const result = await skipService.skipDelivery(req.params.deliveryId, userId);
+    res.json({
+      success: true,
+      message: 'Delivery skipped — a make-up day has been added to your plan.',
+      data: result,
+    });
+  } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * Reverse a skip before its cutoff (customer).
+ * PATCH /api/deliveries/:deliveryId/unskip
+ */
+exports.unskipDelivery = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const result = await skipService.unskipDelivery(req.params.deliveryId, userId);
+    res.json({ success: true, message: 'Skip reversed — this delivery is back on.', data: result });
+  } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
 /**
  * Get all deliveries for admin
  * GET /api/deliveries/admin
