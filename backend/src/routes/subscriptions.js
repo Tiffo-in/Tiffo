@@ -4,6 +4,8 @@ const { protect } = require('../middlewares/auth');
 const {
   getUserSubscriptions,
   getSubscriptionDetails,
+  getSubscriptionDeliveries,
+  getTodayDeliveries,
   getOrderHistory,
   getUserStats,
   pauseSubscription,
@@ -26,8 +28,14 @@ router.get('/history', protect, getOrderHistory);
 // Get dashboard stats
 router.get('/stats', protect, getUserStats);
 
+// Today's deliveries across the user's active subscriptions (static path — before /:id)
+router.get('/deliveries/today', protect, getTodayDeliveries);
+
 // Get subscription details
 router.get('/:id', protect, getSubscriptionDetails);
+
+// Per-day delivery timeline for one subscription
+router.get('/:id/deliveries', protect, getSubscriptionDeliveries);
 
 // Pause subscription
 router.put('/:id/pause', protect, pauseSubscription);

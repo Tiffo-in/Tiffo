@@ -1,8 +1,17 @@
 const Delivery = require('../models/Delivery');
 
-const { emitDeliveryUpdate } = require('../services/socketService');
+const { emitDeliveryUpdate, emitNotification } = require('../services/socketService');
 const logger = require('../utils/logger');
 const escapeRegex = require('../utils/escapeRegex');
+
+// Customer-facing copy for the delivery states worth a notification.
+const STATUS_NOTIFICATION = {
+  out_for_delivery: {
+    title: 'Your tiffin is on the way 🛵',
+    body: 'Your meal is out for delivery.',
+  },
+  delivered: { title: 'Tiffin delivered ✅', body: 'Enjoy your meal! Tap to rate today’s tiffin.' },
+};
 
 /**
  * Update delivery status
@@ -31,6 +40,17 @@ exports.updateDeliveryStatus = async (req, res) => {
 
     // Emit real-time update
     emitDeliveryUpdate(delivery._id, delivery.user._id, req.user.id, status, { delivery });
+
+    // Notify the customer on the states they care about (Phase 1).
+    const copy = STATUS_NOTIFICATION[status];
+    if (copy) {
+      emitNotification(delivery.user._id, {
+        type: 'delivery',
+        deliveryId: delivery._id,
+        subscriptionId: delivery.subscription?._id || delivery.subscription,
+        ...copy,
+      });
+    }
 
     res.json({ success: true, data: delivery });
   } catch (error) {

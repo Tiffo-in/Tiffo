@@ -24,6 +24,32 @@ const getSubscriptionDetails = async (req, res) => {
   }
 };
 
+const getSubscriptionDeliveries = async (req, res) => {
+  try {
+    const data = await subscriptionService.fetchSubscriptionDeliveries(req.params.id, req.user.id, {
+      page: req.query.page,
+      limit: req.query.limit,
+    });
+    res.json({ success: true, ...data });
+  } catch (error) {
+    logger.error('Get subscription deliveries error:', { stack: error.stack });
+    if (error.status) {
+      return res.status(error.status).json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+const getTodayDeliveries = async (req, res) => {
+  try {
+    const data = await subscriptionService.fetchTodayDeliveries(req.user.id);
+    res.json({ success: true, data });
+  } catch (error) {
+    logger.error('Get today deliveries error:', { stack: error.stack });
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 const getOrderHistory = async (req, res) => {
   try {
     const data = await subscriptionService.fetchOrderHistory(req.user.id);
@@ -90,6 +116,8 @@ const createSubscription = async (req, res) => {
 module.exports = {
   getUserSubscriptions,
   getSubscriptionDetails,
+  getSubscriptionDeliveries,
+  getTodayDeliveries,
   getOrderHistory,
   getUserStats,
   pauseSubscription,

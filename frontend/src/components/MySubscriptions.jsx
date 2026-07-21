@@ -13,6 +13,8 @@ import {
 import { StarIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
+import DeliveryStatusChip from './delivery/DeliveryStatusChip';
+import { getDeliveryStatus, statusTimestampField } from './delivery/deliveryStatus';
 const MySubscriptions = () => {
   const navigate = useNavigate();
   const [subscriptions, setSubscriptions] = useState([]);
@@ -434,35 +436,48 @@ const SubscriptionModal = ({ subscription, onClose }) => {
               <p className="text-neutral-600">{subscription.deliveryAddress?.pincode}</p>
             </div>
 
-            {/* Recent Deliveries */}
+            {/* Delivery timeline — status-accurate per day (Phase 1) */}
             <div>
               <h4 className="font-semibold text-neutral-700 mb-3 flex items-center">
                 <TruckIcon className="w-5 h-5 mr-2 text-primary-500" />
-                Recent Deliveries
+                Delivery Timeline
               </h4>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {details.deliveries.map((delivery) => (
-                  <div
-                    key={delivery._id}
-                    className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <CheckCircleIcon className="w-5 h-5 text-green-600" />
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {details.deliveries.map((delivery) => {
+                  const cfg = getDeliveryStatus(delivery.status);
+                  const doneAt = delivery[statusTimestampField(delivery.status)];
+                  return (
+                    <div
+                      key={delivery._id}
+                      className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span
+                          className={`w-2.5 h-2.5 rounded-full shrink-0 ${cfg.dot}`}
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <span className="font-medium text-neutral-700 block">
+                            {new Date(delivery.deliveryDate).toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
+                          {doneAt && (
+                            <span className="text-xs text-neutral-400">
+                              {new Date(doneAt).toLocaleTimeString('en-IN', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <span className="font-medium text-neutral-700">
-                        {new Date(delivery.deliveryDate).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </span>
+                      <DeliveryStatusChip status={delivery.status} />
                     </div>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                      {delivery.status.replace('_', ' ')}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
