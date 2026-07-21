@@ -73,6 +73,32 @@ const MySubscriptions = () => {
     }
   };
 
+  // Renew: create a continuing subscription, then send the customer to checkout
+  // to pay for it (the normal payment flow generates the new deliveries).
+  const handleRenew = async (id) => {
+    try {
+      toast.loading('Setting up your renewal...', { id: 'renew' });
+      const response = await api.post(`/subscriptions/${id}/renew`);
+      if (response.data.success) {
+        toast.success('Renewal ready — complete payment to activate.', { id: 'renew' });
+        navigate(`/checkout/${response.data.data._id}`);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not start renewal', { id: 'renew' });
+    }
+  };
+
+  // Days left until a subscription ends (null if no end date).
+  const daysUntilEnd = (endDate) =>
+    endDate ? Math.ceil((new Date(endDate) - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+
+  // Auto-open renewal when arriving from the reminder email (?renew=<id>).
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('renew');
+    if (id) handleRenew(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const getStatusConfig = (status) => {
     switch (status) {
       case 'active':
@@ -306,6 +332,20 @@ const MySubscriptions = () => {
                         Resume Subscription
                       </button>
                     )}
+                    {subscription.status === 'active' &&
+                      !subscription.renewedToSubscription &&
+                      daysUntilEnd(subscription.endDate) !== null &&
+                      daysUntilEnd(subscription.endDate) <= 3 && (
+                        <button
+                          onClick={() => handleRenew(subscription._id)}
+                          className="px-6 py-3 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors"
+                        >
+                          Renew
+                          {daysUntilEnd(subscription.endDate) >= 0
+                            ? ` · ends in ${daysUntilEnd(subscription.endDate)}d`
+                            : ''}
+                        </button>
+                      )}
                     <button
                       onClick={() =>
                         navigate(

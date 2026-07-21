@@ -11,6 +11,7 @@ const {
   pauseSubscription,
   resumeSubscription,
   createSubscription,
+  renewSubscription,
 } = require('../controllers/subscriptionController');
 
 // Create subscription (discount pricing applied server-side)
@@ -44,5 +45,8 @@ router.patch('/:id/pause', protect, pauseSubscription);
 // Resume subscription
 router.put('/:id/resume', protect, resumeSubscription);
 router.patch('/:id/resume', protect, resumeSubscription);
+
+// Renew — create a continuing subscription (drives the normal payment flow)
+router.post('/:id/renew', protect, renewSubscription);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const logger = require('../utils/logger');
 const subscriptionService = require('../services/subscriptionService');
+const renewalService = require('../services/renewalService');
 
 const getUserSubscriptions = async (req, res) => {
   try {
@@ -113,6 +114,23 @@ const createSubscription = async (req, res) => {
   }
 };
 
+const renewSubscription = async (req, res) => {
+  try {
+    const data = await renewalService.renewSubscription(req.params.id, req.user.id);
+    res.status(201).json({
+      success: true,
+      message: 'Renewal created — complete payment to activate.',
+      data,
+    });
+  } catch (error) {
+    logger.error('Renew subscription error:', { stack: error.stack });
+    if (error.status) {
+      return res.status(error.status).json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = {
   getUserSubscriptions,
   getSubscriptionDetails,
@@ -123,4 +141,5 @@ module.exports = {
   pauseSubscription,
   resumeSubscription,
   createSubscription,
+  renewSubscription,
 };

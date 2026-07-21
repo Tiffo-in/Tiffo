@@ -51,6 +51,8 @@ const adRoutes = require('./routes/adRoutes');
 const waitlistRoutes = require('./routes/waitlist');
 const bannerRoutes = require('./routes/banners');
 const sitemapRoutes = require('./routes/sitemap');
+const internalRoutes = require('./routes/internal');
+const { startScheduler } = require('./services/scheduler');
 const { swaggerUi, specs } = require('./config/swagger');
 
 const app = express();
@@ -156,6 +158,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/ads', adRoutes);
 app.use('/api/waitlist', waitlistRoutes);
 app.use('/api/banners', bannerRoutes);
+app.use('/api/internal', internalRoutes);
 app.use('/api/sitemap.xml', sitemapRoutes);
 
 // API Documentation
@@ -205,6 +208,7 @@ const PORT = process.env.PORT || 5001;
 server.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
   logger.info('Socket.io ready for connections');
+  startScheduler();
 });
 
 process.on('unhandledRejection', (err) => {
