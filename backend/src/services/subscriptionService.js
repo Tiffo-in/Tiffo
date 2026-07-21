@@ -1,6 +1,13 @@
 const Subscription = require('../models/Subscription');
 const Delivery = require('../models/Delivery');
 const Tiffin = require('../models/Tiffin');
+const { istDayBounds } = require('../utils/dateIST');
+
+const ownershipError = () => {
+  const error = new Error('Subscription not found');
+  error.status = 404;
+  return error;
+};
 
 exports.fetchUserSubscriptions = async (userId) => {
   const subscriptions = await Subscription.find({
@@ -52,6 +59,66 @@ exports.fetchUserSubscriptions = async (userId) => {
       },
     };
   });
+};
+
+/**
+ * Paginated delivery list for one subscription the caller owns.
+ * Phase 1: powers the per-day delivery-status timeline.
+ */
+exports.fetchSubscriptionDeliveries = async (
+  subscriptionId,
+  userId,
+  { page = 1, limit = 31 } = {},
+) => {
+  const subscription = await Subscription.findOne({ _id: subscriptionId, user: userId }).select(
+    '_id',
+  );
+  if (!subscription) throw ownershipError();
+
+  const safePage = Math.max(1, parseInt(page, 10) || 1);
+  const safeLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 31));
+
+  const [deliveries, total] = await Promise.all([
+    Delivery.find({ subscription: subscription._id })
+      .sort({ deliveryDate: 1 })
+      .skip((safePage - 1) * safeLimit)
+      .limit(safeLimit)
+      .lean(),
+    Delivery.countDocuments({ subscription: subscription._id }),
+  ]);
+
+  return {
+    deliveries,
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      total,
+      pages: Math.ceil(total / safeLimit) || 1,
+    },
+  };
+};
+
+/**
+ * All of a customer's deliveries scheduled for today (IST), across active
+ * subscriptions — the "today's meal" surface.
+ */
+exports.fetchTodayDeliveries = async (userId) => {
+  const { start, end } = istDayBounds();
+  return (
+    Delivery.find({
+      user: userId,
+      deliveryDate: { $gte: start, $lte: end },
+    })
+      // The tiffin lives on the Subscription, not the Delivery — populate through it.
+      .populate({
+        path: 'subscription',
+        select: 'tiffin plan',
+        populate: { path: 'tiffin', select: 'title mealType images menuItems' },
+      })
+      .populate('partner', 'businessName phone')
+      .sort({ deliveryTime: 1 })
+      .lean()
+  );
 };
 
 exports.fetchSubscriptionDetails = async (subscriptionId, userId) => {

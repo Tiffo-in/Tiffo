@@ -563,6 +563,41 @@ The TIFFO Team
   return await sendEmail(user.email, subject, html, text);
 };
 
+/**
+ * Reminder that a subscription is about to end, with a link to renew.
+ */
+const sendRenewalReminderEmail = async (user, subscription) => {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const renewUrl = `${frontendUrl}/dashboard?renew=${subscription._id}`;
+  const planName = subscription.tiffin?.title || 'your tiffin plan';
+  const endsOn = new Date(subscription.endDate).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'long',
+  });
+  const subject = `Your Tiffo plan ends ${endsOn} — renew to keep your meals`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+      <div style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); color: #fff; padding: 28px; border-radius: 8px 8px 0 0;">
+        <h2 style="margin: 0;">Your plan is ending soon</h2>
+      </div>
+      <div style="background: #f9fafb; padding: 28px; border-radius: 0 0 8px 8px;">
+        <p>Hi ${user.name || 'there'},</p>
+        <p>Your subscription to <strong>${planName}</strong> ends on <strong>${endsOn}</strong>.
+        Renew now so your daily tiffins keep arriving without a gap.</p>
+        <p style="text-align: center; margin: 28px 0;">
+          <a href="${renewUrl}" style="background: #ea580c; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: bold;">Renew my plan</a>
+        </p>
+        <p style="color: #6b7280; font-size: 13px;">If you'd rather not continue, no action is needed — your plan will simply end.</p>
+        <p>— The Tiffo Team</p>
+      </div>
+    </div>
+  `;
+  const text = `Hi ${user.name || 'there'},\n\nYour Tiffo plan "${planName}" ends on ${endsOn}. Renew to keep your meals coming: ${renewUrl}\n\n— The Tiffo Team`;
+
+  return await sendEmail(user.email, subject, html, text);
+};
+
 // Throttled admin alert for webhook processing failures. A silently failing
 // payment webhook means paid-but-inactive subscriptions, so ops must hear
 // about it — but an outage must not turn into an alert storm.
@@ -599,4 +634,5 @@ module.exports = {
   sendRefundConfirmation,
   sendVerificationEmail,
   sendPasswordResetEmail,
+  sendRenewalReminderEmail,
 };

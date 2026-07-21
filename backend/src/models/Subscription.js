@@ -128,6 +128,14 @@ const subscriptionSchema = new mongoose.Schema(
     transferredAt: Date,
     pausedDates: [Date],
     specialInstructions: String,
+    // Renewals: idempotency marker for the "ending soon" reminder, and a link
+    // to the subscription created when this one was renewed.
+    renewalReminderSentAt: Date,
+    renewedToSubscription: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subscription',
+      default: null,
+    },
   },
   {
     timestamps: true,

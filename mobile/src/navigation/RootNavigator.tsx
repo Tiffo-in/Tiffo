@@ -17,6 +17,7 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 
 // Main tab screens
 import CheckoutScreen from '../screens/main/CheckoutScreen';
+import DeliveryTimelineScreen from '../screens/main/DeliveryTimelineScreen';
 import EditProfileScreen from '../screens/main/EditProfileScreen';
 import ExploreScreen from '../screens/main/ExploreScreen';
 import HelpSupportScreen from '../screens/main/HelpSupportScreen';
@@ -54,6 +55,7 @@ export type MainTabParams = {
 export type RootStackParams = {
   MainTabs: undefined;
   TiffinDetail: { tiffinId: string };
+  DeliveryTimeline: { subscriptionId: string; title?: string };
   Checkout: { tiffinId: string; plan: string; price: number };
   Login: undefined;
   Register: undefined;
@@ -230,6 +232,7 @@ const RootNavigator = () => {
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       <RootStack.Screen name="MainTabs" component={MainTabs} />
       <RootStack.Screen name="TiffinDetail" component={TiffinDetailScreen} />
+      <RootStack.Screen name="DeliveryTimeline" component={DeliveryTimelineScreen} />
       <RootStack.Screen
         name="Checkout"
         component={CheckoutScreen}

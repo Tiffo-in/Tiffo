@@ -12,8 +12,11 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
+import RazorpayCheckout from 'react-native-razorpay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import TodaysTiffinCard from '../../components/TodaysTiffinCard';
+import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { RootStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
@@ -27,9 +30,13 @@ interface Subscription {
   startDate: string;
   endDate: string;
   totalAmount: number;
+  renewedToSubscription?: string | null;
   tiffin?: { name: string };
   partner?: { businessName: string };
 }
+
+const daysUntil = (endDate: string) =>
+  Math.ceil((new Date(endDate).getTime() - Date.now()) / 86400000);
 
 const STATUS_CFG: Record<string, { icon: keyof typeof Ionicons.glyphMap }> = {
   active: { icon: 'checkmark-circle' },
@@ -58,12 +65,18 @@ const SubCard = ({
   sub,
   onPause,
   onResume,
+  onRenew,
+  onViewDeliveries,
+  renewing,
   index,
   C,
 }: {
   sub: Subscription;
   onPause: () => void;
   onResume: () => void;
+  onRenew: () => void;
+  onViewDeliveries: () => void;
+  renewing: boolean;
   index: number;
   C: ColorScheme;
 }) => {
@@ -165,6 +178,30 @@ const SubCard = ({
         <Text style={S.priceValue}>₹{sub.totalAmount?.toLocaleString('en-IN')}</Text>
       </View>
 
+      {(sub.status === 'active' || sub.status === 'paused') && (
+        <TouchableOpacity style={S.timelineBtn} onPress={onViewDeliveries} activeOpacity={0.8}>
+          <Ionicons name="list-outline" size={16} color={C.primary} />
+          <Text style={S.timelineTxt}>View Deliveries</Text>
+        </TouchableOpacity>
+      )}
+
+      {sub.status === 'active' &&
+        !sub.renewedToSubscription &&
+        daysUntil(sub.endDate) <= 3 &&
+        daysUntil(sub.endDate) >= 0 && (
+          <TouchableOpacity
+            style={S.renewBtn}
+            onPress={onRenew}
+            disabled={renewing}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="refresh-outline" size={16} color="#fff" />
+            <Text style={S.renewTxt}>
+              {renewing ? 'Renewing…' : `Renew · ends in ${daysUntil(sub.endDate)}d`}
+            </Text>
+          </TouchableOpacity>
+        )}
+
       {sub.status === 'active' && (
         <TouchableOpacity style={S.pauseBtn} onPress={onPause} activeOpacity={0.8}>
           <Ionicons name="pause-circle-outline" size={16} color={C.textSecondary} />
@@ -185,10 +222,12 @@ export default function SubscriptionScreen() {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
   const { isAuthenticated } = useAuth();
+  const { confirm, success, error: showError } = useAlert();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParams>>();
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [renewingId, setRenewingId] = useState<string | null>(null);
 
   const fetchSubs = async () => {
     if (!isAuthenticated) {
@@ -207,6 +246,45 @@ export default function SubscriptionScreen() {
   useEffect(() => {
     fetchSubs();
   }, [isAuthenticated]);
+
+  // Renew: create the continuing subscription, then pay for it with the same
+  // Razorpay flow used at checkout.
+  const payForSubscription = async (subscriptionId: string, plan: string) => {
+    const { orderId, amount, currency, razorpayKey } = (
+      await api.post('/payments/create-order', { subscriptionId })
+    ).data.data;
+    const data: any = await RazorpayCheckout.open({
+      description: `Tiffin renewal - ${plan}`,
+      currency,
+      key: razorpayKey,
+      amount,
+      name: 'TIFFO',
+      order_id: orderId,
+      theme: { color: C.primary },
+    });
+    await api.post('/payments/verify', { ...data, subscriptionId });
+  };
+
+  const handleRenew = (sub: Subscription) =>
+    confirm(
+      'Renew this plan?',
+      'We’ll set up a continuing subscription starting after this one ends, then take you to payment.',
+      async () => {
+        setRenewingId(sub._id);
+        try {
+          const renewed = (await api.post(`/subscriptions/${sub._id}/renew`)).data.data;
+          await payForSubscription(renewed._id, sub.plan);
+          success('Renewed!', 'Your plan will continue without a gap.', fetchSubs);
+        } catch (e: any) {
+          const msg = e?.response?.data?.message || e?.description || 'Could not complete renewal.';
+          showError('Renewal failed', msg);
+        } finally {
+          setRenewingId(null);
+        }
+      },
+      undefined,
+      'Renew',
+    );
 
   const activeCount = subs.filter((s) => s.status === 'active').length;
   const totalSpent = subs.reduce((a, s) => a + (s.totalAmount || 0), 0);
@@ -280,26 +358,37 @@ export default function SubscriptionScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          subs.map((sub, i) => (
-            <SubCard
-              key={sub._id}
-              sub={sub}
-              index={i}
-              C={C}
-              onPause={async () => {
-                try {
-                  await api.put(`/subscriptions/${sub._id}/pause`);
-                  fetchSubs();
-                } catch {}
-              }}
-              onResume={async () => {
-                try {
-                  await api.put(`/subscriptions/${sub._id}/resume`);
-                  fetchSubs();
-                } catch {}
-              }}
-            />
-          ))
+          <>
+            <TodaysTiffinCard />
+            {subs.map((sub, i) => (
+              <SubCard
+                key={sub._id}
+                sub={sub}
+                index={i}
+                C={C}
+                renewing={renewingId === sub._id}
+                onViewDeliveries={() =>
+                  nav.navigate('DeliveryTimeline', {
+                    subscriptionId: sub._id,
+                    title: sub.tiffin?.name || 'Deliveries',
+                  })
+                }
+                onRenew={() => handleRenew(sub)}
+                onPause={async () => {
+                  try {
+                    await api.put(`/subscriptions/${sub._id}/pause`);
+                    fetchSubs();
+                  } catch {}
+                }}
+                onResume={async () => {
+                  try {
+                    await api.put(`/subscriptions/${sub._id}/resume`);
+                    fetchSubs();
+                  } catch {}
+                }}
+              />
+            ))}
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -401,6 +490,28 @@ const createStyles = (C: ColorScheme) =>
       borderColor: C.success + '40',
     },
     resumeTxt: { fontSize: 13, fontWeight: '600', color: C.veg },
+    timelineBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginTop: 12,
+      padding: 10,
+      borderRadius: 10,
+      backgroundColor: C.primaryMuted,
+    },
+    timelineTxt: { fontSize: 13, fontWeight: '600', color: C.primary },
+    renewBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginTop: 12,
+      padding: 10,
+      borderRadius: 10,
+      backgroundColor: C.primary,
+    },
+    renewTxt: { fontSize: 13, fontWeight: '700', color: '#fff' },
     empty: { alignItems: 'center', paddingVertical: 60 },
     emptyTitle: { fontSize: 18, fontWeight: '700', color: C.textPrimary, marginBottom: 8 },
     emptySub: {
