@@ -14,6 +14,7 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import DeliveryStatusChip from './delivery/DeliveryStatusChip';
+import DeliveryFeedbackControls from './delivery/DeliveryFeedbackControls';
 import { getDeliveryStatus, statusTimestampField } from './delivery/deliveryStatus';
 const MySubscriptions = () => {
   const navigate = useNavigate();
@@ -500,24 +501,30 @@ const SubscriptionModal = ({ subscription, onClose }) => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <DeliveryStatusChip status={delivery.status} />
-                        {canSkip(delivery) && (
-                          <button
-                            onClick={() => toggleSkip(delivery, 'skip')}
-                            disabled={busyId === delivery._id}
-                            className="text-xs font-semibold text-neutral-500 hover:text-primary-600 disabled:opacity-50"
-                          >
-                            Skip
-                          </button>
-                        )}
-                        {delivery.status === 'skipped' && (
-                          <button
-                            onClick={() => toggleSkip(delivery, 'unskip')}
-                            disabled={busyId === delivery._id}
-                            className="text-xs font-semibold text-primary-600 hover:text-primary-700 disabled:opacity-50"
-                          >
-                            Undo
-                          </button>
+                        {delivery.status === 'delivered' ? (
+                          <DeliveryFeedbackControls delivery={delivery} onDone={fetchDetails} />
+                        ) : (
+                          <>
+                            <DeliveryStatusChip status={delivery.status} />
+                            {canSkip(delivery) && (
+                              <button
+                                onClick={() => toggleSkip(delivery, 'skip')}
+                                disabled={busyId === delivery._id}
+                                className="text-xs font-semibold text-neutral-500 hover:text-primary-600 disabled:opacity-50"
+                              >
+                                Skip
+                              </button>
+                            )}
+                            {delivery.status === 'skipped' && (
+                              <button
+                                onClick={() => toggleSkip(delivery, 'unskip')}
+                                disabled={busyId === delivery._id}
+                                className="text-xs font-semibold text-primary-600 hover:text-primary-700 disabled:opacity-50"
+                              >
+                                Undo
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

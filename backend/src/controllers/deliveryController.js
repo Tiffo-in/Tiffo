@@ -2,6 +2,7 @@ const Delivery = require('../models/Delivery');
 
 const { emitDeliveryUpdate, emitNotification } = require('../services/socketService');
 const skipService = require('../services/skipService');
+const deliveryFeedbackService = require('../services/deliveryFeedbackService');
 const logger = require('../utils/logger');
 const escapeRegex = require('../utils/escapeRegex');
 
@@ -334,6 +335,52 @@ exports.unskipDelivery = async (req, res, next) => {
     const userId = req.user.id || req.user._id;
     const result = await skipService.unskipDelivery(req.params.deliveryId, userId);
     res.json({ success: true, message: 'Skip reversed — this delivery is back on.', data: result });
+  } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * Rate a delivered meal (customer).
+ * POST /api/deliveries/:deliveryId/feedback
+ */
+exports.submitDeliveryFeedback = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const feedback = await deliveryFeedbackService.submitFeedback(
+      req.params.deliveryId,
+      userId,
+      req.body,
+    );
+    res.json({ success: true, message: 'Thanks for your feedback!', data: feedback });
+  } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * Report a problem with a delivery (customer).
+ * POST /api/deliveries/:deliveryId/report
+ */
+exports.reportDeliveryIssue = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const report = await deliveryFeedbackService.reportIssue(
+      req.params.deliveryId,
+      userId,
+      req.body,
+    );
+    res.json({
+      success: true,
+      message: 'Report submitted — our team will look into it.',
+      data: report,
+    });
   } catch (error) {
     if (error.status) {
       return res.status(error.status).json({ success: false, message: error.message });
