@@ -15,6 +15,7 @@ import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import DeliveryStatusChip from './delivery/DeliveryStatusChip';
 import DeliveryFeedbackControls from './delivery/DeliveryFeedbackControls';
+import TodaysTiffin from './delivery/TodaysTiffin';
 import { getDeliveryStatus, statusTimestampField } from './delivery/deliveryStatus';
 const MySubscriptions = () => {
   const navigate = useNavigate();
@@ -119,6 +120,8 @@ const MySubscriptions = () => {
 
   return (
     <div className="space-y-6">
+      <TodaysTiffin />
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-neutral-900">My Subscriptions</h2>
