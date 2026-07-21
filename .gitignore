@@ -102,3 +102,6 @@ uploads/
 public/uploads/
 # Expo local state
 .expo/
+
+# Claude Code local settings
+.claude/
