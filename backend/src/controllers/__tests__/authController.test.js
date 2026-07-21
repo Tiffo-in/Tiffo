@@ -323,28 +323,39 @@ describe('Auth Controller', () => {
       );
     });
 
-    it('should return 404 if user not found', async () => {
+    // Anti-enumeration contract: the response must be identical whether the
+    // account is missing, already verified, or unverified — and must never
+    // send an email in the first two cases.
+    it('should return the uniform success response if user not found (no enumeration)', async () => {
       mockReq.body = { email: 'notfound@test.com' };
       User.findOne.mockResolvedValue(null);
 
       await resendVerification(mockReq, mockRes);
 
-      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(sendVerificationEmail).not.toHaveBeenCalled();
       expect(mockRes.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: 'User not found' }),
+        expect.objectContaining({
+          success: true,
+          message:
+            'If an unverified account exists for that email, a verification link has been sent.',
+        }),
       );
     });
 
-    it('should return 400 if user is already verified', async () => {
+    it('should return the uniform success response if user is already verified (no enumeration)', async () => {
       mockReq.body = { email: 'verified@test.com' };
       const mockUser = { isEmailVerified: true };
       User.findOne.mockResolvedValue(mockUser);
 
       await resendVerification(mockReq, mockRes);
 
-      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(sendVerificationEmail).not.toHaveBeenCalled();
       expect(mockRes.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: 'Email is already verified' }),
+        expect.objectContaining({
+          success: true,
+          message:
+            'If an unverified account exists for that email, a verification link has been sent.',
+        }),
       );
     });
 
@@ -366,7 +377,8 @@ describe('Auth Controller', () => {
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: true,
-          message: 'Verification email resent successfully! Please check your inbox.',
+          message:
+            'If an unverified account exists for that email, a verification link has been sent.',
         }),
       );
     });

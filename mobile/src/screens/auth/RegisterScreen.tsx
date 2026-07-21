@@ -66,7 +66,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const C = useTheme();
   const S = useMemo(() => createStyles(C), [C]);
   const { register } = useAuth();
-  const { error, warning } = useAlert();
+  const { error, warning, success } = useAlert();
   const [values, setValues] = useState({ name: '', email: '', phone: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -104,7 +104,10 @@ export default function RegisterScreen({ navigation }: Props) {
     }
     try {
       setLoading(true);
-      await register(nameTrim, emailTrim, password, phoneTrim);
+      const message = await register(nameTrim, emailTrim, password, phoneTrim);
+      // No session is issued until the email is verified — send the user to
+      // Login with the server's confirmation message.
+      success('Account Created', message, () => navigation.navigate('Login'));
     } catch (err: any) {
       error(
         'Registration Failed',

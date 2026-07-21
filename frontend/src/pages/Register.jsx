@@ -2,25 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
-import api from '../services/api';
 import { useForm } from 'react-hook-form';
-import { login as loginAction } from '../store/slices/authSlice';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   UserIcon,
   EnvelopeIcon,
   PhoneIcon,
   LockClosedIcon,
   SparklesIcon,
-  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
-import { CheckCircleIcon as SolidCheckCircleIcon } from '@heroicons/react/24/solid';
+
+import api from '../services/api';
+import { login as loginAction } from '../store/slices/authSlice';
+import AuthBrandPanel from '../components/auth/AuthBrandPanel';
+import RoleSelector from '../components/auth/RoleSelector';
+import FormField from '../components/auth/FormField';
+
+const REGISTER_BENEFITS = [
+  '100% Authentic homemade meals from verified local chefs.',
+  'Flexible subscriptions — pause or cancel anytime.',
+  'Empowering local communities and home cooks.',
+];
 
 const Register = () => {
   const [searchParams] = useSearchParams();
   const [userRole, setUserRole] = useState(searchParams.get('role') || 'user');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -33,7 +42,6 @@ const Register = () => {
   } = useForm();
 
   const password = watch('password');
-  const [isLoading, setIsLoading] = useState(false);
 
   const getRedirectPath = (role) => {
     switch (role) {
@@ -46,26 +54,22 @@ const Register = () => {
     }
   };
 
-  // Handle successful Google token credential verification from Google Identity Services
+  // Google Sign-In issues a real session immediately (no email verification
+  // step), so hydrating the store and redirecting is correct here.
   const handleGoogleCredentialResponse = async (response) => {
     setIsLoading(true);
-
     try {
-      // Send token and selected role to our backend
       const res = await api.post('/auth/google', {
         idToken: response.credential,
         role: userRole,
       });
-
       if (res.data.success && res.data.user) {
-        toast.success(`Welcome, ${res.data.user.name}!`);
-        // Hydrate store state
         dispatch(loginAction({ user: res.data.user }));
-        const redirectPath = getRedirectPath(res.data.user.role);
-        navigate(redirectPath, { replace: true });
+        toast.success(`Welcome, ${res.data.user.name}!`);
+        navigate(getRedirectPath(res.data.user.role), { replace: true });
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Google registration failed. Please try again.');
+      toast.error(err.response?.data?.message || 'Google sign-up failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -80,10 +84,15 @@ const Register = () => {
             '1008719970978-placeholder.apps.googleusercontent.com',
           callback: handleGoogleCredentialResponse,
         });
-        window.google.accounts.id.renderButton(document.getElementById('google-signin-button'), {
+        const container = document.getElementById('google-signin-button');
+        if (!container) return;
+        // GSI buttons render at a fixed pixel width (Google caps it at 400)
+        // and never shrink, so a hardcoded width overflows small screens —
+        // derive the width from the container instead.
+        window.google.accounts.id.renderButton(container, {
           theme: 'outline',
           size: 'large',
-          width: 220,
+          width: Math.min(400, container.offsetWidth || 400),
         });
       }
     };
@@ -96,6 +105,7 @@ const Register = () => {
         script.addEventListener('load', initializeGoogle);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userRole]); // Re-initialize when role changes so backend gets the updated role
 
   const onSubmit = async (data) => {
@@ -111,12 +121,16 @@ const Register = () => {
       });
 
       if (response.data.success) {
-        toast.success('Registration successful!');
-        dispatch({ type: 'auth/login', payload: response.data });
-        navigate(userRole === 'partner' ? '/partner/dashboard' : '/dashboard');
+        // Email/password registration issues NO session — the account must be
+        // email-verified first, so send the user to Login with the message.
+        toast.success(
+          response.data.message ||
+            'Registration successful! Please check your email to verify your account.',
+          { duration: 6000 },
+        );
+        navigate('/login');
       }
     } catch (error) {
-      console.error('Registration error:', error);
       if (error.response?.data?.errors) {
         error.response.data.errors.forEach((err) => {
           setError(err.field, { type: 'manual', message: err.message });
@@ -130,95 +144,28 @@ const Register = () => {
     }
   };
 
-  const roleOptions = [
-    {
-      id: 'user',
-      title: 'Customer',
-      description: 'Order delicious tiffins',
-      emoji: '🍽️',
-      activeColor:
-        'ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
-    },
-    {
-      id: 'partner',
-      title: 'Tiffin Partner',
-      description: 'Start your food business',
-      emoji: '👨‍🍳',
-      activeColor:
-        'ring-primary-500 bg-primary-50/50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800',
-    },
-  ];
-
   return (
     <div className="min-h-screen flex items-stretch bg-neutral-50 dark:bg-neutral-950 selection:bg-primary-200 selection:text-primary-900">
-      {/* Left Panel - Image & Branding (Hidden on Mobile/Tablet) */}
-      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-neutral-900">
-        <div
-          className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-[20s] ease-out"
-          style={{
-            backgroundImage: "url('/register.jpeg')",
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-900/70 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/90 to-transparent" />
+      <AuthBrandPanel
+        image="/register.jpeg"
+        heading={
+          <>
+            Your journey to <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
+              great food
+            </span>{' '}
+            begins here.
+          </>
+        }
+        subheading="Join thousands of food lovers enjoying daily authentic meals, or start your own tiffin business today."
+        benefitsTitle="Why join Tiffo?"
+        benefits={REGISTER_BENEFITS}
+      />
 
-        <div className="relative z-10 flex flex-col justify-center w-full p-12 lg:p-16 text-white h-full">
-          <div className="space-y-12">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <h1 className="text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
-                Your journey to <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
-                  great food
-                </span>{' '}
-                begins here.
-              </h1>
-              <p className="text-xl text-neutral-300 max-w-md leading-relaxed font-medium">
-                Join thousands of food lovers enjoying daily authentic meals, or start your own
-                tiffin business today.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl max-w-md shadow-2xl relative"
-            >
-              <h3 className="font-bold text-xl mb-6 text-white flex items-center gap-2">
-                <SparklesIcon className="w-6 h-6 text-primary-400" />
-                Why join Tiffo?
-              </h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <SolidCheckCircleIcon className="w-6 h-6 text-green-400 shrink-0" />
-                  <span className="text-neutral-200 font-medium">
-                    100% Authentic homemade meals from verified local chefs.
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <SolidCheckCircleIcon className="w-6 h-6 text-green-400 shrink-0" />
-                  <span className="text-neutral-200 font-medium">
-                    Flexible subscriptions — pause or cancel anytime.
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <SolidCheckCircleIcon className="w-6 h-6 text-green-400 shrink-0" />
-                  <span className="text-neutral-200 font-medium">
-                    Empowering local communities and home cooks.
-                  </span>
-                </li>
-              </ul>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Panel - Registration Form */}
-      <div className="flex-1 flex flex-col justify-center items-center px-6 sm:px-12 py-12 relative dark:bg-neutral-950 overflow-y-auto">
+      {/* No justify-center here: with overflow-y-auto it would clip the top of an
+          overflowing form and make it unscrollable — the card's my-auto centers it
+          when it fits. pt-28 clears the fixed navbar (~88px). */}
+      <div className="flex-1 flex flex-col items-center px-6 sm:px-12 pt-28 pb-12 relative dark:bg-neutral-950 overflow-y-auto">
         <motion.div
           className="w-full max-w-[480px] my-auto"
           initial={{ opacity: 0, y: 20 }}
@@ -248,246 +195,82 @@ const Register = () => {
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <motion.div
-              className="space-y-3"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300">
-                I want to...
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {roleOptions.map((option) => {
-                  const isSelected = userRole === option.id;
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => setUserRole(option.id)}
-                      className={`relative flex flex-col items-start p-4 rounded-2xl border-2 text-left transition-all duration-200 outline-none
-                        ${
-                          isSelected
-                            ? `${option.activeColor} ring-2 ring-offset-2 dark:ring-offset-neutral-950`
-                            : 'border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 text-neutral-500 dark:text-neutral-400'
-                        }`}
-                    >
-                      {isSelected && (
-                        <div className="absolute top-3 right-3 text-primary-500 dark:text-primary-400">
-                          <SolidCheckCircleIcon className="w-6 h-6" />
-                        </div>
-                      )}
-                      <span className="text-3xl mb-3">{option.emoji}</span>
-                      <h4
-                        className={`font-bold text-base mb-1 ${isSelected ? 'text-neutral-900 dark:text-white' : ''}`}
-                      >
-                        {option.title}
-                      </h4>
-                      <p
-                        className={`text-xs font-medium ${isSelected ? 'text-neutral-700 dark:text-neutral-300' : ''}`}
-                      >
-                        {option.description}
-                      </p>
-                    </button>
-                  );
+            <RoleSelector value={userRole} onChange={setUserRole} />
+
+            <div className="space-y-5">
+              <FormField
+                label={userRole === 'partner' ? 'Business Contact Name' : 'Full Name'}
+                icon={UserIcon}
+                placeholder="John Doe"
+                registration={register('name', {
+                  required: 'Name is required',
+                  minLength: { value: 2, message: 'Name must be at least 2 characters' },
+                  maxLength: { value: 60, message: 'Name cannot exceed 60 characters' },
                 })}
-              </div>
+                error={errors.name}
+              />
 
-              <AnimatePresence mode="wait">
-                {userRole === 'partner' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                    animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
-                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="flex items-start gap-3 p-3.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl">
-                      <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-bold text-amber-800 dark:text-amber-400">
-                          Partner Verification
-                        </p>
-                        <p className="text-xs font-medium text-amber-700 dark:text-amber-500/80 mt-1">
-                          Your business details will be verified by our team before your account is
-                          fully activated.
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              <FormField
+                label="Email Address"
+                icon={EnvelopeIcon}
+                type="email"
+                placeholder="name@example.com"
+                registration={register('email', {
+                  required: 'Email is required',
+                  pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' },
+                })}
+                error={errors.email}
+              />
 
-            <motion.div
-              className="space-y-5"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">
-                  {userRole === 'partner' ? 'Business Contact Name' : 'Full Name'}
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <UserIcon className="w-5 h-5 text-neutral-400" />
-                  </div>
-                  <input
-                    {...register('name', {
-                      required: 'Name is required',
-                      minLength: { value: 2, message: 'Name must be at least 2 characters' },
-                      maxLength: { value: 60, message: 'Name cannot exceed 60 characters' },
-                    })}
-                    type="text"
-                    className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-12 pr-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                    placeholder="John Doe"
-                  />
-                </div>
-                {errors.name && (
-                  <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
-                    <span>⚠️</span> {errors.name.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <EnvelopeIcon className="w-5 h-5 text-neutral-400" />
-                  </div>
-                  <input
-                    {...register('email', {
-                      required: 'Email is required',
-                      pattern: {
-                        value: /^\S+@\S+$/i,
-                        message: 'Invalid email address',
-                      },
-                    })}
-                    type="email"
-                    className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-12 pr-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                    placeholder="name@example.com"
-                  />
-                </div>
-                {errors.email && (
-                  <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
-                    <span>⚠️</span> {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <PhoneIcon className="w-5 h-5 text-neutral-400" />
-                  </div>
-                  <input
-                    {...register('phone', {
-                      required: 'Phone number is required',
-                      pattern: {
-                        value: /^[6-9]\d{9}$/,
-                        message:
-                          'Please enter a valid 10-digit Indian mobile number (e.g., 9876543210)',
-                      },
-                    })}
-                    type="tel"
-                    className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-12 pr-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                    placeholder="9876543210"
-                  />
-                  <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
-                    Enter a 10-digit number starting with 6-9 (e.g. 9876543210, without country
-                    code, spaces, or dashes)
-                  </p>
-                </div>
-                {errors.phone && (
-                  <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
-                    <span>⚠️</span> {errors.phone.message}
-                  </p>
-                )}
-              </div>
+              <FormField
+                label="Phone Number"
+                icon={PhoneIcon}
+                type="tel"
+                placeholder="9876543210"
+                helperText="Enter a 10-digit number starting with 6-9 (e.g. 9876543210, without country code, spaces, or dashes)"
+                registration={register('phone', {
+                  required: 'Phone number is required',
+                  pattern: {
+                    value: /^[6-9]\d{9}$/,
+                    message: 'Please enter a valid 10-digit Indian mobile number (e.g., 9876543210)',
+                  },
+                })}
+                error={errors.phone}
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <LockClosedIcon className="w-5 h-5 text-neutral-400" />
-                    </div>
-                    <input
-                      {...register('password', {
-                        required: 'Required',
-                        minLength: { value: 8, message: 'Password must be at least 8 characters' },
-                        pattern: {
-                          value: /\d/,
-                          message: 'Password must contain at least one number',
-                        },
-                      })}
-                      type={showPassword ? 'text' : 'password'}
-                      className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-11 pr-12 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                      placeholder="••••••••"
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 font-bold text-xs transition-colors"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? 'HIDE' : 'SHOW'}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
-                      <span>⚠️</span> {errors.password.message}
-                    </p>
-                  )}
-                </div>
+                <FormField
+                  label="Password"
+                  icon={LockClosedIcon}
+                  placeholder="••••••••"
+                  showToggle
+                  shown={showPassword}
+                  onToggleShown={() => setShowPassword((s) => !s)}
+                  registration={register('password', {
+                    required: 'Required',
+                    minLength: { value: 8, message: 'Password must be at least 8 characters' },
+                    pattern: { value: /\d/, message: 'Password must contain at least one number' },
+                  })}
+                  error={errors.password}
+                />
 
-                <div>
-                  <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <LockClosedIcon className="w-5 h-5 text-neutral-400" />
-                    </div>
-                    <input
-                      {...register('confirmPassword', {
-                        required: 'Required',
-                        validate: (value) => value === password || 'Passwords do not match',
-                      })}
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl pl-11 pr-12 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                      placeholder="••••••••"
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 font-bold text-xs transition-colors"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? 'HIDE' : 'SHOW'}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
-                      <span>⚠️</span> {errors.confirmPassword.message}
-                    </p>
-                  )}
-                </div>
+                <FormField
+                  label="Confirm Password"
+                  icon={LockClosedIcon}
+                  placeholder="••••••••"
+                  showToggle
+                  shown={showConfirmPassword}
+                  onToggleShown={() => setShowConfirmPassword((s) => !s)}
+                  registration={register('confirmPassword', {
+                    required: 'Required',
+                    validate: (value) => value === password || 'Passwords do not match',
+                  })}
+                  error={errors.confirmPassword}
+                />
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="pt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
+            <div className="pt-2">
               <label className="flex items-start cursor-pointer group">
                 <div className="relative flex items-center justify-center w-5 h-5 mr-3 mt-0.5 shrink-0">
                   <input
@@ -531,14 +314,9 @@ const Register = () => {
                   <span>⚠️</span> You must accept the terms to continue
                 </p>
               )}
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="pt-2"
-            >
+            <div className="pt-2">
               <button
                 type="submit"
                 className="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-lg py-4 rounded-xl font-black hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-4 focus:ring-neutral-900/20 dark:focus:ring-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-neutral-900/20 dark:shadow-white/10 flex items-center justify-center gap-2"
@@ -571,15 +349,9 @@ const Register = () => {
                   </>
                 )}
               </button>
-            </motion.div>
+            </div>
 
-            {/* Divider */}
-            <motion.div
-              className="relative pt-4 pb-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
+            <div className="relative pt-4 pb-2">
               <div className="absolute inset-0 flex items-center pt-2">
                 <div className="w-full border-t border-neutral-200 dark:border-neutral-800"></div>
               </div>
@@ -588,26 +360,14 @@ const Register = () => {
                   or continue with
                 </span>
               </div>
-            </motion.div>
+            </div>
 
-            {/* Social Login */}
-            <motion.div
-              className="flex justify-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              {/* GIS Real Sign-In Button */}
+            <div className="flex justify-center">
               <div id="google-signin-button" className="w-full flex justify-center"></div>
-            </motion.div>
+            </div>
           </form>
 
-          <motion.div
-            className="mt-8 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
+          <div className="mt-8 text-center">
             <p className="text-neutral-600 dark:text-neutral-400 font-medium">
               Already have an account?{' '}
               <Link
@@ -617,7 +377,7 @@ const Register = () => {
                 Sign in instead
               </Link>
             </p>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>

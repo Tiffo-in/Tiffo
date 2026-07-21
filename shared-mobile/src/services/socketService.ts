@@ -5,7 +5,14 @@ declare const __DEV__: boolean;
 
 import Constants from 'expo-constants';
 
+// Mirror the API base-URL logic: in dev, Metro's hostUri points at the dev
+// machine where the local backend (and its Socket.io server) runs on :5001.
 const getSocketUrl = () => {
+  if (__DEV__) {
+    const hostUri = Constants.expoConfig?.hostUri;
+    const host = hostUri?.split(':')[0];
+    if (host) return `http://${host}:5001`;
+  }
   return 'https://api.tiffo.in';
 };
 

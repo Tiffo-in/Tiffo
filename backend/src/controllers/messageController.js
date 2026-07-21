@@ -71,7 +71,7 @@ const sendMessage = async (req, res) => {
 /**
  * Get all conversations for current user
  */
-const getConversations = async (req, res) => {
+const getConversations = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
@@ -131,17 +131,14 @@ const getConversations = async (req, res) => {
       data: populatedConversations,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
 /**
  * Get messages in a conversation
  */
-const getMessages = async (req, res) => {
+const getMessages = async (req, res, next) => {
   try {
     const { conversationId } = req.params;
     const { page = 1, limit = 50 } = req.query;
@@ -177,17 +174,14 @@ const getMessages = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
 /**
  * Mark messages as read
  */
-const markAsRead = async (req, res) => {
+const markAsRead = async (req, res, next) => {
   try {
     const { conversationId } = req.params;
     const userId = req.user._id;
@@ -209,17 +203,14 @@ const markAsRead = async (req, res) => {
       message: 'Messages marked as read',
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
 /**
  * Get unread message count
  */
-const getUnreadCount = async (req, res) => {
+const getUnreadCount = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
@@ -233,10 +224,7 @@ const getUnreadCount = async (req, res) => {
       data: { unreadCount: count },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 

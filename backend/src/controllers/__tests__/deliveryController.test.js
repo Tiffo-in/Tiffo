@@ -103,24 +103,24 @@ describe('Delivery Controller', () => {
       );
     });
 
-    it('should return 500 on database error', async () => {
+    it('should forward database errors to the central error handler', async () => {
       req.params.deliveryId = 'del_error';
 
+      const dbError = new Error('Database query failed');
       Delivery.findById.mockReturnValue({
         populate: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
-            populate: jest.fn().mockRejectedValue(new Error('Database query failed')),
+            populate: jest.fn().mockRejectedValue(dbError),
           }),
         }),
       });
 
-      await getDeliveryDetails(req, res);
+      const next = jest.fn();
+      await getDeliveryDetails(req, res, next);
 
       expect(Delivery.findById).toHaveBeenCalledWith('del_error');
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, message: 'Database query failed' }),
-      );
+      expect(next).toHaveBeenCalledWith(dbError);
+      expect(res.json).not.toHaveBeenCalled();
     });
   });
 

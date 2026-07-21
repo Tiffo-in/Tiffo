@@ -59,18 +59,15 @@ describe('Tiffin Controller', () => {
       );
     });
 
-    it('should return 400 if an error occurs', async () => {
-      Tiffin.countDocuments.mockRejectedValue(new Error('DB Error'));
+    it('should forward database errors to the central error handler', async () => {
+      const dbError = new Error('DB Error');
+      Tiffin.countDocuments.mockRejectedValue(dbError);
+      const next = jest.fn();
 
-      await getTiffins(mockReq, mockRes);
+      await getTiffins(mockReq, mockRes, next);
 
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: false,
-          message: 'DB Error',
-        }),
-      );
+      expect(next).toHaveBeenCalledWith(dbError);
+      expect(mockRes.json).not.toHaveBeenCalled();
     });
   });
 

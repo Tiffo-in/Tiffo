@@ -12,7 +12,7 @@ const {
 /**
  * Send notification to a user
  */
-const sendNotification = async (req, res) => {
+const sendNotification = async (req, res, next) => {
   try {
     const { userId, title, message, type } = req.body;
 
@@ -27,10 +27,7 @@ const sendNotification = async (req, res) => {
       message: 'Notification sent',
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 

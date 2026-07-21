@@ -149,15 +149,14 @@ describe('Ad Controller - getAdListings', () => {
     });
   });
 
-  it('should handle errors gracefully and return 500', async () => {
-    Partner.aggregate.mockRejectedValue(new Error('Database error'));
+  it('should forward database errors to the central error handler', async () => {
+    const dbError = new Error('Database error');
+    Partner.aggregate.mockRejectedValue(dbError);
+    const next = jest.fn();
 
-    await getAdListings(req, res);
+    await getAdListings(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      success: false,
-      message: 'Database error',
-    });
+    expect(next).toHaveBeenCalledWith(dbError);
+    expect(res.json).not.toHaveBeenCalled();
   });
 });
