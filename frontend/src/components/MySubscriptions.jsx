@@ -13,6 +13,10 @@ import {
 import { StarIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
+import DeliveryStatusChip from './delivery/DeliveryStatusChip';
+import DeliveryFeedbackControls from './delivery/DeliveryFeedbackControls';
+import TodaysTiffin from './delivery/TodaysTiffin';
+import { getDeliveryStatus, statusTimestampField } from './delivery/deliveryStatus';
 const MySubscriptions = () => {
   const navigate = useNavigate();
   const [subscriptions, setSubscriptions] = useState([]);
@@ -69,6 +73,32 @@ const MySubscriptions = () => {
     }
   };
 
+  // Renew: create a continuing subscription, then send the customer to checkout
+  // to pay for it (the normal payment flow generates the new deliveries).
+  const handleRenew = async (id) => {
+    try {
+      toast.loading('Setting up your renewal...', { id: 'renew' });
+      const response = await api.post(`/subscriptions/${id}/renew`);
+      if (response.data.success) {
+        toast.success('Renewal ready — complete payment to activate.', { id: 'renew' });
+        navigate(`/checkout/${response.data.data._id}`);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not start renewal', { id: 'renew' });
+    }
+  };
+
+  // Days left until a subscription ends (null if no end date).
+  const daysUntilEnd = (endDate) =>
+    endDate ? Math.ceil((new Date(endDate) - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+
+  // Auto-open renewal when arriving from the reminder email (?renew=<id>).
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('renew');
+    if (id) handleRenew(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const getStatusConfig = (status) => {
     switch (status) {
       case 'active':
@@ -116,6 +146,8 @@ const MySubscriptions = () => {
 
   return (
     <div className="space-y-6">
+      <TodaysTiffin />
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-neutral-900">My Subscriptions</h2>
@@ -300,6 +332,20 @@ const MySubscriptions = () => {
                         Resume Subscription
                       </button>
                     )}
+                    {subscription.status === 'active' &&
+                      !subscription.renewedToSubscription &&
+                      daysUntilEnd(subscription.endDate) !== null &&
+                      daysUntilEnd(subscription.endDate) <= 3 && (
+                        <button
+                          onClick={() => handleRenew(subscription._id)}
+                          className="px-6 py-3 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors"
+                        >
+                          Renew
+                          {daysUntilEnd(subscription.endDate) >= 0
+                            ? ` · ends in ${daysUntilEnd(subscription.endDate)}d`
+                            : ''}
+                        </button>
+                      )}
                     <button
                       onClick={() =>
                         navigate(
@@ -354,6 +400,31 @@ const SubscriptionModal = ({ subscription, onClose }) => {
   useEffect(() => {
     fetchDetails();
   }, [fetchDetails]);
+
+  const [busyId, setBusyId] = useState(null);
+
+  // A scheduled delivery can be skipped up to 8 PM IST the day before — mirror
+  // the server cutoff so we only show the button when it will actually work.
+  const canSkip = (delivery) => {
+    if (delivery.status !== 'scheduled') return false;
+    const day = new Date(delivery.deliveryDate);
+    day.setHours(0, 0, 0, 0);
+    const cutoff = day.getTime() - 4 * 60 * 60 * 1000;
+    return Date.now() < cutoff;
+  };
+
+  const toggleSkip = async (delivery, action) => {
+    setBusyId(delivery._id);
+    try {
+      const res = await api.patch(`/deliveries/${delivery._id}/${action}`);
+      toast.success(res.data.message || 'Updated');
+      await fetchDetails();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not update this delivery');
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   return (
     <motion.div
@@ -434,36 +505,79 @@ const SubscriptionModal = ({ subscription, onClose }) => {
               <p className="text-neutral-600">{subscription.deliveryAddress?.pincode}</p>
             </div>
 
-            {/* Recent Deliveries */}
+            {/* Delivery timeline — status-accurate per day (Phase 1) */}
             <div>
               <h4 className="font-semibold text-neutral-700 mb-3 flex items-center">
                 <TruckIcon className="w-5 h-5 mr-2 text-primary-500" />
-                Recent Deliveries
+                Delivery Timeline
               </h4>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {details.deliveries.map((delivery) => (
-                  <div
-                    key={delivery._id}
-                    className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <CheckCircleIcon className="w-5 h-5 text-green-600" />
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {details.deliveries.map((delivery) => {
+                  const cfg = getDeliveryStatus(delivery.status);
+                  const doneAt = delivery[statusTimestampField(delivery.status)];
+                  return (
+                    <div
+                      key={delivery._id}
+                      className="flex justify-between items-center p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span
+                          className={`w-2.5 h-2.5 rounded-full shrink-0 ${cfg.dot}`}
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <span className="font-medium text-neutral-700 block">
+                            {new Date(delivery.deliveryDate).toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
+                          {doneAt && (
+                            <span className="text-xs text-neutral-400">
+                              {new Date(doneAt).toLocaleTimeString('en-IN', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <span className="font-medium text-neutral-700">
-                        {new Date(delivery.deliveryDate).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {delivery.status === 'delivered' ? (
+                          <DeliveryFeedbackControls delivery={delivery} onDone={fetchDetails} />
+                        ) : (
+                          <>
+                            <DeliveryStatusChip status={delivery.status} />
+                            {canSkip(delivery) && (
+                              <button
+                                onClick={() => toggleSkip(delivery, 'skip')}
+                                disabled={busyId === delivery._id}
+                                className="text-xs font-semibold text-neutral-500 hover:text-primary-600 disabled:opacity-50"
+                              >
+                                Skip
+                              </button>
+                            )}
+                            {delivery.status === 'skipped' && (
+                              <button
+                                onClick={() => toggleSkip(delivery, 'unskip')}
+                                disabled={busyId === delivery._id}
+                                className="text-xs font-semibold text-primary-600 hover:text-primary-700 disabled:opacity-50"
+                              >
+                                Undo
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                      {delivery.status.replace('_', ' ')}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+              <p className="text-xs text-neutral-400 mt-2">
+                Skipping a day adds a make-up delivery to the end of your plan — you never lose a
+                meal. Up to 4 skips per month.
+              </p>
             </div>
 
             {/* Actions */}

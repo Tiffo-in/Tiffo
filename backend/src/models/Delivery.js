@@ -32,8 +32,15 @@ const deliverySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['scheduled', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'],
+      enum: ['scheduled', 'preparing', 'out_for_delivery', 'delivered', 'skipped', 'cancelled'],
       default: 'scheduled',
+    },
+    // Set on the make-up delivery generated when a day is skipped, pointing at
+    // the delivery that was skipped — lets unskip reverse the make-up cleanly.
+    makeupForDelivery: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Delivery',
+      default: null,
     },
     deliveryAddress: {
       street: String,
@@ -64,6 +71,23 @@ const deliverySchema = new mongoose.Schema(
       rating: Number,
       comment: String,
       images: [String],
+      submittedAt: Date,
+    },
+    // Customer-reported problem with a specific day's delivery (missed, late,
+    // quality). Reviewed by an admin; resolution may grant a make-up day.
+    report: {
+      reason: {
+        type: String,
+        enum: ['not_delivered', 'late', 'wrong_item', 'quality', 'other'],
+      },
+      comment: String,
+      status: {
+        type: String,
+        enum: ['open', 'resolved', 'dismissed'],
+        default: 'open',
+      },
+      createdAt: Date,
+      resolvedAt: Date,
     },
     specialInstructions: String,
     notes: String,
@@ -72,6 +96,7 @@ const deliverySchema = new mongoose.Schema(
     preparingAt: Date,
     outForDeliveryAt: Date,
     deliveredAt: Date,
+    skippedAt: Date,
     cancelledAt: Date,
   },
   {
