@@ -26,13 +26,15 @@ exports.getPartnerCustomers = async (req, res) => {
     const partner = await resolvePartner(req, res);
     if (!partner) return;
 
+    // ⚡ Bolt: Added .lean() to skip Mongoose document hydration for read-only data, reducing memory usage
     const subscriptions = await Subscription.find({
       partner: partner._id, // Bug 1 fix
       status: 'active',
     })
       .populate('user', 'name email phone')
       .populate('tiffin', 'title') // Bug 6 fix: 'title' not 'name'
-      .select('plan startDate endDate deliveryTime user tiffin');
+      .select('plan startDate endDate deliveryTime user tiffin')
+      .lean();
 
     const customers = subscriptions.map((sub) => ({
       id: sub.user._id,
@@ -66,6 +68,7 @@ exports.getCustomerCalendar = async (req, res) => {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0);
 
+    // ⚡ Bolt: Added .lean() to skip Mongoose document hydration for read-only data, reducing memory usage
     const deliveries = await Delivery.find({
       partner: partner._id, // Bug 1 fix
       user: customerId,
@@ -73,7 +76,9 @@ exports.getCustomerCalendar = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
-    }).select('deliveryDate status mealType _id');
+    })
+      .select('deliveryDate status mealType _id')
+      .lean();
 
     const calendar = {};
     deliveries.forEach((delivery) => {
@@ -171,6 +176,7 @@ exports.getTodayOrders = async (req, res) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // ⚡ Bolt: Added .lean() to skip Mongoose document hydration for read-only data, reducing memory usage
     const deliveries = await Delivery.find({
       partner: partner._id, // Bug 1 fix
       deliveryDate: {
@@ -180,7 +186,8 @@ exports.getTodayOrders = async (req, res) => {
     })
       .populate('user', 'name phone')
       .populate('subscription', 'deliveryAddress plan')
-      .sort({ deliveryTime: 1 });
+      .sort({ deliveryTime: 1 })
+      .lean();
 
     const orders = deliveries.map((delivery) => ({
       id: delivery._id,
