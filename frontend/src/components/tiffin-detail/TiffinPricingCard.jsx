@@ -2,50 +2,37 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCartIcon } from '@heroicons/react/24/solid';
 
+const PLAN_META = [
+  { key: 'daily', title: 'Daily', desc: '1 day plan' },
+  { key: 'weekly', title: 'Weekly', desc: '7 day plan' },
+  { key: 'monthly', title: 'Monthly', desc: '30 day plan' },
+];
+
 const TiffinPricingCard = ({
-  tiffin,
-  daily = 70,
-  planPrice = { daily: 70, weekly: 431, monthly: 2100 },
-  planOriginal = { daily: 70, weekly: 490, monthly: 2400 },
+  daily,
+  planPrice = {},
+  planOriginal = {},
   selectedPlan = 'weekly',
   onSelectPlan,
-  gstAmount = 22,
-  grandTotal = 453,
+  gstAmount,
+  grandTotal,
   hasCartItem,
   onSubscribe,
   onViewCart,
 }) => {
-  const plans = [
-    {
-      key: 'daily',
-      title: 'Daily',
-      desc: '1 day plan',
-      price: planPrice.daily || daily,
-      original: planOriginal.daily,
-      discount: 0,
-    },
-    {
-      key: 'weekly',
-      title: 'Weekly',
-      desc: '7 day plan',
-      price: planPrice.weekly || 431,
-      original: planOriginal.weekly || 490,
-      discount: 14,
-    },
-    {
-      key: 'monthly',
-      title: 'Monthly',
-      desc: '30 day plan',
-      price: planPrice.monthly || 2100,
-      original: planOriginal.monthly || 2400,
-      discount: 12,
-    },
-  ];
+  // Discount % is derived from real effective vs original pricing — never hardcoded.
+  const plans = PLAN_META.map((meta) => {
+    const price = planPrice[meta.key];
+    const original = planOriginal[meta.key];
+    const discount =
+      original && price && original > price ? Math.round((1 - price / original) * 100) : 0;
+    return { ...meta, price, original, discount };
+  });
 
   return (
     <div className="sticky top-24 bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-3xl overflow-hidden shadow-2xl">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-primary-500 to-[#FF5216] p-5 text-white">
+      <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-5 text-white">
         <span className="block text-xs font-medium text-white/80 uppercase tracking-wider mb-0.5">
           Starting from
         </span>
@@ -68,7 +55,7 @@ const TiffinPricingCard = ({
                   onClick={() => onSelectPlan && onSelectPlan(p.key)}
                   className={`w-full text-left p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${
                     isSelected
-                      ? 'border-[#FF5216] bg-[#FF5216]/10 shadow-lg shadow-[#FF5216]/20'
+                      ? 'border-primary-500 bg-primary-500/10 shadow-lg shadow-primary-500/20'
                       : 'border-[rgba(255,255,255,0.08)] bg-[#12141D] hover:border-white/20'
                   }`}
                 >
@@ -76,7 +63,7 @@ const TiffinPricingCard = ({
                     {/* Radio Dot */}
                     <div
                       className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        isSelected ? 'border-[#FF5216] bg-[#FF5216]' : 'border-[#B5B8C5]/40'
+                        isSelected ? 'border-primary-500 bg-primary-500' : 'border-[#B5B8C5]/40'
                       }`}
                     >
                       {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
@@ -113,7 +100,7 @@ const TiffinPricingCard = ({
         <div className="space-y-2 pt-3 border-t border-[rgba(255,255,255,0.06)] text-xs text-[#B5B8C5]">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="text-white font-semibold">₹{planPrice[selectedPlan] || 431}</span>
+            <span className="text-white font-semibold">₹{planPrice[selectedPlan]}</span>
           </div>
           <div className="flex justify-between">
             <span>GST (5%)</span>
@@ -121,7 +108,7 @@ const TiffinPricingCard = ({
           </div>
           <div className="flex justify-between text-sm font-black text-white pt-2 border-t border-[rgba(255,255,255,0.06)]">
             <span>Total</span>
-            <span className="text-[#FF5216] text-lg font-black">₹{grandTotal}</span>
+            <span className="text-primary-500 text-lg font-black">₹{grandTotal}</span>
           </div>
         </div>
 
@@ -130,7 +117,7 @@ const TiffinPricingCard = ({
           onClick={onSubscribe}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-[#FF5216] hover:bg-[#E04410] text-white font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-[#FF5216]/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
+          className="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-primary-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
         >
           <span>Subscribe Now</span>
           <span>→</span>
