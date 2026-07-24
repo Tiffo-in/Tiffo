@@ -92,4 +92,27 @@ exports.sendRenewalReminders = async ({ withinDays = REMINDER_WINDOW_DAYS } = {}
   return { sent };
 };
 
+/**
+ * Mark expired subscriptions as completed. Nothing else transitions an active
+ * plan to 'completed' once its endDate passes, so without this sweep expired
+ * subs stay 'active' forever and inflate active counts across analytics,
+ * admin/partner dashboards, and exports. Idempotent — a re-run simply matches
+ * nothing, since freshly-completed subs no longer satisfy status: 'active'.
+ * Safe to run from in-process cron and/or an external scheduler concurrently.
+ * Returns how many subscriptions were completed. (Capacity is unaffected:
+ * capacityService already excludes expired subs via an endDate filter.)
+ */
+exports.sweepExpiredSubscriptions = async () => {
+  const now = new Date();
+
+  const result = await Subscription.updateMany(
+    { status: 'active', endDate: { $lt: now } },
+    { $set: { status: 'completed' } },
+  );
+
+  const completed = result.modifiedCount ?? result.nModified ?? 0;
+  if (completed > 0) logger.info(`Expired subscriptions marked completed: ${completed}`);
+  return { completed };
+};
+
 exports.REMINDER_WINDOW_DAYS = REMINDER_WINDOW_DAYS;

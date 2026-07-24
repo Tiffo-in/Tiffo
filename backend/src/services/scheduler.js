@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { sendRenewalReminders } = require('./renewalService');
+const { sendRenewalReminders, sweepExpiredSubscriptions } = require('./renewalService');
 const logger = require('../utils/logger');
 
 /**
@@ -25,7 +25,20 @@ const startScheduler = () => {
     { timezone: 'Asia/Kolkata' },
   );
 
-  logger.info('Scheduler started: renewal reminders daily at 09:00 IST');
+  // Every day at 00:15 IST — mark plans that ended overnight as completed.
+  cron.schedule(
+    '15 0 * * *',
+    () => {
+      sweepExpiredSubscriptions().catch((e) =>
+        logger.error(`Scheduled expired-subscription sweep failed: ${e.message}`),
+      );
+    },
+    { timezone: 'Asia/Kolkata' },
+  );
+
+  logger.info(
+    'Scheduler started: renewal reminders daily at 09:00 IST, expired-subscription sweep daily at 00:15 IST',
+  );
 };
 
 module.exports = { startScheduler };
