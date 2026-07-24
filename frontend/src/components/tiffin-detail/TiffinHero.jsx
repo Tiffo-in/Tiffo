@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   StarIcon,
-  ClockIcon,
   TruckIcon,
   HeartIcon as HeartSolid,
   CheckBadgeIcon,
@@ -14,30 +13,21 @@ import {
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 
-const defaultThumbnails = [
-  'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
-];
-
 const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
-  const images = tiffin.images && tiffin.images.length > 0 ? tiffin.images : defaultThumbnails;
+  const images = tiffin.images && tiffin.images.length > 0 ? tiffin.images : [];
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const titleParts = (tiffin.title || tiffin.name || 'Healthy Breakfast Box').split(' ');
+  const titleParts = (tiffin.title || tiffin.name || 'Tiffin').split(' ');
   const mainTitle = titleParts[0];
-  const highlightedTitle = titleParts.slice(1).join(' ') || 'Breakfast Box';
+  const highlightedTitle = titleParts.slice(1).join(' ');
 
-  const partnerName = tiffin.partner?.businessName || tiffin.partner?.name || "Meena's Kitchen";
-  const dailyPrice =
-    typeof tiffin.price === 'object' ? tiffin.price?.daily || 70 : tiffin.price || 70;
-  const ratingVal = tiffin.rating?.average || tiffin.rating || 4.8;
-  const ratingCount = tiffin.rating?.count || tiffin.reviewCount || 320;
-  const prepTime = tiffin.prepTime || tiffin.deliveryTime || '25–30 mins';
-
-  const isVeg = tiffin.isVeg !== undefined ? tiffin.isVeg : true;
+  const partnerName = tiffin.partner?.businessName || tiffin.partner?.name || 'Partner Kitchen';
+  const dailyPrice = typeof tiffin.price === 'object' ? tiffin.price?.daily : tiffin.price;
+  const ratingCount = tiffin.rating?.count ?? 0;
+  const ratingVal = tiffin.rating?.average;
+  const isVeg = tiffin.dietary?.includes('veg') ?? tiffin.isVeg;
+  const isVerified = Boolean(tiffin.partner?.verified);
 
   const handlePrevImage = () => {
     setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -67,45 +57,54 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
           <div>
             {/* Title */}
             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
-              {mainTitle} <span className="text-[#FF5216]">{highlightedTitle}</span>
+              {mainTitle} <span className="text-primary-500">{highlightedTitle}</span>
             </h1>
 
-            {/* Tags Row */}
+            {/* Tags Row — driven by real tiffin fields */}
             <div className="flex flex-wrap items-center gap-2 mb-5">
-              <span className="inline-flex items-center gap-1 bg-emerald-950/80 border border-emerald-800/60 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                {isVeg ? 'Vegetarian' : 'Non-Veg'}
-              </span>
+              {isVeg !== undefined && (
+                <span className="inline-flex items-center gap-1 bg-emerald-950/80 border border-emerald-800/60 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  {isVeg ? 'Vegetarian' : 'Non-Veg'}
+                </span>
+              )}
 
-              <span className="inline-flex items-center gap-1 bg-rose-950/80 border border-rose-800/60 text-rose-300 px-3 py-1 rounded-full text-xs font-bold">
-                <span>🌸</span>
-                <span className="capitalize">{tiffin.mealType || 'Breakfast'}</span>
-              </span>
+              {tiffin.mealType && (
+                <span className="inline-flex items-center gap-1 bg-rose-950/80 border border-rose-800/60 text-rose-300 px-3 py-1 rounded-full text-xs font-bold">
+                  <span>🍽️</span>
+                  <span className="capitalize">{tiffin.mealType}</span>
+                </span>
+              )}
 
-              <span className="inline-flex items-center gap-1 bg-orange-950/80 border border-orange-800/60 text-orange-400 px-3 py-1 rounded-full text-xs font-bold">
-                <span>🟧</span>
-                <span>Healthy</span>
-              </span>
+              {tiffin.cuisine && (
+                <span className="inline-flex items-center gap-1 bg-orange-950/80 border border-orange-800/60 text-orange-400 px-3 py-1 rounded-full text-xs font-bold">
+                  <span>🟧</span>
+                  <span>{tiffin.cuisine}</span>
+                </span>
+              )}
             </div>
 
             {/* Chef / Kitchen Info */}
             <div className="flex items-center gap-3 mb-6 bg-[#181A24] p-3 rounded-2xl border border-[rgba(255,255,255,0.06)] self-start max-w-sm">
-              <img
-                src={
-                  tiffin.partner?.logo ||
-                  'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=100&auto=format&fit=crop&q=80'
-                }
-                alt={partnerName}
-                className="w-10 h-10 rounded-full object-cover border border-primary-500/40 shrink-0"
-              />
+              {tiffin.partner?.logo ? (
+                <img
+                  src={tiffin.partner.logo}
+                  alt={partnerName}
+                  className="w-10 h-10 rounded-full object-cover border border-primary-500/40 shrink-0"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-primary-500/20 border border-primary-500/40 shrink-0 flex items-center justify-center text-sm font-black text-primary-500">
+                  {partnerName.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div>
                 <div className="flex items-center gap-1.5 text-sm font-bold text-white">
                   <span>by {partnerName}</span>
-                  <CheckBadgeIcon className="w-4 h-4 text-blue-500" />
+                  {isVerified && <CheckBadgeIcon className="w-4 h-4 text-blue-500" />}
                 </div>
-                <div className="text-xs text-[#B5B8C5]/60 font-medium">
-                  Verified Kitchen • 2.5K+ Orders
-                </div>
+                {isVerified && (
+                  <div className="text-xs text-[#B5B8C5]/60 font-medium">Verified Kitchen</div>
+                )}
               </div>
             </div>
 
@@ -113,13 +112,16 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
             <div className="flex flex-wrap items-center gap-4 text-xs text-[#B5B8C5] mb-6">
               <div className="flex items-center gap-1 text-white font-bold">
                 <StarIcon className="w-4 h-4 text-amber-400" />
-                <span>{Number(ratingVal).toFixed(1)}</span>
-                <span className="text-[#B5B8C5]/60 font-normal">({ratingCount} reviews)</span>
-              </div>
-              <span className="text-[#B5B8C5]/40">•</span>
-              <div className="flex items-center gap-1">
-                <ClockIcon className="w-4 h-4 text-primary-500" />
-                <span>{prepTime}</span>
+                {ratingCount > 0 ? (
+                  <>
+                    <span>{Number(ratingVal).toFixed(1)}</span>
+                    <span className="text-[#B5B8C5]/60 font-normal">
+                      ({ratingCount} review{ratingCount === 1 ? '' : 's'})
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-[#B5B8C5]/60 font-normal">New</span>
+                )}
               </div>
               <span className="text-[#B5B8C5]/40">•</span>
               <div className="flex items-center gap-1 text-emerald-400 font-medium">
@@ -144,7 +146,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
                 onClick={onSubscribe}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="bg-[#FF5216] hover:bg-[#E04410] text-white font-bold px-6 py-3.5 rounded-xl text-sm shadow-lg shadow-[#FF5216]/30 flex items-center gap-2 transition-all cursor-pointer"
+                className="bg-primary-500 hover:bg-primary-600 text-white font-bold px-6 py-3.5 rounded-xl text-sm shadow-lg shadow-primary-500/30 flex items-center gap-2 transition-all cursor-pointer"
               >
                 <span>Subscribe Now</span>
                 <span>→</span>
@@ -167,50 +169,58 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
         {/* Right Column: Hero Image & Thumbnail Carousel */}
         <div className="lg:col-span-6 flex flex-col gap-4">
           {/* Main Large Hero Image Box */}
-          <div className="relative h-72 md:h-80 rounded-3xl overflow-hidden bg-[#181A24] border border-[rgba(255,255,255,0.08)] shadow-2xl group">
-            <img
-              src={images[selectedImageIndex] || images[0]}
-              alt={tiffin.title || 'Food Dish'}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+          <div className="relative h-72 md:h-80 rounded-3xl overflow-hidden bg-[#181A24] border border-[rgba(255,255,255,0.08)] shadow-2xl group flex items-center justify-center">
+            {images.length > 0 ? (
+              <>
+                <img
+                  src={images[selectedImageIndex] || images[0]}
+                  alt={tiffin.title || 'Food dish'}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              </>
+            ) : (
+              <span className="text-7xl opacity-30 select-none">🍱</span>
+            )}
           </div>
 
-          {/* Thumbnail Carousel Controls */}
-          <div className="flex items-center justify-between gap-3">
-            <button
-              onClick={handlePrevImage}
-              className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer"
-            >
-              <ChevronLeftIcon className="w-5 h-5" />
-            </button>
+          {/* Thumbnail Carousel Controls — only when there are multiple images */}
+          {images.length > 1 && (
+            <div className="flex items-center justify-between gap-3">
+              <button
+                onClick={handlePrevImage}
+                className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer"
+              >
+                <ChevronLeftIcon className="w-5 h-5" />
+              </button>
 
-            <div className="grid grid-cols-4 gap-3 flex-1">
-              {images.slice(0, 4).map((img, idx) => {
-                const isSelected = selectedImageIndex === idx;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImageIndex(idx)}
-                    className={`relative h-16 md:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                      isSelected
-                        ? 'border-[#FF5216] shadow-lg shadow-[#FF5216]/30 scale-105'
-                        : 'border-[rgba(255,255,255,0.1)] opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
-                  </button>
-                );
-              })}
+              <div className="grid grid-cols-4 gap-3 flex-1">
+                {images.slice(0, 4).map((img, idx) => {
+                  const isSelected = selectedImageIndex === idx;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImageIndex(idx)}
+                      className={`relative h-16 md:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-primary-500 shadow-lg shadow-primary-500/30 scale-105'
+                          : 'border-[rgba(255,255,255,0.1)] opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={handleNextImage}
+                className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer"
+              >
+                <ChevronRightIcon className="w-5 h-5" />
+              </button>
             </div>
-
-            <button
-              onClick={handleNextImage}
-              className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer"
-            >
-              <ChevronRightIcon className="w-5 h-5" />
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>
