@@ -96,7 +96,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
                   'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=100&auto=format&fit=crop&q=80'
                 }
                 alt={partnerName}
-                className="w-10 h-10 rounded-full object-cover border border-[#FF7A18]/40 shrink-0"
+                className="w-10 h-10 rounded-full object-cover border border-primary-500/40 shrink-0"
               />
               <div>
                 <div className="flex items-center gap-1.5 text-sm font-bold text-white">
@@ -118,7 +118,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
               </div>
               <span className="text-[#B5B8C5]/40">•</span>
               <div className="flex items-center gap-1">
-                <ClockIcon className="w-4 h-4 text-[#FF7A18]" />
+                <ClockIcon className="w-4 h-4 text-primary-500" />
                 <span>{prepTime}</span>
               </div>
               <span className="text-[#B5B8C5]/40">•</span>

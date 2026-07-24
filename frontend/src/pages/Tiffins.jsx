@@ -242,7 +242,7 @@ const Tiffins = () => {
   }, [filteredTiffins, ads]);
 
   return (
-    <div className="min-h-screen bg-[#0F1016] text-white pt-24 pb-20 relative overflow-hidden font-sans selection:bg-[#FF7A18]/30 selection:text-orange-200">
+    <div className="min-h-screen bg-[#0F1016] text-white pt-24 pb-20 relative overflow-hidden font-sans selection:bg-primary-500/30 selection:text-orange-200">
       {/* Background grain & ambient glow blobs */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -251,7 +251,7 @@ const Tiffins = () => {
             "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
         }}
       />
-      <div className="absolute top-20 left-[-5%] w-[500px] h-[500px] bg-[#FF7A18]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-20 left-[-5%] w-[500px] h-[500px] bg-primary-500/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute top-80 right-[-10%] w-[450px] h-[450px] bg-[#FF5216]/8 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -266,7 +266,7 @@ const Tiffins = () => {
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">
               Find Your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A18] via-[#FF5216] to-[#FF3B00]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 via-[#FF5216] to-[#FF3B00]">
                 Perfect Tiffin
               </span>
             </h1>
@@ -286,14 +286,14 @@ const Tiffins = () => {
             <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-2xl p-5 md:p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5 text-xs text-[#B5B8C5]">
-                  <div className="p-2 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18]">
+                  <div className="p-2 rounded-xl bg-primary-500/10 text-primary-500">
                     <MapPinIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <span className="block text-[11px] text-[#B5B8C5]/60 uppercase tracking-wider font-medium">
                       Delivering to
                     </span>
-                    <button className="flex items-center gap-1 text-white font-bold text-sm hover:text-[#FF7A18] transition-colors">
+                    <button className="flex items-center gap-1 text-white font-bold text-sm hover:text-primary-500 transition-colors">
                       <span>{userCity}</span>
                       <ChevronDownIcon className="w-4 h-4 text-[#B5B8C5]" />
                     </button>
@@ -347,7 +347,7 @@ const Tiffins = () => {
                 placeholder="Search tiffins, cuisines, or kitchens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#181A24] text-white placeholder:text-[#B5B8C5]/40 border border-[rgba(255,255,255,0.08)] rounded-2xl py-3.5 pl-12 pr-4 text-sm font-medium outline-none focus:border-[#FF7A18] focus:ring-1 focus:ring-[#FF7A18] transition-all shadow-lg"
+                className="w-full bg-[#181A24] text-white placeholder:text-[#B5B8C5]/40 border border-[rgba(255,255,255,0.08)] rounded-2xl py-3.5 pl-12 pr-4 text-sm font-medium outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all shadow-lg"
               />
             </div>
 
@@ -355,7 +355,7 @@ const Tiffins = () => {
               onClick={() => setShowFilterDrawer(!showFilterDrawer)}
               className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:bg-[#202330] text-white text-sm font-bold px-5 py-3.5 rounded-2xl flex items-center gap-2 transition-all shadow-lg shrink-0"
             >
-              <AdjustmentsHorizontalIcon className="w-5 h-5 text-[#FF7A18]" />
+              <AdjustmentsHorizontalIcon className="w-5 h-5 text-primary-500" />
               <span>Filters</span>
             </button>
           </div>
@@ -388,7 +388,7 @@ const Tiffins = () => {
               <select
                 value={filters.cuisine}
                 onChange={(e) => handleFilterChange('cuisine', e.target.value)}
-                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-[#FF7A18] cursor-pointer"
+                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-primary-500 cursor-pointer"
               >
                 <option value="">Cuisine ∨</option>
                 <option value="North Indian">North Indian</option>
@@ -403,7 +403,7 @@ const Tiffins = () => {
               <select
                 value={filters.mealType}
                 onChange={(e) => handleFilterChange('mealType', e.target.value)}
-                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-[#FF7A18] cursor-pointer"
+                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-primary-500 cursor-pointer"
               >
                 <option value="">Meal Type ∨</option>
                 <option value="breakfast">Breakfast</option>
@@ -415,7 +415,7 @@ const Tiffins = () => {
               <select
                 value={filters.dietary}
                 onChange={(e) => handleFilterChange('dietary', e.target.value)}
-                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-[#FF7A18] cursor-pointer"
+                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-primary-500 cursor-pointer"
               >
                 <option value="">Veg / Non-Veg ∨</option>
                 <option value="vegetarian">Pure Veg 🥬</option>
@@ -426,7 +426,7 @@ const Tiffins = () => {
               <select
                 value={filters.priceRange}
                 onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-[#FF7A18] cursor-pointer"
+                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-primary-500 cursor-pointer"
               >
                 <option value="">Price ∨</option>
                 <option value="under100">Under ₹100</option>
@@ -438,7 +438,7 @@ const Tiffins = () => {
               <select
                 value={filters.minRating}
                 onChange={(e) => handleFilterChange('minRating', e.target.value)}
-                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-[#FF7A18] cursor-pointer"
+                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-primary-500 cursor-pointer"
               >
                 <option value="">Rating ∨</option>
                 <option value="4.5">4.5+ ⭐</option>
@@ -449,7 +449,7 @@ const Tiffins = () => {
               <select
                 value={filters.sortBy}
                 onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-[#FF7A18] cursor-pointer"
+                className="bg-[#12141D] text-[#B5B8C5] text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.06)] outline-none focus:border-primary-500 cursor-pointer"
               >
                 <option value="recommended">Sort By ∨</option>
                 <option value="rating">Highest Rated</option>
@@ -461,7 +461,7 @@ const Tiffins = () => {
             {/* Reset Button */}
             <button
               onClick={handleResetFilters}
-              className="text-[#FF5216] hover:text-[#FF7A18] text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shrink-0 py-1 px-2"
+              className="text-[#FF5216] hover:text-primary-500 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shrink-0 py-1 px-2"
             >
               <span>Reset</span>
               <ArrowPathIcon className="w-3.5 h-3.5" />
@@ -477,7 +477,7 @@ const Tiffins = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] p-4 rounded-2xl flex items-center gap-3.5 shadow-lg">
-            <div className="p-3 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18] shrink-0">
+            <div className="p-3 rounded-xl bg-primary-500/10 text-primary-500 shrink-0">
               <ShieldCheckIcon className="w-6 h-6" />
             </div>
             <div>
@@ -487,7 +487,7 @@ const Tiffins = () => {
           </div>
 
           <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] p-4 rounded-2xl flex items-center gap-3.5 shadow-lg">
-            <div className="p-3 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18] shrink-0">
+            <div className="p-3 rounded-xl bg-primary-500/10 text-primary-500 shrink-0">
               <CubeIcon className="w-6 h-6" />
             </div>
             <div>
@@ -497,7 +497,7 @@ const Tiffins = () => {
           </div>
 
           <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] p-4 rounded-2xl flex items-center gap-3.5 shadow-lg">
-            <div className="p-3 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18] shrink-0">
+            <div className="p-3 rounded-xl bg-primary-500/10 text-primary-500 shrink-0">
               <UserGroupIcon className="w-6 h-6" />
             </div>
             <div>
@@ -507,7 +507,7 @@ const Tiffins = () => {
           </div>
 
           <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] p-4 rounded-2xl flex items-center gap-3.5 shadow-lg">
-            <div className="p-3 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18] shrink-0">
+            <div className="p-3 rounded-xl bg-primary-500/10 text-primary-500 shrink-0">
               <StarIcon className="w-6 h-6" />
             </div>
             <div>
@@ -570,7 +570,7 @@ const Tiffins = () => {
             </p>
             <button
               onClick={() => dispatch(getTiffins({ ...filters, limit: LIMIT, page: 1 }))}
-              className="bg-[#FF7A18] text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#FF9F43] transition-colors"
+              className="bg-primary-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#FF9F43] transition-colors"
             >
               Try Again
             </button>
@@ -626,7 +626,7 @@ const Tiffins = () => {
                 >
                   {loadingMore ? (
                     <>
-                      <ArrowPathIcon className="w-4 h-4 animate-spin text-[#FF7A18]" />
+                      <ArrowPathIcon className="w-4 h-4 animate-spin text-primary-500" />
                       <span>Loading...</span>
                     </>
                   ) : (
@@ -652,7 +652,7 @@ const Tiffins = () => {
             </p>
             <button
               onClick={handleResetFilters}
-              className="bg-[#FF7A18] text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#FF9F43] transition-colors"
+              className="bg-primary-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#FF9F43] transition-colors"
             >
               Reset All Filters
             </button>

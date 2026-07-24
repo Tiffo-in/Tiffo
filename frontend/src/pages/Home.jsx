@@ -21,7 +21,7 @@ const Home = () => {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-[#0F1016] font-sans selection:bg-[#FF7A18]/30 selection:text-orange-200">
+    <div className="min-h-screen bg-[#0F1016] font-sans selection:bg-primary-500/30 selection:text-orange-200">
       <Helmet>
         <title>Tiffo - Authentic Homemade Tiffin Delivery Service</title>
         <meta

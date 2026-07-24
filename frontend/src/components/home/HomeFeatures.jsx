@@ -25,10 +25,10 @@ const features = [
     Icon: HomeIcon,
     title: 'Homemade Taste',
     description: 'Enjoy the taste of home-cooked meals every day.',
-    color: 'from-[#FF7A18]/15 to-transparent',
-    borderColor: 'border-[#FF7A18]/15',
-    iconBg: 'bg-[#FF7A18]/10',
-    iconColor: 'text-[#FF7A18]',
+    color: 'from-primary-500/15 to-transparent',
+    borderColor: 'border-primary-500/15',
+    iconBg: 'bg-primary-500/10',
+    iconColor: 'text-primary-500',
   },
   {
     Icon: CalendarDaysIcon,
@@ -90,7 +90,7 @@ const HomeFeatures = () => (
   <>
     {/* HOW IT WORKS */}
     <section className="py-24 bg-[#0F1016] relative">
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#FF7A18]/20 to-transparent" />
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -99,7 +99,7 @@ const HomeFeatures = () => (
           className="text-center mb-14"
         >
           <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
-            How It <span className="text-[#FF7A18]">Works</span>
+            How It <span className="text-primary-500">Works</span>
           </h2>
           <p className="text-[#B5B8C5]/60 text-sm max-w-xl mx-auto">
             Getting your favourite homemade tiffin is simple and easy
@@ -108,7 +108,7 @@ const HomeFeatures = () => (
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
           {/* Connector line (desktop) */}
-          <div className="hidden lg:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-[#FF7A18]/30 via-[#FF7A18]/50 to-[#FF7A18]/30" />
+          <div className="hidden lg:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-primary-500/30 via-primary-500/50 to-primary-500/30" />
 
           {steps.map((step, index) => (
             <motion.div
@@ -121,14 +121,14 @@ const HomeFeatures = () => (
             >
               {/* Step circle */}
               <div className="relative mb-5">
-                <div className="w-20 h-20 rounded-2xl bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] group-hover:border-[#FF7A18]/40 transition-all duration-300 flex items-center justify-center text-[#FF7A18] shadow-xl group-hover:shadow-[#FF7A18]/10">
+                <div className="w-20 h-20 rounded-2xl bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/40 transition-all duration-300 flex items-center justify-center text-primary-500 shadow-xl group-hover:shadow-primary-500/10">
                   <step.Icon className="w-8 h-8" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#FF7A18] text-white text-[10px] font-black flex items-center justify-center shadow-lg">
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary-500 text-white text-[10px] font-black flex items-center justify-center shadow-lg">
                   {index + 1}
                 </div>
               </div>
-              <h3 className="text-white font-bold text-base mb-1.5 group-hover:text-[#FF7A18] transition-colors">
+              <h3 className="text-white font-bold text-base mb-1.5 group-hover:text-primary-500 transition-colors">
                 {step.title}
               </h3>
               <p className="text-[#B5B8C5]/50 text-xs leading-relaxed max-w-[160px]">
@@ -142,7 +142,7 @@ const HomeFeatures = () => (
 
     {/* WHY CHOOSE TIFFO */}
     <section className="py-24 bg-[#0F1016] relative">
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#FF7A18]/20 to-transparent" />
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -151,7 +151,7 @@ const HomeFeatures = () => (
           className="text-center mb-14"
         >
           <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
-            Why Choose <span className="text-[#FF7A18]">Tiffo?</span>
+            Why Choose <span className="text-primary-500">Tiffo?</span>
           </h2>
           <p className="text-[#B5B8C5]/60 text-sm max-w-xl mx-auto">
             We're committed to delivering the best homemade food experience

@@ -45,7 +45,7 @@ const TiffinPricingCard = ({
   return (
     <div className="sticky top-24 bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-3xl overflow-hidden shadow-2xl">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#FF7A18] to-[#FF5216] p-5 text-white">
+      <div className="bg-gradient-to-r from-primary-500 to-[#FF5216] p-5 text-white">
         <span className="block text-xs font-medium text-white/80 uppercase tracking-wider mb-0.5">
           Starting from
         </span>
@@ -141,7 +141,7 @@ const TiffinPricingCard = ({
             onClick={onViewCart}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-[#12141D] border border-[#FF7A18]/50 text-[#FF7A18] hover:text-white hover:bg-[#FF7A18] font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full bg-[#12141D] border border-primary-500/50 text-primary-500 hover:text-white hover:bg-primary-500 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <ShoppingCartIcon className="w-4 h-4" />
             <span>View Cart (1 item)</span>
@@ -155,7 +155,7 @@ const TiffinPricingCard = ({
             <span>Freshly prepared daily</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[#FF7A18]">🚚</span>
+            <span className="text-primary-500">🚚</span>
             <span>Free delivery</span>
           </div>
           <div className="flex items-center gap-2">

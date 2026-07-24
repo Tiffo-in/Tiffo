@@ -42,7 +42,7 @@ const HomeHero = ({ user }) => {
       />
 
       {/* Ambient glow blobs */}
-      <div className="absolute top-20 right-[10%] w-[600px] h-[600px] bg-[#FF7A18]/8 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-20 right-[10%] w-[600px] h-[600px] bg-primary-500/8 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-[#FF9F43]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
@@ -59,7 +59,7 @@ const HomeHero = ({ user }) => {
               <h1 className="text-5xl md:text-6xl lg:text-[4.2rem] font-black text-white leading-[1.08] tracking-tight">
                 Homemade Tiffins
                 <br />
-                <span className="text-[#FF7A18]">Delivered Fresh.</span>
+                <span className="text-primary-500">Delivered Fresh.</span>
               </h1>
               <p className="mt-5 text-base text-[#B5B8C5] leading-relaxed max-w-xl">
                 Discover authentic homemade meals from verified local kitchens. Healthy, hygienic
@@ -69,10 +69,10 @@ const HomeHero = ({ user }) => {
 
             {/* Available in cities badge */}
             <div className="inline-flex items-center gap-2 self-start">
-              <MapPinIcon className="w-4 h-4 text-[#FF7A18]" />
+              <MapPinIcon className="w-4 h-4 text-primary-500" />
               <span className="text-[#B5B8C5] text-sm">
-                Available in <span className="text-[#FF7A18] font-semibold">Bhopal, Indore</span> &
-                12+ cities
+                Available in <span className="text-primary-500 font-semibold">Bhopal, Indore</span>{' '}
+                & 12+ cities
               </span>
             </div>
 
@@ -93,7 +93,7 @@ const HomeHero = ({ user }) => {
               </div>
               <button
                 type="submit"
-                className="bg-[#FF7A18] hover:bg-[#FF9F43] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-[#FF7A18]/30 shrink-0 flex items-center gap-2"
+                className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-primary-500/30 shrink-0 flex items-center gap-2"
               >
                 <MagnifyingGlassIcon className="w-4 h-4" />
                 Search
@@ -105,7 +105,7 @@ const HomeHero = ({ user }) => {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   to="/tiffins"
-                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FF7A18] hover:bg-[#FF9F43] text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-[#FF7A18]/25"
+                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-500 hover:bg-[#FF9F43] text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-primary-500/25"
                 >
                   Browse Tiffins
                 </Link>
@@ -152,14 +152,14 @@ const HomeHero = ({ user }) => {
                 to={`/tiffins?category=${encodeURIComponent(cat.label)}`}
                 className="flex flex-col items-center gap-2.5 shrink-0 group"
               >
-                <div className="w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-[rgba(255,255,255,0.08)] group-hover:border-[#FF7A18]/60 transition-all duration-300 shadow-lg group-hover:shadow-[#FF7A18]/20">
+                <div className="w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/60 transition-all duration-300 shadow-lg group-hover:shadow-primary-500/20">
                   <img
                     src={cat.image}
                     alt={cat.label}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-                <span className="text-xs text-[#B5B8C5] group-hover:text-[#FF7A18] font-medium transition-colors">
+                <span className="text-xs text-[#B5B8C5] group-hover:text-primary-500 font-medium transition-colors">
                   {cat.label}
                 </span>
               </Link>
@@ -167,13 +167,13 @@ const HomeHero = ({ user }) => {
 
             {/* More button */}
             <Link to="/tiffins" className="flex flex-col items-center gap-2.5 shrink-0 group">
-              <div className="w-[72px] h-[72px] rounded-full border-2 border-[rgba(255,255,255,0.08)] group-hover:border-[#FF7A18]/60 bg-[#1B1E27] flex items-center justify-center transition-all duration-300">
+              <div className="w-[72px] h-[72px] rounded-full border-2 border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/60 bg-[#1B1E27] flex items-center justify-center transition-all duration-300">
                 <svg
                   width="24"
                   height="24"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="text-[#B5B8C5] group-hover:text-[#FF7A18] transition-colors"
+                  className="text-[#B5B8C5] group-hover:text-primary-500 transition-colors"
                 >
                   <rect
                     x="3"
@@ -213,7 +213,7 @@ const HomeHero = ({ user }) => {
                   />
                 </svg>
               </div>
-              <span className="text-xs text-[#B5B8C5] group-hover:text-[#FF7A18] font-medium transition-colors">
+              <span className="text-xs text-[#B5B8C5] group-hover:text-primary-500 font-medium transition-colors">
                 More
               </span>
             </Link>

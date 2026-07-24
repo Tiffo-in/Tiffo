@@ -88,7 +88,7 @@ const PopularCard = ({ tiffin, index }) => (
     viewport={{ once: true, margin: '-60px' }}
     transition={{ duration: 0.5, delay: index * 0.08 }}
     whileHover={{ y: -6 }}
-    className="bg-[#1B1E27] rounded-2xl overflow-hidden group hover:ring-1 hover:ring-[#FF7A18]/40 transition-all duration-300 flex flex-col min-w-[180px]"
+    className="bg-[#1B1E27] rounded-2xl overflow-hidden group hover:ring-1 hover:ring-primary-500/40 transition-all duration-300 flex flex-col min-w-[180px]"
   >
     {/* Image */}
     <div className="relative h-44 overflow-hidden">
@@ -102,7 +102,7 @@ const PopularCard = ({ tiffin, index }) => (
       {/* Veg/Non-veg pill badge */}
       <div
         className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg ${
-          tiffin.isVeg ? 'bg-[#2ECC71] text-white' : 'bg-[#FF7A18] text-white'
+          tiffin.isVeg ? 'bg-[#2ECC71] text-white' : 'bg-primary-500 text-white'
         }`}
       >
         <span
@@ -120,7 +120,7 @@ const PopularCard = ({ tiffin, index }) => (
 
     {/* Content */}
     <div className="p-4 flex flex-col flex-1">
-      <h3 className="text-white font-bold text-[15px] leading-snug mb-1.5 group-hover:text-[#FF7A18] transition-colors line-clamp-1">
+      <h3 className="text-white font-bold text-[15px] leading-snug mb-1.5 group-hover:text-primary-500 transition-colors line-clamp-1">
         {tiffin.name}
       </h3>
       <p className="text-[#B5B8C5]/60 text-xs leading-relaxed mb-4 flex-1 line-clamp-2">
@@ -141,7 +141,7 @@ const PopularCard = ({ tiffin, index }) => (
       {/* View Plans button */}
       <Link
         to={`/tiffins/${tiffin._id}`}
-        className="w-full block text-center bg-transparent hover:bg-[#FF7A18] border border-[#FF7A18] text-[#FF7A18] hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200"
+        className="w-full block text-center bg-transparent hover:bg-primary-500 border border-primary-500 text-primary-500 hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200"
       >
         View Plans
       </Link>
@@ -155,7 +155,7 @@ const HomeFeaturedTiffins = ({ tiffins, isLoading }) => {
   return (
     <section className="py-20 bg-[#0F1016] relative">
       {/* Subtle divider glow */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#FF7A18]/20 to-transparent" />
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -167,7 +167,7 @@ const HomeFeaturedTiffins = ({ tiffins, isLoading }) => {
           >
             <div className="flex items-center gap-2 mb-2">
               <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-                Popular <span className="text-[#FF7A18]">Tiffins</span>
+                Popular <span className="text-primary-500">Tiffins</span>
               </h2>
             </div>
             <p className="text-[#B5B8C5]/60 text-sm italic">
@@ -182,7 +182,7 @@ const HomeFeaturedTiffins = ({ tiffins, isLoading }) => {
           >
             <Link
               to="/tiffins"
-              className="inline-flex items-center gap-1.5 text-sm font-bold text-[#FF7A18] hover:text-[#FF9F43] transition-colors group"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-primary-500 hover:text-[#FF9F43] transition-colors group"
             >
               View All Meals
               <span className="group-hover:translate-x-1 transition-transform">→</span>

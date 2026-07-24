@@ -41,7 +41,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
         <motion.div
           whileHover={{ y: -4 }}
           transition={{ duration: 0.3 }}
-          className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-[#FF7A18]/40 transition-all duration-300 cursor-pointer group flex flex-col md:flex-row shadow-xl"
+          className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-primary-500/40 transition-all duration-300 cursor-pointer group flex flex-col md:flex-row shadow-xl"
         >
           {/* Image Left */}
           <div className="relative md:w-64 h-48 md:h-auto overflow-hidden shrink-0 bg-[#0F1016]">
@@ -86,7 +86,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
           <div className="p-5 flex flex-col justify-between flex-1">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <h3 className="text-white text-xl font-bold group-hover:text-[#FF7A18] transition-colors">
+                <h3 className="text-white text-xl font-bold group-hover:text-primary-500 transition-colors">
                   {tiffin.title || tiffin.name}
                 </h3>
                 <div className="flex items-center gap-1 bg-[#232736] px-2.5 py-1 rounded-lg">
@@ -99,7 +99,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
 
               <div className="flex items-center gap-1.5 text-xs text-[#B5B8C5] mb-3">
                 <span className="font-medium">{kitchenName}</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#FF7A18]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
               </div>
 
               <p className="text-[#B5B8C5]/70 text-sm line-clamp-2 mb-4">
@@ -111,7 +111,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
             <div className="flex items-center justify-between pt-4 border-t border-[rgba(255,255,255,0.06)]">
               <div className="flex items-center gap-4 text-xs text-[#B5B8C5]">
                 <span className="flex items-center gap-1">
-                  <ClockIcon className="w-3.5 h-3.5 text-[#FF7A18]" />
+                  <ClockIcon className="w-3.5 h-3.5 text-primary-500" />
                   {prepTime}
                 </span>
                 <span className="text-emerald-400 font-medium">🚚 Free Delivery</span>
@@ -123,7 +123,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
                   <span className="text-white text-2xl font-black">₹{dailyPrice}</span>
                   <span className="text-[#B5B8C5]/60 text-xs">/day</span>
                 </div>
-                <span className="bg-[#FF7A18] hover:bg-[#FF9F43] text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-[#FF7A18]/20 transition-colors">
+                <span className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-primary-500/20 transition-colors">
                   View Plans
                 </span>
               </div>
@@ -139,7 +139,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
       <motion.div
         whileHover={{ y: -6 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-[#FF7A18]/50 transition-all duration-300 cursor-pointer group shadow-xl flex flex-col h-full"
+        className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-primary-500/50 transition-all duration-300 cursor-pointer group shadow-xl flex flex-col h-full"
       >
         {/* Image Container */}
         <div className="relative h-52 bg-[#0F1016] overflow-hidden">
@@ -209,14 +209,14 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
         <div className="p-4 flex flex-col justify-between flex-1">
           <div>
             {/* Title */}
-            <h3 className="text-white text-lg font-bold group-hover:text-[#FF7A18] transition-colors line-clamp-1 mb-1">
+            <h3 className="text-white text-lg font-bold group-hover:text-primary-500 transition-colors line-clamp-1 mb-1">
               {tiffin.title || tiffin.name}
             </h3>
 
             {/* Kitchen Name */}
             <div className="flex items-center gap-1.5 mb-3">
               <span className="text-[#B5B8C5] text-xs font-medium line-clamp-1">{kitchenName}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF7A18] shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0" />
             </div>
 
             {/* Stats Row */}
@@ -226,7 +226,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
                 <span className="text-white font-bold">{Number(ratingVal).toFixed(1)}</span>
               </div>
               <div className="flex items-center gap-1">
-                <ClockIcon className="w-3.5 h-3.5 text-[#FF7A18]" />
+                <ClockIcon className="w-3.5 h-3.5 text-primary-500" />
                 <span>{prepTime}</span>
               </div>
               <div className="text-emerald-400 font-medium flex items-center gap-1">
@@ -243,7 +243,7 @@ const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid'
               <span className="text-[#B5B8C5]/60 text-xs">/day</span>
             </div>
 
-            <span className="bg-[#FF7A18] hover:bg-[#FF9F43] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-[#FF7A18]/25 transition-all">
+            <span className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-primary-500/25 transition-all">
               View Plans
             </span>
           </div>

@@ -83,31 +83,31 @@ const TiffinInfoSections = ({ tiffin }) => {
         {/* 4 Feature Pills Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#12141D] border border-[rgba(255,255,255,0.04)] text-xs text-[#B5B8C5]">
-            <span className="text-base text-[#FF7A18]">🍳</span>
+            <span className="text-base text-primary-500">🍳</span>
             <span className="font-semibold text-white">Freshly Prepared</span>
           </div>
 
           <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#12141D] border border-[rgba(255,255,255,0.04)] text-xs text-[#B5B8C5]">
-            <span className="text-base text-[#FF7A18]">🧺</span>
+            <span className="text-base text-primary-500">🧺</span>
             <span className="font-semibold text-white">Hygienic Kitchen</span>
           </div>
 
           <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#12141D] border border-[rgba(255,255,255,0.04)] text-xs text-[#B5B8C5]">
-            <span className="text-base text-[#FF7A18]">🚫</span>
+            <span className="text-base text-primary-500">🚫</span>
             <span className="font-semibold text-white">No Preservatives Added</span>
           </div>
 
           <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#12141D] border border-[rgba(255,255,255,0.04)] text-xs text-[#B5B8C5]">
-            <span className="text-base text-[#FF7A18]">🥗</span>
+            <span className="text-base text-primary-500">🥗</span>
             <span className="font-semibold text-white">Balanced Nutrition</span>
           </div>
         </div>
 
         {/* Schedule Line */}
         <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center gap-2 text-xs text-[#B5B8C5]">
-          <CalendarDaysIcon className="w-4 h-4 text-[#FF7A18]" />
+          <CalendarDaysIcon className="w-4 h-4 text-primary-500" />
           <span>Available on: </span>
-          <span className="font-bold text-[#FF7A18]">
+          <span className="font-bold text-primary-500">
             {tiffin.availability?.days?.join(', ') ||
               'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday'}
           </span>
@@ -127,7 +127,7 @@ const TiffinInfoSections = ({ tiffin }) => {
               key={idx}
               className="flex flex-col items-center gap-2 shrink-0 bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-3 rounded-2xl w-28 text-center"
             >
-              <div className="w-14 h-14 rounded-full overflow-hidden border border-[#FF7A18]/30 shrink-0">
+              <div className="w-14 h-14 rounded-full overflow-hidden border border-primary-500/30 shrink-0">
                 <img
                   src={
                     item.image ||
@@ -152,7 +152,7 @@ const TiffinInfoSections = ({ tiffin }) => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl text-center">
-            <div className="text-2xl font-black text-[#FF7A18]">{nutrition.calories || 350}</div>
+            <div className="text-2xl font-black text-primary-500">{nutrition.calories || 350}</div>
             <div className="text-xs text-[#B5B8C5]/60 font-medium">Calories</div>
           </div>
 
@@ -179,7 +179,7 @@ const TiffinInfoSections = ({ tiffin }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18]">
+            <div className="p-2.5 rounded-xl bg-primary-500/10 text-primary-500">
               <ClockIcon className="w-5 h-5" />
             </div>
             <div>
@@ -189,7 +189,7 @@ const TiffinInfoSections = ({ tiffin }) => {
           </div>
 
           <div className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18]">
+            <div className="p-2.5 rounded-xl bg-primary-500/10 text-primary-500">
               <CalendarDaysIcon className="w-5 h-5" />
             </div>
             <div>
@@ -199,7 +199,7 @@ const TiffinInfoSections = ({ tiffin }) => {
           </div>
 
           <div className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-[#FF7A18]/10 text-[#FF7A18]">
+            <div className="p-2.5 rounded-xl bg-primary-500/10 text-primary-500">
               <MapPinIcon className="w-5 h-5" />
             </div>
             <div>

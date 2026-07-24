@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { HeartIcon } from '@heroicons/react/24/outline';
 
 const linkClasses =
-  'text-[#B5B8C5]/60 hover:text-[#FF7A18] font-medium text-sm transition-colors duration-200';
+  'text-[#B5B8C5]/60 hover:text-primary-500 font-medium text-sm transition-colors duration-200';
 
 const columns = [
   {
@@ -37,7 +37,7 @@ const columns = [
 
 const HomeFooter = () => (
   <footer className="bg-[#0F1016] pt-20 pb-10 relative border-t border-[rgba(255,255,255,0.08)]">
-    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#FF7A18]/20 to-transparent" />
+    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
 
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-14">
@@ -46,7 +46,7 @@ const HomeFooter = () => (
           <Link to="/" className="inline-flex items-center gap-2 mb-5 group">
             <img src="/logo.png" alt="Tiffo Logo" className="h-10 w-auto" />
             <span className="text-2xl font-black text-white tracking-tight">
-              Tiffo<span className="text-[#FF7A18]">.</span>
+              Tiffo<span className="text-primary-500">.</span>
             </span>
           </Link>
           <p className="text-[#B5B8C5]/60 text-sm leading-relaxed max-w-xs mb-7">
@@ -63,9 +63,9 @@ const HomeFooter = () => (
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] focus:border-[#FF7A18]/50 px-4 py-2.5 rounded-xl outline-none text-white placeholder:text-[#B5B8C5]/30 text-sm transition-colors"
+                className="flex-1 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] focus:border-primary-500/50 px-4 py-2.5 rounded-xl outline-none text-white placeholder:text-[#B5B8C5]/30 text-sm transition-colors"
               />
-              <button className="bg-[#FF7A18] hover:bg-[#FF9F43] text-white font-bold px-4 py-2.5 rounded-xl transition-all text-sm shrink-0">
+              <button className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-4 py-2.5 rounded-xl transition-all text-sm shrink-0">
                 Subscribe
               </button>
             </div>
@@ -83,7 +83,7 @@ const HomeFooter = () => (
                 key={social.label}
                 href={social.href}
                 aria-label={`Tiffo on ${social.label}`}
-                className="w-9 h-9 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] hover:border-[#FF7A18]/40 hover:bg-[#FF7A18]/10 rounded-lg flex items-center justify-center text-xs font-bold text-[#B5B8C5] hover:text-[#FF7A18] transition-all duration-200"
+                className="w-9 h-9 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] hover:border-primary-500/40 hover:bg-primary-500/10 rounded-lg flex items-center justify-center text-xs font-bold text-[#B5B8C5] hover:text-primary-500 transition-all duration-200"
               >
                 {social.text}
               </a>

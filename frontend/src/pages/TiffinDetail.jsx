@@ -129,7 +129,7 @@ const TiffinDetail = () => {
         <p className="text-[#B5B8C5] mb-6">This tiffin may no longer be available.</p>
         <Link
           to="/tiffins"
-          className="px-6 py-3 bg-[#FF7A18] text-white rounded-xl font-bold hover:bg-[#e56d15] transition-colors"
+          className="px-6 py-3 bg-primary-500 text-white rounded-xl font-bold hover:bg-primary-600 transition-colors"
         >
           Browse Tiffins
         </Link>
@@ -138,7 +138,7 @@ const TiffinDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1016] text-white pt-24 pb-20 font-sans selection:bg-[#FF7A18]/30 selection:text-orange-200">
+    <div className="min-h-screen bg-[#0F1016] text-white pt-24 pb-20 font-sans selection:bg-primary-500/30 selection:text-orange-200">
       <Helmet>
         <title>{`${activeTiffin.title || 'Tiffin Details'} | Tiffo`}</title>
         <meta
@@ -190,7 +190,7 @@ const TiffinDetail = () => {
                 <Link to={`/tiffins/${rec.slug || rec._id}`} key={rec._id}>
                   <motion.div
                     whileHover={{ y: -5 }}
-                    className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:border-[#FF7A18]/50 rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-all"
+                    className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:border-primary-500/50 rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-all"
                   >
                     <div className="relative h-36 bg-[#0F1016] overflow-hidden flex items-center justify-center">
                       {rec.images?.[0] ? (
@@ -211,7 +211,7 @@ const TiffinDetail = () => {
                     </div>
 
                     <div className="p-3">
-                      <h3 className="text-white text-sm font-bold group-hover:text-[#FF7A18] transition-colors line-clamp-1 mb-1">
+                      <h3 className="text-white text-sm font-bold group-hover:text-primary-500 transition-colors line-clamp-1 mb-1">
                         {rec.title}
                       </h3>
                       <div className="flex items-center justify-between text-xs text-[#B5B8C5]">
