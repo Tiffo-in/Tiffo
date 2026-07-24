@@ -12,6 +12,7 @@ const {
   sendRefundConfirmation,
 } = require('../services/emailService');
 const { generateDeliveriesForSubscription } = require('../services/deliveryService');
+const { assertCapacityForActivation, syncCurrentOrders } = require('../services/capacityService');
 const { emitNotification } = require('../services/socketService');
 
 /**
@@ -115,6 +116,11 @@ async function handlePaymentCaptured(payload) {
       return;
     }
 
+    // Idempotency: the client `verify` call may have already activated this
+    // subscription. Reserve capacity and generate deliveries only on the first
+    // settlement so a re-fired webhook is a no-op.
+    const alreadySettled = ['paid', 'captured'].includes(subscription.paymentStatus);
+
     subscription.paymentStatus = 'captured';
     subscription.status = 'active';
     subscription.paidAt = new Date();
@@ -125,7 +131,8 @@ async function handlePaymentCaptured(payload) {
       .populate('tiffin partner')
       .session(session);
 
-    if (populatedForDeliveries) {
+    if (populatedForDeliveries && !alreadySettled) {
+      await assertCapacityForActivation(populatedForDeliveries.tiffin, { session });
       const deliveryResult = await generateDeliveriesForSubscription(
         populatedForDeliveries,
         session,
@@ -133,6 +140,7 @@ async function handlePaymentCaptured(payload) {
       if (!deliveryResult.success) {
         throw new Error(`Delivery generation failed: ${deliveryResult.message}`);
       }
+      await syncCurrentOrders(populatedForDeliveries.tiffin, session);
     }
 
     await PaymentLog.findOneAndUpdate(
@@ -332,6 +340,8 @@ async function handleRefundProcessed(payload) {
       subscription.paymentStatus = 'refunded';
       subscription.status = 'cancelled';
       await subscription.save();
+      // Cancelling frees the tiffin's kitchen slot.
+      await syncCurrentOrders(subscription.tiffin);
     }
 
     await PaymentLog.findOneAndUpdate(

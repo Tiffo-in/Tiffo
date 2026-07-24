@@ -46,9 +46,13 @@ const subscriptionSchema = new mongoose.Schema(
       required: true,
     },
     status: {
+      // `pending_payment`: created but not yet paid/COD-confirmed — holds no
+      // kitchen slot and has no deliveries until activated. It becomes `active`
+      // only via payment verification, the payment-captured webhook, or COD
+      // confirmation.
       type: String,
-      enum: ['active', 'paused', 'cancelled', 'completed'],
-      default: 'active',
+      enum: ['pending_payment', 'active', 'paused', 'cancelled', 'completed'],
+      default: 'pending_payment',
     },
     totalAmount: {
       type: Number,
