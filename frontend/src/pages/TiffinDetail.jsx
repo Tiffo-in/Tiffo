@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from '@heroicons/react/24/outline';
+import { StarIcon } from '@heroicons/react/24/outline';
 
 import { getTiffin } from '../store/slices/tiffinSlice';
 import api from '../services/api';
@@ -15,100 +15,6 @@ import TiffinPricingCard from '../components/tiffin-detail/TiffinPricingCard';
 import SubscribeModal from '../components/tiffin-detail/SubscribeModal';
 import CartDrawer from '../components/tiffin-detail/CartDrawer';
 import { computePricing, GST_RATE } from '../components/tiffin-detail/tiffinPricing';
-
-// Default mock tiffin details for fallback or demo
-const defaultMockTiffin = {
-  _id: 'm1',
-  title: 'Healthy Breakfast Box',
-  description:
-    'A light and healthy breakfast to kickstart your day! Enjoy delicious poha or upma with coconut chutney, boiled eggs (optional), seasonal fruit, and green tea.',
-  mealType: 'breakfast',
-  cuisine: 'Healthy',
-  isVeg: true,
-  rating: { average: 4.8, count: 320 },
-  prepTime: '25–30 mins',
-  price: { daily: 70 },
-  availability: { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] },
-  partner: {
-    businessName: "Meena's Kitchen",
-    verified: true,
-    logo: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=100&auto=format&fit=crop&q=80',
-  },
-  images: [
-    'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
-  ],
-  menuItems: [
-    {
-      name: 'Poha / Upma',
-      image:
-        'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=300&q=80',
-    },
-    {
-      name: 'Coconut Chutney',
-      image:
-        'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=300&q=80',
-    },
-    {
-      name: 'Boiled Eggs (Optional)',
-      image:
-        'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=300&q=80',
-    },
-    {
-      name: 'Seasonal Fruits',
-      image:
-        'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=300&q=80',
-    },
-    {
-      name: 'Green Tea',
-      image:
-        'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=300&q=80',
-    },
-  ],
-  nutritionInfo: { calories: 350, protein: 10, carbs: 55, fat: 8 },
-};
-
-// "You May Also Like" carousel data
-const recommendedTiffins = [
-  {
-    _id: 'r1',
-    name: 'Oats & Fruits Bowl',
-    rating: 4.7,
-    price: 80,
-    isVeg: true,
-    image:
-      'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=500&q=80',
-  },
-  {
-    _id: 'r2',
-    name: 'South Indian Breakfast',
-    rating: 4.8,
-    price: 75,
-    isVeg: true,
-    image:
-      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=500&q=80',
-  },
-  {
-    _id: 'r3',
-    name: 'Moong Chilla Box',
-    rating: 4.6,
-    price: 85,
-    isVeg: true,
-    image:
-      'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=500&q=80',
-  },
-  {
-    _id: 'r4',
-    name: 'Protein Breakfast Box',
-    rating: 4.9,
-    price: 95,
-    isVeg: true,
-    image:
-      'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=500&q=80',
-  },
-];
 
 const TiffinDetail = () => {
   const { id } = useParams();
@@ -122,19 +28,33 @@ const TiffinDetail = () => {
   const [creatingSubscription, setCreatingSubscription] = useState(false);
   const [cartItem, setCartItem] = useState(null);
   const [showCart, setShowCart] = useState(false);
+  const [recommended, setRecommended] = useState([]);
 
   useEffect(() => {
-    if (id && !id.startsWith('m') && !id.startsWith('r') && !id.startsWith('p')) {
-      dispatch(getTiffin(id));
-    }
+    if (id) dispatch(getTiffin(id));
   }, [dispatch, id]);
 
-  const activeTiffin = storeTiffin || defaultMockTiffin;
+  const activeTiffin = storeTiffin;
 
-  const { daily, planPrice, planOriginal } = computePricing(activeTiffin);
-  const effectivePlanPrice =
-    planPrice[selectedPlan] ||
-    (selectedPlan === 'weekly' ? 431 : selectedPlan === 'monthly' ? 2100 : 70);
+  // Real "You May Also Like" — same cuisine, excluding the current tiffin.
+  useEffect(() => {
+    if (!activeTiffin?._id) return;
+    let cancelled = false;
+    api
+      .get('/tiffins', { params: { cuisine: activeTiffin.cuisine, limit: 5 } })
+      .then((res) => {
+        if (cancelled) return;
+        const items = (res.data?.data || []).filter((t) => t._id !== activeTiffin._id).slice(0, 4);
+        setRecommended(items);
+      })
+      .catch(() => !cancelled && setRecommended([]));
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTiffin?._id, activeTiffin?.cuisine]);
+
+  const { daily, planPrice, planOriginal } = computePricing(activeTiffin || {});
+  const effectivePlanPrice = planPrice[selectedPlan] || 0;
   const gstAmount = Math.round(effectivePlanPrice * GST_RATE);
   const grandTotal = effectivePlanPrice + gstAmount;
 
@@ -193,10 +113,26 @@ const TiffinDetail = () => {
     navigate(`/checkout/${cartItem._id}`);
   };
 
-  if (isLoading && !storeTiffin) {
+  if (isLoading || (!activeTiffin && !storeTiffin)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0F1016] text-white">
         <LoadingSpinner size="large" message="Loading tiffin details…" />
+      </div>
+    );
+  }
+
+  if (!activeTiffin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F1016] text-white px-6 text-center">
+        <div className="text-5xl mb-4">🍱</div>
+        <h1 className="text-2xl font-black mb-2">Tiffin not found</h1>
+        <p className="text-[#B5B8C5] mb-6">This tiffin may no longer be available.</p>
+        <Link
+          to="/tiffins"
+          className="px-6 py-3 bg-[#FF7A18] text-white rounded-xl font-bold hover:bg-[#e56d15] transition-colors"
+        >
+          Browse Tiffins
+        </Link>
       </div>
     );
   }
@@ -230,7 +166,7 @@ const TiffinDetail = () => {
           <div className="lg:col-span-4">
             <TiffinPricingCard
               tiffin={activeTiffin}
-              daily={daily || 70}
+              daily={daily}
               planPrice={planPrice}
               planOriginal={planOriginal}
               selectedPlan={selectedPlan}
@@ -244,55 +180,58 @@ const TiffinDetail = () => {
           </div>
         </div>
 
-        {/* ─── YOU MAY ALSO LIKE CAROUSEL SECTION ─── */}
-        <div className="pt-8 border-t border-[rgba(255,255,255,0.08)]">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-black text-white">You May Also Like</h2>
-            <div className="flex items-center gap-2">
-              <button className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer">
-                <ChevronLeftIcon className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer">
-                <ChevronRightIcon className="w-4 h-4" />
-              </button>
+        {/* ─── YOU MAY ALSO LIKE (real tiffins, same cuisine) ─── */}
+        {recommended.length > 0 && (
+          <div className="pt-8 border-t border-[rgba(255,255,255,0.08)]">
+            <h2 className="text-xl font-black text-white mb-6">You May Also Like</h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {recommended.map((rec) => (
+                <Link to={`/tiffins/${rec.slug || rec._id}`} key={rec._id}>
+                  <motion.div
+                    whileHover={{ y: -5 }}
+                    className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:border-[#FF7A18]/50 rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-all"
+                  >
+                    <div className="relative h-36 bg-[#0F1016] overflow-hidden flex items-center justify-center">
+                      {rec.images?.[0] ? (
+                        <img
+                          src={rec.images[0]}
+                          alt={rec.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <span className="text-4xl opacity-40">🍱</span>
+                      )}
+                      {rec.dietary?.includes('veg') && (
+                        <div className="absolute top-2.5 left-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md">
+                          Veg
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-3">
+                      <h3 className="text-white text-sm font-bold group-hover:text-[#FF7A18] transition-colors line-clamp-1 mb-1">
+                        {rec.title}
+                      </h3>
+                      <div className="flex items-center justify-between text-xs text-[#B5B8C5]">
+                        <div className="flex items-center gap-1">
+                          <StarIcon className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                          <span className="text-white font-bold">
+                            {rec.rating?.average?.toFixed(1) || 'New'}
+                          </span>
+                        </div>
+                        {rec.price?.daily != null && (
+                          <div className="font-extrabold text-white">₹{rec.price.daily}/day</div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
             </div>
           </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {recommendedTiffins.map((rec) => (
-              <Link to={`/tiffins/${rec._id}`} key={rec._id}>
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:border-[#FF7A18]/50 rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-all"
-                >
-                  <div className="relative h-36 bg-[#0F1016] overflow-hidden">
-                    <img
-                      src={rec.image}
-                      alt={rec.name}
-                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
-                    />
-                    <div className="absolute top-2.5 left-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md">
-                      Veg
-                    </div>
-                  </div>
-
-                  <div className="p-3">
-                    <h3 className="text-white text-sm font-bold group-hover:text-[#FF7A18] transition-colors line-clamp-1 mb-1">
-                      {rec.name}
-                    </h3>
-                    <div className="flex items-center justify-between text-xs text-[#B5B8C5]">
-                      <div className="flex items-center gap-1">
-                        <StarIcon className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        <span className="text-white font-bold">{rec.rating}</span>
-                      </div>
-                      <div className="font-extrabold text-white">₹{rec.price}/day</div>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
       <SubscribeModal

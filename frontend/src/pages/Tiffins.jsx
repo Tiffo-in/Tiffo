@@ -22,148 +22,6 @@ import {
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 
-// Mock Tiffins matching screenshot reference design
-const mockTiffins = [
-  {
-    _id: 'm1',
-    title: 'South Indian Lunch Combo',
-    partner: { businessName: "Meena's Tiffin Corner", verified: true },
-    rating: { average: 4.9 },
-    prepTime: '25 min',
-    price: { daily: 120 },
-    discountPercentage: 50,
-    isVeg: true,
-    cuisine: 'South Indian',
-    mealType: 'lunch',
-    images: [
-      'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'Sambar rice, avial, 2 veg sabzi, rasam, curd & pickle',
-  },
-  {
-    _id: 'm2',
-    title: 'Chicken Dinner Special',
-    partner: { businessName: 'Tasty Kitchen', verified: true },
-    rating: { average: 4.8 },
-    prepTime: '30 min',
-    price: { daily: 160 },
-    isVeg: false,
-    cuisine: 'North Indian',
-    mealType: 'dinner',
-    images: [
-      'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'Chicken curry, dal, 2 sabzi, steam rice, roti & salad',
-  },
-  {
-    _id: 'm3',
-    title: 'Idli & Dosa Breakfast',
-    partner: { businessName: 'Sharma Ji Kitchen', verified: true },
-    rating: { average: 4.8 },
-    prepTime: '20 min',
-    price: { daily: 80 },
-    isVeg: true,
-    cuisine: 'South Indian',
-    mealType: 'breakfast',
-    images: [
-      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: '4 steamed idlis, 2 masala dosas served with 3 chutneys & sambar',
-  },
-  {
-    _id: 'm4',
-    title: 'Punjabi Lunch Thali',
-    partner: { businessName: 'Punjabi Tadka', verified: true },
-    rating: { average: 4.7 },
-    prepTime: '30 min',
-    price: { daily: 130 },
-    isVeg: true,
-    cuisine: 'Punjabi',
-    mealType: 'lunch',
-    images: [
-      'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'Dal makhani, shahi paneer, 2 seasonal sabzi, butter roti & jeera rice',
-  },
-  {
-    _id: 'm5',
-    title: 'Rajasthani Dal-Baati',
-    partner: { businessName: 'Rajasthan Rasoi', verified: true },
-    rating: { average: 4.7 },
-    prepTime: '35 min',
-    price: { daily: 170 },
-    isVeg: true,
-    cuisine: 'Rajasthani',
-    mealType: 'lunch',
-    images: [
-      'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'Panchmel dal, 4 ghee baatis, churma, gatte ki sabzi & garlic chutney',
-  },
-  {
-    _id: 'm6',
-    title: 'Vegan Dinner Bowl',
-    partner: { businessName: 'Green Bowl Kitchen', verified: true },
-    rating: { average: 4.6 },
-    prepTime: '25 min',
-    price: { daily: 140 },
-    isVeg: true,
-    isHealthy: true,
-    cuisine: 'Healthy',
-    mealType: 'dinner',
-    images: [
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'Quinoa khichdi, yellow dal, roasted veggies, avocado salad & plant yogurt',
-  },
-  {
-    _id: 'm7',
-    title: 'Gujarati Thali',
-    partner: { businessName: 'Rasoi Ghar', verified: true },
-    rating: { average: 4.5 },
-    prepTime: '30 min',
-    price: { daily: 150 },
-    isVeg: true,
-    cuisine: 'Gujarati',
-    mealType: 'lunch',
-    images: [
-      'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'Sweet Gujarati dal, kadhi, 2 shaak, phulka rotlis, dhokla & basundi',
-  },
-  {
-    _id: 'm8',
-    title: 'Healthy Breakfast Box',
-    partner: { businessName: 'Healthy Bites', verified: true },
-    rating: { average: 4.4 },
-    prepTime: '20 min',
-    price: { daily: 70 },
-    isVeg: true,
-    isHealthy: true,
-    cuisine: 'Healthy',
-    mealType: 'breakfast',
-    images: [
-      'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'Sprouted moong salad, poha or oats khichdi, boiled eggs/paneer & fresh juice',
-  },
-  {
-    _id: 'm9',
-    title: 'Jain Lunch Box',
-    partner: { businessName: 'Jain Rasoi', verified: true },
-    rating: { average: 4.2 },
-    prepTime: '30 min',
-    price: { daily: 135 },
-    isVeg: true,
-    cuisine: 'Jain',
-    mealType: 'lunch',
-    images: [
-      'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80',
-    ],
-    description: 'No onion, no garlic pure Jain dal, paneer sabzi, roti, rice & sweet',
-  },
-];
-
 const categoryTabs = [
   { id: 'all', label: 'All Meals', icon: '🟧' },
   { id: 'breakfast', label: 'Breakfast', icon: '🍳' },
@@ -307,10 +165,8 @@ const Tiffins = () => {
     });
   };
 
-  // Combine real store tiffins or fallback to mock tiffins
-  const sourceTiffins = useMemo(() => {
-    return tiffins && tiffins.length > 0 ? tiffins : mockTiffins;
-  }, [tiffins]);
+  // Real store tiffins only — an empty result shows the empty state, never fake data.
+  const sourceTiffins = useMemo(() => tiffins || [], [tiffins]);
 
   // Client side search and category filter
   const filteredTiffins = useMemo(() => {
@@ -418,32 +274,6 @@ const Tiffins = () => {
             <p className="text-[#B5B8C5] text-base md:text-lg max-w-xl font-normal leading-relaxed">
               Discover authentic, home-cooked meals prepared by passionate local chefs near you.
             </p>
-
-            {/* Social Proof / Avatars */}
-            <div className="flex items-center gap-3 mt-2">
-              <div className="flex -space-x-2.5 overflow-hidden">
-                <img
-                  className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0F1016] object-cover"
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                  alt="Customer"
-                />
-                <img
-                  className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0F1016] object-cover"
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-                  alt="Customer"
-                />
-                <img
-                  className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0F1016] object-cover"
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-                  alt="Customer"
-                />
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-[#B5B8C5]">
-                <StarIcon className="w-4 h-4 text-amber-400 fill-amber-400" />
-                <span className="font-bold text-white text-sm">4.8</span>
-                <span>(15K+ Happy Customers)</span>
-              </div>
-            </div>
           </motion.div>
 
           {/* Right Column: Floating Location Card */}
@@ -692,7 +522,9 @@ const Tiffins = () => {
           <div>
             <h2 className="text-2xl font-black text-white tracking-tight">All Tiffins</h2>
             <p className="text-[#B5B8C5]/60 text-xs font-medium mt-0.5">
-              Showing {filteredTiffins.length} of 86 meals
+              {filteredTiffins.length === 1
+                ? 'Showing 1 meal'
+                : `Showing ${filteredTiffins.length} meals`}
             </p>
           </div>
 

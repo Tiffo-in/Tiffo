@@ -322,31 +322,33 @@ const Support = () => {
                       Email Support
                     </p>
                     <a
-                      href="mailto:support@tiffo.com"
+                      href="mailto:support@tiffo.in"
                       className="text-xs font-semibold text-white hover:text-orange-400 transition-colors"
                     >
-                      support@tiffo.com
+                      support@tiffo.in
                     </a>
                   </div>
                 </div>
 
-                {/* Phone */}
-                <div className="flex items-start space-x-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
-                  <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-                    <PhoneIcon className="w-4 h-4" />
+                {/* Phone — only shown when a real support number is configured */}
+                {process.env.REACT_APP_SUPPORT_PHONE && (
+                  <div className="flex items-start space-x-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                      <PhoneIcon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                        Phone Support
+                      </p>
+                      <a
+                        href={`tel:${process.env.REACT_APP_SUPPORT_PHONE}`}
+                        className="text-xs font-semibold text-white hover:text-emerald-400 transition-colors"
+                      >
+                        {process.env.REACT_APP_SUPPORT_PHONE}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                      24/7 Phone Hotline
-                    </p>
-                    <a
-                      href="tel:+919876543210"
-                      className="text-xs font-semibold text-white hover:text-emerald-400 transition-colors"
-                    >
-                      +91 98765 43210
-                    </a>
-                  </div>
-                </div>
+                )}
 
                 {/* Operating Hours */}
                 <div className="flex items-start space-x-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
