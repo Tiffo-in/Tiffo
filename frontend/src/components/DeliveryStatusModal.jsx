@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch } from 'react-redux';
 import { updateDeliveryStatus } from '../store/slices/customerSlice';
+import { XMarkIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 const DeliveryStatusModal = ({ isOpen, onClose, deliveries, date, customerName }) => {
@@ -21,92 +22,100 @@ const DeliveryStatusModal = ({ isOpen, onClose, deliveries, date, customerName }
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'delivered': return 'text-green-600 bg-green-50';
-      case 'cancelled': return 'text-red-600 bg-red-50';
-      case 'pending': return 'text-yellow-600 bg-yellow-50';
-      default: return 'text-gray-600 bg-gray-50';
-    }
-  };
-
   const getMealIcon = (mealType) => {
     switch (mealType) {
-      case 'breakfast': return '🌅';
-      case 'lunch': return '☀️';
-      case 'dinner': return '🌙';
-      default: return '🍽️';
+      case 'breakfast':
+        return '🌅';
+      case 'lunch':
+        return '☀️';
+      case 'dinner':
+        return '🌙';
+      default:
+        return '🍱';
     }
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black bg-opacity-50"
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4"
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            className="relative bg-[#14151e] border border-zinc-800/80 rounded-2xl shadow-2xl p-6 w-full max-w-md text-zinc-100 z-10"
           >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Update Deliveries</h3>
+            {/* Header */}
+            <div className="flex justify-between items-center pb-4 mb-4 border-b border-zinc-800">
+              <div>
+                <h3 className="text-base font-bold text-white">Update Delivery Status</h3>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  {customerName} • {new Date(date).toLocaleDateString()}
+                </p>
+              </div>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600"
+                className="w-8 h-8 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-colors"
               >
-                ✕
+                <XMarkIcon className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="mb-4">
-              <p className="text-sm text-gray-600">
-                {customerName} - {new Date(date).toLocaleDateString()}
-              </p>
-            </div>
-
+            {/* Deliveries List */}
             <div className="space-y-4">
               {Object.entries(deliveries).map(([mealType, delivery]) => (
-                <div key={mealType} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                <div
+                  key={mealType}
+                  className="bg-zinc-900/80 border border-zinc-800 rounded-xl p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
                       <span className="text-lg">{getMealIcon(mealType)}</span>
-                      <span className="font-medium capitalize">{mealType}</span>
+                      <span className="text-xs font-bold text-white capitalize">{mealType}</span>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(delivery.status)}`}>
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        delivery.status === 'delivered'
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          : delivery.status === 'cancelled'
+                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                            : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      }`}
+                    >
                       {delivery.status}
                     </span>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-1">
                     <button
                       onClick={() => handleStatusUpdate(delivery.id, 'delivered', mealType)}
                       disabled={updating === delivery.id || delivery.status === 'delivered'}
-                      className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1 ${
                         delivery.status === 'delivered'
-                          ? 'bg-green-100 text-green-800 cursor-not-allowed'
-                          : 'bg-green-500 text-white hover:bg-green-600'
+                          ? 'bg-emerald-500/10 text-emerald-500 cursor-not-allowed border border-emerald-500/20'
+                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
                       }`}
                     >
-                      {updating === delivery.id ? '...' : '✓ Delivered'}
+                      <span>✓ Delivered</span>
                     </button>
+
                     <button
                       onClick={() => handleStatusUpdate(delivery.id, 'cancelled', mealType)}
                       disabled={updating === delivery.id || delivery.status === 'cancelled'}
-                      className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1 ${
                         delivery.status === 'cancelled'
-                          ? 'bg-red-100 text-red-800 cursor-not-allowed'
-                          : 'bg-red-500 text-white hover:bg-red-600'
+                          ? 'bg-rose-500/10 text-rose-500 cursor-not-allowed border border-rose-500/20'
+                          : 'bg-rose-600 hover:bg-rose-500 text-white shadow-md'
                       }`}
                     >
-                      {updating === delivery.id ? '...' : '✕ Cancel'}
+                      <span>✕ Cancel</span>
                     </button>
                   </div>
                 </div>

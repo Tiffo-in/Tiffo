@@ -2,112 +2,174 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCartIcon } from '@heroicons/react/24/solid';
 
-import { MEAL_COLORS, PLAN_LABELS } from './tiffinPricing';
-
-/* Sticky right-column card: plan selector, price breakdown, subscribe CTA. */
 const TiffinPricingCard = ({
   tiffin,
-  daily,
-  planPrice,
-  planOriginal,
-  selectedPlan,
+  daily = 70,
+  planPrice = { daily: 70, weekly: 431, monthly: 2100 },
+  planOriginal = { daily: 70, weekly: 490, monthly: 2400 },
+  selectedPlan = 'weekly',
   onSelectPlan,
-  gstAmount,
-  grandTotal,
+  gstAmount = 22,
+  grandTotal = 453,
   hasCartItem,
   onSubscribe,
   onViewCart,
-}) => (
-  <div className="sticky top-4 bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-gray-100 dark:border-neutral-800 overflow-hidden">
-    <div
-      className={`bg-gradient-to-r ${MEAL_COLORS[tiffin.mealType] || 'from-maroon-500 to-orange-500'} p-5 text-white`}
-    >
-      <p className="text-sm opacity-80 mb-1">Starting at</p>
-      <p className="text-4xl font-extrabold">
-        ₹{daily}
-        <span className="text-lg font-normal opacity-80">/day</span>
-      </p>
-    </div>
+}) => {
+  const plans = [
+    {
+      key: 'daily',
+      title: 'Daily',
+      desc: '1 day plan',
+      price: planPrice.daily || daily,
+      original: planOriginal.daily,
+      discount: 0,
+    },
+    {
+      key: 'weekly',
+      title: 'Weekly',
+      desc: '7 day plan',
+      price: planPrice.weekly || 431,
+      original: planOriginal.weekly || 490,
+      discount: 14,
+    },
+    {
+      key: 'monthly',
+      title: 'Monthly',
+      desc: '30 day plan',
+      price: planPrice.monthly || 2100,
+      original: planOriginal.monthly || 2400,
+      discount: 12,
+    },
+  ];
 
-    <div className="p-5 space-y-5">
-      <div>
-        <p className="text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-2">
-          Choose a Plan
-        </p>
-        <div className="space-y-2">
-          {['daily', 'weekly', 'monthly'].map((plan) => {
-            const orig = planOriginal[plan];
-            const eff = planPrice[plan];
-            const disc = Math.round((1 - eff / orig) * 100);
-            return (
-              <button
-                key={plan}
-                onClick={() => onSelectPlan(plan)}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all text-left ${selectedPlan === plan ? 'border-maroon-600 bg-maroon-50 dark:bg-maroon-900/30' : 'border-gray-200 dark:border-neutral-700 hover:border-maroon-300'}`}
-              >
-                <div>
-                  <p className="font-semibold text-sm text-gray-900 dark:text-neutral-100 capitalize">
-                    {plan}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-neutral-400">
-                    {PLAN_LABELS[plan].desc}
-                  </p>
-                </div>
-                <div className="text-right">
-                  {disc > 0 && <p className="text-xs text-gray-400 line-through">₹{orig}</p>}
-                  <p className="font-bold text-gray-900 dark:text-neutral-100">₹{eff}</p>
-                  {disc > 0 && <p className="text-xs text-green-600 font-semibold">{disc}% off</p>}
-                </div>
-              </button>
-            );
-          })}
+  return (
+    <div className="sticky top-24 bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-3xl overflow-hidden shadow-2xl">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-[#FF7A18] to-[#FF5216] p-5 text-white">
+        <span className="block text-xs font-medium text-white/80 uppercase tracking-wider mb-0.5">
+          Starting from
+        </span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-black">₹{daily}</span>
+          <span className="text-sm font-semibold opacity-90">/day</span>
         </div>
       </div>
 
-      <div className="space-y-1 text-sm border-t pt-4 dark:border-neutral-700">
-        <div className="flex justify-between text-gray-600 dark:text-neutral-400">
-          <span>Subtotal</span>
-          <span>₹{planPrice[selectedPlan]}</span>
-        </div>
-        <div className="flex justify-between text-gray-600 dark:text-neutral-400">
-          <span>GST (5%)</span>
-          <span>₹{gstAmount}</span>
-        </div>
-        <div className="flex justify-between font-bold text-gray-900 dark:text-neutral-100 text-base pt-1 border-t dark:border-neutral-700">
-          <span>Total</span>
-          <span className="text-maroon-600">₹{grandTotal}</span>
-        </div>
-      </div>
+      <div className="p-5 space-y-5">
+        {/* Choose a Plan Section */}
+        <div>
+          <h3 className="text-sm font-bold text-white mb-3">Choose a Plan</h3>
+          <div className="space-y-2.5">
+            {plans.map((p) => {
+              const isSelected = selectedPlan === p.key;
+              return (
+                <button
+                  key={p.key}
+                  onClick={() => onSelectPlan && onSelectPlan(p.key)}
+                  className={`w-full text-left p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${
+                    isSelected
+                      ? 'border-[#FF5216] bg-[#FF5216]/10 shadow-lg shadow-[#FF5216]/20'
+                      : 'border-[rgba(255,255,255,0.08)] bg-[#12141D] hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Radio Dot */}
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        isSelected ? 'border-[#FF5216] bg-[#FF5216]' : 'border-[#B5B8C5]/40'
+                      }`}
+                    >
+                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
 
-      <motion.button
-        onClick={onSubscribe}
-        className="w-full btn-primary py-3.5 text-base font-bold flex items-center justify-center gap-2 rounded-xl"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.97 }}
-      >
-        <span className="text-xl">+</span>
-        Subscribe Now
-      </motion.button>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-white">{p.title}</span>
+                        {p.discount > 0 && (
+                          <span className="bg-emerald-950 text-emerald-400 border border-emerald-800/60 text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                            {p.discount}% OFF
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-[#B5B8C5]/60 font-medium">{p.desc}</span>
+                    </div>
+                  </div>
 
-      {hasCartItem && (
+                  <div className="text-right">
+                    {p.original > p.price && (
+                      <span className="block text-[11px] text-[#B5B8C5]/50 line-through">
+                        ₹{p.original}
+                      </span>
+                    )}
+                    <span className="text-white text-base font-extrabold">₹{p.price}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Cost Breakdown */}
+        <div className="space-y-2 pt-3 border-t border-[rgba(255,255,255,0.06)] text-xs text-[#B5B8C5]">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span className="text-white font-semibold">₹{planPrice[selectedPlan] || 431}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>GST (5%)</span>
+            <span className="text-white font-semibold">₹{gstAmount}</span>
+          </div>
+          <div className="flex justify-between text-sm font-black text-white pt-2 border-t border-[rgba(255,255,255,0.06)]">
+            <span>Total</span>
+            <span className="text-[#FF5216] text-lg font-black">₹{grandTotal}</span>
+          </div>
+        </div>
+
+        {/* Subscribe CTA Button */}
         <motion.button
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          onClick={onViewCart}
-          className="w-full flex items-center justify-center gap-2 py-3 border-2 border-maroon-600 text-maroon-600 font-semibold rounded-xl hover:bg-maroon-50 dark:hover:bg-maroon-900/20 transition-colors"
+          onClick={onSubscribe}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full bg-[#FF5216] hover:bg-[#E04410] text-white font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-[#FF5216]/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
         >
-          <ShoppingCartIcon className="h-5 w-5" />
-          View Cart (1 item)
+          <span>Subscribe Now</span>
+          <span>→</span>
         </motion.button>
-      )}
 
-      <div className="border-t dark:border-neutral-700 pt-4 text-xs text-gray-500 dark:text-neutral-400 space-y-1">
-        <p>🏪 {tiffin.partner?.businessName || 'Partner'}</p>
-        <p>⏱️ Fresh daily preparation</p>
-        <p>💵 Pay on delivery only (COD)</p>
+        {hasCartItem && (
+          <motion.button
+            onClick={onViewCart}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-[#12141D] border border-[#FF7A18]/50 text-[#FF7A18] hover:text-white hover:bg-[#FF7A18] font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <ShoppingCartIcon className="w-4 h-4" />
+            <span>View Cart (1 item)</span>
+          </motion.button>
+        )}
+
+        {/* Perks Checklist */}
+        <div className="pt-3 border-t border-[rgba(255,255,255,0.06)] space-y-2 text-xs text-[#B5B8C5]">
+          <div className="flex items-center gap-2">
+            <span className="text-emerald-400">🌿</span>
+            <span>Freshly prepared daily</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[#FF7A18]">🚚</span>
+            <span>Free delivery</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-blue-400">🔄</span>
+            <span>Cancel or pause anytime</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-amber-400">💵</span>
+            <span>Pay on delivery (COD)</span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default TiffinPricingCard;

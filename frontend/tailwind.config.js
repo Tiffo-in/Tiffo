@@ -156,7 +156,17 @@ module.exports = {
       },
       backdropBlur: {
         xs: '2px',
-      }
+      },
+      animation: {
+        'spin-slow': 'spin 20s linear infinite',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
     },
   },
   plugins: [],
