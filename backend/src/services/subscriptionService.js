@@ -365,7 +365,9 @@ exports.createNewSubscription = async (userId, data) => {
     gstRate: GST_RATE,
     gstAmount,
     grandTotal,
-    status: 'active',
+    // Born unpaid: no kitchen slot, no deliveries. Activated only once payment
+    // is verified / the capture webhook fires / COD is confirmed.
+    status: 'pending_payment',
     paymentStatus: 'pending',
   });
 

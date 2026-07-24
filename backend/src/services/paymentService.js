@@ -11,6 +11,7 @@ const {
   createRefund,
 } = require('./razorpayService');
 const { generateDeliveriesForSubscription } = require('./deliveryService');
+const { assertCapacityForActivation, syncCurrentOrders } = require('./capacityService');
 const { emitNotification } = require('./socketService');
 
 exports.setupPartnerPaymentAccount = async (
@@ -96,6 +97,10 @@ exports.createSubscriptionOrder = async (userId, subscriptionId) => {
   if (!subscription.partner.razorpayAccountId) {
     throw new Error('Partner payment account not setup');
   }
+
+  // Fail fast before charging the customer if the tiffin is already at capacity.
+  // The activation path re-checks atomically to close the race window.
+  await assertCapacityForActivation(subscription.tiffin);
 
   const totalAmount = subscription.grandTotal || subscription.totalAmount;
   const commissionRate = subscription.partner.commissionRate || 0.1;
@@ -190,6 +195,12 @@ exports.verifySubscriptionPayment = async ({
       throw error;
     }
 
+    // Idempotency: the client `verify` call and the `payment.captured` webhook
+    // both activate the same online subscription. Reserve capacity and generate
+    // deliveries only on the first settlement so the second run is a no-op.
+    const alreadySettled = ['paid', 'captured'].includes(subscription.paymentStatus);
+    await assertCapacityForActivation(subscription.tiffin, { skip: alreadySettled, session });
+
     subscription.paymentId = razorpay_payment_id;
     subscription.razorpaySignature = razorpay_signature;
     subscription.paymentStatus = 'paid';
@@ -199,7 +210,7 @@ exports.verifySubscriptionPayment = async ({
 
     const populatedForDeliveries = subscription;
 
-    if (populatedForDeliveries) {
+    if (populatedForDeliveries && !alreadySettled) {
       const deliveryResult = await generateDeliveriesForSubscription(
         populatedForDeliveries,
         session,
@@ -207,6 +218,7 @@ exports.verifySubscriptionPayment = async ({
       if (!deliveryResult.success) {
         throw new Error(`Delivery generation failed: ${deliveryResult.message}`);
       }
+      await syncCurrentOrders(subscription.tiffin, session);
     }
 
     await PaymentLog.findOneAndUpdate(
@@ -253,6 +265,11 @@ exports.confirmCod = async (subscriptionId) => {
       throw error;
     }
 
+    // Idempotent: a re-confirmed COD order (already active) keeps its slot and
+    // deliveries rather than reserving/generating a second time.
+    const alreadyActive = subscription.status === 'active';
+    await assertCapacityForActivation(subscription.tiffin, { skip: alreadyActive, session });
+
     subscription.paymentMethod = 'cod';
     subscription.paymentStatus = 'pending';
     subscription.status = 'active';
@@ -260,7 +277,7 @@ exports.confirmCod = async (subscriptionId) => {
 
     const populatedForDeliveries = subscription;
 
-    if (populatedForDeliveries) {
+    if (populatedForDeliveries && !alreadyActive) {
       const deliveryResult = await generateDeliveriesForSubscription(
         populatedForDeliveries,
         session,
@@ -268,6 +285,7 @@ exports.confirmCod = async (subscriptionId) => {
       if (!deliveryResult.success) {
         throw new Error(`Delivery generation failed: ${deliveryResult.message}`);
       }
+      await syncCurrentOrders(subscription.tiffin, session);
     }
 
     await session.commitTransaction();
@@ -318,6 +336,9 @@ exports.processRefundForSubscription = async (subscriptionId, amount, reason) =>
     subscription.paymentStatus = 'refunded';
     subscription.status = 'cancelled';
     await subscription.save({ session });
+
+    // Cancelling frees the tiffin's kitchen slot.
+    await syncCurrentOrders(subscription.tiffin, session);
 
     await PaymentLog.create(
       [

@@ -125,7 +125,7 @@ describe('paymentService Transactions', () => {
         _id: 'sub_123',
         paymentMethod: 'cod',
         paymentStatus: 'pending',
-        status: 'active',
+        status: 'pending_payment',
         save: jest.fn().mockResolvedValue(true),
       };
 
@@ -152,7 +152,7 @@ describe('paymentService Transactions', () => {
         _id: 'sub_123',
         paymentMethod: 'cod',
         paymentStatus: 'pending',
-        status: 'active',
+        status: 'pending_payment',
         save: jest.fn().mockResolvedValue(true),
       };
 
