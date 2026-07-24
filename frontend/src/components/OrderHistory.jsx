@@ -69,74 +69,80 @@ const OrderDetailModal = ({ order, onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-white rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-[#14151e] border border-zinc-800/80 text-zinc-100 rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h3 className="text-2xl font-bold text-neutral-900">Order Details</h3>
-            <p className="text-neutral-500 mt-1">{order.tiffin?.title || order.tiffin?.name}</p>
+            <h3 className="text-2xl font-bold text-white">Order Details</h3>
+            <p className="text-zinc-400 mt-1">{order.tiffin?.title || order.tiffin?.name}</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.1, rotate: 90 }}
             whileTap={{ scale: 0.9 }}
             onClick={onClose}
-            className="w-10 h-10 bg-neutral-100 hover:bg-neutral-200 rounded-full flex items-center justify-center"
+            className="w-10 h-10 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-full flex items-center justify-center transition-colors"
           >
-            <XMarkIcon className="w-5 h-5 text-neutral-600" />
+            <XMarkIcon className="w-5 h-5" />
           </motion.button>
         </div>
 
         {/* Status badge */}
         <div
-          className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl ${statusConfig.bg} ${statusConfig.text} font-semibold mb-6`}
+          className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl border font-semibold mb-6 ${
+            order.status === 'completed'
+              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+              : order.status === 'cancelled'
+                ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+          }`}
         >
           <StatusIcon className="w-4 h-4" />
-          <span>{statusConfig.label}</span>
+          <span className="capitalize">{order.status}</span>
         </div>
 
         {/* Info grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-neutral-50 rounded-xl p-4">
-            <p className="text-xs text-neutral-500 mb-1">Partner</p>
-            <p className="font-semibold text-neutral-800">{order.partner?.businessName || '—'}</p>
+          <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-4">
+            <p className="text-xs text-zinc-400 mb-1">Partner</p>
+            <p className="font-semibold text-white">{order.partner?.businessName || '—'}</p>
           </div>
-          <div className="bg-neutral-50 rounded-xl p-4">
-            <p className="text-xs text-neutral-500 mb-1">Plan</p>
-            <p className="font-semibold text-neutral-800 capitalize">{order.plan}</p>
+          <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-4">
+            <p className="text-xs text-zinc-400 mb-1">Plan</p>
+            <p className="font-semibold text-white capitalize">{order.plan}</p>
           </div>
-          <div className="bg-amber-50 rounded-xl p-4">
-            <p className="text-xs text-neutral-500 mb-1">Total Paid</p>
-            <p className="font-bold text-amber-700 text-lg">₹{order.totalAmount}</p>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+            <p className="text-xs text-amber-400 mb-1">Total Paid</p>
+            <p className="font-bold text-amber-300 text-lg">₹{order.totalAmount}</p>
           </div>
-          <div className="bg-green-50 rounded-xl p-4">
-            <p className="text-xs text-neutral-500 mb-1">Meals Delivered</p>
-            <p className="font-bold text-green-700 text-lg">{order.deliveredCount ?? 0}</p>
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+            <p className="text-xs text-emerald-400 mb-1">Meals Delivered</p>
+            <p className="font-bold text-emerald-300 text-lg">{order.deliveredCount ?? 0}</p>
           </div>
-          <div className="bg-blue-50 rounded-xl p-4">
-            <p className="text-xs text-neutral-500 mb-1">Duration</p>
-            <p className="font-semibold text-blue-700">{order.duration} days</p>
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+            <p className="text-xs text-blue-400 mb-1">Duration</p>
+            <p className="font-semibold text-blue-300">{order.duration} days</p>
           </div>
-          <div className="bg-purple-50 rounded-xl p-4">
-            <p className="text-xs text-neutral-500 mb-1">Delivery Time</p>
-            <p className="font-semibold text-purple-700">{order.deliveryTime || '—'}</p>
+          <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
+            <p className="text-xs text-purple-400 mb-1">Delivery Time</p>
+            <p className="font-semibold text-purple-300">{order.deliveryTime || '—'}</p>
           </div>
         </div>
 
         {/* Dates */}
-        <div className="bg-neutral-50 rounded-xl p-4 mb-6 flex items-center space-x-3">
-          <CalendarDaysIcon className="w-5 h-5 text-neutral-400 flex-shrink-0" />
+        <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-4 mb-6 flex items-center space-x-3">
+          <CalendarDaysIcon className="w-5 h-5 text-orange-400 flex-shrink-0" />
           <div>
-            <p className="text-xs text-neutral-500">Subscription Period</p>
-            <p className="font-medium text-neutral-700">
+            <p className="text-xs text-zinc-400">Subscription Period</p>
+            <p className="font-medium text-white">
               {new Date(order.startDate).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',

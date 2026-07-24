@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { SparklesIcon } from '@heroicons/react/24/solid';
-import { HeartIcon, TruckIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
-
+import { HeartIcon, TruckIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 import api from '../../services/api';
 
 const HomeAppPromo = () => {
@@ -24,109 +22,176 @@ const HomeAppPromo = () => {
   };
 
   return (
-    <section className="py-32 relative overflow-hidden bg-neutral-50 dark:bg-neutral-950">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ y: 40 }}
-          whileInView={{ y: 0 }}
-          viewport={{ once: true }}
-          className="bg-neutral-900 dark:bg-neutral-900 rounded-[3rem] p-10 md:p-20 relative overflow-hidden shadow-2xl border border-neutral-800"
-        >
-          {/* Premium Background Effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/40 via-neutral-900 to-secondary-900/40 opacity-80" />
-          <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-500/30 rounded-full blur-[100px]" />
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-secondary-500/30 rounded-full blur-[100px]" />
+    <section className="py-24 bg-[#0F1016] relative overflow-hidden">
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-16">
-            <div className="max-w-xl text-center md:text-left">
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full text-white font-bold text-sm mb-8 border border-white/10 shadow-lg">
-                <SparklesIcon className="w-4 h-4 text-primary-400" />
-                COMING SOON
-              </span>
-              <h2 className="text-5xl md:text-7xl font-black text-white mb-6 leading-[1.1] tracking-tight">
-                Tiffo in your <br />
-                pocket.
-              </h2>
-              <p className="text-xl md:text-2xl text-neutral-300 mb-12 font-medium leading-relaxed">
-                Track orders in real-time, manage subscriptions instantly, and discover new meals on
-                the go.
-              </p>
+      {/* Background ambient */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500/5 rounded-full blur-[150px] pointer-events-none" />
 
-              {isWaitlistSubmitted ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl text-white inline-flex flex-col items-center md:items-start shadow-xl"
-                >
-                  <span className="text-4xl mb-4 block">🎉</span>
-                  <h3 className="text-2xl font-black mb-2">You're on the list!</h3>
-                  <p className="text-neutral-300 font-medium">
-                    We'll let you know when the app drops.
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left: Text content */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/20 rounded-full px-4 py-1.5 mb-6">
+              <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+              <span className="text-primary-500 text-xs font-bold tracking-wide">COMING SOON</span>
+            </div>
+
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+              Tiffo in your <span className="text-primary-500">pocket.</span>
+            </h2>
+
+            <p className="text-[#B5B8C5]/70 text-base leading-relaxed mb-8 max-w-md">
+              Track orders in real-time, manage subscriptions instantly, and discover new meals on
+              the go.
+            </p>
+
+            {/* App store badges */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              <div className="flex items-center gap-3 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 opacity-60 cursor-not-allowed">
+                <DevicePhoneMobileIcon className="w-6 h-6 text-primary-500" />
+                <div>
+                  <p className="text-[10px] text-[#B5B8C5]/50 font-medium">GET IT ON</p>
+                  <p className="text-white font-bold text-sm">Google Play</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 opacity-60 cursor-not-allowed">
+                <DevicePhoneMobileIcon className="w-6 h-6 text-primary-500" />
+                <div>
+                  <p className="text-[10px] text-[#B5B8C5]/50 font-medium">DOWNLOAD ON THE</p>
+                  <p className="text-white font-bold text-sm">App Store</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Waitlist form */}
+            {isWaitlistSubmitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-primary-500/10 border border-primary-500/30 p-6 rounded-2xl flex items-center gap-4"
+              >
+                <div>
+                  <h3 className="text-white font-black text-lg">You're on the list!</h3>
+                  <p className="text-[#B5B8C5]/60 text-sm">
+                    We'll notify you when the app launches.
                   </p>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-4">
+                </div>
+              </motion.div>
+            ) : (
+              <div>
+                <p className="text-[#B5B8C5]/40 text-xs font-medium mb-3 uppercase tracking-wider">
+                  Get early access
+                </p>
+                <form onSubmit={handleWaitlistSubmit} className="flex gap-2 max-w-md">
                   <input
                     type="email"
                     required
                     placeholder="Enter your email address"
                     value={waitlistEmail}
                     onChange={(e) => setWaitlistEmail(e.target.value)}
-                    className="flex-1 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-5 rounded-2xl outline-none text-white placeholder:text-neutral-400 focus:bg-white/20 focus:border-primary-500/50 transition-all text-lg font-medium shadow-inner"
+                    className="flex-1 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] focus:border-primary-500/50 px-4 py-3 rounded-xl outline-none text-white placeholder:text-[#B5B8C5]/30 text-sm font-medium transition-colors"
                   />
                   <button
                     type="submit"
-                    className="bg-white text-neutral-900 px-8 py-5 rounded-2xl font-black hover:bg-neutral-100 transition-all flex items-center justify-center gap-2 whitespace-nowrap text-lg shadow-xl hover:shadow-white/20 transform hover:-translate-y-1"
+                    className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/25 shrink-0 text-sm"
                   >
-                    Get Early Access
+                    Notify Me
                   </button>
                 </form>
-              )}
-            </div>
+              </div>
+            )}
+          </motion.div>
 
-            {/* Minimal Device Mockup Illustration */}
-            <div className="hidden md:flex relative flex-shrink-0">
+          {/* Right: Phone Mockup */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex justify-center"
+          >
+            <div className="relative">
+              {/* Phone frame */}
               <motion.div
-                animate={{ y: [0, -10, 0] }}
+                animate={{ y: [0, -12, 0] }}
                 transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-                className="w-[320px] h-[640px] bg-neutral-950 rounded-[3.5rem] border-[12px] border-neutral-800 shadow-2xl shadow-black/50 overflow-hidden relative"
+                className="relative w-[240px] h-[500px] bg-[#0F1016] rounded-[3rem] border-[8px] border-[#1B1E27] shadow-2xl shadow-primary-500/10 overflow-hidden"
               >
-                <div className="absolute top-0 inset-x-0 h-7 bg-neutral-800 rounded-b-3xl mx-24 z-20" />
-                {/* Mockup Screen Content */}
-                <div className="absolute inset-0 bg-neutral-900 p-6 pt-16 flex flex-col gap-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="w-32 h-6 bg-neutral-800 rounded-full animate-pulse" />
-                    <div className="w-10 h-10 bg-neutral-800 rounded-full animate-pulse" />
+                {/* Notch */}
+                <div className="absolute top-0 inset-x-0 h-6 bg-[#181A22] rounded-b-2xl mx-16 z-20" />
+
+                {/* Screen content */}
+                <div className="absolute inset-0 bg-[#0F1016] p-4 pt-12 flex flex-col gap-3">
+                  {/* Header */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="w-16 h-2 bg-[#1B1E27] rounded-full" />
+                      <div className="w-24 h-3 bg-[#181A22] rounded-full mt-1.5" />
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-xs font-bold text-primary-500">
+                      T
+                    </div>
                   </div>
-                  <div className="w-full h-48 bg-gradient-to-br from-primary-900/50 to-neutral-800 rounded-3xl animate-pulse border border-neutral-800" />
-                  <div className="space-y-3 mt-4">
-                    <div className="w-full h-20 bg-neutral-800 rounded-2xl animate-pulse" />
-                    <div className="w-full h-20 bg-neutral-800 rounded-2xl animate-pulse" />
-                    <div className="w-full h-20 bg-neutral-800 rounded-2xl animate-pulse" />
+
+                  {/* Hero image */}
+                  <div className="w-full h-32 rounded-2xl overflow-hidden relative">
+                    <img
+                      src="/tiffin.jpeg"
+                      alt="App preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-2 left-3">
+                      <p className="text-white text-[10px] font-bold">Today's Special</p>
+                      <p className="text-primary-500 text-[10px] font-bold">₹99/day</p>
+                    </div>
                   </div>
+
+                  {/* Cards */}
+                  {['/north.jpeg', '/south.jpeg'].map((img, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] rounded-xl p-2.5"
+                    >
+                      <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="w-20 h-2 bg-[#181A22] rounded-full" />
+                        <div className="w-14 h-2 bg-[#1B1E27] rounded-full mt-1.5" />
+                      </div>
+                      <div className="w-12 h-5 bg-primary-500/20 rounded-lg" />
+                    </div>
+                  ))}
                 </div>
-                {/* Floating Elements over mockup */}
-                <motion.div
-                  animate={{ y: [0, 10, 0], rotate: [-5, -5, -5] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 1 }}
-                  className="absolute top-1/3 -left-12 bg-white/10 backdrop-blur-xl border border-white/20 text-white p-4 rounded-2xl shadow-xl flex items-center gap-3"
-                >
-                  <HeartIcon className="w-6 h-6 text-red-400 fill-current" />
-                  <span className="font-bold">Loved it!</span>
-                </motion.div>
-                <motion.div
-                  animate={{ y: [0, -10, 0], rotate: [5, 5, 5] }}
-                  transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut', delay: 2 }}
-                  className="absolute bottom-1/4 -right-12 bg-primary-500/90 backdrop-blur-xl border border-primary-400/30 text-white p-4 rounded-2xl shadow-xl flex items-center gap-3"
-                >
-                  <TruckIcon className="w-6 h-6" />
-                  <span className="font-bold">On the way</span>
-                </motion.div>
+              </motion.div>
+
+              {/* Floating badges */}
+              <motion.div
+                animate={{ y: [0, 10, 0], rotate: [-3, -3, -3] }}
+                transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 1 }}
+                className="absolute top-16 -left-14 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] text-white p-3 rounded-2xl shadow-xl flex items-center gap-2.5"
+              >
+                <HeartIcon className="w-5 h-5 text-red-400 fill-current" />
+                <span className="font-bold text-sm">Loved it!</span>
+              </motion.div>
+
+              <motion.div
+                animate={{ y: [0, -10, 0], rotate: [3, 3, 3] }}
+                transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut', delay: 2 }}
+                className="absolute bottom-24 -right-14 bg-primary-500 text-white p-3 rounded-2xl shadow-xl flex items-center gap-2.5"
+              >
+                <TruckIcon className="w-5 h-5" />
+                <span className="font-bold text-sm">On the way</span>
               </motion.div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

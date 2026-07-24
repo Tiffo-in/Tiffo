@@ -7,18 +7,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // TIFFO Primary Brand Color (Maroon from logo)
+        // TIFFO Primary Brand Color (Orange)
         primary: {
-          50: '#fff1f2',
-          100: '#ffe4e6',
-          200: '#fecdd3',
-          300: '#fda4af',
-          400: '#fb7185',
-          500: '#8F223D', // TIFFO Brand Maroon
-          600: '#7f1d35',
-          700: '#6f1a2e',
-          800: '#5f1726',
-          900: '#4a1420',
+          50: '#fff3e8',
+          100: '#ffe0c2',
+          200: '#ffc085',
+          300: '#ffa047',
+          400: '#ff8a24',
+          500: '#FF7A18', // TIFFO Brand Orange
+          600: '#e06514',
+          700: '#b84e10',
+          800: '#8a3b0d',
+          900: '#5c2708',
         },
         // Warm Secondary (Orange from logo)
         secondary: {
@@ -33,18 +33,19 @@ module.exports = {
           800: '#9a3412',
           900: '#7c2d12',
         },
-        // Maroon (Legacy support)
+        // Maroon (legacy alias — now points at the brand orange after the
+        // rebrand, so any remaining `maroon-*` classes render on-brand).
         maroon: {
-          50: '#fff1f2',
-          100: '#ffe4e6',
-          200: '#fecdd3',
-          300: '#fda4af',
-          400: '#fb7185',
-          500: '#8F223D',
-          600: '#7f1d35',
-          700: '#6f1a2e',
-          800: '#5f1726',
-          900: '#4a1420',
+          50: '#fff3e8',
+          100: '#ffe0c2',
+          200: '#ffc085',
+          300: '#ffa047',
+          400: '#ff8a24',
+          500: '#FF7A18',
+          600: '#e06514',
+          700: '#b84e10',
+          800: '#8a3b0d',
+          900: '#5c2708',
         },
         // Zomato Red (optional for reference)
         zomato: {
@@ -140,23 +141,33 @@ module.exports = {
         'card-hover': '0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06)',
         'premium': '0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
         'premium-lg': '0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1)',
-        'glow': '0 0 20px rgba(143, 34, 61, 0.25)',
-        'glow-lg': '0 0 40px rgba(143, 34, 61, 0.35)',
+        'glow': '0 0 20px rgba(255, 122, 24, 0.25)',
+        'glow-lg': '0 0 40px rgba(255, 122, 24, 0.35)',
         'inner-premium': 'inset 0 2px 4px rgba(0, 0, 0, 0.06)',
         'modal': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         'dropdown': '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #8F223D 0%, #7f1d35 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #FF7A18 0%, #e06514 100%)',
         'gradient-secondary': 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-        'gradient-premium': 'linear-gradient(135deg, #8F223D 0%, #7f1d35 50%, #6f1a2e 100%)',
+        'gradient-premium': 'linear-gradient(135deg, #FF7A18 0%, #e06514 50%, #b84e10 100%)',
         'gradient-warm': 'linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%)',
-        'gradient-hero': 'linear-gradient(135deg, #8F223D 0%, #f97316 100%)',
+        'gradient-hero': 'linear-gradient(135deg, #FF7A18 0%, #ff8a24 100%)',
         'gradient-radial': 'radial-gradient(circle at center, var(--tw-gradient-stops))',
       },
       backdropBlur: {
         xs: '2px',
-      }
+      },
+      animation: {
+        'spin-slow': 'spin 20s linear infinite',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
     },
   },
   plugins: [],

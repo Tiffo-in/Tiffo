@@ -1,42 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { SparklesIcon } from '@heroicons/react/24/solid';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { MagnifyingGlassIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
-const heroItems = [
-  {
-    id: 1,
-    title: 'North Indian Thali',
-    price: 'Starting ₹99/day',
-    image: '/north.jpeg',
-    alt: 'Delicious North Indian Tiffin',
-    offset: false,
-  },
-  {
-    id: 2,
-    title: 'Daily Tiffin Service',
-    price: 'Starting ₹79/day',
-    image: '/tiffin.jpeg',
-    alt: 'Fresh Homemade Tiffins',
-    offset: true,
-  },
-  {
-    id: 3,
-    title: 'South Indian Special',
-    price: 'Starting ₹89/day',
-    image: '/south.jpeg',
-    alt: 'Healthy South Indian Meal',
-    offset: false,
-  },
+const categories = [
+  { label: 'Breakfast', image: '/south.jpeg' },
+  { label: 'Lunch', image: '/north.jpeg' },
+  { label: 'Dinner', image: '/tiffin.jpeg' },
+  { label: 'Healthy', image: '/south.jpeg' },
+  { label: 'Jain', image: '/north.jpeg' },
+  { label: 'North Indian', image: '/tiffin.jpeg' },
+  { label: 'South Indian', image: '/south.jpeg' },
+  { label: 'Punjabi', image: '/north.jpeg' },
+  { label: 'Gujarati', image: '/tiffin.jpeg' },
 ];
 
-const partnerCtaClasses =
-  'flex items-center justify-center gap-3 w-full px-8 py-4 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md text-neutral-900 dark:text-white border-2 border-neutral-200 dark:border-neutral-800 hover:border-primary-500 dark:hover:border-primary-500 rounded-2xl font-bold transition-all duration-300 text-lg';
-
 const HomeHero = ({ user }) => {
-  const shouldReduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const yHero = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const [location, setLocation] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate('/tiffins');
+  };
 
   const partnerCta = !user
     ? { to: '/register?role=partner', label: 'Become a Partner' }
@@ -45,118 +31,192 @@ const HomeHero = ({ user }) => {
       : { to: '/partner/dashboard', label: 'Partner Dashboard' };
 
   return (
-    <section className="relative min-h-[95vh] flex flex-col justify-center pt-32 pb-20 overflow-hidden">
-      {/* Abstract Background Elements - Premium Soft Blur */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-50/80 via-neutral-50/80 to-secondary-50/80 dark:from-neutral-950 dark:via-neutral-900/90 dark:to-neutral-950 -z-20 backdrop-blur-3xl" />
+    <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-0 overflow-hidden bg-[#0F1016]">
+      {/* Background grain texture */}
       <div
-        className="absolute inset-0 opacity-[0.03] dark:opacity-10 pointer-events-none -z-10"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
-          backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
-          backgroundSize: '40px 40px',
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
         }}
       />
 
-      <motion.div
-        style={{ y: yHero }}
-        className="absolute right-10 top-20 w-[500px] h-[500px] opacity-30 dark:opacity-20 blur-[120px] pointer-events-none -z-10"
-      >
-        <div className="w-full h-full bg-gradient-to-br from-primary-400 to-secondary-400 rounded-full" />
-      </motion.div>
+      {/* Ambient glow blobs */}
+      <div className="absolute top-20 right-[10%] w-[600px] h-[600px] bg-primary-500/8 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-[#FF9F43]/5 rounded-full blur-[120px] pointer-events-none" />
 
-      <motion.div
-        style={{ y: yHero, scale: -1 }}
-        className="absolute left-10 bottom-20 w-[400px] h-[400px] opacity-20 dark:opacity-10 blur-[100px] pointer-events-none -z-10"
-      >
-        <div className="w-full h-full bg-gradient-to-tr from-blue-400 to-primary-300 rounded-full" />
-      </motion.div>
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-6 items-center">
+          {/* LEFT: Copy */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="lg:col-span-5 flex flex-col gap-6"
+          >
+            {/* Heading */}
+            <div>
+              <h1 className="text-5xl md:text-6xl lg:text-[4.2rem] font-black text-white leading-[1.08] tracking-tight">
+                Homemade Tiffins
+                <br />
+                <span className="text-primary-500">Delivered Fresh.</span>
+              </h1>
+              <p className="mt-5 text-base text-[#B5B8C5] leading-relaxed max-w-xl">
+                Discover authentic homemade meals from verified local kitchens. Healthy, hygienic
+                and delivered right to your door.
+              </p>
+            </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 flex flex-col items-center">
-        {/* Top Content — mount animation (not scroll-gated) */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="max-w-4xl text-center flex flex-col items-center relative z-20"
-        >
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-neutral-900 dark:text-white leading-[1.05] tracking-tight mb-8">
-            Homemade Tiffins <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500">
-              Delivered Fresh.
-            </span>
-          </h1>
+            {/* Available in cities badge */}
+            <div className="inline-flex items-center gap-2 self-start">
+              <MapPinIcon className="w-4 h-4 text-primary-500" />
+              <span className="text-[#B5B8C5] text-sm">
+                Available in <span className="text-primary-500 font-semibold">Bhopal, Indore</span>{' '}
+                & 12+ cities
+              </span>
+            </div>
 
-          <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-400 mb-12 leading-relaxed max-w-2xl font-medium">
-            Discover authentic homemade meals from local tiffin providers. Fresh, healthy, and
-            delivered to your door.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center w-full max-w-lg">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto"
+            {/* Search Bar */}
+            <form
+              onSubmit={handleSearch}
+              className="flex items-center gap-2 bg-[#181A22] border border-[rgba(255,255,255,0.08)] rounded-2xl p-2 max-w-lg shadow-2xl"
             >
-              <Link
-                to="/tiffins"
-                className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 rounded-2xl font-black shadow-2xl shadow-neutral-900/20 dark:shadow-white/10 transition-all duration-300 text-lg"
-              >
-                <span>🍱</span>
-                <span>Browse Tiffins</span>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto"
-            >
-              <Link to={partnerCta.to} className={partnerCtaClasses}>
-                <span>👨‍🍳</span>
-                <span>{partnerCta.label}</span>
-              </Link>
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Bottom Content - Centered Structured Image Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="mt-24 hidden lg:block w-full max-w-5xl relative z-10"
-        >
-          <div className="grid grid-cols-3 gap-8 mx-auto">
-            {heroItems.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 + index * 0.1 }}
-                whileHover={shouldReduceMotion ? {} : { y: -16, scale: 1.03 }}
-                className={`relative rounded-[2rem] overflow-hidden shadow-2xl hover:shadow-primary-500/20 transition-all duration-500 group border-4 border-white dark:border-neutral-800 ${item.offset ? '-mt-12 mb-12' : 'mt-0'}`}
-              >
-                <img
-                  src={item.image}
-                  alt={item.alt}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
+              <div className="flex-1 flex items-center gap-3 px-3">
+                <MapPinIcon className="w-5 h-5 text-[#B5B8C5] shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Enter your delivery location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="flex-1 bg-transparent text-white placeholder:text-[#B5B8C5]/50 outline-none text-sm font-medium py-2"
                 />
-                <div
-                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500"
-                  aria-hidden="true"
-                />
+              </div>
+              <button
+                type="submit"
+                className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-primary-500/30 shrink-0 flex items-center gap-2"
+              >
+                <MagnifyingGlassIcon className="w-4 h-4" />
+                Search
+              </button>
+            </form>
 
-                <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30 text-white text-xs font-bold flex items-center gap-1 shadow-lg transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                  <SparklesIcon className="w-3 h-3 text-primary-400" /> Premium
-                </div>
-
-                <div className="absolute bottom-6 left-6 right-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                  <p className="font-black text-2xl leading-tight mb-1">{item.title}</p>
-                  <p className="text-md text-primary-300 font-bold tracking-wide">{item.price}</p>
-                </div>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 max-w-lg">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  to="/tiffins"
+                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-500 hover:bg-[#FF9F43] text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-primary-500/25"
+                >
+                  Browse Tiffins
+                </Link>
               </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  to={partnerCta.to}
+                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent hover:bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] text-white rounded-xl font-bold text-sm transition-all duration-200"
+                >
+                  {partnerCta.label}
+                </Link>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* RIGHT: Hero image extra large */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            className="lg:col-span-7 flex items-center justify-center lg:justify-end relative w-full lg:translate-x-12"
+          >
+            <div className="relative w-full flex items-center justify-center lg:justify-end">
+              <img
+                src="/home.png"
+                alt="Homemade Tiffins Delivered Fresh"
+                className="w-full h-auto object-contain scale-135 lg:scale-175 origin-center lg:origin-right transition-transform duration-300 drop-shadow-2xl"
+              />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Categories */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.7 }}
+          className="mt-16 pb-12"
+        >
+          <div className="flex items-center gap-5 overflow-x-auto pb-2 scrollbar-hide justify-between">
+            {categories.map((cat) => (
+              <Link
+                key={cat.label}
+                to={`/tiffins?category=${encodeURIComponent(cat.label)}`}
+                className="flex flex-col items-center gap-2.5 shrink-0 group"
+              >
+                <div className="w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/60 transition-all duration-300 shadow-lg group-hover:shadow-primary-500/20">
+                  <img
+                    src={cat.image}
+                    alt={cat.label}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <span className="text-xs text-[#B5B8C5] group-hover:text-primary-500 font-medium transition-colors">
+                  {cat.label}
+                </span>
+              </Link>
             ))}
+
+            {/* More button */}
+            <Link to="/tiffins" className="flex flex-col items-center gap-2.5 shrink-0 group">
+              <div className="w-[72px] h-[72px] rounded-full border-2 border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/60 bg-[#1B1E27] flex items-center justify-center transition-all duration-300">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-[#B5B8C5] group-hover:text-primary-500 transition-colors"
+                >
+                  <rect
+                    x="3"
+                    y="3"
+                    width="8"
+                    height="8"
+                    rx="2"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <rect
+                    x="13"
+                    y="3"
+                    width="8"
+                    height="8"
+                    rx="2"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <rect
+                    x="3"
+                    y="13"
+                    width="8"
+                    height="8"
+                    rx="2"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <rect
+                    x="13"
+                    y="13"
+                    width="8"
+                    height="8"
+                    rx="2"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                </svg>
+              </div>
+              <span className="text-xs text-[#B5B8C5] group-hover:text-primary-500 font-medium transition-colors">
+                More
+              </span>
+            </Link>
           </div>
         </motion.div>
       </div>

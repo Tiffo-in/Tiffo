@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
+import {
+  ArrowLeftIcon,
+  ShieldCheckIcon,
+  CalendarDaysIcon,
+  MapPinIcon,
+  ClockIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import {
@@ -18,24 +26,18 @@ const Checkout = () => {
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [step, setStep] = useState('summary'); // 'summary' | 'verifying'
-  const [payMethod, setPayMethod] = useState('cod'); // 'online' | 'cod'
+  const [step, setStep] = useState('summary');
+  const [payMethod, setPayMethod] = useState('cod');
 
   useEffect(() => {
     fetchSubscriptionDetails();
-    // Preload Razorpay script in background so clicking Pay is instant
     loadRazorpayScript();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscriptionId]);
 
   const fetchSubscriptionDetails = async () => {
     try {
-      // Backend returns { data: { subscription, deliveries, deliveryStats } }
-      // The getSubscriptionDetails route nests the subscription inside .subscription
       const response = await api.get(`/subscriptions/${subscriptionId}`);
       const payload = response.data?.data;
-      // If the backend returns the nested { subscription, deliveries } shape,
-      // extract just the subscription object; otherwise use the payload as-is
       const sub = payload?.subscription ?? payload ?? response.data;
       setSubscription(sub);
     } catch (error) {
@@ -69,7 +71,6 @@ const Checkout = () => {
     }
 
     try {
-      // Script is preloaded, this will resolve instantly in most cases
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         toast.error('Failed to load payment gateway. Please check your internet connection.');
@@ -77,44 +78,41 @@ const Checkout = () => {
         return;
       }
 
-      // Create the Razorpay order on backend
-      let orderData;
-      try {
-        orderData = await createOrder(subscriptionId);
-      } catch (err) {
-        const msg = err.response?.data?.message || 'Failed to create payment order';
-        toast.error(msg);
+      const orderData = await createOrder(subscriptionId);
+      if (!orderData?.orderId) {
+        toast.error('Failed to initiate payment session');
         setProcessing(false);
         return;
       }
 
       const options = {
-        key: orderData.razorpayKey,
-        amount: orderData.amount, // in paise (includes GST from backend)
-        currency: orderData.currency,
-        name: 'TIFFO',
-        description: `Tiffin Subscription – ${subscription?.plan}`,
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID || orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
+        name: 'Tiffo Services',
+        description: `Tiffin Subscription Payment`,
+        image: '/logo.png',
         order_id: orderData.orderId,
-        handler: async function (response) {
+        handler: async (response) => {
           setStep('verifying');
           try {
-            const verifyData = await verifyPayment({
+            const verification = await verifyPayment({
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
               subscriptionId,
             });
-            if (verifyData.success) {
+
+            if (verification.success) {
+              toast.success('Payment verified successfully!');
               navigate(`/payment/success?subscription=${subscriptionId}`);
             } else {
-              toast.error('Payment verification failed. Please contact support.');
+              toast.error('Payment verification failed.');
               navigate(`/payment/failed?subscription=${subscriptionId}`);
             }
-          } catch (error) {
-            console.error('Payment verification failed:', error);
-            toast.error(
-              'Payment could not be verified. If money was deducted, it will be refunded automatically.'
-            );
+          } catch (err) {
+            console.error('Verification error:', err);
+            toast.error('Error verifying payment.');
             navigate(`/payment/failed?subscription=${subscriptionId}`);
           }
         },
@@ -123,38 +121,33 @@ const Checkout = () => {
           email: user?.email || '',
           contact: user?.phone || '',
         },
-        theme: { color: '#7F1D1D' },
-        modal: {
-          ondismiss: () => {
-            setProcessing(false);
-            setStep('summary');
-          },
+        theme: {
+          color: '#f97316',
         },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response) {
-        console.error('Payment failed:', response.error);
-        toast.error(`Payment failed: ${response.error.description || response.error.code}`);
-        navigate(`/payment/failed?subscription=${subscriptionId}&error=${response.error.code}`);
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.on('payment.failed', function (response) {
+        console.error('Payment Failed:', response.error);
+        toast.error(`Payment failed: ${response.error.description}`);
+        navigate(`/payment/failed?subscription=${subscriptionId}`);
       });
 
-      rzp.open();
+      paymentObject.open();
+      setProcessing(false);
     } catch (error) {
       console.error('Payment error:', error);
-      toast.error('Something went wrong. Please try again.');
+      toast.error(error.message || 'Payment initiation failed');
       setProcessing(false);
-      setStep('summary');
     }
   };
 
-  /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-maroon-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading checkout...</p>
+      <div className="min-h-screen bg-[#0b0c10] flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
+          <p className="text-xs text-zinc-400 font-medium">Loading checkout details...</p>
         </div>
       </div>
     );
@@ -162,251 +155,217 @@ const Checkout = () => {
 
   if (!subscription) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Subscription not found</h2>
-          <button onClick={() => navigate('/dashboard')} className="btn-primary">
-            Go to Dashboard
-          </button>
+      <div className="min-h-screen bg-[#0b0c10] flex items-center justify-center p-4">
+        <div className="bg-[#14151e] border border-zinc-800 rounded-2xl p-8 max-w-md w-full text-center space-y-4">
+          <span className="text-4xl">⚠️</span>
+          <h2 className="text-xl font-bold text-white">Subscription Not Found</h2>
+          <p className="text-xs text-zinc-400">
+            The subscription you are trying to checkout does not exist or has expired.
+          </p>
+          <Link
+            to="/tiffins"
+            className="inline-block px-5 py-2.5 rounded-xl bg-orange-500 text-white font-semibold text-xs shadow-lg shadow-orange-500/20"
+          >
+            Browse Tiffins
+          </Link>
         </div>
       </div>
     );
   }
 
-  /* ── Amounts — always use backend values ── */
-  const subtotal = subscription.totalAmount || 0;
-  const gstAmount = subscription.gstAmount ?? Math.round(subtotal * 0.05); // fallback for old records
-  const grandTotal = subscription.grandTotal ?? subtotal + gstAmount;
+  const grandTotal = subscription.totalAmount || 0;
+  const subtotal = Math.round(grandTotal / 1.05);
+  const gstAmount = grandTotal - subtotal;
   const hasSavings = subscription.originalAmount > 0 && subscription.originalAmount > subtotal;
 
-  /* ── Verifying overlay ── */
   if (step === 'verifying') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500 mx-auto mb-4" />
-          <p className="text-lg font-semibold text-gray-800">Verifying your payment…</p>
-          <p className="text-sm text-gray-500 mt-1">Please don't close this tab</p>
+      <div className="min-h-screen bg-[#0b0c10] flex items-center justify-center p-4">
+        <div className="bg-[#14151e] border border-zinc-800 rounded-2xl p-8 max-w-md w-full text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mx-auto" />
+          <h3 className="text-lg font-bold text-white">Verifying your payment...</h3>
+          <p className="text-xs text-zinc-400">
+            Please stay on this tab while we confirm your payment receipt.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-[110px] pb-8">
-      <div className="max-w-3xl mx-auto px-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
-            <p className="text-gray-600">Complete your tiffin subscription payment</p>
-          </div>
-
-          {/* Order Summary Card */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
-            <div className="space-y-4">
-              {/* Tiffin Details */}
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-maroon-100 to-orange-100 dark:from-neutral-800 dark:to-neutral-700 rounded-lg flex items-center justify-center text-2xl">
-                  🍱
-                </div>
-                <div className="ml-4 flex-1">
-                  <h3 className="font-semibold text-gray-900">
-                    {subscription.tiffin?.title || 'Tiffin Service'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    by{' '}
-                    {subscription.partner?.businessName || subscription.partner?.name || 'Partner'}
-                  </p>
-                  <p className="text-sm text-maroon-600 font-medium mt-1 capitalize">
-                    {subscription.plan} Plan
-                  </p>
-                </div>
-              </div>
-
-              {/* Delivery Info */}
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">📅 Start Date</span>
-                  <span className="font-medium">
-                    {new Date(subscription.startDate).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">📍 Delivery Time</span>
-                  <span className="font-medium">{subscription.deliveryTime}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">🏠 Address</span>
-                  <span className="font-medium text-right max-w-xs">
-                    {subscription.deliveryAddress?.street}, {subscription.deliveryAddress?.city}
-                  </span>
-                </div>
-              </div>
-
-              {/* Price Breakdown */}
-              <div className="border-t pt-4 space-y-2">
-                {/* Discount savings */}
-                {hasSavings && (
-                  <>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Original Price</span>
-                      <span className="text-gray-400 line-through">
-                        ₹{subscription.originalAmount.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-700 font-semibold flex items-center gap-1">
-                        🏷️{' '}
-                        {subscription.discountLabel || `${subscription.discountPercent}% Discount`}
-                      </span>
-                      <span className="text-green-600 font-bold">
-                        −₹{(subscription.originalAmount - subtotal).toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                    <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 flex items-center justify-between text-sm">
-                      <span className="text-green-800 font-semibold">You save</span>
-                      <span className="text-green-700 font-bold">
-                        ₹{(subscription.originalAmount - subtotal).toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  </>
-                )}
-
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Subtotal</span>
-                  <span className="font-medium">₹{subtotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>GST ({subscription.gstRate ?? 5}%)</span>
-                  <span>₹{gstAmount.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                  <span>Total Amount</span>
-                  <span className="text-maroon-600">₹{grandTotal.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Method Selector */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Method</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Pay Online Card (Disabled - Coming Soon) */}
-              <button
-                type="button"
-                disabled
-                className="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-gray-200 bg-gray-50/50 opacity-60 text-center relative cursor-not-allowed select-none w-full"
-              >
-                <span className="absolute top-3 right-3 bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-amber-200">
-                  Coming Soon
-                </span>
-                <span className="text-4xl mb-2 grayscale">💳</span>
-                <span className="font-bold text-gray-400">Pay Online</span>
-                <span className="text-xs text-gray-400 mt-1">UPI, Cards, Net Banking</span>
-              </button>
-
-              {/* Cash on Delivery Card */}
-              <button
-                type="button"
-                onClick={() => setPayMethod('cod')}
-                className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition-all text-center relative ${
-                  payMethod === 'cod'
-                    ? 'border-maroon-600 bg-maroon-50/50 ring-2 ring-maroon-100'
-                    : 'border-gray-150 hover:border-maroon-300 bg-white'
-                }`}
-              >
-                <span className="text-4xl mb-2">💵</span>
-                <span className="font-bold text-gray-900">Cash on Delivery</span>
-                <span className="text-xs text-gray-500 mt-1">Pay cash on first delivery</span>
-                {payMethod === 'cod' && (
-                  <span className="absolute top-3 right-3 bg-maroon-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Security or COD notice */}
-          {payMethod === 'online' ? (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-800">
-                🔒 <strong>Secure Payment:</strong> Your payment is processed securely through
-                Razorpay. We never store your card details.
-              </p>
-            </div>
-          ) : (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-amber-800">
-                💵 <strong>Cash on Delivery:</strong> No advance payment required. Please pay the
-                partner cash/UPI when your first meal is delivered!
-              </p>
-            </div>
-          )}
-
-          {/* Action button */}
-          <motion.button
-            onClick={handlePayment}
-            disabled={processing}
-            className="w-full btn-primary py-4 text-lg disabled:opacity-60 disabled:cursor-not-allowed font-semibold"
-            whileHover={{ scale: processing ? 1 : 1.01 }}
-            whileTap={{ scale: processing ? 1 : 0.99 }}
+    <div className="min-h-screen bg-[#0b0c10] text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
+      {/* Top Navigation */}
+      <header className="border-b border-zinc-800/80 bg-[#111218]/90 backdrop-blur-md sticky top-0 z-30">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <Link
+            to="/dashboard"
+            className="p-2 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all flex items-center space-x-1.5 text-xs font-semibold"
           >
-            {processing ? (
-              <>
-                <svg className="animate-spin h-5 w-5 mr-2 inline" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                {payMethod === 'online' ? 'Opening Payment…' : 'Placing Order…'}
-              </>
-            ) : payMethod === 'online' ? (
-              `Pay ₹${grandTotal.toLocaleString('en-IN')}`
-            ) : (
-              `Place Order (COD) – ₹${grandTotal.toLocaleString('en-IN')}`
-            )}
-          </motion.button>
+            <ArrowLeftIcon className="w-4 h-4" />
+            <span>Cancel Checkout</span>
+          </Link>
 
-          {/* Cancel */}
-          <div className="text-center mt-4">
+          <Link to="/" className="flex items-center space-x-2">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center font-black text-white text-sm">
+              T
+            </span>
+            <span className="text-lg font-bold text-white tracking-tight">
+              Tiffo<span className="text-orange-500">.</span>
+            </span>
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Checkout</h1>
+          <p className="text-xs text-zinc-400">Complete your tiffin plan subscription payment</p>
+        </div>
+
+        {/* Order Summary Card */}
+        <div className="bg-[#14151e] border border-zinc-800/80 rounded-2xl p-6 shadow-xl space-y-5">
+          <h2 className="text-base font-bold text-white border-b border-zinc-800/80 pb-3">
+            Order Summary
+          </h2>
+
+          {/* Meal Info */}
+          <div className="flex items-start space-x-4">
+            <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-3xl shrink-0">
+              🍱
+            </div>
+            <div className="flex-1 space-y-1">
+              <h3 className="text-base font-bold text-white">
+                {subscription.tiffin?.title || 'Tiffin Meal Plan'}
+              </h3>
+              <p className="text-xs text-zinc-400">
+                by{' '}
+                {subscription.partner?.businessName ||
+                  subscription.partner?.name ||
+                  'Verified Kitchen'}
+              </p>
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                {subscription.plan} Plan
+              </span>
+            </div>
+          </div>
+
+          {/* Delivery Info */}
+          <div className="space-y-2.5 pt-3 border-t border-zinc-800/80 text-xs">
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 flex items-center space-x-1.5">
+                <CalendarDaysIcon className="w-4 h-4 text-orange-400" />
+                <span>Start Date</span>
+              </span>
+              <span className="font-semibold text-white">
+                {new Date(subscription.startDate).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 flex items-center space-x-1.5">
+                <ClockIcon className="w-4 h-4 text-orange-400" />
+                <span>Delivery Window</span>
+              </span>
+              <span className="font-semibold text-white">{subscription.deliveryTime}</span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 flex items-center space-x-1.5">
+                <MapPinIcon className="w-4 h-4 text-orange-400" />
+                <span>Delivery Location</span>
+              </span>
+              <span className="font-semibold text-white text-right max-w-xs truncate">
+                {subscription.deliveryAddress?.street}, {subscription.deliveryAddress?.city}
+              </span>
+            </div>
+          </div>
+
+          {/* Pricing Breakdown */}
+          <div className="space-y-2 pt-3 border-t border-zinc-800/80 text-xs">
+            <div className="flex justify-between text-zinc-400">
+              <span>Subtotal</span>
+              <span className="font-semibold text-white">₹{subtotal.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between text-zinc-400">
+              <span>GST ({subscription.gstRate ?? 5}%)</span>
+              <span className="font-semibold text-white">₹{gstAmount.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-zinc-800/80 text-base font-bold">
+              <span className="text-white">Total Amount</span>
+              <span className="text-orange-400">₹{grandTotal.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Method Selector */}
+        <div className="bg-[#14151e] border border-zinc-800/80 rounded-2xl p-6 shadow-xl space-y-4">
+          <h2 className="text-base font-bold text-white">Payment Method</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Pay Online */}
             <button
-              onClick={() => navigate(-1)}
-              className="text-gray-500 hover:text-gray-800 text-sm transition-colors"
+              type="button"
+              disabled
+              className="p-5 rounded-2xl border border-zinc-800 bg-zinc-950/60 opacity-50 text-center relative cursor-not-allowed select-none w-full space-y-1"
             >
-              ← Cancel and go back
+              <span className="absolute top-3 right-3 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                Coming Soon
+              </span>
+              <span className="text-3xl block">💳</span>
+              <span className="font-bold text-zinc-400 text-sm">Pay Online</span>
+              <span className="text-[11px] text-zinc-500 block">UPI, Cards, Net Banking</span>
+            </button>
+
+            {/* Cash on Delivery */}
+            <button
+              type="button"
+              onClick={() => setPayMethod('cod')}
+              className={`p-5 rounded-2xl border text-center relative transition-all space-y-1 ${
+                payMethod === 'cod'
+                  ? 'border-orange-500 bg-orange-500/10 ring-1 ring-orange-500'
+                  : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700'
+              }`}
+            >
+              <span className="text-3xl block">💵</span>
+              <span className="font-bold text-white text-sm">Cash on Delivery</span>
+              <span className="text-[11px] text-zinc-400 block">Pay cash on first delivery</span>
+              {payMethod === 'cod' && (
+                <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold shadow-md">
+                  ✓
+                </span>
+              )}
             </button>
           </div>
+        </div>
 
-          {/* Accepted methods */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 mb-3">Accepted Payment Methods</p>
-            <div className="flex justify-center space-x-4 text-2xl">
-              <span title="Credit/Debit Cards">💳</span>
-              <span title="UPI">📱</span>
-              <span title="Net Banking">🏦</span>
-              <span title="Wallets">👛</span>
-            </div>
-          </div>
-        </motion.div>
+        {/* Notice Card */}
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-center space-x-3">
+          <span className="text-xl">💵</span>
+          <p className="text-xs text-amber-300 leading-relaxed">
+            <strong>Cash on Delivery Notice:</strong> No upfront payment needed. Pay cash or UPI
+            directly to your delivery partner on your first scheduled meal delivery!
+          </p>
+        </div>
+
+        {/* Submit Action */}
+        <button
+          onClick={handlePayment}
+          disabled={processing}
+          className="w-full py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-base shadow-lg shadow-orange-500/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-95"
+        >
+          {processing ? (
+            <span className="flex items-center space-x-2">
+              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>Placing Order...</span>
+            </span>
+          ) : (
+            <span>Confirm Order ({payMethod === 'cod' ? 'Cash on Delivery' : 'Pay Online'})</span>
+          )}
+        </button>
       </div>
     </div>
   );

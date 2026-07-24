@@ -1,185 +1,251 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { StarIcon, MapPinIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { StarIcon, HeartIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
 
-const TiffinCard = React.memo(({ tiffin, showDistance = false }) => {
+const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid' }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Compute discount info
   const discount = tiffin.discount;
   const discountActive =
     discount?.isActive && (!discount.expiresAt || new Date() < new Date(discount.expiresAt));
-  const maxDiscount = discountActive ? Math.max(discount.weekly || 0, discount.monthly || 0) : 0;
+  const maxDiscount = discountActive
+    ? Math.max(discount.weekly || 0, discount.monthly || 0)
+    : tiffin.discountPercentage || 0;
 
-  // Use effectivePrice if present (set by backend virtual), else fallback
-  const dailyPrice = tiffin.price?.daily || 0;
+  // Daily price computation
+  const dailyPrice =
+    typeof tiffin.price === 'object' ? tiffin.price?.daily || 0 : tiffin.price || 120;
 
-  // Determine if vegetarian or vegan
+  // Determine if vegetarian
   const isVeg =
-    tiffin.isVeg || tiffin.dietary?.some((d) => ['vegetarian', 'vegan'].includes(d.toLowerCase()));
+    tiffin.isVeg !== undefined
+      ? tiffin.isVeg
+      : (tiffin.dietary?.some((d) => ['vegetarian', 'vegan'].includes(d.toLowerCase())) ?? true);
+
+  const kitchenName =
+    tiffin.partner?.businessName ||
+    tiffin.partner?.name ||
+    tiffin.kitchenName ||
+    'Verified Kitchen';
+  const prepTime = tiffin.prepTime || tiffin.deliveryTime || '25 min';
+  const ratingVal = tiffin.rating?.average || tiffin.rating || 4.8;
+  const imageSrc = tiffin.images?.[0] || tiffin.image || '/tiffin.jpeg';
+
+  if (viewMode === 'list') {
+    return (
+      <Link to={`/tiffins/${tiffin.slug || tiffin._id}`}>
+        <motion.div
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.3 }}
+          className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-primary-500/40 transition-all duration-300 cursor-pointer group flex flex-col md:flex-row shadow-xl"
+        >
+          {/* Image Left */}
+          <div className="relative md:w-64 h-48 md:h-auto overflow-hidden shrink-0 bg-[#0F1016]">
+            <img
+              src={imageSrc}
+              alt={tiffin.title || tiffin.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            {/* Top Badges */}
+            <div className="absolute top-3 left-3 flex gap-2">
+              {maxDiscount > 0 ? (
+                <span className="bg-[#FF5216] text-white text-[11px] font-black px-2.5 py-1 rounded-md shadow-md uppercase">
+                  {maxDiscount}% OFF
+                </span>
+              ) : (
+                <span
+                  className={`text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-md ${
+                    isVeg ? 'bg-emerald-600' : 'bg-rose-600'
+                  }`}
+                >
+                  {isVeg ? 'Veg' : 'Non-Veg'}
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setIsFavorite(!isFavorite);
+              }}
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/70 transition-colors"
+            >
+              {isFavorite ? (
+                <HeartIcon className="w-4 h-4 text-rose-500" />
+              ) : (
+                <HeartOutline className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
+          {/* Content Right */}
+          <div className="p-5 flex flex-col justify-between flex-1">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-white text-xl font-bold group-hover:text-primary-500 transition-colors">
+                  {tiffin.title || tiffin.name}
+                </h3>
+                <div className="flex items-center gap-1 bg-[#232736] px-2.5 py-1 rounded-lg">
+                  <StarIcon className="w-4 h-4 text-amber-400" />
+                  <span className="text-white text-xs font-bold">
+                    {Number(ratingVal).toFixed(1)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs text-[#B5B8C5] mb-3">
+                <span className="font-medium">{kitchenName}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+              </div>
+
+              <p className="text-[#B5B8C5]/70 text-sm line-clamp-2 mb-4">
+                {tiffin.description ||
+                  'Authentic home-cooked meals made with fresh ingredients and traditional recipes.'}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-[rgba(255,255,255,0.06)]">
+              <div className="flex items-center gap-4 text-xs text-[#B5B8C5]">
+                <span className="flex items-center gap-1">
+                  <ClockIcon className="w-3.5 h-3.5 text-primary-500" />
+                  {prepTime}
+                </span>
+                <span className="text-emerald-400 font-medium">🚚 Free Delivery</span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div>
+                  <span className="text-[#B5B8C5]/60 text-xs mr-1">From</span>
+                  <span className="text-white text-2xl font-black">₹{dailyPrice}</span>
+                  <span className="text-[#B5B8C5]/60 text-xs">/day</span>
+                </div>
+                <span className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-primary-500/20 transition-colors">
+                  View Plans
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </Link>
+    );
+  }
 
   return (
     <Link to={`/tiffins/${tiffin.slug || tiffin._id}`}>
       <motion.div
-        whileHover={{ y: -8 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="bg-white dark:bg-neutral-800 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-neutral-100 dark:border-neutral-700"
+        whileHover={{ y: -6 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-primary-500/50 transition-all duration-300 cursor-pointer group shadow-xl flex flex-col h-full"
       >
         {/* Image Container */}
-        <div className="relative overflow-hidden h-56 bg-neutral-900">
-          {/* Shimmer Loading Effect */}
-          {!imageLoaded && tiffin.images?.[0] && <div className="absolute inset-0 skeleton" />}
+        <div className="relative h-52 bg-[#0F1016] overflow-hidden">
+          <img
+            src={imageSrc}
+            alt={tiffin.title || tiffin.name}
+            onLoad={() => setImageLoaded(true)}
+            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+          />
 
-          {tiffin.images?.[0] ? (
-            <motion.img
-              whileHover={{ scale: 1.08 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-              src={tiffin.images[0]}
-              alt={tiffin.title}
-              onLoad={() => setImageLoaded(true)}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 flex flex-col items-center justify-center relative">
-              {/* Minimal kitchen grid pattern */}
-              <div
-                className="absolute inset-0 opacity-[0.08] pointer-events-none text-white"
-                style={{
-                  backgroundImage:
-                    'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
-                  backgroundSize: '24px 24px',
-                }}
-              />
-              <span className="text-4xl mb-2 select-none filter drop-shadow">🍱</span>
-              {/* Partner Logo Circle inside Card */}
-              <div className="w-9 h-9 rounded-full border border-white/20 bg-white/10 dark:bg-neutral-800/80 backdrop-blur-md overflow-hidden flex items-center justify-center shadow-md">
-                {tiffin.partner?.logo ? (
-                  <img
-                    src={tiffin.partner.logo}
-                    alt={tiffin.partner.businessName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-xs font-black text-white select-none">
-                    {(tiffin.partner?.businessName?.[0] || 'T').toUpperCase()}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#181A24] via-transparent to-black/30" />
 
-          {/* Gradient overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-          {/* Badges Container */}
-          <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-            <div className="flex gap-2">
-              {/* Veg/Non-veg Indicator */}
-              <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-md flex items-center space-x-1.5">
-                <div
-                  className={`w-4 h-4 border-2 ${isVeg ? 'border-green-600' : 'border-red-600'} rounded-sm flex items-center justify-center`}
-                >
-                  <div
-                    className={`w-2 h-2 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}
-                  ></div>
-                </div>
-                <span
-                  className={`text-xs font-medium ${isVeg ? 'text-green-700' : 'text-red-700'}`}
-                >
-                  {isVeg ? 'Veg' : 'Non-Veg'}
-                </span>
-              </div>
-
-              {/* Verified Badge */}
-              {tiffin.partner?.verified && (
-                <div className="bg-blue-600 text-white px-2.5 py-1.5 rounded-lg shadow-md flex items-center space-x-1 font-semibold">
-                  <CheckBadgeIcon className="h-3.5 w-3.5 fill-current" />
-                  <span className="text-[10px] uppercase tracking-wider">Verified</span>
-                </div>
-              )}
-            </div>
-
-            {/* Right side: Distance OR Discount badge */}
-            <div className="flex flex-col items-end gap-1.5">
-              {/* Distance Badge */}
-              {showDistance && tiffin.distance !== undefined && (
-                <div className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-semibold text-neutral-700 shadow-md flex items-center">
-                  <MapPinIcon className="h-3.5 w-3.5 mr-1.5 text-primary-500" />
-                  {tiffin.distance.toFixed(1)} km
-                </div>
-              )}
-              {/* Discount badge */}
-              {maxDiscount > 0 && (
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2.5 py-1 rounded-lg shadow-md text-xs font-bold flex items-center gap-1"
-                >
-                  🏷️ {maxDiscount}% OFF
-                </motion.div>
-              )}
-            </div>
+          {/* Top Left Discount / Type Tag */}
+          <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+            {maxDiscount > 0 ? (
+              <span className="bg-[#FF5216] text-white text-[11px] font-black px-2.5 py-1 rounded-md shadow-md uppercase tracking-wider">
+                {maxDiscount}% OFF
+              </span>
+            ) : (
+              <span
+                className={`text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-md ${
+                  isVeg ? 'bg-emerald-600' : 'bg-rose-600'
+                }`}
+              >
+                {isVeg ? 'Veg' : 'Non-Veg'}
+              </span>
+            )}
           </div>
 
-          {/* Rating Badge */}
-          <motion.div
-            className="absolute bottom-3 right-3 bg-green-600 text-white px-2.5 py-1 rounded-lg shadow-lg flex items-center space-x-1"
-            initial={{ scale: 1 }}
-            whileHover={{ scale: 1.1 }}
+          {/* Top Right Heart Wishlist Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setIsFavorite(!isFavorite);
+            }}
+            className="absolute top-3 right-3 p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/70 transition-colors z-10"
           >
-            <StarIcon className="h-3.5 w-3.5" />
-            <span className="text-sm font-bold">{tiffin.rating?.average?.toFixed(1) || '4.0'}</span>
-          </motion.div>
+            {isFavorite ? (
+              <HeartIcon className="w-4 h-4 text-rose-500" />
+            ) : (
+              <HeartOutline className="w-4 h-4 text-white" />
+            )}
+          </button>
 
-          {/* Price Tag */}
-          <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-neutral-800/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-lg">
-            <span className="text-lg font-bold text-neutral-900">₹{dailyPrice}</span>
-            <span className="text-neutral-500 text-xs ml-1">/day</span>
+          {/* Bottom Left Badges Overlay: Veg/Non-Veg & Verified */}
+          <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
+            {/* Veg Badge with Dot */}
+            <div className="bg-[#12141D]/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1.5 shadow-md">
+              <span
+                className={`w-2 h-2 rounded-full ${isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`}
+              />
+              <span className="text-[11px] font-semibold text-white">
+                {isVeg ? 'Veg' : 'Non-Veg'}
+              </span>
+            </div>
+
+            {/* Verified Badge */}
+            <div className="bg-blue-600/90 backdrop-blur-md text-white px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 shadow-md">
+              <CheckBadgeIcon className="w-3.5 h-3.5" />
+              <span>Verified</span>
+            </div>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-5">
-          {/* Title */}
-          <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 group-hover:text-primary-500 transition-colors duration-300 line-clamp-1 mb-2">
-            {tiffin.title}
-          </h3>
+        {/* Card Content */}
+        <div className="p-4 flex flex-col justify-between flex-1">
+          <div>
+            {/* Title */}
+            <h3 className="text-white text-lg font-bold group-hover:text-primary-500 transition-colors line-clamp-1 mb-1">
+              {tiffin.title || tiffin.name}
+            </h3>
 
-          {/* Description */}
-          <p className="text-neutral-500 text-sm line-clamp-2 mb-4 leading-relaxed">
-            {tiffin.description}
-          </p>
+            {/* Kitchen Name */}
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-[#B5B8C5] text-xs font-medium line-clamp-1">{kitchenName}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0" />
+            </div>
 
-          {/* Info Tags */}
-          <div className="flex items-center flex-wrap gap-2 mb-4">
-            <span className="bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-3 py-1 rounded-full text-xs font-medium capitalize">
-              {tiffin.mealType}
-            </span>
-            <span className="bg-secondary-50 dark:bg-secondary-900/30 text-secondary-600 dark:text-secondary-400 px-3 py-1 rounded-full text-xs font-medium">
-              {tiffin.cuisine}
-            </span>
+            {/* Stats Row */}
+            <div className="flex items-center justify-between text-xs text-[#B5B8C5] mb-4 bg-[#12141D] p-2.5 rounded-xl border border-white/5">
+              <div className="flex items-center gap-1">
+                <StarIcon className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-white font-bold">{Number(ratingVal).toFixed(1)}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <ClockIcon className="w-3.5 h-3.5 text-primary-500" />
+                <span>{prepTime}</span>
+              </div>
+              <div className="text-emerald-400 font-medium flex items-center gap-1">
+                <span>🚚 Free Delivery</span>
+              </div>
+            </div>
           </div>
 
-          {/* CTA Row */}
-          <div className="flex items-center justify-between pt-4 border-t border-neutral-100 dark:border-neutral-700">
-            <div className="flex items-center text-neutral-500 text-xs">
-              <ClockIcon className="h-4 w-4 mr-1" />
-              <span>Fresh Daily</span>
+          {/* Price & CTA Row */}
+          <div className="flex items-center justify-between pt-3 border-t border-[rgba(255,255,255,0.06)]">
+            <div>
+              <span className="text-[#B5B8C5]/60 text-xs mr-1">From</span>
+              <span className="text-white text-xl font-black">₹{dailyPrice}</span>
+              <span className="text-[#B5B8C5]/60 text-xs">/day</span>
             </div>
-            <motion.span
-              className="text-primary-500 font-semibold text-sm flex items-center group/cta"
-              whileHover={{ x: 3 }}
-            >
-              View Details
-              <motion.span
-                className="inline-block ml-1"
-                animate={{ x: [0, 3, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-              >
-                →
-              </motion.span>
-            </motion.span>
+
+            <span className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-primary-500/25 transition-all">
+              View Plans
+            </span>
           </div>
         </div>
       </motion.div>

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import { StarIcon } from '@heroicons/react/24/outline';
 
 import { getTiffin } from '../store/slices/tiffinSlice';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import ReviewList from '../components/ReviewList';
-import ReviewForm from '../components/ReviewForm';
-import RatingsSummary from '../components/RatingsSummary';
 import TiffinHero from '../components/tiffin-detail/TiffinHero';
 import TiffinInfoSections from '../components/tiffin-detail/TiffinInfoSections';
 import TiffinPricingCard from '../components/tiffin-detail/TiffinPricingCard';
@@ -21,7 +20,7 @@ const TiffinDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { tiffin, isLoading } = useSelector((s) => s.tiffins);
+  const { tiffin: storeTiffin, isLoading } = useSelector((s) => s.tiffins);
   const { user } = useSelector((s) => s.auth);
 
   const [showModal, setShowModal] = useState(false);
@@ -29,28 +28,35 @@ const TiffinDetail = () => {
   const [creatingSubscription, setCreatingSubscription] = useState(false);
   const [cartItem, setCartItem] = useState(null);
   const [showCart, setShowCart] = useState(false);
-  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+  const [recommended, setRecommended] = useState([]);
 
   useEffect(() => {
     if (id) dispatch(getTiffin(id));
   }, [dispatch, id]);
 
-  if (isLoading || !tiffin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner size="large" message="Loading tiffin details…" />
-      </div>
-    );
-  }
+  const activeTiffin = storeTiffin;
 
-  const { daily, planPrice, planOriginal } = computePricing(tiffin);
-  const gstAmount = Math.round(planPrice[selectedPlan] * GST_RATE);
-  const grandTotal = planPrice[selectedPlan] + gstAmount;
+  // Real "You May Also Like" — same cuisine, excluding the current tiffin.
+  useEffect(() => {
+    if (!activeTiffin?._id) return;
+    let cancelled = false;
+    api
+      .get('/tiffins', { params: { cuisine: activeTiffin.cuisine, limit: 5 } })
+      .then((res) => {
+        if (cancelled) return;
+        const items = (res.data?.data || []).filter((t) => t._id !== activeTiffin._id).slice(0, 4);
+        setRecommended(items);
+      })
+      .catch(() => !cancelled && setRecommended([]));
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTiffin?._id, activeTiffin?.cuisine]);
 
-  const discount = tiffin.discount;
-  const discountActive =
-    discount?.isActive && (!discount.expiresAt || new Date() < new Date(discount.expiresAt));
-  const maxDiscount = discountActive ? Math.max(discount.weekly || 0, discount.monthly || 0) : 0;
+  const { daily, planPrice, planOriginal } = computePricing(activeTiffin || {});
+  const effectivePlanPrice = planPrice[selectedPlan] || 0;
+  const gstAmount = Math.round(effectivePlanPrice * GST_RATE);
+  const grandTotal = effectivePlanPrice + gstAmount;
 
   const handleSubscribeClick = () => {
     if (!user) {
@@ -67,14 +73,14 @@ const TiffinDetail = () => {
     address,
     specialInstructions,
   }) => {
-    if (!address.street || !address.city || !address.pincode) {
+    if (!address?.street || !address?.city || !address?.pincode) {
       toast.error('Please fill all required address fields');
       return;
     }
     setCreatingSubscription(true);
     try {
       const res = await api.post('/subscriptions', {
-        tiffinId: tiffin._id,
+        tiffinId: activeTiffin._id,
         plan: selectedPlan,
         startDate,
         deliveryAddress: address,
@@ -84,11 +90,11 @@ const TiffinDetail = () => {
       const sub = res.data?.data || res.data;
       setCartItem({
         ...sub,
-        tiffin,
+        tiffin: activeTiffin,
         plan: selectedPlan,
         grandTotal,
         gstAmount,
-        planPrice: planPrice[selectedPlan],
+        planPrice: effectivePlanPrice,
       });
       setShowModal(false);
       setShowCart(true);
@@ -107,52 +113,130 @@ const TiffinDetail = () => {
     navigate(`/checkout/${cartItem._id}`);
   };
 
+  if (isLoading || (!activeTiffin && !storeTiffin)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0F1016] text-white">
+        <LoadingSpinner size="large" message="Loading tiffin details…" />
+      </div>
+    );
+  }
+
+  if (!activeTiffin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F1016] text-white px-6 text-center">
+        <div className="text-5xl mb-4">🍱</div>
+        <h1 className="text-2xl font-black mb-2">Tiffin not found</h1>
+        <p className="text-[#B5B8C5] mb-6">This tiffin may no longer be available.</p>
+        <Link
+          to="/tiffins"
+          className="px-6 py-3 bg-primary-500 text-white rounded-xl font-bold hover:bg-primary-600 transition-colors"
+        >
+          Browse Tiffins
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
+    <div className="min-h-screen bg-[#0F1016] text-white pt-24 pb-20 font-sans selection:bg-primary-500/30 selection:text-orange-200">
       <Helmet>
-        <title>{`${tiffin.title} | Tiffo Homemade Tiffins`}</title>
+        <title>{`${activeTiffin.title || 'Tiffin Details'} | Tiffo`}</title>
         <meta
           name="description"
-          content={`Order ${tiffin.title} by ${tiffin.partner?.businessName || 'local chef'}. Authentic ${tiffin.cuisine} ${tiffin.mealType} starting at ₹${tiffin.price?.daily || ''}/day.`}
+          content={`Order ${activeTiffin.title} by ${activeTiffin.partner?.businessName || 'local chef'}.`}
         />
-        <meta property="og:title" content={`${tiffin.title} - Tiffo`} />
-        <meta property="og:image" content={tiffin.images?.[0] || ''} />
       </Helmet>
 
-      <TiffinHero tiffin={tiffin} maxDiscount={maxDiscount} onBack={() => navigate(-1)} />
+      <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hero Section */}
+        <TiffinHero
+          tiffin={activeTiffin}
+          onBack={() => navigate(-1)}
+          onSubscribe={handleSubscribeClick}
+        />
 
-      <div className="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <TiffinInfoSections tiffin={tiffin} />
+        {/* 2-Column Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
+          {/* Left Column (Stack of Info Cards) */}
+          <div className="lg:col-span-8">
+            <TiffinInfoSections tiffin={activeTiffin} />
+          </div>
 
-          <RatingsSummary key={`ratings-${reviewRefreshKey}`} tiffinId={tiffin._id} />
-          <ReviewList key={`reviews-${reviewRefreshKey}`} tiffinId={tiffin._id} />
-          <ReviewForm
-            tiffinId={tiffin._id}
-            onReviewSubmitted={() => setReviewRefreshKey((k) => k + 1)}
-          />
+          {/* Right Column (Sticky Plan Selector Card) */}
+          <div className="lg:col-span-4">
+            <TiffinPricingCard
+              tiffin={activeTiffin}
+              daily={daily}
+              planPrice={planPrice}
+              planOriginal={planOriginal}
+              selectedPlan={selectedPlan}
+              onSelectPlan={setSelectedPlan}
+              gstAmount={gstAmount}
+              grandTotal={grandTotal}
+              hasCartItem={!!cartItem}
+              onSubscribe={handleSubscribeClick}
+              onViewCart={() => setShowCart(true)}
+            />
+          </div>
         </div>
 
-        <div className="lg:col-span-1">
-          <TiffinPricingCard
-            tiffin={tiffin}
-            daily={daily}
-            planPrice={planPrice}
-            planOriginal={planOriginal}
-            selectedPlan={selectedPlan}
-            onSelectPlan={setSelectedPlan}
-            gstAmount={gstAmount}
-            grandTotal={grandTotal}
-            hasCartItem={!!cartItem}
-            onSubscribe={handleSubscribeClick}
-            onViewCart={() => setShowCart(true)}
-          />
-        </div>
+        {/* ─── YOU MAY ALSO LIKE (real tiffins, same cuisine) ─── */}
+        {recommended.length > 0 && (
+          <div className="pt-8 border-t border-[rgba(255,255,255,0.08)]">
+            <h2 className="text-xl font-black text-white mb-6">You May Also Like</h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {recommended.map((rec) => (
+                <Link to={`/tiffins/${rec.slug || rec._id}`} key={rec._id}>
+                  <motion.div
+                    whileHover={{ y: -5 }}
+                    className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:border-primary-500/50 rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-all"
+                  >
+                    <div className="relative h-36 bg-[#0F1016] overflow-hidden flex items-center justify-center">
+                      {rec.images?.[0] ? (
+                        <img
+                          src={rec.images[0]}
+                          alt={rec.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <span className="text-4xl opacity-40">🍱</span>
+                      )}
+                      {rec.dietary?.includes('veg') && (
+                        <div className="absolute top-2.5 left-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md">
+                          Veg
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-3">
+                      <h3 className="text-white text-sm font-bold group-hover:text-primary-500 transition-colors line-clamp-1 mb-1">
+                        {rec.title}
+                      </h3>
+                      <div className="flex items-center justify-between text-xs text-[#B5B8C5]">
+                        <div className="flex items-center gap-1">
+                          <StarIcon className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                          <span className="text-white font-bold">
+                            {rec.rating?.average?.toFixed(1) || 'New'}
+                          </span>
+                        </div>
+                        {rec.price?.daily != null && (
+                          <div className="font-extrabold text-white">₹{rec.price.daily}/day</div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <SubscribeModal
         open={showModal}
-        tiffin={tiffin}
+        tiffin={activeTiffin}
         selectedPlan={selectedPlan}
         onSelectPlan={setSelectedPlan}
         grandTotal={grandTotal}
@@ -164,7 +248,7 @@ const TiffinDetail = () => {
       <CartDrawer
         open={showCart}
         cartItem={cartItem}
-        tiffin={tiffin}
+        tiffin={activeTiffin}
         onClose={() => setShowCart(false)}
         onCheckout={handleCheckout}
       />

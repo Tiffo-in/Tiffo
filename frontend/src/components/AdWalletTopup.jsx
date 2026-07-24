@@ -50,7 +50,7 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
-              amountAdded: amount
+              amountAdded: amount,
             });
 
             if (verifyRes.data.success) {
@@ -63,12 +63,12 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
         },
         prefill: {
           name: 'Tiffo Partner',
-          email: 'partner@tiffo.com',
-          contact: '9999999999'
+          email: 'partner@tiffo.in',
+          contact: '9999999999',
         },
         theme: {
-          color: '#0d9488'
-        }
+          color: '#0d9488',
+        },
       };
 
       const rzp = new window.Razorpay(options);
@@ -76,7 +76,6 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
         setError(response.error.description);
       });
       rzp.open();
-
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to initiate payment');
     } finally {
@@ -129,7 +128,10 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
                   </div>
                 )}
 
-                <label htmlFor="topup-amount" className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">
+                <label
+                  htmlFor="topup-amount"
+                  className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2"
+                >
                   Enter Amount
                 </label>
                 <div className="relative mb-6">
@@ -150,13 +152,13 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
 
                 {/* Pre-set chips */}
                 <div className="flex space-x-2 mb-6">
-                  {[200, 500, 1000, 2000].map(val => (
+                  {[200, 500, 1000, 2000].map((val) => (
                     <button
                       key={val}
                       onClick={() => setAmount(val)}
                       className={`flex-1 py-2 px-3 rounded-xl text-sm font-bold transition-all ${
-                        amount === val 
-                          ? 'bg-teal-100 text-teal-800 ring-2 ring-teal-500 dark:bg-teal-900 dark:text-teal-200' 
+                        amount === val
+                          ? 'bg-teal-100 text-teal-800 ring-2 ring-teal-500 dark:bg-teal-900 dark:text-teal-200'
                           : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
                       }`}
                     >
@@ -171,7 +173,9 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
                   onClick={handleTopup}
                   disabled={loading}
                   className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-xl flex items-center justify-center transition-all ${
-                    loading ? 'bg-teal-400 cursor-not-allowed' : 'bg-gradient-to-r from-teal-500 to-emerald-600 hover:shadow-teal-500/30'
+                    loading
+                      ? 'bg-teal-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-teal-500 to-emerald-600 hover:shadow-teal-500/30'
                   }`}
                 >
                   {loading ? 'Processing...' : `Pay ₹${amount}`}

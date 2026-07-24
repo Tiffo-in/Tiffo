@@ -3,10 +3,11 @@ import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTiffins } from '../store/slices/tiffinSlice';
-import AnimatedBackground from '../components/AnimatedBackground';
 import HomeHero from '../components/home/HomeHero';
 import HomeFeatures from '../components/home/HomeFeatures';
 import HomeFeaturedTiffins from '../components/home/HomeFeaturedTiffins';
+import HomeTestimonials from '../components/home/HomeTestimonials';
+import HomePartnerCTA from '../components/home/HomePartnerCTA';
 import HomeAppPromo from '../components/home/HomeAppPromo';
 import HomeFooter from '../components/home/HomeFooter';
 
@@ -20,19 +21,20 @@ const Home = () => {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen relative bg-neutral-50 dark:bg-neutral-950 font-sans selection:bg-primary-200 selection:text-primary-900 overflow-hidden">
+    <div className="min-h-screen bg-[#0F1016] font-sans selection:bg-primary-500/30 selection:text-orange-200">
       <Helmet>
         <title>Tiffo - Authentic Homemade Tiffin Delivery Service</title>
         <meta
           name="description"
-          content="Discover and subscribe to authentic homemade tiffin services near you. Fresh, healthy, and hygienic meals delivered daily."
+          content="Discover and subscribe to authentic homemade tiffin services near you. Fresh, healthy, and hygienic meals delivered daily from verified home kitchens."
         />
       </Helmet>
-      <AnimatedBackground density="low" />
 
       <HomeHero user={user} />
-      <HomeFeatures />
       <HomeFeaturedTiffins tiffins={tiffins} isLoading={isLoading} />
+      <HomeFeatures />
+      <HomeTestimonials />
+      <HomePartnerCTA />
       <HomeAppPromo />
       <HomeFooter />
     </div>

@@ -10,9 +10,9 @@ import {
   TruckIcon,
   PauseCircleIcon,
 } from '@heroicons/react/24/outline';
-import { StarIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
+import { isBeforeSkipCutoff, MAX_SKIPS_PER_MONTH } from '../utils/subscriptionPolicy';
 import DeliveryStatusChip from './delivery/DeliveryStatusChip';
 import DeliveryFeedbackControls from './delivery/DeliveryFeedbackControls';
 import TodaysTiffin from './delivery/TodaysTiffin';
@@ -201,14 +201,17 @@ const MySubscriptions = () => {
                   <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center space-x-4">
                       <div className="relative">
-                        <img
-                          src={
-                            subscription.tiffin?.images?.[0] ||
-                            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop'
-                          }
-                          alt={subscription.tiffin?.title || subscription.tiffin?.name}
-                          className="w-20 h-20 rounded-xl object-cover shadow-md group-hover:scale-105 transition-transform duration-300"
-                        />
+                        {subscription.tiffin?.images?.[0] ? (
+                          <img
+                            src={subscription.tiffin.images[0]}
+                            alt={subscription.tiffin?.title || subscription.tiffin?.name}
+                            className="w-20 h-20 rounded-xl object-cover shadow-md group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 rounded-xl shadow-md bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center text-3xl group-hover:scale-105 transition-transform duration-300">
+                            🍱
+                          </div>
+                        )}
                         <div
                           className={`absolute -bottom-2 -right-2 w-6 h-6 ${statusConfig.bg} rounded-full flex items-center justify-center`}
                         >
@@ -227,10 +230,6 @@ const MySubscriptions = () => {
                           <span className="px-2.5 py-1 bg-primary-50 text-primary-600 rounded-lg text-xs font-semibold">
                             {subscription.tiffin?.cuisine}
                           </span>
-                          <div className="flex items-center text-amber-500">
-                            <StarIcon className="w-4 h-4" />
-                            <span className="text-sm font-medium ml-1 text-neutral-600">4.8</span>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -403,15 +402,8 @@ const SubscriptionModal = ({ subscription, onClose }) => {
 
   const [busyId, setBusyId] = useState(null);
 
-  // A scheduled delivery can be skipped up to 8 PM IST the day before — mirror
-  // the server cutoff so we only show the button when it will actually work.
-  const canSkip = (delivery) => {
-    if (delivery.status !== 'scheduled') return false;
-    const day = new Date(delivery.deliveryDate);
-    day.setHours(0, 0, 0, 0);
-    const cutoff = day.getTime() - 4 * 60 * 60 * 1000;
-    return Date.now() < cutoff;
-  };
+  const canSkip = (delivery) =>
+    delivery.status === 'scheduled' && isBeforeSkipCutoff(delivery.deliveryDate);
 
   const toggleSkip = async (delivery, action) => {
     setBusyId(delivery._id);
@@ -576,7 +568,7 @@ const SubscriptionModal = ({ subscription, onClose }) => {
               </div>
               <p className="text-xs text-neutral-400 mt-2">
                 Skipping a day adds a make-up delivery to the end of your plan — you never lose a
-                meal. Up to 4 skips per month.
+                meal. Up to {MAX_SKIPS_PER_MONTH} skips per month.
               </p>
             </div>
 
