@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { sendRenewalReminders } = require('../services/renewalService');
+const { sendRenewalReminders, sweepExpiredSubscriptions } = require('../services/renewalService');
 const logger = require('../utils/logger');
 
 /**
@@ -23,6 +23,19 @@ router.post('/run-renewal-reminders', requireCronSecret, async (req, res, next) 
   try {
     const result = await sendRenewalReminders();
     logger.info(`Renewal reminders triggered via internal endpoint: ${result.sent} sent`);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/internal/sweep-expired-subscriptions — idempotent; safe to call repeatedly.
+router.post('/sweep-expired-subscriptions', requireCronSecret, async (req, res, next) => {
+  try {
+    const result = await sweepExpiredSubscriptions();
+    logger.info(
+      `Expired-subscription sweep triggered via internal endpoint: ${result.completed} completed`,
+    );
     res.json({ success: true, ...result });
   } catch (error) {
     next(error);

@@ -1,4 +1,8 @@
-const { renewSubscription, sendRenewalReminders } = require('../renewalService');
+const {
+  renewSubscription,
+  sendRenewalReminders,
+  sweepExpiredSubscriptions,
+} = require('../renewalService');
 const Subscription = require('../../models/Subscription');
 const subscriptionService = require('../subscriptionService');
 const emailService = require('../emailService');
@@ -89,6 +93,36 @@ describe('renewalService', () => {
       expect(query.renewedToSubscription).toBeNull();
       expect(query.endDate.$gte).toBeInstanceOf(Date);
       expect(query.endDate.$lte).toBeInstanceOf(Date);
+    });
+  });
+
+  describe('sweepExpiredSubscriptions', () => {
+    it('completes only active subscriptions whose endDate has passed', async () => {
+      Subscription.updateMany.mockResolvedValue({ modifiedCount: 3 });
+
+      const result = await sweepExpiredSubscriptions();
+
+      const [filter, update] = Subscription.updateMany.mock.calls[0];
+      expect(filter.status).toBe('active');
+      expect(filter.endDate.$lt).toBeInstanceOf(Date);
+      expect(update).toEqual({ $set: { status: 'completed' } });
+      expect(result.completed).toBe(3);
+    });
+
+    it('reports zero when nothing is expired (idempotent re-run)', async () => {
+      Subscription.updateMany.mockResolvedValue({ modifiedCount: 0 });
+
+      const result = await sweepExpiredSubscriptions();
+
+      expect(result.completed).toBe(0);
+    });
+
+    it('falls back to nModified for older mongoose driver responses', async () => {
+      Subscription.updateMany.mockResolvedValue({ nModified: 2 });
+
+      const result = await sweepExpiredSubscriptions();
+
+      expect(result.completed).toBe(2);
     });
   });
 });
