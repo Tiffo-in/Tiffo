@@ -30,6 +30,8 @@ interface Tiffin {
   mealType: string;
   dietary?: string[];
   isActive: boolean;
+  /** Individual dishes, managed in MenuEditorScreen. */
+  menuItems?: { name: string }[];
 }
 
 const MenuScreen = () => {
@@ -109,6 +111,22 @@ const MenuScreen = () => {
             </Text>
             <Text style={styles.cardCategory}>{item.mealType.toUpperCase()}</Text>
             <Text style={styles.cardPrice}>₹{item.price?.daily}/day</Text>
+            <TouchableOpacity
+              style={styles.editMenuButton}
+              onPress={() =>
+                navigation.navigate('MenuEditor', {
+                  tiffinId: item._id,
+                  tiffinTitle: item.title,
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel={`Edit dishes for ${item.title}`}
+            >
+              <Ionicons name="list-outline" size={13} color="#FF7A18" />
+              <Text style={styles.editMenuText}>
+                {item.menuItems?.length ? `${item.menuItems.length} dishes` : 'Add dishes'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -213,6 +231,14 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
   },
   cardInactive: { opacity: 0.55 },
+  editMenuButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 6,
+    paddingVertical: 4,
+  },
+  editMenuText: { color: '#FF7A18', fontSize: 12, fontWeight: '600' },
   cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   iconArea: {
     width: 56,

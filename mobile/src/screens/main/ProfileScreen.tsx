@@ -37,16 +37,42 @@ const MENU_ITEMS = [
     route: 'Notifications' as const,
   },
   {
+    icon: 'newspaper-outline' as const,
+    label: 'Tiffo Stories',
+    sublabel: 'Meal guides and kitchen stories',
+    route: 'Blog' as const,
+  },
+  {
     icon: 'help-circle-outline' as const,
     label: 'Help & Support',
     sublabel: '24/7 customer care',
     route: 'HelpSupport' as const,
   },
   {
+    icon: 'shield-outline' as const,
+    label: 'Report an Issue',
+    sublabel: 'Hygiene, delivery or payment concerns',
+    route: 'ReportFraud' as const,
+  },
+  {
     icon: 'document-text-outline' as const,
     label: 'Privacy Policy',
     sublabel: 'Read our data practices',
     route: 'PrivacyPolicy' as const,
+  },
+  {
+    icon: 'reader-outline' as const,
+    label: 'Terms of Service',
+    sublabel: 'How Tiffo works and your rights',
+    route: 'Content' as const,
+    params: { page: 'terms' as const },
+  },
+  {
+    icon: 'information-circle-outline' as const,
+    label: 'About Tiffo',
+    sublabel: 'Who we are',
+    route: 'Content' as const,
+    params: { page: 'about' as const },
   },
 ];
 
@@ -56,7 +82,7 @@ const MenuRow = ({
   total,
   C,
 }: {
-  item: (typeof MENU_ITEMS)[0];
+  item: (typeof MENU_ITEMS)[number];
   index: number;
   total: number;
   C: ColorScheme;
@@ -68,7 +94,14 @@ const MenuRow = ({
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
       <TouchableOpacity
         style={[S.menuRow, index < total - 1 && S.menuBorder]}
-        onPress={() => nav.navigate(item.route)}
+        onPress={() => {
+          // Content pages share one screen and are distinguished by a param.
+          if (item.route === 'Content') {
+            nav.navigate('Content', item.params);
+          } else {
+            nav.navigate(item.route);
+          }
+        }}
         onPressIn={() =>
           Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, friction: 8 }).start()
         }

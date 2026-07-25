@@ -10,9 +10,12 @@ import { useAuth } from '../contexts/AuthContext';
 // Screens
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
+import AdManagerScreen from '../screens/main/AdManagerScreen';
+import AnalyticsScreen from '../screens/main/AnalyticsScreen';
 import CreateTiffinScreen from '../screens/main/CreateTiffinScreen';
 import DashboardScreen from '../screens/main/DashboardScreen';
 import EarningsScreen from '../screens/main/EarningsScreen';
+import MenuEditorScreen from '../screens/main/MenuEditorScreen';
 import MenuScreen from '../screens/main/MenuScreen';
 import OrdersScreen from '../screens/main/OrdersScreen';
 import PartnerProfileScreen from '../screens/main/PartnerProfileScreen';
@@ -49,12 +52,28 @@ export type ProfileStackParams = {
 export type MenuStackParams = {
   MenuHome: undefined;
   CreateTiffin: undefined;
+  MenuEditor: { tiffinId: string; tiffinTitle?: string };
+};
+
+export type DashboardStackParams = {
+  DashboardHome: undefined;
+  Analytics: undefined;
+  AdManager: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParams>();
 const Tab = createBottomTabNavigator<MainTabParams>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParams>();
 const MenuStack = createNativeStackNavigator<MenuStackParams>();
+const DashboardStack = createNativeStackNavigator<DashboardStackParams>();
+
+const DashboardNavigator = () => (
+  <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+    <DashboardStack.Screen name="DashboardHome" component={DashboardScreen} />
+    <DashboardStack.Screen name="Analytics" component={AnalyticsScreen} />
+    <DashboardStack.Screen name="AdManager" component={AdManagerScreen} />
+  </DashboardStack.Navigator>
+);
 
 const ProfileNavigator = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
@@ -72,6 +91,7 @@ const MenuNavigator = () => (
   <MenuStack.Navigator screenOptions={{ headerShown: false }}>
     <MenuStack.Screen name="MenuHome" component={MenuScreen} />
     <MenuStack.Screen name="CreateTiffin" component={CreateTiffinScreen} />
+    <MenuStack.Screen name="MenuEditor" component={MenuEditorScreen} />
   </MenuStack.Navigator>
 );
 
@@ -116,7 +136,7 @@ const MainTabs = () => {
         },
       })}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardNavigator} />
       <Tab.Screen name="Orders" component={OrdersScreen} />
       <Tab.Screen name="Menu" component={MenuNavigator} />
       <Tab.Screen name="Earnings" component={EarningsScreen} />

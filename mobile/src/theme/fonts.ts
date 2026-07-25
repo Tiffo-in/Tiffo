@@ -12,8 +12,11 @@
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 import { Text as RNText, TextInput as RNTextInput, StyleSheet } from 'react-native';
+import { FontFamily, weightToFontFamily } from 'shared-mobile/src/theme/brand';
 
-// Passed to expo-font's useFonts().
+// Passed to expo-font's useFonts(). The font assets themselves are an app-level
+// dependency (@expo-google-fonts), so they stay here — only the weight->family
+// mapping is shared, since that is what determines the brand voice.
 export const fontAssets = {
   Inter_400Regular,
   Inter_500Medium,
@@ -22,34 +25,10 @@ export const fontAssets = {
   Poppins_800ExtraBold,
 };
 
-// Exposed so screens/theme can reference families explicitly if needed.
-export const FontFamily = {
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semibold: 'Inter_600SemiBold',
-  bold: 'Poppins_700Bold',
-  extrabold: 'Poppins_800ExtraBold',
-} as const;
+// Re-exported so screens can reference families explicitly if needed.
+export { FontFamily };
 
 type Weight = string | number | undefined;
-
-function familyForWeight(weight: Weight, explicit?: string): string {
-  if (explicit) return explicit; // respect a style that sets its own fontFamily
-  switch (String(weight)) {
-    case '500':
-      return FontFamily.medium;
-    case '600':
-      return FontFamily.semibold;
-    case '700':
-    case 'bold':
-      return FontFamily.bold;
-    case '800':
-    case '900':
-      return FontFamily.extrabold;
-    default:
-      return FontFamily.regular;
-  }
-}
 
 let applied = false;
 
@@ -72,7 +51,7 @@ export function applyGlobalFont(): void {
         fontWeight?: Weight;
         fontFamily?: string;
       };
-      const fontFamily = familyForWeight(flat.fontWeight, flat.fontFamily);
+      const fontFamily = weightToFontFamily(flat.fontWeight, flat.fontFamily);
       return originalRender.call(this, { ...props, style: [{ fontFamily }, props.style] }, ref);
     };
   });

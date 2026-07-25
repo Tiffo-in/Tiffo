@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,15 +11,33 @@ import {
   RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '../../contexts/AuthContext';
+import { DashboardStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
+import { exportOrdersCsv } from '../../services/exportService';
 import { Stats, ApiResponse } from '../../types';
 
 const DashboardScreen = () => {
   const { user } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<DashboardStackParams>>();
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    const result = await exportOrdersCsv();
+    setExporting(false);
+    // A successful export hands off to the OS share sheet — no alert needed.
+    if (!result.ok) {
+      Alert.alert(
+        result.reason === 'empty' ? 'Nothing to export' : 'Export failed',
+        result.message,
+      );
+    }
+  };
 
   const {
     data: stats,
@@ -88,6 +108,42 @@ const DashboardScreen = () => {
         <View style={styles.statusBanner}>
           <View style={styles.statusDot} />
           <Text style={styles.statusText}>Kitchen is Active</Text>
+        </View>
+
+        {/* Quick actions */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity
+            style={styles.quickAction}
+            onPress={() => navigation.navigate('Analytics')}
+            accessibilityRole="button"
+            accessibilityLabel="Open business analytics"
+          >
+            <Ionicons name="bar-chart-outline" size={20} color="#FF7A18" />
+            <Text style={styles.quickActionText}>Analytics</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickAction}
+            onPress={() => navigation.navigate('AdManager')}
+            accessibilityRole="button"
+            accessibilityLabel="Open ad manager"
+          >
+            <Ionicons name="megaphone-outline" size={20} color="#FF7A18" />
+            <Text style={styles.quickActionText}>Ads</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickAction}
+            onPress={handleExport}
+            disabled={exporting}
+            accessibilityRole="button"
+            accessibilityLabel="Export orders as CSV"
+          >
+            {exporting ? (
+              <ActivityIndicator size="small" color="#FF7A18" />
+            ) : (
+              <Ionicons name="download-outline" size={20} color="#FF7A18" />
+            )}
+            <Text style={styles.quickActionText}>Export</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Stats */}
@@ -190,6 +246,25 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   greeting: { fontSize: 14, color: '#94A3B8' },
+  quickActions: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: 20,
+    marginTop: 16,
+  },
+  quickAction: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: '#1E293B',
+    borderWidth: 1,
+    borderColor: '#334155',
+    minHeight: 44,
+  },
+  quickActionText: { color: '#F8FAFC', fontSize: 12, fontWeight: '600' },
   partnerName: { fontSize: 22, fontWeight: '800', color: '#F8FAFC', marginTop: 2 },
   avatarCircle: {
     width: 44,
