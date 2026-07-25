@@ -127,6 +127,7 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
   const basePriceDay =
     typeof tiffin.price === 'object' ? (tiffin.price as any).daily : tiffin.price;
   const rating = tiffin.rating?.average || 4.5;
+  const businessName = tiffin.partner?.businessName || tiffin.partnerInfo?.businessName;
 
   const handleSubscribe = () => {
     if (!isAuthenticated) {
@@ -154,7 +155,7 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
         style={[S.headerOverlay, { opacity: headerOpacity, paddingTop: insets.top + 12 }]}
       >
         <Text style={S.headerTitle} numberOfLines={1}>
-          {tiffin.name}
+          {tiffin.title || tiffin.name}
         </Text>
       </Animated.View>
 
@@ -211,13 +212,14 @@ export default function TiffinDetailScreen({ route, navigation }: Props) {
 
         {/* Sheet */}
         <View style={S.sheet}>
-          <Text style={S.name}>{tiffin.name}</Text>
+          <Text style={S.name}>{tiffin.title || tiffin.name}</Text>
           <View style={S.metaRow}>
-            <Text style={S.meta}>{tiffin.category}</Text>
-            {tiffin.partnerInfo?.businessName && (
+            <Text style={S.meta}>{tiffin.cuisine || tiffin.category}</Text>
+            {/* The detail endpoint populates `partner`; `partnerInfo` is never sent. */}
+            {!!businessName && (
               <>
                 <Text style={S.bullet}>•</Text>
-                <Text style={S.meta}>{tiffin.partnerInfo.businessName}</Text>
+                <Text style={S.meta}>{businessName}</Text>
               </>
             )}
           </View>
