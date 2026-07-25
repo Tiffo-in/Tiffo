@@ -16,7 +16,10 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 
 // Main tab screens
+import BlogPostScreen from '../screens/main/BlogPostScreen';
+import BlogScreen from '../screens/main/BlogScreen';
 import CheckoutScreen from '../screens/main/CheckoutScreen';
+import ContentScreen from '../screens/main/ContentScreen';
 import DeliveryTimelineScreen from '../screens/main/DeliveryTimelineScreen';
 import EditProfileScreen from '../screens/main/EditProfileScreen';
 import ExploreScreen from '../screens/main/ExploreScreen';
@@ -26,6 +29,7 @@ import NotificationsScreen from '../screens/main/NotificationsScreen';
 import PaymentMethodsScreen from '../screens/main/PaymentMethodsScreen';
 import PrivacyPolicyScreen from '../screens/main/PrivacyPolicyScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import ReportFraudScreen from '../screens/main/ReportFraudScreen';
 import SavedAddressesScreen from '../screens/main/SavedAddressesScreen';
 import SubscriptionScreen from '../screens/main/SubscriptionScreen';
 
@@ -34,6 +38,7 @@ import TiffinDetailScreen from '../screens/main/TiffinDetailScreen';
 import { registerForNotifications, showLocalNotification } from '../services/notificationService';
 import { ColorScheme } from '../theme/colors';
 import { useTheme } from '../theme/useTheme';
+import { ContentPageKey } from '../utils/content';
 
 // Shared native-stack header styling for every pushed screen.
 const stackHeaderOptions = (C: ColorScheme, title: string) => ({
@@ -66,6 +71,10 @@ export type RootStackParams = {
   Notifications: undefined;
   HelpSupport: undefined;
   PrivacyPolicy: undefined;
+  ReportFraud: undefined;
+  Blog: undefined;
+  BlogPost: { slug: string; title?: string };
+  Content: { page: ContentPageKey };
 };
 
 const Tab = createBottomTabNavigator<MainTabParams>();
@@ -231,6 +240,10 @@ const RootNavigator = () => {
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       <RootStack.Screen name="MainTabs" component={MainTabs} />
+      <RootStack.Screen name="ReportFraud" component={ReportFraudScreen} />
+      <RootStack.Screen name="Blog" component={BlogScreen} />
+      <RootStack.Screen name="BlogPost" component={BlogPostScreen} />
+      <RootStack.Screen name="Content" component={ContentScreen} />
       <RootStack.Screen name="TiffinDetail" component={TiffinDetailScreen} />
       <RootStack.Screen name="DeliveryTimeline" component={DeliveryTimelineScreen} />
       <RootStack.Screen
