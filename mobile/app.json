@@ -31,6 +31,9 @@
         "projectId": "df86b5ba-a810-4d80-a034-8c83a681b915"
       }
     },
-    "owner": "tiffo.in"
+    "owner": "tiffo.in",
+    "plugins": [
+      "@sentry/react-native"
+    ]
   }
 }

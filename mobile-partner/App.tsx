@@ -9,8 +9,13 @@ import { AuthProvider } from './src/contexts/AuthContext';
 import RootNavigator from './src/navigation/RootNavigator';
 import { fontAssets, applyGlobalFont } from './src/theme/fonts';
 import { Colors } from './src/theme/colors';
+import { initObservability } from './src/services/observability';
 
 const queryClient = new QueryClient();
+
+// Start crash reporting before anything else so startup failures are captured.
+// No-ops when no Sentry DSN is configured.
+initObservability();
 
 // Route all text through the brand font (mapped from fontWeight) before the
 // first render.
