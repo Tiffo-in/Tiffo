@@ -32,15 +32,27 @@ import { Tiffin, ApiResponse } from '../../types';
 
 const { width: SW } = Dimensions.get('window');
 
-const CATEGORIES = [
-  { label: 'All', emoji: '🍽️' },
-  { label: 'Healthy', emoji: '🥗' },
-  { label: 'Gujarati', emoji: '🍛' },
-  { label: 'Punjabi', emoji: '🌶️' },
-  { label: 'South Indian', emoji: '🥥' },
-  { label: 'Bengali', emoji: '🐟' },
-  { label: 'Maharashtrian', emoji: '🫓' },
-];
+// Tiffin card geometry — keep the skeleton and the real card in sync so the
+// list doesn't jump when data lands.
+const CARD_HEIGHT = 168;
+const CARD_IMG_WIDTH = 130;
+
+// The category chips are derived from the cuisines actually present in the
+// fetched tiffins, so they can never offer a filter that returns nothing and
+// never miss a cuisine a new partner introduces. This is only the decoration:
+// any cuisine without an entry falls back to DEFAULT_CUISINE_EMOJI.
+const ALL_CATEGORY = { label: 'All', emoji: '🍽️' };
+const DEFAULT_CUISINE_EMOJI = '🥘';
+const CUISINE_EMOJI: Record<string, string> = {
+  healthy: '🥗',
+  gujarati: '🍛',
+  punjabi: '🌶️',
+  'south indian': '🥥',
+  'north indian': '🍲',
+  bengali: '🐟',
+  maharashtrian: '🫓',
+  rajasthani: '🌾',
+};
 
 // ─── Skeleton Card ────────────────────────────────────────────────────────────
 const SkeletonCard = ({ C }: { C: ColorScheme }) => {
@@ -55,8 +67,8 @@ const SkeletonCard = ({ C }: { C: ColorScheme }) => {
   }, []);
   const S = useMemo(() => createStyles(C), [C]);
   return (
-    <Animated.View style={[S.card, { opacity: anim, flexDirection: 'row', height: 140 }]}>
-      <View style={{ width: 130, backgroundColor: C.skeletonBase, borderRadius: 12 }} />
+    <Animated.View style={[S.card, { opacity: anim, flexDirection: 'row', height: CARD_HEIGHT }]}>
+      <View style={{ width: CARD_IMG_WIDTH, backgroundColor: C.skeletonBase }} />
       <View style={{ flex: 1, padding: 14, gap: 8 }}>
         <View style={[S.skLine, { width: '70%' }]} />
         <View style={[S.skLine, { width: '45%' }]} />
@@ -73,13 +85,11 @@ const TiffinCard = ({
   onPress,
   index,
   C,
-  kitchensNear,
 }: {
   item: Tiffin;
   onPress: () => void;
   index: number;
   C: ColorScheme;
-  kitchensNear: number;
 }) => {
   const fade = useRef(new Animated.Value(0)).current;
   const slide = useRef(new Animated.Value(20)).current;
@@ -105,11 +115,26 @@ const TiffinCard = ({
 
   const pricePerDay = typeof item.price === 'object' ? item.price?.daily : item.price;
   const rating = item.rating?.average || 4.5;
-  const deliveryTime = (item as any).deliveryTime || 20 + index * 5;
-  const discountPct = index === 0 ? 50 : index === 1 ? 30 : null;
-  const isVeg = item.isVeg !== false;
-  const distanceKm = (1.2 + index * 0.6 + Math.random()).toFixed(1);
-  const dishCount = (item as any).dishCount || 10 + index * 2;
+  // Only advertise a discount the API actually reports as live.
+  const discount = item.discount;
+  const discountLive =
+    !!discount?.isActive && (!discount.expiresAt || new Date(discount.expiresAt) > new Date());
+  const discountPct = discountLive ? Math.max(discount?.monthly ?? 0, discount?.weekly ?? 0) : 0;
+  // `isVeg` is a virtual the list endpoint drops (.lean()), so derive it from
+  // `dietary`. When neither is present we don't know, and labelling an unknown
+  // dish "Veg" is worse than showing no badge.
+  const dietary = item.dietary ?? [];
+  const isVeg =
+    typeof item.isVeg === 'boolean'
+      ? item.isVeg
+      : dietary.includes('vegetarian') || dietary.includes('vegan');
+  const vegKnown = typeof item.isVeg === 'boolean' || dietary.length > 0;
+  // Show distance and dish count only when the API supplies them. The previous
+  // fallbacks were invented from the list index — and the distance used
+  // Math.random(), so it changed on every re-render.
+  const distanceKm =
+    typeof item.distance === 'number' && item.distance > 0 ? item.distance.toFixed(1) : null;
+  const dishCount = item.menuItems?.length ?? 0;
 
   return (
     <Animated.View style={{ opacity: fade, transform: [{ translateY: slide }, { scale }] }}>
@@ -136,20 +161,17 @@ const TiffinCard = ({
             resizeMode="cover"
           />
           {/* Discount badge */}
-          {discountPct && (
+          {discountPct > 0 && (
             <View style={S.discountBadge}>
               <Text style={S.discountText}>{discountPct}% OFF</Text>
             </View>
           )}
-          {/* Rating + time row at bottom */}
+          {/* Rating row at bottom. There is no delivery-time field on the API,
+              so no time pill — it used to display `20 + index * 5`. */}
           <View style={S.imgBottomRow}>
             <View style={S.ratingPill}>
               <Ionicons name="star" size={9} color="#fff" />
               <Text style={S.ratingPillTxt}> {rating.toFixed(1)}</Text>
-            </View>
-            <View style={S.timePill}>
-              <Ionicons name="time-outline" size={9} color="#fff" />
-              <Text style={S.timePillTxt}> {deliveryTime} min</Text>
             </View>
           </View>
         </View>
@@ -159,19 +181,22 @@ const TiffinCard = ({
           {/* Title + Veg badge */}
           <View style={S.cardTitleRow}>
             <Text style={S.cardName} numberOfLines={1}>
-              {item.name}
+              {item.title || item.name}
             </Text>
-            <View style={S.vegBadge}>
-              <View style={[S.vegDot, { backgroundColor: isVeg ? '#22c55e' : '#ef4444' }]} />
-              <Text style={[S.vegBadgeTxt, { color: isVeg ? '#22c55e' : '#ef4444' }]}>
-                {isVeg ? 'Veg' : 'Non-Veg'}
-              </Text>
-            </View>
+            {vegKnown && (
+              <View style={S.vegBadge}>
+                <View style={[S.vegDot, { backgroundColor: isVeg ? '#22c55e' : '#ef4444' }]} />
+                <Text style={[S.vegBadgeTxt, { color: isVeg ? '#22c55e' : '#ef4444' }]}>
+                  {isVeg ? 'Veg' : 'Non-Veg'}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Subtitle */}
           <Text style={S.cardSubtitle} numberOfLines={1}>
-            {item.category || 'Homemade'} • {item.partner?.businessName || 'Home Kitchen'}
+            {item.cuisine || item.category || 'Homemade'} •{' '}
+            {item.partner?.businessName || 'Home Kitchen'}
           </Text>
 
           {/* Tags row */}
@@ -186,14 +211,24 @@ const TiffinCard = ({
             </View>
           </View>
 
-          {/* Dishes + Distance */}
-          <View style={S.metaRow}>
-            <Ionicons name="layers-outline" size={11} color={C.textTertiary} />
-            <Text style={S.metaTxt}> {dishCount}+ Dishes</Text>
-            <Text style={S.metaDot}> </Text>
-            <Ionicons name="location-outline" size={11} color={C.textTertiary} />
-            <Text style={S.metaTxt}> {distanceKm} km away</Text>
-          </View>
+          {/* Dishes + Distance — each shown only when the API provides it */}
+          {(dishCount > 0 || distanceKm) && (
+            <View style={S.metaRow}>
+              {dishCount > 0 && (
+                <>
+                  <Ionicons name="layers-outline" size={11} color={C.textTertiary} />
+                  <Text style={S.metaTxt}> {dishCount} Dishes</Text>
+                </>
+              )}
+              {dishCount > 0 && distanceKm && <Text style={S.metaDot}> </Text>}
+              {!!distanceKm && (
+                <>
+                  <Ionicons name="location-outline" size={11} color={C.textTertiary} />
+                  <Text style={S.metaTxt}> {distanceKm} km away</Text>
+                </>
+              )}
+            </View>
+          )}
 
           {/* Price + CTA */}
           <View style={S.cardFooter}>
@@ -513,12 +548,45 @@ export default function HomeScreen() {
     },
   });
 
+  // Chips come from the cuisines present in the data, most common first, so
+  // every chip has results behind it. Derived from `tiffins` rather than
+  // `filtered` — otherwise picking a chip would collapse the list to itself.
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const t of tiffins) {
+      const cuisine = (t.cuisine || t.category || '').trim();
+      if (cuisine) counts.set(cuisine, (counts.get(cuisine) ?? 0) + 1);
+    }
+    const derived = [...counts.entries()]
+      .sort(([aLabel, aCount], [bLabel, bCount]) => bCount - aCount || aLabel.localeCompare(bLabel))
+      .map(([label]) => ({
+        label,
+        emoji: CUISINE_EMOJI[label.toLowerCase()] ?? DEFAULT_CUISINE_EMOJI,
+      }));
+    return [ALL_CATEGORY, ...derived];
+  }, [tiffins]);
+
+  // A refetch (new location, say) can retire the selected cuisine — don't
+  // strand the user on a chip that no longer exists.
+  useEffect(() => {
+    if (!categories.some((c) => c.label === activeCat)) setActiveCat(ALL_CATEGORY.label);
+  }, [categories, activeCat]);
+
   const filtered = useMemo(() => {
     if (activeCat === 'All') return tiffins;
-    return tiffins.filter((t) => t.category?.toLowerCase().includes(activeCat.toLowerCase()));
+    // Chip labels are exact cuisine values, so match exactly.
+    return tiffins.filter(
+      (t) => (t.cuisine || t.category || '').toLowerCase() === activeCat.toLowerCase(),
+    );
   }, [tiffins, activeCat]);
 
-  const kitchensNear = filtered.length || 11;
+  // Distinct kitchens, not tiffins — several tiffins share one partner. The
+  // old `filtered.length || 11` counted dishes and invented 11 when empty.
+  const kitchensNear = useMemo(
+    () =>
+      new Set(filtered.map((t) => t.partner?._id || t.partner?.businessName).filter(Boolean)).size,
+    [filtered],
+  );
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -616,28 +684,34 @@ export default function HomeScreen() {
         {/* ── Banner ────────────────────────────────────────────────────── */}
         <BannerCarousel C={C} />
 
-        {/* ── Categories ────────────────────────────────────────────────── */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingLeft: 16, paddingRight: 8, gap: 8, marginTop: 20 }}
-        >
-          {CATEGORIES.map((c) => (
-            <TouchableOpacity
-              key={c.label}
-              style={[S.chip, activeCat === c.label && S.chipActive]}
-              onPress={() => setActiveCat(c.label)}
-            >
-              <Text style={S.chipEmoji}>{c.emoji}</Text>
-              <Text style={[S.chipTxt, activeCat === c.label && S.chipTxtActive]}>{c.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        {/* ── Categories — only worth showing with something to choose ──── */}
+        {categories.length > 1 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingLeft: 16, paddingRight: 8, gap: 8, marginTop: 20 }}
+          >
+            {categories.map((c) => (
+              <TouchableOpacity
+                key={c.label}
+                style={[S.chip, activeCat === c.label && S.chipActive]}
+                onPress={() => setActiveCat(c.label)}
+              >
+                <Text style={S.chipEmoji}>{c.emoji}</Text>
+                <Text style={[S.chipTxt, activeCat === c.label && S.chipTxtActive]}>{c.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
 
         {/* ── Section header ────────────────────────────────────────────── */}
         <View style={S.sectionHeader}>
           <Text style={S.sectionTitle}>Popular Meal Plans</Text>
-          <Text style={S.sectionBadge}>{kitchensNear} kitchens near you</Text>
+          {kitchensNear > 0 && (
+            <Text style={S.sectionBadge}>
+              {kitchensNear} {kitchensNear === 1 ? 'kitchen' : 'kitchens'} near you
+            </Text>
+          )}
         </View>
 
         {/* ── Feed ──────────────────────────────────────────────────────── */}
@@ -704,7 +778,6 @@ export default function HomeScreen() {
               item={t}
               index={i}
               C={C}
-              kitchensNear={kitchensNear}
               onPress={() => nav.navigate('TiffinDetail', { tiffinId: t._id })}
             />
           ))
@@ -949,16 +1022,21 @@ const createStyles = (C: ColorScheme) =>
       shadowOpacity: 0.1,
       shadowRadius: 10,
       elevation: 4,
-      minHeight: 150,
+      alignItems: 'stretch',
+      minHeight: CARD_HEIGHT,
     },
     cardImageCol: {
-      width: 130,
+      width: CARD_IMG_WIDTH,
+      alignSelf: 'stretch',
       position: 'relative',
-    },
-    cardImg: {
-      width: '100%',
-      height: '100%',
       backgroundColor: C.surface,
+    },
+    // Absolutely filled, not width/height: '100%'. A percentage height needs a
+    // definite parent height, and this column is sized by `stretch` — so the
+    // percentage collapses to `auto` and the remote image falls back to its own
+    // (huge) pixel dimensions, stretching the whole card.
+    cardImg: {
+      ...StyleSheet.absoluteFillObject,
     },
     discountBadge: {
       position: 'absolute',

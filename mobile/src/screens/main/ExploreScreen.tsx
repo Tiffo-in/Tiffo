@@ -22,20 +22,21 @@ import { RootStackParams } from '../../navigation/RootNavigator';
 import api from '../../services/api';
 import { ColorScheme } from '../../theme/colors';
 import { useTheme } from '../../theme/useTheme';
+import { Tiffin as SharedTiffin } from '../../types';
 
 const { width: SW } = Dimensions.get('window');
 
-interface Tiffin {
-  _id: string;
-  name: string;
-  description?: string;
-  price: number | { daily?: number };
-  category: string;
-  isVeg?: boolean;
-  images?: string[];
-  rating?: { average: number; count: number };
-  partner?: { businessName: string };
-}
+// Field names must match the API (`title`/`cuisine`/`dietary`), so use the
+// shared type rather than a local copy that can drift out of sync.
+type Tiffin = SharedTiffin;
+
+/** `isVeg` is a virtual the list endpoint drops via `.lean()`; derive it. */
+const isVegTiffin = (t: Tiffin) =>
+  typeof t.isVeg === 'boolean'
+    ? t.isVeg
+    : (t.dietary ?? []).some((d) => d === 'vegetarian' || d === 'vegan');
+
+const vegIsKnown = (t: Tiffin) => typeof t.isVeg === 'boolean' || (t.dietary ?? []).length > 0;
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const CAT_ICONS = [
@@ -243,7 +244,7 @@ const RecommendedCard = ({
         </View>
         <View style={{ padding: 10 }}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: C.textPrimary }} numberOfLines={1}>
-            {item.name}
+            {item.title || item.name}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
@@ -310,7 +311,8 @@ export default function ExploreScreen() {
         setLoading(true);
         const params = [];
         if (q) params.push(`search=${encodeURIComponent(q)}`);
-        if (c !== 'All') params.push(`category=${encodeURIComponent(c)}`);
+        // The API filters on `cuisine`; a `category` param is silently ignored.
+        if (c !== 'All') params.push(`cuisine=${encodeURIComponent(c)}`);
         params.push('status=active');
         const res = await api.get(`/tiffins?${params.join('&')}`);
         setResults(res.data?.data || []);
@@ -566,28 +568,30 @@ export default function ExploreScreen() {
                 }}
                 style={S.resultImg}
               />
-              <View
-                style={{
-                  position: 'absolute',
-                  bottom: 5,
-                  left: 5,
-                  backgroundColor: item.isVeg ? '#22c55e' : '#ef4444',
-                  borderRadius: 4,
-                  paddingHorizontal: 4,
-                  paddingVertical: 2,
-                }}
-              >
-                <Text style={{ fontSize: 7, fontWeight: '800', color: '#fff' }}>
-                  {item.isVeg ? 'Veg' : 'Non-Veg'}
-                </Text>
-              </View>
+              {vegIsKnown(item) && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 5,
+                    left: 5,
+                    backgroundColor: isVegTiffin(item) ? '#22c55e' : '#ef4444',
+                    borderRadius: 4,
+                    paddingHorizontal: 4,
+                    paddingVertical: 2,
+                  }}
+                >
+                  <Text style={{ fontSize: 7, fontWeight: '800', color: '#fff' }}>
+                    {isVegTiffin(item) ? 'Veg' : 'Non-Veg'}
+                  </Text>
+                </View>
+              )}
             </View>
             <View style={S.resultBody}>
               <Text style={S.resultName} numberOfLines={1}>
-                {item.name}
+                {item.title || item.name}
               </Text>
               <Text style={S.resultMeta} numberOfLines={1}>
-                {item.category} • {item.partner?.businessName || 'Home Kitchen'}
+                {item.cuisine || item.category} • {item.partner?.businessName || 'Home Kitchen'}
               </Text>
               {item.rating && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 }}>
