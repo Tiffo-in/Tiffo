@@ -1,25 +1,29 @@
-// Tiffo Design System — brand palette (single source of truth)
-// Primary brand orange mirrors the web app's tailwind `primary` scale
-// (#FF7A18 = primary-500). Keep these values in sync with
-// frontend/tailwind.config.js so web + mobile stay on-brand.
+// Tiffo customer app palette.
+//
+// Brand-level values (the orange scale, semantic colors, scale tokens) come
+// from shared-mobile so the customer app, partner app, and website cannot drift
+// apart again. Only the *surface* palette below is app-specific — the customer
+// app is light+dark, while the partner app is a dark operations console.
+
+import { Brand, Semantic } from 'shared-mobile/src/theme/brand';
 
 const shared = {
-  primary: '#FF7A18', // TIFFO Brand Orange (web primary-500)
-  primaryDark: '#E06514', // web primary-600
-  primaryLight: '#FFA047', // web primary-300
+  primary: Brand.primary, // TIFFO Brand Orange (web primary-500)
+  primaryDark: Brand.primaryDark,
+  primaryLight: Brand.primaryLight,
   secondary: '#FC8019',
   secondaryDark: '#E06500',
   secondaryLight: '#FFB067',
-  veg: '#257E3E',
-  nonVeg: '#E23744', // non-veg indicator stays red (food convention)
-  success: '#257E3E',
+  veg: Semantic.veg,
+  nonVeg: Semantic.nonVeg, // non-veg indicator stays red (food convention)
+  success: Semantic.success,
   warning: '#F1A33A',
-  error: '#E23744', // error stays red
-  info: '#1A73E8',
-  ratingBg: '#FF7A18',
+  error: Semantic.error, // error stays red
+  info: Semantic.info,
+  ratingBg: Brand.primary,
   ratingText: '#FFFFFF',
-  offerBg: '#257E3E',
-  tabActive: '#FF7A18',
+  offerBg: Semantic.veg,
+  tabActive: Brand.primary,
   skeletonBase: '#3A3A3A', // overridden per mode below
   skeletonHighlight: '#4A4A4A',
   textInverse: '#FFFFFF',
@@ -91,43 +95,9 @@ export type ColorScheme = typeof LightColors;
 // Aliases kept for backward compat (screens now use useTheme)
 export const Colors = LightColors;
 
-export const Spacing = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-};
-
-export const BorderRadius = {
-  sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 18,
-  xxl: 24,
-  full: 9999,
-};
-
-export const FontSize = {
-  xs: 10,
-  sm: 12,
-  md: 14,
-  lg: 16,
-  xl: 18,
-  xxl: 22,
-  xxxl: 28,
-  display: 34,
-};
-
-export const FontWeight = {
-  regular: '400' as const,
-  medium: '500' as const,
-  semibold: '600' as const,
-  bold: '700' as const,
-  extrabold: '800' as const,
-};
+// Scale tokens are shared across both mobile apps — re-exported here so screens
+// can keep importing them from the theme module.
+export { Spacing, BorderRadius, FontSize, FontWeight } from 'shared-mobile/src/theme/brand';
 
 export const Shadow = {
   sm: {

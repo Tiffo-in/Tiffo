@@ -10,12 +10,16 @@
 // New/edited code should import from this file (Colors / useTheme) instead of
 // pasting hex, so a future rebrand only touches this one file.
 
+import { Brand } from 'shared-mobile/src/theme/brand';
+
 const shared = {
-  // Brand accent (was amber #F59E0B before the brand alignment)
-  primary: '#FF7A18', // TIFFO Brand Orange (web primary-500)
-  primaryDark: '#E06514', // web primary-600
-  primaryLight: '#FFA047', // web primary-300
-  // Semantic
+  // Brand accent (was amber #F59E0B before the brand alignment). Sourced from
+  // shared-mobile so the customer app, partner app, and website stay aligned.
+  primary: Brand.primary, // TIFFO Brand Orange (web primary-500)
+  primaryDark: Brand.primaryDark,
+  primaryLight: Brand.primaryLight,
+  // Semantic — the partner console uses the Tailwind-ish scale its shell is
+  // built on, so these stay local rather than using the customer app's values.
   success: '#10B981',
   warning: '#FBBF24', // kept distinct from brand orange for true warnings
   error: '#EF4444',
@@ -53,40 +57,6 @@ export type ColorScheme = typeof DarkColors;
 // migrate to `Colors` today and swap to a themed hook later without churn.
 export const Colors = DarkColors;
 
-export const Spacing = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-};
-
-export const BorderRadius = {
-  sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 18,
-  xxl: 24,
-  full: 9999,
-};
-
-export const FontSize = {
-  xs: 10,
-  sm: 12,
-  md: 14,
-  lg: 16,
-  xl: 18,
-  xxl: 22,
-  xxxl: 28,
-  display: 34,
-};
-
-export const FontWeight = {
-  regular: '400' as const,
-  medium: '500' as const,
-  semibold: '600' as const,
-  bold: '700' as const,
-  extrabold: '800' as const,
-};
+// Scale tokens are shared across both mobile apps — re-exported here so screens
+// can keep importing them from the theme module.
+export { Spacing, BorderRadius, FontSize, FontWeight } from 'shared-mobile/src/theme/brand';
