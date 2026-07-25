@@ -13,6 +13,7 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 import CreateTiffinScreen from '../screens/main/CreateTiffinScreen';
 import DashboardScreen from '../screens/main/DashboardScreen';
 import EarningsScreen from '../screens/main/EarningsScreen';
+import MenuEditorScreen from '../screens/main/MenuEditorScreen';
 import MenuScreen from '../screens/main/MenuScreen';
 import OrdersScreen from '../screens/main/OrdersScreen';
 import PartnerProfileScreen from '../screens/main/PartnerProfileScreen';
@@ -49,6 +50,7 @@ export type ProfileStackParams = {
 export type MenuStackParams = {
   MenuHome: undefined;
   CreateTiffin: undefined;
+  MenuEditor: { tiffinId: string; tiffinTitle?: string };
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParams>();
@@ -72,6 +74,7 @@ const MenuNavigator = () => (
   <MenuStack.Navigator screenOptions={{ headerShown: false }}>
     <MenuStack.Screen name="MenuHome" component={MenuScreen} />
     <MenuStack.Screen name="CreateTiffin" component={CreateTiffinScreen} />
+    <MenuStack.Screen name="MenuEditor" component={MenuEditorScreen} />
   </MenuStack.Navigator>
 );
 
