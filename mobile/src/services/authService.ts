@@ -54,7 +54,8 @@ const authService = {
     const res = await api.post('/auth/register', { name, email, password, phone });
     return {
       message:
-        res.data?.message ?? 'Registration successful! Please check your email to verify your account.',
+        res.data?.message ??
+        'Registration successful! Please check your email to verify your account.',
     };
   },
 

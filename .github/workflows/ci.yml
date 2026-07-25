@@ -94,6 +94,51 @@ jobs:
           retention-days: 7
 
   # ============================================================
+  # MOBILE: Lint + Typecheck + Test (customer & partner apps)
+  # ============================================================
+  # Both apps consume `shared-mobile` via Metro watchFolders + TS paths rather
+  # than a workspace, so its dependencies must be installed separately or
+  # module resolution fails during typecheck.
+  mobile-ci:
+    name: 📱 Mobile — Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [mobile, mobile-partner]
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps --no-audit --no-fund
+
+      - name: Install shared-mobile dependencies
+        working-directory: shared-mobile
+        run: npm install --legacy-peer-deps --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+  # ============================================================
   # DOCKER: Build images (no push) — validates Dockerfiles
   # ============================================================
   docker-build-check:

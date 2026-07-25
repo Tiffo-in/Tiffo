@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
     "eas-build-pre-install": "cd ../shared-mobile && npm install --legacy-peer-deps"

@@ -8,6 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
     "eas-build-pre-install": "cd ../shared-mobile && npm install --legacy-peer-deps"
   },
@@ -35,8 +37,15 @@
     "react-native-screens": "~4.16.0",
     "socket.io-client": "^4.7.4"
   },
+  "jest": {
+    "preset": "jest-expo",
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.24.0",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.1.10",
     "babel-preset-expo": "~54.0.10",
     "eslint": "^8.57.1",
@@ -47,6 +56,8 @@
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "jest": "^29.7.0",
+    "jest-expo": "~54.0.0",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
     "typescript": "^5.3.3"
