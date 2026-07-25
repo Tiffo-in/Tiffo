@@ -70,7 +70,7 @@ const DashboardScreen = () => {
         style={styles.scroll}
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#F59E0B" />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#FF7A18" />
         }
       >
         {/* Header */}
@@ -92,7 +92,7 @@ const DashboardScreen = () => {
 
         {/* Stats */}
         {isLoading ? (
-          <ActivityIndicator color="#F59E0B" size="large" style={{ marginTop: 40 }} />
+          <ActivityIndicator color="#FF7A18" size="large" style={{ marginTop: 40 }} />
         ) : isError ? (
           <View style={{ alignItems: 'center', marginTop: 40, paddingHorizontal: 20 }}>
             <Ionicons name="warning-outline" size={48} color="#EF4444" />
@@ -106,7 +106,7 @@ const DashboardScreen = () => {
               onPress={() => refetch()}
               style={{
                 marginTop: 16,
-                backgroundColor: '#F59E0B',
+                backgroundColor: '#FF7A18',
                 paddingHorizontal: 24,
                 paddingVertical: 12,
                 borderRadius: 10,
@@ -129,7 +129,7 @@ const DashboardScreen = () => {
                 icon="bicycle-outline"
                 label="Deliveries"
                 value={stats?.todayDeliveries ?? 0}
-                color="#F59E0B"
+                color="#FF7A18"
                 sub="due today"
               />
               <StatCard
@@ -150,7 +150,7 @@ const DashboardScreen = () => {
 
             {stats?.pendingPayouts !== undefined && stats.pendingPayouts > 0 && (
               <View style={styles.payoutAlert}>
-                <Ionicons name="alert-circle-outline" size={18} color="#F59E0B" />
+                <Ionicons name="alert-circle-outline" size={18} color="#FF7A18" />
                 <Text style={styles.payoutAlertText}>
                   ₹{stats.pendingPayouts.toLocaleString('en-IN')} payout pending from Tiffo
                 </Text>
@@ -168,7 +168,7 @@ const DashboardScreen = () => {
             { icon: 'cash-outline', label: 'Earnings' },
           ].map((action) => (
             <TouchableOpacity key={action.label} style={styles.actionCard}>
-              <Ionicons name={action.icon as any} size={24} color="#F59E0B" />
+              <Ionicons name={action.icon as any} size={24} color="#FF7A18" />
               <Text style={styles.actionLabel}>{action.label}</Text>
             </TouchableOpacity>
           ))}
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#FF7A18',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -55,7 +55,7 @@ const EarningsScreen = () => {
 
   const payoutStatus: Record<string, { label: string; color: string }> = {
     paid: { label: 'Paid', color: '#10B981' },
-    pending: { label: 'Pending', color: '#F59E0B' },
+    pending: { label: 'Pending', color: '#FF7A18' },
     processing: { label: 'Processing', color: '#3B82F6' },
   };
 
@@ -71,7 +71,7 @@ const EarningsScreen = () => {
               setRefreshing(true);
               fetch();
             }}
-            tintColor="#F59E0B"
+            tintColor="#FF7A18"
           />
         }
       >
@@ -80,7 +80,7 @@ const EarningsScreen = () => {
         </View>
 
         {loading ? (
-          <ActivityIndicator color="#F59E0B" size="large" style={{ marginTop: 40 }} />
+          <ActivityIndicator color="#FF7A18" size="large" style={{ marginTop: 40 }} />
         ) : (
           <>
             {/* Big revenue card */}
@@ -91,7 +91,7 @@ const EarningsScreen = () => {
               </Text>
               {summary?.pendingPayouts !== undefined && summary.pendingPayouts > 0 && (
                 <View style={styles.pendingRow}>
-                  <Ionicons name="time-outline" size={14} color="#F59E0B" />
+                  <Ionicons name="time-outline" size={14} color="#FF7A18" />
                   <Text style={styles.pendingText}>
                     ₹{summary.pendingPayouts.toLocaleString('en-IN')} pending payout
                   </Text>
@@ -133,7 +133,7 @@ const EarningsScreen = () => {
                 return (
                   <View key={payout._id} style={styles.payoutRow}>
                     <View style={styles.payoutLeft}>
-                      <Ionicons name="cash-outline" size={18} color="#F59E0B" />
+                      <Ionicons name="cash-outline" size={18} color="#FF7A18" />
                       <View style={{ marginLeft: 12 }}>
                         <Text style={styles.payoutAmount}>
                           ₹{payout.amount.toLocaleString('en-IN')}
@@ -172,13 +172,13 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: '#1E293B',
     borderWidth: 1,
-    borderColor: '#F59E0B40',
+    borderColor: '#FF7A1840',
     alignItems: 'center',
   },
   revenueLabel: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
-  revenueValue: { fontSize: 40, fontWeight: '800', color: '#F59E0B' },
+  revenueValue: { fontSize: 40, fontWeight: '800', color: '#FF7A18' },
   pendingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
-  pendingText: { color: '#F59E0B', fontSize: 13, marginLeft: 6 },
+  pendingText: { color: '#FF7A18', fontSize: 13, marginLeft: 6 },
   monthsRow: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 24 },
   monthCard: {
     flex: 1,

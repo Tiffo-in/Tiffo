@@ -1,0 +1,92 @@
+// Tiffo Partner — Design System (single source of truth)
+//
+// The partner app is an intentionally dark "operations console". It keeps a
+// slate shell (Tailwind slate scale) but uses the SAME brand accent as the
+// customer app and website: TIFFO Brand Orange #FF7A18. Keep the `primary`
+// values in sync with mobile/src/theme/colors.ts and
+// frontend/tailwind.config.js so all three apps stay on-brand.
+//
+// Migration note: screens historically hardcode these hex values inline.
+// New/edited code should import from this file (Colors / useTheme) instead of
+// pasting hex, so a future rebrand only touches this one file.
+
+const shared = {
+  // Brand accent (was amber #F59E0B before the brand alignment)
+  primary: '#FF7A18', // TIFFO Brand Orange (web primary-500)
+  primaryDark: '#E06514', // web primary-600
+  primaryLight: '#FFA047', // web primary-300
+  // Semantic
+  success: '#10B981',
+  warning: '#FBBF24', // kept distinct from brand orange for true warnings
+  error: '#EF4444',
+  info: '#3B82F6',
+  textInverse: '#FFFFFF',
+  shadowColor: '#000000',
+};
+
+// Dark "operations console" palette (Tailwind slate scale).
+export const DarkColors = {
+  ...shared,
+  // Backgrounds
+  background: '#0F172A', // slate-900 — app + splash background
+  surface: '#1E293B', // slate-800 — cards
+  surfaceElevated: '#334155', // slate-700 — raised surfaces
+  // Text
+  textPrimary: '#F8FAFC', // slate-50
+  textSecondary: '#94A3B8', // slate-400
+  textTertiary: '#64748B', // slate-500
+  // Borders / dividers
+  border: '#334155', // slate-700
+  borderLight: '#475569', // slate-600
+  divider: '#1E293B', // slate-800
+  // Accent tint
+  primaryMuted: '#3A2410', // brand orange tint on dark
+  // Tab bar
+  tabActive: '#FF7A18',
+  tabInactive: '#64748B',
+  tabBackground: '#0F172A',
+};
+
+export type ColorScheme = typeof DarkColors;
+
+// The partner app is single-theme (dark) for now. Alias kept so screens can
+// migrate to `Colors` today and swap to a themed hook later without churn.
+export const Colors = DarkColors;
+
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+};
+
+export const BorderRadius = {
+  sm: 6,
+  md: 10,
+  lg: 14,
+  xl: 18,
+  xxl: 24,
+  full: 9999,
+};
+
+export const FontSize = {
+  xs: 10,
+  sm: 12,
+  md: 14,
+  lg: 16,
+  xl: 18,
+  xxl: 22,
+  xxxl: 28,
+  display: 34,
+};
+
+export const FontWeight = {
+  regular: '400' as const,
+  medium: '500' as const,
+  semibold: '600' as const,
+  bold: '700' as const,
+  extrabold: '800' as const,
+};
