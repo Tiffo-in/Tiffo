@@ -22,6 +22,7 @@ import HelpSupportScreen from '../screens/main/profile/HelpSupportScreen';
 import NotificationsScreen from '../screens/main/profile/NotificationsScreen';
 import PartnerAgreementScreen from '../screens/main/profile/PartnerAgreementScreen';
 import TaxDocumentsScreen from '../screens/main/profile/TaxDocumentsScreen';
+import { Colors } from '../theme/colors';
 
 export type AuthStackParams = {
   Login: undefined;
@@ -101,8 +102,8 @@ const MainTabs = () => {
           shadowRadius: 12,
           elevation: 8,
         },
-        tabBarActiveTintColor: '#F59E0B',
-        tabBarInactiveTintColor: '#475569',
+        tabBarActiveTintColor: Colors.tabActive,
+        tabBarInactiveTintColor: Colors.tabInactive,
         tabBarIcon: ({ color, size, focused }) => {
           const icons: Record<string, keyof typeof Ionicons.glyphMap> = {
             Dashboard: focused ? 'grid' : 'grid-outline',
@@ -144,7 +145,7 @@ const RootNavigator = () => {
           backgroundColor: '#0F172A',
         }}
       >
-        <ActivityIndicator size="large" color="#F59E0B" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }

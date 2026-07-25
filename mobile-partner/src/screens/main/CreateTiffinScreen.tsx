@@ -218,7 +218,7 @@ const CreateTiffinScreen = () => {
                     <Ionicons
                       name={isChecked ? 'checkbox' : 'square-outline'}
                       size={20}
-                      color={isChecked ? '#F59E0B' : '#64748B'}
+                      color={isChecked ? '#FF7A18' : '#64748B'}
                     />
                     <Text style={[styles.checkboxLabel, isChecked && styles.checkboxLabelChecked]}>
                       {opt.label}
@@ -287,10 +287,10 @@ const styles = StyleSheet.create({
   cardSectionTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#F59E0B',
+    color: '#FF7A18',
     marginBottom: 12,
     borderLeftWidth: 3,
-    borderLeftColor: '#F59E0B',
+    borderLeftColor: '#FF7A18',
     paddingLeft: 8,
   },
   cardSubtitle: {
@@ -339,8 +339,8 @@ const styles = StyleSheet.create({
     margin: 4,
   },
   selectorChipSelected: {
-    borderColor: '#F59E0B',
-    backgroundColor: '#F59E0B15',
+    borderColor: '#FF7A18',
+    backgroundColor: '#FF7A1815',
   },
   selectorChipText: {
     color: '#94A3B8',
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   selectorChipTextSelected: {
-    color: '#F59E0B',
+    color: '#FF7A18',
   },
   dietaryGrid: {
     flexDirection: 'row',
@@ -371,14 +371,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#FF7A18',
     borderRadius: 12,
     paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
-    shadowColor: '#F59E0B',
+    shadowColor: '#FF7A18',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,

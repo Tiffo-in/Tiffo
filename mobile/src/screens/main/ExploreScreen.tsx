@@ -247,7 +247,7 @@ const RecommendedCard = ({
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-              <Ionicons name="star" size={10} color="#F5780A" />
+              <Ionicons name="star" size={10} color="#FF7A18" />
               <Text style={{ fontSize: 10, fontWeight: '700', color: C.textSecondary }}>
                 {item.rating?.average?.toFixed(1) || '4.5'}
               </Text>
@@ -263,7 +263,7 @@ const RecommendedCard = ({
             }}
           >
             <Text style={{ fontSize: 11, fontWeight: '800', color: C.textPrimary }}>
-              From <Text style={{ color: '#E23744' }}>₹{priceVal}</Text>/day
+              From <Text style={{ color: '#FF7A18' }}>₹{priceVal}</Text>/day
             </Text>
             <View
               style={{
@@ -390,7 +390,7 @@ export default function ExploreScreen() {
             <View
               style={[
                 S.catIconWrap,
-                activeCat === cat.label && { borderColor: '#F5780A', borderWidth: 2.5 },
+                activeCat === cat.label && { borderColor: '#FF7A18', borderWidth: 2.5 },
               ]}
             >
               {cat.image ? (
@@ -409,7 +409,7 @@ export default function ExploreScreen() {
             <Text
               style={[
                 S.catIconLabel,
-                activeCat === cat.label && { color: '#F5780A', fontWeight: '700' },
+                activeCat === cat.label && { color: '#FF7A18', fontWeight: '700' },
               ]}
             >
               {cat.label}
@@ -421,12 +421,12 @@ export default function ExploreScreen() {
       {/* ── Trending Searches ──────────────────────────────────────── */}
       <View style={S.sectionHeader}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Ionicons name="flame" size={17} color="#F5780A" />
+          <Ionicons name="flame" size={17} color="#FF7A18" />
           <Text style={S.sectionTitle}>Trending Searches</Text>
         </View>
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
           <Text style={S.viewAllTxt}>View All</Text>
-          <Ionicons name="chevron-forward" size={13} color="#F5780A" />
+          <Ionicons name="chevron-forward" size={13} color="#FF7A18" />
         </TouchableOpacity>
       </View>
 
@@ -496,12 +496,12 @@ export default function ExploreScreen() {
       {/* ── Recommended Near You ───────────────────────────────────── */}
       <View style={S.sectionHeader}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Ionicons name="star" size={16} color="#F5780A" />
+          <Ionicons name="star" size={16} color="#FF7A18" />
           <Text style={S.sectionTitle}>Recommended near you</Text>
         </View>
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
           <Text style={S.viewAllTxt}>View All</Text>
-          <Ionicons name="chevron-forward" size={13} color="#F5780A" />
+          <Ionicons name="chevron-forward" size={13} color="#FF7A18" />
         </TouchableOpacity>
       </View>
 
@@ -591,7 +591,7 @@ export default function ExploreScreen() {
               </Text>
               {item.rating && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 }}>
-                  <Ionicons name="star" size={11} color="#F5780A" />
+                  <Ionicons name="star" size={11} color="#FF7A18" />
                   <Text style={{ fontSize: 11, color: C.textSecondary, fontWeight: '700' }}>
                     {item.rating.average.toFixed(1)}
                   </Text>
@@ -619,7 +619,7 @@ export default function ExploreScreen() {
           <Text style={S.greetTxt}>{greeting()}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={S.pageTitle}>Explore </Text>
-            <Text style={[S.pageTitle, { color: '#F5780A' }]}>Meals</Text>
+            <Text style={[S.pageTitle, { color: '#FF7A18' }]}>Meals</Text>
             <Text style={{ fontSize: 24 }}>🔥</Text>
           </View>
           <Text style={S.pageSubtitle}>Find authentic homemade tiffins near you</Text>
@@ -627,7 +627,7 @@ export default function ExploreScreen() {
         {/* Location + Bell */}
         <View style={{ alignItems: 'flex-end', gap: 8 }}>
           <TouchableOpacity style={S.locPill}>
-            <Ionicons name="location-sharp" size={12} color="#F5780A" />
+            <Ionicons name="location-sharp" size={12} color="#FF7A18" />
             <Text style={S.locPillTxt} numberOfLines={1}>
               {locationDisplay}
             </Text>
@@ -675,7 +675,7 @@ export default function ExploreScreen() {
       {/* ── Content ────────────────────────────────────────────────────────── */}
       {loading ? (
         <View style={S.center}>
-          <ActivityIndicator color="#F5780A" size="large" />
+          <ActivityIndicator color="#FF7A18" size="large" />
           <Text style={{ fontSize: 13, color: C.textTertiary, marginTop: 12 }}>
             Finding meals for you...
           </Text>
@@ -737,7 +737,7 @@ const createStyles = (C: ColorScheme) =>
       width: 7,
       height: 7,
       borderRadius: 4,
-      backgroundColor: '#F5780A',
+      backgroundColor: '#FF7A18',
       borderWidth: 1,
       borderColor: C.background,
     },
@@ -779,7 +779,7 @@ const createStyles = (C: ColorScheme) =>
     filtersBtn: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#F5780A',
+      backgroundColor: '#FF7A18',
       borderRadius: 10,
       paddingHorizontal: 12,
       paddingVertical: 11,
@@ -809,7 +809,7 @@ const createStyles = (C: ColorScheme) =>
       marginBottom: 12,
     },
     sectionTitle: { fontSize: 16, fontWeight: '800', color: C.textPrimary },
-    viewAllTxt: { fontSize: 12, fontWeight: '700', color: '#F5780A' },
+    viewAllTxt: { fontSize: 12, fontWeight: '700', color: '#FF7A18' },
 
     // Trending cards
     trendCard: {
@@ -900,5 +900,5 @@ const createStyles = (C: ColorScheme) =>
     resultBody: { flex: 1, marginHorizontal: 12 },
     resultName: { fontSize: 15, fontWeight: '700', color: C.textPrimary },
     resultMeta: { fontSize: 12, color: C.textSecondary, marginTop: 3 },
-    resultPrice: { fontSize: 14, fontWeight: '700', color: '#E23744', marginTop: 4 },
+    resultPrice: { fontSize: 14, fontWeight: '700', color: '#FF7A18', marginTop: 4 },
   });

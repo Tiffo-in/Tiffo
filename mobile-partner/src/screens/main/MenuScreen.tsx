@@ -114,7 +114,7 @@ const MenuScreen = () => {
 
         <View style={styles.cardRight}>
           {toggling === item._id ? (
-            <ActivityIndicator color="#F59E0B" size="small" />
+            <ActivityIndicator color="#FF7A18" size="small" />
           ) : (
             <Switch
               value={item.isActive}
@@ -144,12 +144,12 @@ const MenuScreen = () => {
           style={styles.addButton}
           onPress={() => navigation.navigate('CreateTiffin')}
         >
-          <Ionicons name="add-circle" size={32} color="#F59E0B" />
+          <Ionicons name="add-circle" size={32} color="#FF7A18" />
         </TouchableOpacity>
       </View>
 
       {loading ? (
-        <ActivityIndicator color="#F59E0B" size="large" style={{ marginTop: 40 }} />
+        <ActivityIndicator color="#FF7A18" size="large" style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={tiffins}
@@ -163,7 +163,7 @@ const MenuScreen = () => {
                 setRefreshing(true);
                 fetchMenu();
               }}
-              tintColor="#F59E0B"
+              tintColor="#FF7A18"
             />
           }
           ListEmptyComponent={
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   cardName: { fontSize: 15, fontWeight: '700', color: '#F8FAFC', marginBottom: 2 },
   cardNameInactive: { color: '#64748B' },
   cardCategory: { fontSize: 12, color: '#64748B', marginBottom: 4 },
-  cardPrice: { fontSize: 13, fontWeight: '700', color: '#F59E0B' },
+  cardPrice: { fontSize: 13, fontWeight: '700', color: '#FF7A18' },
   cardRight: { alignItems: 'center', marginLeft: 12 },
   toggleLabel: { fontSize: 10, fontWeight: '600', marginTop: 4 },
   emptyState: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 40 },

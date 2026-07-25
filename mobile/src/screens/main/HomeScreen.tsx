@@ -233,7 +233,7 @@ const BannerCarousel = ({ C }: { C: ColorScheme }) => {
       _id: 'fb1',
       title: 'FREE Delivery',
       subtitle: 'Save ₹400 every month\non all monthly plans',
-      bg: '#F5780A',
+      bg: '#FF7A18',
       cta: 'Browse Plans',
       icon: 'bicycle-outline',
     },
@@ -300,7 +300,7 @@ const BannerCarousel = ({ C }: { C: ColorScheme }) => {
         renderItem={({ item }: { item: any }) => (
           <View
             style={{
-              backgroundColor: item.bg || '#F5780A',
+              backgroundColor: item.bg || '#FF7A18',
               width: SW - 32,
               borderRadius: 20,
               padding: 20,
@@ -361,10 +361,10 @@ const BannerCarousel = ({ C }: { C: ColorScheme }) => {
                   gap: 4,
                 }}
               >
-                <Text style={{ color: item.bg || '#F5780A', fontWeight: '700', fontSize: 12 }}>
+                <Text style={{ color: item.bg || '#FF7A18', fontWeight: '700', fontSize: 12 }}>
                   {item.cta || 'Browse Plans'}
                 </Text>
-                <Ionicons name="arrow-forward" size={12} color={item.bg || '#F5780A'} />
+                <Ionicons name="arrow-forward" size={12} color={item.bg || '#FF7A18'} />
               </TouchableOpacity>
             </View>
             <View style={{ justifyContent: 'center', alignItems: 'center', width: 100 }}>

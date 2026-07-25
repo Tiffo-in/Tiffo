@@ -52,7 +52,7 @@ const PartnerAgreementScreen = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#F59E0B" />
+        <ActivityIndicator size="large" color="#FF7A18" />
         <Text style={styles.loadingText}>Loading Agreement...</Text>
       </SafeAreaView>
     );
@@ -80,7 +80,7 @@ const PartnerAgreementScreen = () => {
             <View style={styles.activeBadge}>
               <Text style={styles.activeBadgeText}>ACTIVE AGREEMENT</Text>
             </View>
-            <Ionicons name="document-text" size={20} color="#F59E0B" />
+            <Ionicons name="document-text" size={20} color="#FF7A18" />
           </View>
           <Text style={styles.docTitle}>Tiffo Kitchen Partner Agreement</Text>
           <Text style={styles.docDetails}>
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   legalHeading: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#F59E0B',
+    color: '#FF7A18',
     marginTop: 12,
     marginBottom: 6,
   },

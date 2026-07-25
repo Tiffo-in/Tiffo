@@ -1,23 +1,25 @@
-// Tiffo Design System — Zomato/Swiggy Inspired
-// Stitch MCP: assets/af25e3771dc54038bb7b5ca0723a6255
+// Tiffo Design System — brand palette (single source of truth)
+// Primary brand orange mirrors the web app's tailwind `primary` scale
+// (#FF7A18 = primary-500). Keep these values in sync with
+// frontend/tailwind.config.js so web + mobile stay on-brand.
 
 const shared = {
-  primary: '#E23744',
-  primaryDark: '#B7122A',
-  primaryLight: '#FF6B78',
+  primary: '#FF7A18', // TIFFO Brand Orange (web primary-500)
+  primaryDark: '#E06514', // web primary-600
+  primaryLight: '#FFA047', // web primary-300
   secondary: '#FC8019',
   secondaryDark: '#E06500',
   secondaryLight: '#FFB067',
   veg: '#257E3E',
-  nonVeg: '#E23744',
+  nonVeg: '#E23744', // non-veg indicator stays red (food convention)
   success: '#257E3E',
   warning: '#F1A33A',
-  error: '#E23744',
+  error: '#E23744', // error stays red
   info: '#1A73E8',
-  ratingBg: '#FC8019',
+  ratingBg: '#FF7A18',
   ratingText: '#FFFFFF',
   offerBg: '#257E3E',
-  tabActive: '#E23744',
+  tabActive: '#FF7A18',
   skeletonBase: '#3A3A3A', // overridden per mode below
   skeletonHighlight: '#4A4A4A',
   textInverse: '#FFFFFF',
@@ -40,7 +42,7 @@ export const LightColors = {
   borderLight: '#F5F5F5',
   divider: '#F0F0F0',
   // Muted tints
-  primaryMuted: '#FFF0F1',
+  primaryMuted: '#FFF3E8', // brand orange tint (web primary-50)
   secondaryMuted: '#FFF3EA',
   successBg: '#E9F5EE',
   warningBg: '#FEF3E2',
@@ -70,7 +72,7 @@ export const DarkColors = {
   borderLight: '#252525',
   divider: '#282828',
   // Muted tints (dark versions)
-  primaryMuted: '#2D0B0E',
+  primaryMuted: '#2A1600', // brand orange tint (dark)
   secondaryMuted: '#2D1800',
   successBg: '#0A2015',
   warningBg: '#281A00',

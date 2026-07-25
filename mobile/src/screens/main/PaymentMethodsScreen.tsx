@@ -44,7 +44,7 @@ export default function PaymentMethodsScreen() {
       number: '•••• •••• •••• 4892',
       holder: 'RISHI PANDEY',
       expiry: '08/29',
-      bgGradient: ['#E23744', '#B7122A'], // Red gradient matching Tiffo
+      bgGradient: ['#FF7A18', '#E06514'], // Brand orange gradient matching Tiffo
     },
     {
       id: 'c2',

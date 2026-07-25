@@ -88,7 +88,7 @@ const BankPaymentDetailsScreen = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#F59E0B" />
+        <ActivityIndicator size="large" color="#FF7A18" />
         <Text style={styles.loadingText}>Loading Payment Settings...</Text>
       </SafeAreaView>
     );
@@ -157,7 +157,7 @@ const BankPaymentDetailsScreen = () => {
               <Ionicons
                 name={isVerified ? 'checkmark-circle-outline' : 'time-outline'}
                 size={16}
-                color={isVerified ? '#10B981' : '#F59E0B'}
+                color={isVerified ? '#10B981' : '#FF7A18'}
               />
               <Text
                 style={[styles.statusText, isVerified ? styles.verifiedText : styles.pendingText]}
@@ -170,7 +170,7 @@ const BankPaymentDetailsScreen = () => {
               <Ionicons
                 name={payoutEnabled ? 'flash-outline' : 'pause-circle-outline'}
                 size={16}
-                color={payoutEnabled ? '#10B981' : '#F59E0B'}
+                color={payoutEnabled ? '#10B981' : '#FF7A18'}
               />
               <Text
                 style={[
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     borderColor: '#78350F',
   },
   pendingText: {
-    color: '#F59E0B',
+    color: '#FF7A18',
   },
   statusText: {
     fontSize: 12,
@@ -400,10 +400,10 @@ const styles = StyleSheet.create({
   formSectionTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#F59E0B',
+    color: '#FF7A18',
     marginBottom: 16,
     borderLeftWidth: 3,
-    borderLeftColor: '#F59E0B',
+    borderLeftColor: '#FF7A18',
     paddingLeft: 8,
   },
   inputLabel: {
@@ -448,14 +448,14 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
   saveButton: {
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#FF7A18',
     borderRadius: 12,
     paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
-    shadowColor: '#F59E0B',
+    shadowColor: '#FF7A18',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,

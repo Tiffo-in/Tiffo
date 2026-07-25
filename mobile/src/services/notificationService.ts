@@ -36,7 +36,7 @@ export const registerForNotifications = async (): Promise<boolean> => {
       name: 'default',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#E23744',
+      lightColor: '#FF7A18',
     });
   }
 

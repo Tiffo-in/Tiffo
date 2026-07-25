@@ -75,7 +75,7 @@ const PartnerProfileScreen = () => {
         {/* Info card */}
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Ionicons name="storefront-outline" size={16} color="#F59E0B" />
+            <Ionicons name="storefront-outline" size={16} color="#FF7A18" />
             <Text style={styles.infoLabel}>Kitchen Name</Text>
             <Text style={styles.infoValue}>{user?.businessName || user?.name}</Text>
           </View>
@@ -85,7 +85,7 @@ const PartnerProfileScreen = () => {
               { borderTopWidth: 1, borderTopColor: '#334155', marginTop: 12, paddingTop: 12 },
             ]}
           >
-            <Ionicons name="mail-outline" size={16} color="#F59E0B" />
+            <Ionicons name="mail-outline" size={16} color="#FF7A18" />
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
@@ -101,7 +101,7 @@ const PartnerProfileScreen = () => {
               onPress={() => navigation.navigate(item.routeName)}
             >
               <View style={styles.menuIconWrap}>
-                <Ionicons name={item.icon} size={18} color="#F59E0B" />
+                <Ionicons name={item.icon} size={18} color="#FF7A18" />
               </View>
               <Text style={styles.menuLabel}>{item.label}</Text>
               <Ionicons name="chevron-forward" size={16} color="#334155" />
@@ -128,11 +128,11 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#FF7A18',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
-    shadowColor: '#F59E0B',
+    shadowColor: '#FF7A18',
     shadowOpacity: 0.35,
     shadowRadius: 16,
     elevation: 8,
