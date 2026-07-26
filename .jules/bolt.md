@@ -36,3 +36,6 @@
 ## 2026-07-02 - Sequential DB Queries in DeliveryStats Controller
 **Learning:** Sequential Mongoose operations like `Delivery.aggregate` and `Delivery.countDocuments` in `getDeliveryStats` act as an unnecessary bottleneck and add latency when their inputs do not depend on each other.
 **Action:** Always inspect controllers for independent database queries and execute them concurrently using `Promise.all` to reduce overall API latency.
+## 2026-07-24 - Use .lean() for read-only Mongoose queries in Admin Controllers
+**Learning:** Found several read-only Mongoose `find()` queries in `adminBannerController.js` and `adminFinanceController.js` that did not utilize `.lean()`. Without `.lean()`, Mongoose hydrates full Document objects, which increases memory overhead and CPU usage unnecessarily for endpoints that strictly serialize data back to the client.
+**Action:** Always append `.lean()` to Mongoose `find()` and `findById()` queries in controller endpoints where the resulting documents are only read and not updated via `save()` or modified via other document lifecycle methods.
