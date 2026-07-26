@@ -37,9 +37,14 @@ const paymentLogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    // The selling business, i.e. `Subscription.partner` — a Partner id, NOT the
+    // partner's User id. The payment counterparty lives on Partner
+    // (razorpayAccountId, bankDetails, payoutEnabled), so that is the id every
+    // write stores. Don't confuse this with `setupPartnerPaymentAccount`'s
+    // `partnerId` argument, which is a User id.
     partnerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Partner',
     },
 
     // Razorpay account details

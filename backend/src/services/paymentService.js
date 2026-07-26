@@ -14,6 +14,12 @@ const { generateDeliveriesForSubscription } = require('./deliveryService');
 const { assertCapacityForActivation, syncCurrentOrders } = require('./capacityService');
 const { emitNotification } = require('./socketService');
 
+// `subscription.user`/`subscription.partner` are raw ObjectIds on some code paths
+// and populated documents on others. PaymentLog stores the id either way, and
+// omitting it hides the record from GET /api/payments/history (which queries by
+// `userId`) and zeroes out its summary counters.
+const refId = (value) => (value ? value._id || value : undefined);
+
 exports.setupPartnerPaymentAccount = async (
   partnerId,
   { businessName, bankDetails, taxDetails },
@@ -137,7 +143,7 @@ exports.createSubscriptionOrder = async (userId, subscriptionId) => {
     currency: 'INR',
     subscriptionId: subscriptionId,
     userId: userId,
-    partnerId: subscription.partner._id,
+    partnerId: refId(subscription.partner),
     metadata: {
       platformCommission,
       providerAmount,
@@ -168,6 +174,11 @@ exports.verifySubscriptionPayment = async ({
     );
 
     if (!isValid) {
+      // Look the subscription up without failing the 400 on a bogus id: the log
+      // needs its owner (so the failure shows in payment history) and `amount`,
+      // which the schema requires.
+      const failedSubscription = await Subscription.findById(subscriptionId).session(session);
+
       await PaymentLog.create(
         [
           {
@@ -176,6 +187,9 @@ exports.verifySubscriptionPayment = async ({
             orderId: razorpay_order_id,
             paymentId: razorpay_payment_id,
             subscriptionId: subscriptionId,
+            userId: refId(failedSubscription?.user),
+            partnerId: refId(failedSubscription?.partner),
+            amount: failedSubscription?.grandTotal || failedSubscription?.totalAmount || 0,
             errorCode: 'SIGNATURE_MISMATCH',
             errorDescription: 'Payment signature verification failed',
             failedAt: new Date(),
@@ -288,6 +302,27 @@ exports.confirmCod = async (subscriptionId) => {
       await syncCurrentOrders(subscription.tiffin, session);
     }
 
+    // COD has no Razorpay order, so nothing else logs this subscription — without
+    // this entry it never shows up in the customer's payment history. It stays
+    // `pending` because the cash is only collected on the first delivery.
+    if (!alreadyActive) {
+      await PaymentLog.create(
+        [
+          {
+            type: 'payment',
+            status: 'pending',
+            amount: subscription.grandTotal || subscription.totalAmount,
+            currency: 'INR',
+            subscriptionId: subscription._id,
+            userId: refId(subscription.user),
+            partnerId: refId(subscription.partner),
+            metadata: { paymentMethod: 'cod' },
+          },
+        ],
+        { session },
+      );
+    }
+
     await session.commitTransaction();
     session.endSession();
 
@@ -349,6 +384,8 @@ exports.processRefundForSubscription = async (subscriptionId, amount, reason) =>
           refundId: refundResult.refundId,
           amount: amount || subscription.totalAmount,
           subscriptionId: subscriptionId,
+          userId: refId(subscription.user),
+          partnerId: refId(subscription.partner),
           metadata: { reason },
           processedAt: new Date(),
         },
@@ -384,7 +421,10 @@ exports.fetchPaymentHistory = async (userId, { type, status, limit = 20, page = 
       .limit(safeLimit)
       .skip((safePage - 1) * safeLimit)
       .populate('subscriptionId', 'plan startDate endDate')
-      .populate('partnerId', 'name email')
+      // `partnerId` holds a Partner id, so select Partner fields — a Partner has
+      // `businessName`, not the `name`/`email` a User has. Kept to what labels a
+      // transaction; the partner's contact details are not the customer's to see.
+      .populate('partnerId', 'businessName logo')
       .lean(),
     PaymentLog.countDocuments(query),
     PaymentLog.find({ userId }).lean(),

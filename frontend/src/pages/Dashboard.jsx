@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import api from '../services/api';
 import MySubscriptions from '../components/MySubscriptions';
 import OrderHistory from '../components/OrderHistory';
-import PaymentMethods from '../components/PaymentMethods';
+import PaymentHistory from '../components/PaymentHistory';
 import toast from 'react-hot-toast';
 import {
   Squares2X2Icon,
@@ -964,7 +964,7 @@ const Dashboard = () => {
                   transition={{ duration: 0.3 }}
                   className="bg-[#14151e] border border-zinc-800/80 rounded-2xl p-6 shadow-xl"
                 >
-                  <PaymentMethods />
+                  <PaymentHistory />
                 </motion.div>
               )}
 

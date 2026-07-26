@@ -207,6 +207,10 @@ async function handlePaymentFailed(payload) {
       orderId,
       paymentId,
       subscriptionId: subscription?._id,
+      // Without the owner refs this failure is invisible to
+      // GET /api/payments/history, which queries PaymentLog by `userId`.
+      userId: subscription?.user,
+      partnerId: subscription?.partner,
       amount: payment.amount / 100,
       currency: payment.currency,
       errorCode: payment.error_code,
@@ -258,6 +262,11 @@ async function handleTransferProcessed(payload) {
       amount: transfer.amount / 100,
       currency: transfer.currency,
       subscriptionId: subscription?._id,
+      // Payout leg: the Partner is the recipient. Deliberately no `userId` —
+      // fetchPaymentHistory counts every non-refund `success` row toward the
+      // customer's totalSpent, so tagging payouts with the buyer would
+      // double-count each subscription payment.
+      partnerId: subscription?.partner,
       recipientAccountId: transfer.recipient,
       processedAt: new Date(),
       metadata: { ...transfer },
@@ -305,6 +314,7 @@ async function handleTransferFailed(payload) {
       transferId,
       amount: transfer.amount / 100,
       subscriptionId: subscription?._id,
+      partnerId: subscription?.partner,
       errorCode: transfer.error?.code,
       errorDescription: transfer.error?.description,
       failedAt: new Date(),
