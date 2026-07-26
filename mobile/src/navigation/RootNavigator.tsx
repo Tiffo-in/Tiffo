@@ -26,7 +26,7 @@ import ExploreScreen from '../screens/main/ExploreScreen';
 import HelpSupportScreen from '../screens/main/HelpSupportScreen';
 import HomeScreen from '../screens/main/HomeScreen';
 import NotificationsScreen from '../screens/main/NotificationsScreen';
-import PaymentMethodsScreen from '../screens/main/PaymentMethodsScreen';
+import PaymentHistoryScreen from '../screens/main/PaymentHistoryScreen';
 import PrivacyPolicyScreen from '../screens/main/PrivacyPolicyScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
 import ReportFraudScreen from '../screens/main/ReportFraudScreen';
@@ -67,7 +67,7 @@ export type RootStackParams = {
   ForgotPassword: undefined;
   EditProfile: undefined;
   SavedAddresses: undefined;
-  PaymentMethods: undefined;
+  PaymentHistory: undefined;
   Notifications: undefined;
   HelpSupport: undefined;
   PrivacyPolicy: undefined;
@@ -262,9 +262,9 @@ const RootNavigator = () => {
         options={stackHeaderOptions(C, 'Saved Addresses')}
       />
       <RootStack.Screen
-        name="PaymentMethods"
-        component={PaymentMethodsScreen}
-        options={stackHeaderOptions(C, 'Payment Methods')}
+        name="PaymentHistory"
+        component={PaymentHistoryScreen}
+        options={stackHeaderOptions(C, 'Payment History')}
       />
       <RootStack.Screen
         name="Notifications"

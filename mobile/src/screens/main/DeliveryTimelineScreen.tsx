@@ -122,7 +122,7 @@ export default function DeliveryTimelineScreen() {
   };
 
   return (
-    <SafeAreaView style={S.safe} edges={['bottom']}>
+    <SafeAreaView style={S.safe}>
       <View style={S.header}>
         <TouchableOpacity onPress={() => nav.goBack()} hitSlop={10}>
           <Ionicons name="arrow-back" size={22} color={C.textPrimary} />

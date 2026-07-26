@@ -31,7 +31,7 @@ interface Subscription {
   endDate: string;
   totalAmount: number;
   renewedToSubscription?: string | null;
-  tiffin?: { name: string };
+  tiffin?: { title: string };
   partner?: { businessName: string };
 }
 
@@ -128,7 +128,7 @@ const SubCard = ({
       <View style={S.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={S.mealName} numberOfLines={1}>
-            {sub.tiffin?.name || 'Tiffin Meal'}
+            {sub.tiffin?.title || 'Tiffin Meal'}
           </Text>
           <Text style={S.partnerName}>by {sub.partner?.businessName || 'Partner Kitchen'}</Text>
         </View>
@@ -370,7 +370,7 @@ export default function SubscriptionScreen() {
                 onViewDeliveries={() =>
                   nav.navigate('DeliveryTimeline', {
                     subscriptionId: sub._id,
-                    title: sub.tiffin?.name || 'Deliveries',
+                    title: sub.tiffin?.title || 'Deliveries',
                   })
                 }
                 onRenew={() => handleRenew(sub)}

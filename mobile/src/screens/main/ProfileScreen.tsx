@@ -25,10 +25,10 @@ const MENU_ITEMS = [
     route: 'SavedAddresses' as const,
   },
   {
-    icon: 'card-outline' as const,
-    label: 'Payment Methods',
-    sublabel: 'Cards, UPI and wallets',
-    route: 'PaymentMethods' as const,
+    icon: 'receipt-outline' as const,
+    label: 'Payment History',
+    sublabel: 'Past subscription transactions',
+    route: 'PaymentHistory' as const,
   },
   {
     icon: 'notifications-outline' as const,
