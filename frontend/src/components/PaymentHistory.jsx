@@ -9,9 +9,10 @@ import {
   ArrowPathIcon,
   DevicePhoneMobileIcon,
   InformationCircleIcon,
+  BuildingStorefrontIcon,
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
-import api from '../services/api';
+import { getPaymentHistory } from '../services/paymentService';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -56,6 +57,15 @@ const TransactionRow = ({ payment, index }) => {
   const cfg = getStatusConfig(payment.status);
   const StatusIcon = cfg.icon;
 
+  // `partnerId` is populated with the Partner's `businessName`/`logo`. Older logs
+  // written before the ref was fixed leave it an unpopulated id, so read it
+  // defensively — a bare id has no businessName and simply renders nothing.
+  const partner = payment.partnerId;
+  const partnerName = partner?.businessName;
+  const detail = payment.subscriptionId?.plan
+    ? `${payment.subscriptionId.plan} plan`
+    : payment.orderId || payment.paymentId;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -79,18 +89,30 @@ const TransactionRow = ({ payment, index }) => {
           )}
         </div>
 
-        <div>
+        {/* flex-1 + min-w-0 so a long business name uses the whole row before
+            truncating, instead of being capped at the title's width */}
+        <div className="flex-1 min-w-0">
           <p className="font-semibold text-neutral-900">
             {payment.type === 'refund' ? 'Refund' : 'Subscription Payment'}
           </p>
-          {payment.subscriptionId && (
-            <p className="text-sm text-neutral-500 capitalize">
-              {payment.subscriptionId.plan
-                ? `${payment.subscriptionId.plan} plan`
-                : payment.orderId || payment.paymentId || '—'}
-            </p>
+          {partnerName && (
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {partner.logo ? (
+                <img
+                  src={partner.logo}
+                  alt=""
+                  className="w-4 h-4 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <BuildingStorefrontIcon className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              )}
+              <p className="text-sm text-neutral-600 truncate">{partnerName}</p>
+            </div>
           )}
-          <p className="text-xs text-neutral-400 mt-0.5">{fmt(payment.createdAt)}</p>
+          <p className="text-xs text-neutral-400 mt-0.5">
+            {detail && <span className="capitalize">{detail} · </span>}
+            {fmt(payment.createdAt)}
+          </p>
         </div>
       </div>
 
@@ -186,7 +208,7 @@ const SummaryStats = ({ summaryStats }) => {
 };
 
 // ─── Main component ───────────────────────────────────────────────────────────
-const PaymentMethods = () => {
+const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -207,10 +229,10 @@ const PaymentMethods = () => {
         if (['success', 'pending', 'failed'].includes(filter)) params.status = filter;
         if (['payment', 'refund'].includes(filter)) params.type = filter;
       }
-      const res = await api.get('/payments/history', { params });
-      setPayments(res.data.payments ?? []);
-      setPagination(res.data.pagination ?? { total: 0, pages: 1 });
-      if (res.data.summaryStats) setSummaryStats(res.data.summaryStats);
+      const data = await getPaymentHistory(params);
+      setPayments(data.payments ?? []);
+      setPagination(data.pagination ?? { total: 0, pages: 1 });
+      if (data.summaryStats) setSummaryStats(data.summaryStats);
     } catch (err) {
       console.error('Failed to load payment history:', err);
       toast.error('Failed to load payment history');
@@ -328,4 +350,4 @@ const PaymentMethods = () => {
   );
 };
 
-export default PaymentMethods;
+export default PaymentHistory;
