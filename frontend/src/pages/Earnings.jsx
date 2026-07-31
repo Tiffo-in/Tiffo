@@ -202,7 +202,7 @@ const Earnings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 py-8">
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse">
             <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-2xl mb-8"></div>
@@ -219,7 +219,7 @@ const Earnings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       {/* Premium Header */}
       <div className="bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">

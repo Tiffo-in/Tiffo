@@ -13,7 +13,7 @@ import HomeFooter from '../components/home/HomeFooter';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { tiffins, isLoading } = useSelector((state) => state.tiffins);
+  const { tiffins, isLoading, isError } = useSelector((state) => state.tiffins);
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const Home = () => {
       </Helmet>
 
       <HomeHero user={user} />
-      <HomeFeaturedTiffins tiffins={tiffins} isLoading={isLoading} />
+      <HomeFeaturedTiffins tiffins={tiffins} isLoading={isLoading} isError={isError} />
       <HomeFeatures />
       <HomeTestimonials />
       <HomePartnerCTA />

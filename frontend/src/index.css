@@ -34,6 +34,20 @@
     font-family: 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
   }
+
+  /* Keyboard users need to see where they are. Scoped to :focus-visible so
+     pointer clicks stay ringless. Two-tone ring works on both the light
+     surfaces and the #0F1016 dark ones without per-component overrides. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid theme('colors.primary.400');
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  /* Elements that already carry their own radius keep it — the ring follows. */
+  :where(.rounded-full, .rounded-2xl, .rounded-xl):focus-visible {
+    border-radius: inherit;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -105,8 +119,11 @@ html.dark .text-neutral-600 {
 html.dark .text-neutral-500 {
   color: #8888a8 !important;
 }
+/* Was #666688, which measured 3.1:1 on the dark surfaces — below AA for body
+   text, and inverted (darker than the 500 step above). #9494b4 clears 4.5:1 on
+   both #0F1016 and #1a1a2e. */
 html.dark .text-neutral-400 {
-  color: #666688 !important;
+  color: #9494b4 !important;
 }
 html.dark .text-gray-900 {
   color: #f0f0f8 !important;

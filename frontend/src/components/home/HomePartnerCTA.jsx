@@ -11,7 +11,7 @@ const HomePartnerCTA = () => (
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="relative overflow-hidden rounded-3xl"
+        className="relative overflow-hidden rounded-2xl"
       >
         {/* Background image with overlay */}
         <div
@@ -33,7 +33,7 @@ const HomePartnerCTA = () => (
               </span>
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
+            <h2 className="font-display text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
               Become a <span className="text-primary-500">Tiffo Partner</span>
             </h2>
             <p className="text-[#B5B8C5] text-sm leading-relaxed mb-6 max-w-md">
@@ -54,7 +54,7 @@ const HomePartnerCTA = () => (
 
             <Link
               to="/register?role=partner"
-              className="inline-flex items-center gap-2 bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-8 py-3.5 rounded-xl transition-all duration-200 shadow-xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:-translate-y-0.5 text-sm"
+              className="inline-flex items-center gap-2 bg-primary-500 hover:bg-[#FF9F43] text-[#0F1016] font-bold px-8 min-h-[44px] rounded-xl transition-all duration-200 shadow-xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:-translate-y-0.5 text-sm"
             >
               Register Your Kitchen →
             </Link>
@@ -74,7 +74,7 @@ const HomePartnerCTA = () => (
               >
                 <stat.Icon className="w-6 h-6 text-primary-500 mb-1.5" />
                 <div className="text-white font-black text-xl">{stat.value}</div>
-                <div className="text-[#B5B8C5]/50 text-[11px] mt-0.5">{stat.label}</div>
+                <div className="text-[#B5B8C5]/70 text-xs mt-0.5">{stat.label}</div>
               </div>
             ))}
           </div>

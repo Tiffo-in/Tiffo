@@ -32,36 +32,27 @@ const HomeHero = ({ user }) => {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-0 overflow-hidden bg-[#0F1016]">
-      {/* Background grain texture */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
-        }}
-      />
-
       {/* Ambient glow blobs */}
       <div className="absolute top-20 right-[10%] w-[600px] h-[600px] bg-primary-500/8 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-[#FF9F43]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-6 items-center">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-6 items-center">
           {/* LEFT: Copy */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="lg:col-span-5 flex flex-col gap-6"
+            className="lg:col-span-5 flex flex-col gap-5"
           >
-            {/* Heading */}
+            {/* Heading — smaller on phones so the food photo reaches the fold */}
             <div>
-              <h1 className="text-5xl md:text-6xl lg:text-[4.2rem] font-black text-white leading-[1.08] tracking-tight">
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-[4.2rem] font-black text-white leading-[1.08] tracking-tight">
                 Homemade Tiffins
                 <br />
                 <span className="text-primary-500">Delivered Fresh.</span>
               </h1>
-              <p className="mt-5 text-base text-[#B5B8C5] leading-relaxed max-w-xl">
+              <p className="mt-4 text-base text-[#B5B8C5] leading-relaxed max-w-xl">
                 Discover authentic homemade meals from verified local kitchens. Healthy, hygienic
                 and delivered right to your door.
               </p>
@@ -76,48 +67,52 @@ const HomeHero = ({ user }) => {
               </span>
             </div>
 
-            {/* Search Bar */}
+            {/* Search Bar — the single primary action in this fold */}
             <form
               onSubmit={handleSearch}
               className="flex items-center gap-2 bg-[#181A22] border border-[rgba(255,255,255,0.08)] rounded-2xl p-2 max-w-lg shadow-2xl"
             >
-              <div className="flex-1 flex items-center gap-3 px-3">
-                <MapPinIcon className="w-5 h-5 text-[#B5B8C5] shrink-0" />
+              <div className="flex-1 flex items-center gap-3 px-3 min-w-0">
+                <MapPinIcon className="w-5 h-5 text-[#B5B8C5] shrink-0" aria-hidden="true" />
+                <label htmlFor="hero-location" className="sr-only">
+                  Delivery location
+                </label>
                 <input
+                  id="hero-location"
                   type="text"
-                  placeholder="Enter your delivery location"
+                  placeholder="Delivery location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="flex-1 bg-transparent text-white placeholder:text-[#B5B8C5]/50 outline-none text-sm font-medium py-2"
+                  className="w-full min-w-0 bg-transparent text-white placeholder:text-[#B5B8C5]/70 outline-none text-sm font-medium py-3"
                 />
               </div>
               <button
                 type="submit"
-                className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-primary-500/30 shrink-0 flex items-center gap-2"
+                className="bg-primary-500 hover:bg-[#FF9F43] text-[#0F1016] font-bold px-5 sm:px-6 min-h-[44px] rounded-xl text-sm transition-all duration-200 shadow-lg shadow-primary-500/30 shrink-0 flex items-center gap-2"
               >
-                <MagnifyingGlassIcon className="w-4 h-4" />
+                <MagnifyingGlassIcon className="w-4 h-4" aria-hidden="true" />
                 Search
               </button>
             </form>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 max-w-lg">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                  to="/tiffins"
-                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-500 hover:bg-[#FF9F43] text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-primary-500/25"
-                >
-                  Browse Tiffins
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                  to={partnerCta.to}
-                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent hover:bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] text-white rounded-xl font-bold text-sm transition-all duration-200"
-                >
-                  {partnerCta.label}
-                </Link>
-              </motion.div>
+            {/* Secondary actions — deliberately not filled, so they don't
+                compete with the search bar above. */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Link
+                to="/tiffins"
+                className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-bold text-primary-500 hover:text-[#FF9F43] transition-colors group"
+              >
+                Browse all tiffins
+                <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </Link>
+              <Link
+                to={partnerCta.to}
+                className="inline-flex items-center justify-center px-5 min-h-[44px] bg-transparent hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.15)] text-white rounded-xl font-bold text-sm transition-all duration-200"
+              >
+                {partnerCta.label}
+              </Link>
             </div>
           </motion.div>
 
@@ -131,7 +126,11 @@ const HomeHero = ({ user }) => {
             <div className="relative w-full flex items-center justify-center lg:justify-end">
               <img
                 src="/home.png"
-                alt="Homemade Tiffins Delivered Fresh"
+                alt="A steel tiffin carrier beside a thali of dal, sabzi, rice, roti and raita"
+                width={1536}
+                height={1024}
+                fetchpriority="high"
+                decoding="async"
                 className="w-full h-auto object-contain scale-135 lg:scale-175 origin-center lg:origin-right transition-transform duration-300 drop-shadow-2xl"
               />
             </div>
@@ -155,7 +154,11 @@ const HomeHero = ({ user }) => {
                 <div className="w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/60 transition-all duration-300 shadow-lg group-hover:shadow-primary-500/20">
                   <img
                     src={cat.image}
-                    alt={cat.label}
+                    alt=""
+                    width={72}
+                    height={72}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>

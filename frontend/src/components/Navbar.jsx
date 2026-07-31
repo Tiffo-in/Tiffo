@@ -51,10 +51,16 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-12">
           {/* Logo Area */}
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center space-x-2 group outline-none">
+            <Link
+              to="/"
+              className="flex-shrink-0 inline-flex items-center min-h-[44px] space-x-2 group outline-none"
+            >
               <img
                 src="/logo.png"
-                alt="Tiffo Logo"
+                alt=""
+                width={40}
+                height={40}
+                fetchpriority="high"
                 className="h-10 w-auto group-hover:scale-110 transition-transform duration-300"
               />
               <span className="text-2xl font-black tracking-tight text-white">
@@ -73,7 +79,7 @@ const Navbar = () => {
                   to={link.path}
                   end={link.path === '/'}
                   className={({ isActive }) =>
-                    `relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                    `relative px-4 min-h-[44px] inline-flex items-center rounded-lg text-sm font-semibold transition-all duration-200 ${
                       isActive ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
                     }`
                   }
@@ -89,14 +95,14 @@ const Navbar = () => {
                 <>
                   <Link
                     to={user.role === 'partner' ? '/partner/dashboard' : '/dashboard'}
-                    className="flex items-center gap-2 text-neutral-400 hover:text-white px-3 py-2 text-sm font-semibold transition-colors"
+                    className="flex items-center gap-2 text-neutral-400 hover:text-white px-3 min-h-[44px] text-sm font-semibold transition-colors"
                   >
                     <UserCircleIcon className="w-5 h-5" />
                     Dashboard
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 text-neutral-500 hover:text-red-400 px-3 py-2 text-sm font-semibold transition-colors"
+                    className="flex items-center gap-2 text-neutral-500 hover:text-red-400 px-3 min-h-[44px] text-sm font-semibold transition-colors"
                   >
                     <ArrowRightOnRectangleIcon className="w-5 h-5" />
                     Logout
@@ -106,13 +112,13 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-neutral-400 hover:text-white px-4 py-2 text-sm font-semibold transition-colors"
+                    className="text-neutral-400 hover:text-white px-4 min-h-[44px] inline-flex items-center text-sm font-semibold transition-colors"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 hover:-translate-y-0.5 transition-all duration-200"
+                    className="bg-orange-500 hover:bg-orange-400 text-[#0F1016] text-sm font-bold px-5 min-h-[44px] inline-flex items-center rounded-xl shadow-lg shadow-orange-500/25 hover:-translate-y-0.5 transition-all duration-200"
                   >
                     Get Started
                   </Link>
@@ -126,8 +132,9 @@ const Navbar = () => {
             {/* Hamburger */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm"
+              className="w-11 h-11 flex items-center justify-center rounded-full bg-transparent border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.06)] transition-colors"
               aria-label={isOpen ? 'Close Menu' : 'Open Menu'}
+              aria-expanded={isOpen}
             >
               <AnimatePresence mode="wait">
                 {isOpen ? (

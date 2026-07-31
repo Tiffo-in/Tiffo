@@ -80,7 +80,7 @@ const CustomerAnalytics = () => {
   const maxAcquisition = Math.max(...stats.acquisition.map((a) => a.customers));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 dark:from-purple-900 dark:via-purple-800 dark:to-pink-900 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">

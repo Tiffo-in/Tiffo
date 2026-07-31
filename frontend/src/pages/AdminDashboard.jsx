@@ -111,7 +111,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div
-        className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 flex items-center justify-center"
+        className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center"
         role="status"
         aria-label="Loading dashboard data"
       >
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       {/* Header */}
       <div className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">

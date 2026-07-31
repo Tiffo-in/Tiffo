@@ -6,6 +6,7 @@ import store from './store/store';
 import SocketProvider from './contexts/SocketProvider';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { HelmetProvider } from 'react-helmet-async';
+import { MotionConfig } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 
 // Components
@@ -123,270 +124,275 @@ function App() {
       <ThemeProvider>
         <Provider store={store}>
           <SocketProvider>
-            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              <ScrollToTop />
+            {/* The CSS prefers-reduced-motion block in index.css can't reach
+                Framer's inline transforms, so opt every motion component into
+                the OS setting from one place. */}
+            <MotionConfig reducedMotion="user">
+              <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <ScrollToTop />
 
-              {/* ── Skip Navigation — keyboard accessibility ─────────────────── */}
-              <a
-                href="#main-content"
-                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold"
-              >
-                Skip to main content
-              </a>
+                {/* ── Skip Navigation — keyboard accessibility ─────────────────── */}
+                <a
+                  href="#main-content"
+                  className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold"
+                >
+                  Skip to main content
+                </a>
 
-              <ErrorBoundary>
-                <div className="App min-h-screen bg-white dark:bg-neutral-950 transition-colors duration-300">
-                  <SessionHydrator />
-                  <Navbar />
-                  <main id="main-content">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Routes>
-                        {/* ── Public Routes ── */}
-                        <Route path="/" element={<Home />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/tiffins" element={<Tiffins />} />
-                        <Route path="/tiffins/:id" element={<TiffinDetail />} />
-                        <Route path="/privacy" element={<Privacy />} />
-                        <Route path="/security" element={<Security />} />
-                        <Route path="/terms" element={<Terms />} />
-                        <Route path="/support" element={<Support />} />
-                        <Route path="/report-fraud" element={<ReportFraud />} />
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/blog/:slug" element={<BlogPost />} />
-                        <Route path="/forgot-password" element={<ForgotPassword />} />
-                        <Route path="/reset-password/:token" element={<ResetPassword />} />
-                        <Route path="/payment/success" element={<PaymentSuccess />} />
-                        <Route path="/payment/failed" element={<PaymentFailed />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/careers" element={<Careers />} />
-                        <Route path="/partner-guidelines" element={<PartnerGuidelines />} />
+                <ErrorBoundary>
+                  <div className="App min-h-screen bg-white dark:bg-neutral-950 transition-colors duration-300">
+                    <SessionHydrator />
+                    <Navbar />
+                    <main id="main-content">
+                      <Suspense fallback={<LoadingSpinner />}>
+                        <Routes>
+                          {/* ── Public Routes ── */}
+                          <Route path="/" element={<Home />} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="/tiffins" element={<Tiffins />} />
+                          <Route path="/tiffins/:id" element={<TiffinDetail />} />
+                          <Route path="/privacy" element={<Privacy />} />
+                          <Route path="/security" element={<Security />} />
+                          <Route path="/terms" element={<Terms />} />
+                          <Route path="/support" element={<Support />} />
+                          <Route path="/report-fraud" element={<ReportFraud />} />
+                          <Route path="/blog" element={<Blog />} />
+                          <Route path="/blog/:slug" element={<BlogPost />} />
+                          <Route path="/forgot-password" element={<ForgotPassword />} />
+                          <Route path="/reset-password/:token" element={<ResetPassword />} />
+                          <Route path="/payment/success" element={<PaymentSuccess />} />
+                          <Route path="/payment/failed" element={<PaymentFailed />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/careers" element={<Careers />} />
+                          <Route path="/partner-guidelines" element={<PartnerGuidelines />} />
 
-                        {/* ── Authenticated User Routes ── */}
-                        <Route
-                          path="/dashboard"
-                          element={
-                            <ProtectedRoute>
-                              <Dashboard />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/profile"
-                          element={
-                            <ProtectedRoute>
-                              <ProfilePage />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/checkout/:subscriptionId"
-                          element={
-                            <ProtectedRoute>
-                              <Checkout />
-                            </ProtectedRoute>
-                          }
-                        />
+                          {/* ── Authenticated User Routes ── */}
+                          <Route
+                            path="/dashboard"
+                            element={
+                              <ProtectedRoute>
+                                <Dashboard />
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/profile"
+                            element={
+                              <ProtectedRoute>
+                                <ProfilePage />
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/checkout/:subscriptionId"
+                            element={
+                              <ProtectedRoute>
+                                <Checkout />
+                              </ProtectedRoute>
+                            }
+                          />
 
-                        {/* ── Partner Routes ── */}
-                        <Route
-                          path="/partner/dashboard"
-                          element={
-                            <RoleRoute role="partner">
-                              <PartnerDashboard />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/partner/profile"
-                          element={
-                            <RoleRoute role="partner">
-                              <PartnerProfile />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/partner/tiffins"
-                          element={
-                            <RoleRoute role="partner">
-                              <MyTiffins />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/partner/ads"
-                          element={
-                            <RoleRoute role="partner">
-                              <PartnerAds />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/partner/orders"
-                          element={
-                            <RoleRoute role="partner">
-                              <Orders />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/partner/earnings"
-                          element={
-                            <RoleRoute role="partner">
-                              <Earnings />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/partner/analytics"
-                          element={
-                            <RoleRoute role="partner">
-                              <Analytics />
-                            </RoleRoute>
-                          }
-                        />
+                          {/* ── Partner Routes ── */}
+                          <Route
+                            path="/partner/dashboard"
+                            element={
+                              <RoleRoute role="partner">
+                                <PartnerDashboard />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/partner/profile"
+                            element={
+                              <RoleRoute role="partner">
+                                <PartnerProfile />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/partner/tiffins"
+                            element={
+                              <RoleRoute role="partner">
+                                <MyTiffins />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/partner/ads"
+                            element={
+                              <RoleRoute role="partner">
+                                <PartnerAds />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/partner/orders"
+                            element={
+                              <RoleRoute role="partner">
+                                <Orders />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/partner/earnings"
+                            element={
+                              <RoleRoute role="partner">
+                                <Earnings />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/partner/analytics"
+                            element={
+                              <RoleRoute role="partner">
+                                <Analytics />
+                              </RoleRoute>
+                            }
+                          />
 
-                        {/* ── Admin Routes ── */}
-                        <Route
-                          path="/admin/dashboard"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminDashboard />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/users"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminUsers />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/partners"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminPartners />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/analytics"
-                          element={
-                            <RoleRoute role="admin">
-                              <CustomerAnalytics />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/payments"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminPayments />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/alerts"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminAlerts />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/deliveries"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminDeliveries />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/blog"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminBlog />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/blog/new"
-                          element={
-                            <RoleRoute role="admin">
-                              <BlogEditor />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/blog/edit/:id"
-                          element={
-                            <RoleRoute role="admin">
-                              <BlogEditor />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/support"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminSupport />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/fraud"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminFraud />
-                            </RoleRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin/banners"
-                          element={
-                            <RoleRoute role="admin">
-                              <AdminBanners />
-                            </RoleRoute>
-                          }
-                        />
+                          {/* ── Admin Routes ── */}
+                          <Route
+                            path="/admin/dashboard"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminDashboard />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/users"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminUsers />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/partners"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminPartners />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/analytics"
+                            element={
+                              <RoleRoute role="admin">
+                                <CustomerAnalytics />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/payments"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminPayments />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/alerts"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminAlerts />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/deliveries"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminDeliveries />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/blog"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminBlog />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/blog/new"
+                            element={
+                              <RoleRoute role="admin">
+                                <BlogEditor />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/blog/edit/:id"
+                            element={
+                              <RoleRoute role="admin">
+                                <BlogEditor />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/support"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminSupport />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/fraud"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminFraud />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route
+                            path="/admin/banners"
+                            element={
+                              <RoleRoute role="admin">
+                                <AdminBanners />
+                              </RoleRoute>
+                            }
+                          />
 
-                        {/* 404 fallback — uses React Router Link (no full reload) */}
-                        <Route
-                          path="*"
-                          element={
-                            <div className="min-h-screen flex items-center justify-center">
-                              <div className="text-center">
-                                <div className="text-8xl mb-4" aria-hidden="true">
-                                  🍱
+                          {/* 404 fallback — uses React Router Link (no full reload) */}
+                          <Route
+                            path="*"
+                            element={
+                              <div className="min-h-screen flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="text-8xl mb-4" aria-hidden="true">
+                                    🍱
+                                  </div>
+                                  <h2 className="text-3xl font-bold text-neutral-800 mb-2">
+                                    Page Not Found
+                                  </h2>
+                                  <p className="text-neutral-500 mb-6">
+                                    The page you're looking for doesn't exist.
+                                  </p>
+                                  <Link to="/" className="btn-primary inline-block">
+                                    Go Home
+                                  </Link>
                                 </div>
-                                <h2 className="text-3xl font-bold text-neutral-800 mb-2">
-                                  Page Not Found
-                                </h2>
-                                <p className="text-neutral-500 mb-6">
-                                  The page you're looking for doesn't exist.
-                                </p>
-                                <Link to="/" className="btn-primary inline-block">
-                                  Go Home
-                                </Link>
                               </div>
-                            </div>
-                          }
-                        />
-                      </Routes>
-                    </Suspense>
-                  </main>
-                  <Toaster
-                    position="top-right"
-                    toastOptions={{
-                      duration: 4000,
-                      style: { background: '#363636', color: '#fff' },
-                    }}
-                  />
-                </div>
-              </ErrorBoundary>
-            </Router>
+                            }
+                          />
+                        </Routes>
+                      </Suspense>
+                    </main>
+                    <Toaster
+                      position="top-right"
+                      toastOptions={{
+                        duration: 4000,
+                        style: { background: '#363636', color: '#fff' },
+                      }}
+                    />
+                  </div>
+                </ErrorBoundary>
+              </Router>
+            </MotionConfig>
           </SocketProvider>
         </Provider>
       </ThemeProvider>
