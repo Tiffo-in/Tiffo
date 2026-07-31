@@ -92,7 +92,7 @@ const AdminPartners = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">

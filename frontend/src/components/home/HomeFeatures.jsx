@@ -98,10 +98,10 @@ const HomeFeatures = () => (
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
+          <h2 className="font-display text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
             How It <span className="text-primary-500">Works</span>
           </h2>
-          <p className="text-[#B5B8C5]/60 text-sm max-w-xl mx-auto">
+          <p className="text-[#B5B8C5]/70 text-sm max-w-xl mx-auto">
             Getting your favourite homemade tiffin is simple and easy
           </p>
         </motion.div>
@@ -124,14 +124,14 @@ const HomeFeatures = () => (
                 <div className="w-20 h-20 rounded-2xl bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/40 transition-all duration-300 flex items-center justify-center text-primary-500 shadow-xl group-hover:shadow-primary-500/10">
                   <step.Icon className="w-8 h-8" />
                 </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary-500 text-white text-[10px] font-black flex items-center justify-center shadow-lg">
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary-500 text-[#0F1016] text-xs font-black flex items-center justify-center shadow-lg">
                   {index + 1}
                 </div>
               </div>
               <h3 className="text-white font-bold text-base mb-1.5 group-hover:text-primary-500 transition-colors">
                 {step.title}
               </h3>
-              <p className="text-[#B5B8C5]/50 text-xs leading-relaxed max-w-[160px]">
+              <p className="text-[#B5B8C5]/70 text-xs leading-relaxed max-w-[160px]">
                 {step.description}
               </p>
             </motion.div>
@@ -150,10 +150,10 @@ const HomeFeatures = () => (
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
+          <h2 className="font-display text-3xl md:text-4xl font-black text-white tracking-tight mb-3">
             Why Choose <span className="text-primary-500">Tiffo?</span>
           </h2>
-          <p className="text-[#B5B8C5]/60 text-sm max-w-xl mx-auto">
+          <p className="text-[#B5B8C5]/70 text-sm max-w-xl mx-auto">
             We're committed to delivering the best homemade food experience
           </p>
         </motion.div>
@@ -176,7 +176,7 @@ const HomeFeatures = () => (
               </div>
               <div>
                 <h3 className="text-white font-bold text-sm mb-1">{feature.title}</h3>
-                <p className="text-[#B5B8C5]/50 text-xs leading-relaxed">{feature.description}</p>
+                <p className="text-[#B5B8C5]/70 text-xs leading-relaxed">{feature.description}</p>
               </div>
             </motion.div>
           ))}

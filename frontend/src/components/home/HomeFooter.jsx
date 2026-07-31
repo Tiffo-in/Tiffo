@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { HeartIcon } from '@heroicons/react/24/outline';
 
 const linkClasses =
-  'text-[#B5B8C5]/60 hover:text-primary-500 font-medium text-sm transition-colors duration-200';
+  'inline-flex items-center min-h-[44px] text-[#B5B8C5]/70 hover:text-primary-500 font-medium text-sm transition-colors duration-200';
 
 const columns = [
   {
@@ -44,28 +44,41 @@ const HomeFooter = () => (
         {/* Brand */}
         <div className="col-span-2 lg:col-span-2">
           <Link to="/" className="inline-flex items-center gap-2 mb-5 group">
-            <img src="/logo.png" alt="Tiffo Logo" className="h-10 w-auto" />
+            <img
+              src="/logo.png"
+              alt=""
+              width={40}
+              height={40}
+              loading="lazy"
+              decoding="async"
+              className="h-10 w-auto"
+            />
             <span className="text-2xl font-black text-white tracking-tight">
               Tiffo<span className="text-primary-500">.</span>
             </span>
           </Link>
-          <p className="text-[#B5B8C5]/60 text-sm leading-relaxed max-w-xs mb-7">
+          <p className="text-[#B5B8C5]/70 text-sm leading-relaxed max-w-xs mb-7">
             Reimagining daily dining by connecting you with passionate home chefs. Authentic,
             hygienic, and delivered with care.
           </p>
 
           {/* Newsletter */}
           <div>
-            <p className="text-[#B5B8C5]/50 text-xs font-semibold mb-3 uppercase tracking-wider">
+            <label
+              htmlFor="footer-newsletter-email"
+              className="block text-[#B5B8C5]/70 text-xs font-semibold mb-3 uppercase tracking-wider"
+            >
               Subscribe to our newsletter
-            </p>
+            </label>
             <div className="flex gap-2">
               <input
+                id="footer-newsletter-email"
                 type="email"
+                autoComplete="email"
                 placeholder="Enter your email"
-                className="flex-1 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] focus:border-primary-500/50 px-4 py-2.5 rounded-xl outline-none text-white placeholder:text-[#B5B8C5]/30 text-sm transition-colors"
+                className="flex-1 min-w-0 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] focus:border-primary-500/50 px-4 min-h-[44px] rounded-xl outline-none text-white placeholder:text-[#B5B8C5]/70 text-sm transition-colors"
               />
-              <button className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-4 py-2.5 rounded-xl transition-all text-sm shrink-0">
+              <button className="bg-primary-500 hover:bg-[#FF9F43] text-[#0F1016] font-bold px-4 min-h-[44px] rounded-xl transition-all text-sm shrink-0">
                 Subscribe
               </button>
             </div>
@@ -83,7 +96,7 @@ const HomeFooter = () => (
                 key={social.label}
                 href={social.href}
                 aria-label={`Tiffo on ${social.label}`}
-                className="w-9 h-9 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] hover:border-primary-500/40 hover:bg-primary-500/10 rounded-lg flex items-center justify-center text-xs font-bold text-[#B5B8C5] hover:text-primary-500 transition-all duration-200"
+                className="w-11 h-11 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] hover:border-primary-500/40 hover:bg-primary-500/10 rounded-xl flex items-center justify-center text-xs font-bold text-[#B5B8C5] hover:text-primary-500 transition-all duration-200"
               >
                 {social.text}
               </a>
@@ -110,10 +123,10 @@ const HomeFooter = () => (
 
       {/* Bottom bar */}
       <div className="border-t border-[rgba(255,255,255,0.08)] pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
-        <p className="text-[#B5B8C5]/40 text-xs font-medium">
+        <p className="text-[#B5B8C5]/70 text-xs font-medium">
           © {new Date().getFullYear()} Tiffo Technologies. All rights reserved.
         </p>
-        <p className="text-[#B5B8C5]/40 text-xs font-medium flex items-center gap-1.5">
+        <p className="text-[#B5B8C5]/70 text-xs font-medium flex items-center gap-1.5">
           Made with <HeartIcon className="w-3.5 h-3.5 text-red-500 fill-current" /> in India
         </p>
       </div>

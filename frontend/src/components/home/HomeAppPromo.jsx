@@ -42,7 +42,7 @@ const HomeAppPromo = () => {
               <span className="text-primary-500 text-xs font-bold tracking-wide">COMING SOON</span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+            <h2 className="font-display text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
               Tiffo in your <span className="text-primary-500">pocket.</span>
             </h2>
 
@@ -56,14 +56,14 @@ const HomeAppPromo = () => {
               <div className="flex items-center gap-3 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 opacity-60 cursor-not-allowed">
                 <DevicePhoneMobileIcon className="w-6 h-6 text-primary-500" />
                 <div>
-                  <p className="text-[10px] text-[#B5B8C5]/50 font-medium">GET IT ON</p>
+                  <p className="text-xs text-[#B5B8C5]/70 font-medium">GET IT ON</p>
                   <p className="text-white font-bold text-sm">Google Play</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 opacity-60 cursor-not-allowed">
                 <DevicePhoneMobileIcon className="w-6 h-6 text-primary-500" />
                 <div>
-                  <p className="text-[10px] text-[#B5B8C5]/50 font-medium">DOWNLOAD ON THE</p>
+                  <p className="text-xs text-[#B5B8C5]/70 font-medium">DOWNLOAD ON THE</p>
                   <p className="text-white font-bold text-sm">App Store</p>
                 </div>
               </div>
@@ -78,28 +78,33 @@ const HomeAppPromo = () => {
               >
                 <div>
                   <h3 className="text-white font-black text-lg">You're on the list!</h3>
-                  <p className="text-[#B5B8C5]/60 text-sm">
+                  <p className="text-[#B5B8C5]/70 text-sm">
                     We'll notify you when the app launches.
                   </p>
                 </div>
               </motion.div>
             ) : (
               <div>
-                <p className="text-[#B5B8C5]/40 text-xs font-medium mb-3 uppercase tracking-wider">
+                <label
+                  htmlFor="app-waitlist-email"
+                  className="block text-[#B5B8C5]/70 text-xs font-medium mb-3 uppercase tracking-wider"
+                >
                   Get early access
-                </p>
+                </label>
                 <form onSubmit={handleWaitlistSubmit} className="flex gap-2 max-w-md">
                   <input
+                    id="app-waitlist-email"
                     type="email"
                     required
+                    autoComplete="email"
                     placeholder="Enter your email address"
                     value={waitlistEmail}
                     onChange={(e) => setWaitlistEmail(e.target.value)}
-                    className="flex-1 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] focus:border-primary-500/50 px-4 py-3 rounded-xl outline-none text-white placeholder:text-[#B5B8C5]/30 text-sm font-medium transition-colors"
+                    className="flex-1 min-w-0 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] focus:border-primary-500/50 px-4 min-h-[44px] rounded-xl outline-none text-white placeholder:text-[#B5B8C5]/70 text-sm font-medium transition-colors"
                   />
                   <button
                     type="submit"
-                    className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/25 shrink-0 text-sm"
+                    className="bg-primary-500 hover:bg-[#FF9F43] text-[#0F1016] font-bold px-5 min-h-[44px] rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/25 shrink-0 text-sm"
                   >
                     Notify Me
                   </button>
@@ -142,13 +147,17 @@ const HomeAppPromo = () => {
                   <div className="w-full h-32 rounded-2xl overflow-hidden relative">
                     <img
                       src="/tiffin.jpeg"
-                      alt="App preview"
+                      alt=""
+                      width={320}
+                      height={128}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute bottom-2 left-3">
-                      <p className="text-white text-[10px] font-bold">Today's Special</p>
-                      <p className="text-primary-500 text-[10px] font-bold">₹99/day</p>
+                      <p className="text-white text-xs font-bold">Today's Special</p>
+                      <p className="text-primary-500 text-xs font-bold">₹99/day</p>
                     </div>
                   </div>
 
@@ -159,13 +168,21 @@ const HomeAppPromo = () => {
                       className="flex items-center gap-3 bg-[#1B1E27] border border-[rgba(255,255,255,0.08)] rounded-xl p-2.5"
                     >
                       <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={img}
+                          alt=""
+                          width={40}
+                          height={40}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="flex-1">
                         <div className="w-20 h-2 bg-[#181A22] rounded-full" />
                         <div className="w-14 h-2 bg-[#1B1E27] rounded-full mt-1.5" />
                       </div>
-                      <div className="w-12 h-5 bg-primary-500/20 rounded-lg" />
+                      <div className="w-12 h-5 bg-primary-500/20 rounded-xl" />
                     </div>
                   ))}
                 </div>
@@ -184,7 +201,7 @@ const HomeAppPromo = () => {
               <motion.div
                 animate={{ y: [0, -10, 0], rotate: [3, 3, 3] }}
                 transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut', delay: 2 }}
-                className="absolute bottom-24 -right-14 bg-primary-500 text-white p-3 rounded-2xl shadow-xl flex items-center gap-2.5"
+                className="absolute bottom-24 -right-14 bg-primary-500 text-[#0F1016] p-3 rounded-2xl shadow-xl flex items-center gap-2.5"
               >
                 <TruckIcon className="w-5 h-5" />
                 <span className="font-bold text-sm">On the way</span>
