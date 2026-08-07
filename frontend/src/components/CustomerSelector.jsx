@@ -5,7 +5,7 @@ import {
   EnvelopeIcon,
   CalendarDaysIcon,
   ClockIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
@@ -14,6 +14,7 @@ const CustomerSelector = ({ onCustomerSelect, selectedCustomerId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
 
   useEffect(() => {
     fetchCustomers();
@@ -31,18 +32,32 @@ const CustomerSelector = ({ onCustomerSelect, selectedCustomerId }) => {
     }
   };
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.tiffin?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCustomers = customers
+    .filter(
+      (customer) =>
+        customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.tiffin?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'plan':
+          return (a.plan || '').localeCompare(b.plan || '');
+        case 'recent':
+          // Most recently started subscription first.
+          return new Date(b.startDate || 0) - new Date(a.startDate || 0);
+        case 'name':
+        default:
+          return (a.name || '').localeCompare(b.name || '');
+      }
+    });
 
   if (loading) {
     return (
       <div className="space-y-4">
         <div className="h-12 bg-neutral-100 rounded-xl animate-pulse" />
         <div className="grid gap-4">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="h-24 bg-neutral-100 rounded-xl animate-pulse" />
           ))}
         </div>
@@ -84,12 +99,17 @@ const CustomerSelector = ({ onCustomerSelect, selectedCustomerId }) => {
       {/* Customer Count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-neutral-500">
-          <span className="font-semibold text-neutral-700">{filteredCustomers.length}</span> active customers
+          <span className="font-semibold text-neutral-700">{filteredCustomers.length}</span> active
+          customers
         </p>
-        <select className="text-sm border border-neutral-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500">
-          <option>Sort by Name</option>
-          <option>Sort by Plan</option>
-          <option>Sort by Recent</option>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="text-sm border border-neutral-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
+          <option value="name">Sort by Name</option>
+          <option value="plan">Sort by Plan</option>
+          <option value="recent">Sort by Recent</option>
         </select>
       </div>
 
@@ -104,7 +124,9 @@ const CustomerSelector = ({ onCustomerSelect, selectedCustomerId }) => {
             {searchTerm ? 'No customers found' : 'No active customers yet'}
           </h3>
           <p className="text-neutral-500">
-            {searchTerm ? 'Try adjusting your search terms' : 'Customers will appear here once they subscribe'}
+            {searchTerm
+              ? 'Try adjusting your search terms'
+              : 'Customers will appear here once they subscribe'}
           </p>
         </motion.div>
       ) : (
@@ -121,33 +143,44 @@ const CustomerSelector = ({ onCustomerSelect, selectedCustomerId }) => {
                 whileHover={{ y: -2, scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 onClick={() => onCustomerSelect(customer)}
-                className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 group ${isSelected
-                    ? 'border-primary-500 bg-primary-50 shadow-lg'
-                    : 'border-neutral-100 bg-white hover:border-primary-200 hover:shadow-md'
-                  }`}
+                className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 group ${
+                  isSelected
+                    ? 'border-primary-500 bg-primary-50 shadow-card'
+                    : 'border-neutral-100 bg-white hover:border-primary-200 hover:shadow-card'
+                }`}
               >
                 {/* Selection Indicator */}
                 {isSelected && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 w-7 h-7 bg-primary-500 rounded-full flex items-center justify-center shadow-md"
+                    className="absolute -top-2 -right-2 w-7 h-7 bg-primary-500 rounded-full flex items-center justify-center shadow-card"
                   >
-                    <CheckCircleIcon className="w-5 h-5 text-white" />
+                    <CheckCircleIcon className="w-5 h-5 text-neutral-900" />
                   </motion.div>
                 )}
 
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4">
                     {/* Avatar */}
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-bold shadow-inner ${isSelected ? 'bg-primary-100' : 'bg-gradient-to-br from-neutral-100 to-neutral-200'
-                      }`}>
+                    <div
+                      className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-bold shadow-inner ${
+                        isSelected
+                          ? 'bg-primary-100'
+                          : 'bg-gradient-to-br from-neutral-100 to-neutral-200'
+                      }`}
+                    >
                       {customer.name?.charAt(0).toUpperCase() || '?'}
                     </div>
 
                     <div className="flex-1">
-                      <h4 className={`font-bold text-lg mb-1 ${isSelected ? 'text-primary-700' : 'text-neutral-900 group-hover:text-primary-600'
-                        } transition-colors`}>
+                      <h4
+                        className={`font-bold text-lg mb-1 ${
+                          isSelected
+                            ? 'text-primary-700'
+                            : 'text-neutral-900 group-hover:text-primary-600'
+                        } transition-colors`}
+                      >
                         {customer.name}
                       </h4>
 
@@ -176,7 +209,11 @@ const CustomerSelector = ({ onCustomerSelect, selectedCustomerId }) => {
                     </div>
                     <div className="flex items-center justify-end text-xs text-neutral-500">
                       <CalendarDaysIcon className="w-4 h-4 mr-1.5" />
-                      Until {new Date(customer.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      Until{' '}
+                      {new Date(customer.endDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
                     </div>
                   </div>
                 </div>

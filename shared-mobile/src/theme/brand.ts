@@ -16,14 +16,14 @@
 
 /** TIFFO brand orange scale, mirroring the web tailwind `primary` scale. */
 export const BrandColors = {
-  primary50: '#FFF3E8',
+  primary50: '#FFF1E5',
   primary100: '#FFE0C2',
-  primary200: '#FFC085',
+  primary200: '#FFD6B8',
   primary300: '#FFA047',
-  primary400: '#FF8A24',
+  primary400: '#FF8A1F',
   /** TIFFO Brand Orange — web primary-500. The canonical brand color. */
-  primary500: '#FF7A18',
-  primary600: '#E06514',
+  primary500: '#FF7A00',
+  primary600: '#E86800',
   primary700: '#B84E10',
   primary800: '#8A3B0D',
   primary900: '#5C2708',
@@ -34,18 +34,117 @@ export const Brand = {
   primary: BrandColors.primary500,
   primaryDark: BrandColors.primary600,
   primaryLight: BrandColors.primary300,
+  /**
+   * Text color to place ON a brand-orange fill. Charcoal, not white: white on
+   * #FF7A00 is 2.6:1 and fails WCAG AA (it misses even the 3:1 large-text
+   * floor), while charcoal is 6.6:1. Applies to CTA labels, filled badges and
+   * any orange-backed chip in both themes.
+   */
+  onPrimary: '#1B1B1F',
+  /**
+   * Orange as *text* on a light background is 2.6:1. Use this darkened ink for
+   * links and inline emphasis in light mode (5.0:1). In dark mode, orange text
+   * is 7.2:1 and needs no substitute — see DarkSurfaces.brandInk.
+   */
+  ink: '#B84E10',
 } as const;
 
 /**
  * Semantic colors. These are deliberately NOT brand-colored — an error or a
  * non-veg indicator must stay red even when the brand accent is orange.
+ *
+ * Each has a bright value (icon/dot fill) and an `*Ink` value (label text).
+ * The bright values do not clear AA as text on their own tints — 2DBE60 on
+ * EAFBF1 is only 2.4:1 — so labels must use the ink.
  */
 export const Semantic = {
-  veg: '#257E3E',
-  nonVeg: '#E23744',
-  success: '#257E3E',
-  error: '#E23744',
-  info: '#1A73E8',
+  veg: '#2DBE60',
+  vegInk: '#257E3E',
+  nonVeg: '#FF5B45',
+  nonVegInk: '#C0392B',
+  success: '#18A957',
+  error: '#EF4444',
+  warning: '#FDBA21',
+  info: '#3B82F6',
+  rating: '#FDBA21',
+} as const;
+
+/**
+ * Surface + text scales shared by the customer app, the partner app and the
+ * website. Warm whites and warm dark grays rather than pure black/white, so
+ * food photography reads richer against the UI.
+ *
+ * Keep in sync with frontend/src/styles/tokens.css.
+ */
+export const LightSurfaces = {
+  background: '#FFFDF8', // warm white — page
+  surface: '#FFF7EF', // soft cream
+  surfaceCard: '#FFFFFF',
+  surfaceSection: '#FFF9F3', // ivory
+  surfaceElevated: '#FFFFFF',
+
+  textPrimary: '#1B1B1F',
+  textSecondary: '#5F6368',
+  /** AA: the supplied muted (#8A8F98) is 3.2:1 on warm white. Darkened to 4.9:1. */
+  textMuted: '#6B7079',
+  textDisabled: '#B4B8BE',
+
+  border: '#ECE8E2',
+  borderHover: '#FFD4AF',
+
+  brandTint: '#FFF1E5',
+  brandBorder: '#FFD6B8',
+  brandInk: '#B84E10',
+
+  vegBg: '#EAFBF1',
+  nonVegBg: '#FFECEA',
+  successBg: '#EAFBF1',
+  warningBg: '#FFF6E2',
+  errorBg: '#FFECEA',
+  infoBg: '#EAF1FE',
+} as const;
+
+export const DarkSurfaces = {
+  background: '#0F1015',
+  surface: '#151821',
+  surfaceCard: '#1B1F2A',
+  surfaceSection: '#151821',
+  surfaceElevated: '#242938',
+
+  textPrimary: '#FFFFFF',
+  textSecondary: '#C5CAD3',
+  textMuted: '#9096A4',
+  textDisabled: '#6F7482',
+
+  border: '#2A2F3C',
+  borderHover: '#4A2C0F',
+
+  brandTint: '#2A1A0A',
+  brandBorder: '#4A2C0F',
+  /** Orange is 7.2:1 on the warm dark background — usable as text directly. */
+  brandInk: '#FF9435',
+
+  // Tints are the spec's 15% overlays composited over the card surface, so
+  // they stay opaque (RN has no cascading alpha over an unknown parent).
+  vegBg: '#1F3A37',
+  nonVegBg: '#3D2A30',
+  successBg: '#1F3A37',
+  warningBg: '#3A3018',
+  errorBg: '#3D2A30',
+  infoBg: '#1B2B44',
+} as const;
+
+/** Semantic values that shift in dark mode (brighter, lower-saturation). */
+export const SemanticDark = {
+  veg: '#34D07F',
+  vegInk: '#34D07F',
+  nonVeg: '#FF6655',
+  nonVegInk: '#FF6655',
+  success: '#34D07F',
+  error: '#FF6655',
+  warning: '#FFC93D',
+  info: '#60A5FA',
+  rating: '#FFC93D',
 } as const;
 
 export const Spacing = {

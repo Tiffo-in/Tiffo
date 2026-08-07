@@ -79,6 +79,18 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Design-system guards. palette = tokens hold the specified colours;
+      # contrast = those colours are legible together; usage = components
+      # actually use the right ones. See docs/DESIGN_SYSTEM_PLAN.md §4.
+      - name: Design system — palette conformance
+        run: npm run check:palette
+
+      - name: Design system — WCAG contrast
+        run: npm run check:contrast
+
+      - name: Design system — token usage
+        run: npm run check:usage
+
       - name: Build
         run: npm run build
         env:

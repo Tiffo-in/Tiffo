@@ -1,27 +1,52 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MagnifyingGlassIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import {
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  SparklesIcon,
+  ShieldCheckIcon,
+  ViewfinderCircleIcon,
+} from '@heroicons/react/24/outline';
 
-const categories = [
-  { label: 'Breakfast', image: '/south.jpeg' },
-  { label: 'Lunch', image: '/north.jpeg' },
-  { label: 'Dinner', image: '/tiffin.jpeg' },
-  { label: 'Healthy', image: '/south.jpeg' },
-  { label: 'Jain', image: '/north.jpeg' },
-  { label: 'North Indian', image: '/tiffin.jpeg' },
-  { label: 'South Indian', image: '/south.jpeg' },
-  { label: 'Punjabi', image: '/north.jpeg' },
-  { label: 'Gujarati', image: '/tiffin.jpeg' },
+// Qualities we can actually stand behind. Deliberately no delivery-time or
+// order-count claims — there is no public stats endpoint backing those, and
+// inventing them here is what the mobile card had to be corrected for.
+const trustChips = [
+  { icon: SparklesIcon, title: 'Freshly Cooked', sub: 'Made to order' },
+  { icon: ShieldCheckIcon, title: 'Hygienic & Safe', sub: 'Verified kitchens' },
 ];
 
 const HomeHero = ({ user }) => {
   const [location, setLocation] = useState('');
+  const [coords, setCoords] = useState(null);
+  const [locating, setLocating] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate('/tiffins');
+    // The Tiffins page filters by GPS coordinates (not free text), so only the
+    // "use my location" coordinates carry a real query through; the typed text
+    // is a visual hint until a text-search backend exists.
+    if (coords) {
+      navigate(`/tiffins?lat=${coords.lat}&lng=${coords.lng}&radius=10`);
+    } else {
+      navigate('/tiffins');
+    }
+  };
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords: c }) => {
+        setCoords({ lat: c.latitude, lng: c.longitude });
+        setLocation(`${c.latitude.toFixed(4)}, ${c.longitude.toFixed(4)}`);
+        setLocating(false);
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const partnerCta = !user
@@ -31,19 +56,10 @@ const HomeHero = ({ user }) => {
       : { to: '/partner/dashboard', label: 'Partner Dashboard' };
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-0 overflow-hidden bg-[#0F1016]">
-      {/* Background grain texture */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
-        }}
-      />
-
-      {/* Ambient glow blobs */}
-      <div className="absolute top-20 right-[10%] w-[600px] h-[600px] bg-primary-500/8 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-[#FF9F43]/5 rounded-full blur-[120px] pointer-events-none" />
+    <section className="relative min-h-screen flex flex-col justify-center pt-28 pb-16 overflow-hidden bg-gradient-hero">
+      {/* Ambient warm glow — brand tint, so it reads on both themes */}
+      <div className="absolute top-20 right-[10%] w-[600px] h-[600px] bg-brand/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 left-[5%] w-[400px] h-[400px] bg-brand/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-6 items-center">
@@ -54,49 +70,68 @@ const HomeHero = ({ user }) => {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="lg:col-span-5 flex flex-col gap-6"
           >
-            {/* Heading */}
+            {/* Cities pill */}
+            <div className="inline-flex items-center gap-2 self-start bg-surface border border-neutral-100 rounded-full pl-3 pr-4 py-2 shadow-card">
+              <MapPinIcon className="w-4 h-4 text-brand" />
+              <span className="text-neutral-600 text-sm">
+                Available in <span className="text-neutral-900 font-semibold">Bhopal, Indore</span>{' '}
+                & 12+ cities
+              </span>
+            </div>
+
+            {/* Heading. The accent line uses primary-600 (#E86800): the flat
+                brand orange is only 2.6:1 on warm white and misses even the
+                3:1 large-text floor, while #E86800 clears it at 3.2:1. */}
             <div>
-              <h1 className="text-5xl md:text-6xl lg:text-[4.2rem] font-black text-white leading-[1.08] tracking-tight">
+              <h1 className="font-display text-5xl md:text-6xl lg:text-[4.2rem] font-black text-neutral-900 leading-[1.08] tracking-tight">
                 Homemade Tiffins
                 <br />
-                <span className="text-primary-500">Delivered Fresh.</span>
+                <span className="text-primary-600">Delivered Fresh.</span>
               </h1>
-              <p className="mt-5 text-base text-[#B5B8C5] leading-relaxed max-w-xl">
+              <p className="mt-5 text-base text-neutral-600 leading-relaxed max-w-xl">
                 Discover authentic homemade meals from verified local kitchens. Healthy, hygienic
                 and delivered right to your door.
               </p>
             </div>
 
-            {/* Available in cities badge */}
-            <div className="inline-flex items-center gap-2 self-start">
-              <MapPinIcon className="w-4 h-4 text-primary-500" />
-              <span className="text-[#B5B8C5] text-sm">
-                Available in <span className="text-primary-500 font-semibold">Bhopal, Indore</span>{' '}
-                & 12+ cities
-              </span>
-            </div>
-
-            {/* Search Bar */}
+            {/* Search capsule — one white card holding input + locate + submit */}
             <form
               onSubmit={handleSearch}
-              className="flex items-center gap-2 bg-[#181A22] border border-[rgba(255,255,255,0.08)] rounded-2xl p-2 max-w-lg shadow-2xl"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-surface border border-neutral-100 rounded-2xl p-2 max-w-2xl shadow-card"
             >
-              <div className="flex-1 flex items-center gap-3 px-3">
-                <MapPinIcon className="w-5 h-5 text-[#B5B8C5] shrink-0" />
+              {/* min-w-0 lets this flex child actually shrink instead of
+                  forcing the input to clip its placeholder. */}
+              <div className="flex-1 min-w-0 flex items-center gap-3 px-3">
+                <MapPinIcon className="w-5 h-5 text-neutral-500 shrink-0" />
+                <label htmlFor="hero-location" className="sr-only">
+                  Delivery location
+                </label>
                 <input
+                  id="hero-location"
                   type="text"
-                  placeholder="Enter your delivery location"
+                  placeholder="Enter delivery location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="flex-1 bg-transparent text-white placeholder:text-[#B5B8C5]/50 outline-none text-sm font-medium py-2"
+                  className="flex-1 bg-transparent text-neutral-900 placeholder:text-neutral-400 outline-none text-sm font-medium py-2 w-full"
                 />
               </div>
+
+              <button
+                type="button"
+                onClick={handleUseMyLocation}
+                disabled={locating}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:text-brand-ink hover:bg-brand-tint transition-colors shrink-0 disabled:opacity-60"
+              >
+                <ViewfinderCircleIcon className="w-4 h-4" />
+                {locating ? 'Locating…' : 'Use my location'}
+              </button>
+
               <button
                 type="submit"
-                className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-primary-500/30 shrink-0 flex items-center gap-2"
+                className="bg-gradient-cta text-on-brand font-bold px-6 py-3 rounded-xl text-sm transition-all duration-200 shadow-card hover:shadow-card-hover shrink-0 flex items-center justify-center gap-2"
               >
                 <MagnifyingGlassIcon className="w-4 h-4" />
-                Search
+                Search Meals
               </button>
             </form>
 
@@ -105,7 +140,7 @@ const HomeHero = ({ user }) => {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   to="/tiffins"
-                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-500 hover:bg-[#FF9F43] text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-lg shadow-primary-500/25"
+                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-cta text-on-brand rounded-xl font-bold text-sm transition-all duration-200 shadow-card hover:shadow-card-hover"
                 >
                   Browse Tiffins
                 </Link>
@@ -113,7 +148,7 @@ const HomeHero = ({ user }) => {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   to={partnerCta.to}
-                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent hover:bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] text-white rounded-xl font-bold text-sm transition-all duration-200"
+                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-surface hover:bg-surface-alt border border-neutral-200 hover:border-brand-border text-neutral-900 rounded-xl font-bold text-sm transition-all duration-200"
                 >
                   {partnerCta.label}
                 </Link>
@@ -121,7 +156,7 @@ const HomeHero = ({ user }) => {
             </div>
           </motion.div>
 
-          {/* RIGHT: Hero image extra large */}
+          {/* RIGHT: Hero image with floating trust chips */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -129,96 +164,45 @@ const HomeHero = ({ user }) => {
             className="lg:col-span-7 flex items-center justify-center lg:justify-end relative w-full lg:translate-x-12"
           >
             <div className="relative w-full flex items-center justify-center lg:justify-end">
-              <img
-                src="/home.png"
+              {/* Soft spotlight behind the subject so it emerges from light
+                  instead of sitting flat on the gradient. */}
+              <div className="absolute inset-0 flex items-center justify-center lg:justify-end pointer-events-none">
+                <div className="w-[70%] aspect-square rounded-full bg-brand/20 blur-[90px]" />
+              </div>
+
+              {/* Continuous slow float + a real drop shadow gives the image
+                  depth so it lifts off the page rather than reading as pasted. */}
+              <motion.img
+                src="https://res.cloudinary.com/dtqxljodl/image/upload/v1785792269/home_vblcf0.png"
                 alt="Homemade Tiffins Delivered Fresh"
-                className="w-full h-auto object-contain scale-135 lg:scale-175 origin-center lg:origin-right transition-transform duration-300 drop-shadow-2xl"
+                animate={{ y: [0, -14, 0] }}
+                transition={{ duration: 6, ease: 'easeInOut', repeat: Infinity }}
+                className="relative w-full h-auto object-contain scale-110 lg:scale-175 origin-center lg:origin-right [filter:drop-shadow(0_30px_45px_rgba(80,40,10,0.28))]"
               />
+
+              {/* Floating chips, hidden on small screens where they'd collide */}
+              {trustChips.map((chip, i) => (
+                <motion.div
+                  key={chip.title}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + i * 0.15, duration: 0.5 }}
+                  className={`hidden lg:flex absolute items-center gap-2.5 bg-surface border border-neutral-100 rounded-2xl px-4 py-3 shadow-card ${
+                    i === 0 ? 'top-[12%] left-0' : 'top-[38%] right-0'
+                  }`}
+                >
+                  <span className="w-9 h-9 rounded-xl bg-brand-tint flex items-center justify-center shrink-0">
+                    <chip.icon className="w-5 h-5 text-brand" />
+                  </span>
+                  <span className="flex flex-col leading-tight">
+                    <span className="text-sm font-bold text-neutral-900">{chip.title}</span>
+                    <span className="text-xs text-neutral-500">{chip.sub}</span>
+                  </span>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
-
-        {/* Categories */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.7 }}
-          className="mt-16 pb-12"
-        >
-          <div className="flex items-center gap-5 overflow-x-auto pb-2 scrollbar-hide justify-between">
-            {categories.map((cat) => (
-              <Link
-                key={cat.label}
-                to={`/tiffins?category=${encodeURIComponent(cat.label)}`}
-                className="flex flex-col items-center gap-2.5 shrink-0 group"
-              >
-                <div className="w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/60 transition-all duration-300 shadow-lg group-hover:shadow-primary-500/20">
-                  <img
-                    src={cat.image}
-                    alt={cat.label}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
-                <span className="text-xs text-[#B5B8C5] group-hover:text-primary-500 font-medium transition-colors">
-                  {cat.label}
-                </span>
-              </Link>
-            ))}
-
-            {/* More button */}
-            <Link to="/tiffins" className="flex flex-col items-center gap-2.5 shrink-0 group">
-              <div className="w-[72px] h-[72px] rounded-full border-2 border-[rgba(255,255,255,0.08)] group-hover:border-primary-500/60 bg-[#1B1E27] flex items-center justify-center transition-all duration-300">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-[#B5B8C5] group-hover:text-primary-500 transition-colors"
-                >
-                  <rect
-                    x="3"
-                    y="3"
-                    width="8"
-                    height="8"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                  <rect
-                    x="13"
-                    y="3"
-                    width="8"
-                    height="8"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                  <rect
-                    x="3"
-                    y="13"
-                    width="8"
-                    height="8"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                  <rect
-                    x="13"
-                    y="13"
-                    width="8"
-                    height="8"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                </svg>
-              </div>
-              <span className="text-xs text-[#B5B8C5] group-hover:text-primary-500 font-medium transition-colors">
-                More
-              </span>
-            </Link>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { StarIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../LoadingSpinner';
+import TiffinCard from '../TiffinCard';
 
 // Sample popular tiffins for display when API tiffins aren't available
 const popularTiffins = [
@@ -80,81 +81,25 @@ const popularTiffins = [
   },
 ];
 
-// Compact tiffin card matching the reference design
-const PopularCard = ({ tiffin, index }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-60px' }}
-    transition={{ duration: 0.5, delay: index * 0.08 }}
-    whileHover={{ y: -6 }}
-    className="bg-[#1B1E27] rounded-2xl overflow-hidden group hover:ring-1 hover:ring-primary-500/40 transition-all duration-300 flex flex-col min-w-[180px]"
-  >
-    {/* Image */}
-    <div className="relative h-44 overflow-hidden">
-      <img
-        src={tiffin.image || '/tiffin.jpeg'}
-        alt={tiffin.name}
-        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+const VISIBLE_COUNT = 5;
 
-      {/* Veg/Non-veg pill badge */}
-      <div
-        className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg ${
-          tiffin.isVeg ? 'bg-[#2ECC71] text-white' : 'bg-primary-500 text-white'
-        }`}
-      >
-        <span
-          className={`w-2 h-2 rounded-full ${tiffin.isVeg ? 'bg-green-300' : 'bg-orange-300'}`}
-        />
-        {tiffin.isVeg ? 'Veg' : 'Non-Veg'}
-      </div>
-
-      {/* Star rating badge - bottom left of image */}
-      <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg">
-        <StarIcon className="w-3.5 h-3.5 text-amber-400" />
-        <span className="text-white text-xs font-bold">{tiffin.rating?.toFixed(1) || '4.5'}</span>
-      </div>
-    </div>
-
-    {/* Content */}
-    <div className="p-4 flex flex-col flex-1">
-      <h3 className="text-white font-bold text-[15px] leading-snug mb-1.5 group-hover:text-primary-500 transition-colors line-clamp-1">
-        {tiffin.name}
-      </h3>
-      <p className="text-[#B5B8C5]/60 text-xs leading-relaxed mb-4 flex-1 line-clamp-2">
-        {tiffin.description}
-      </p>
-
-      {/* Price */}
-      <div className="mb-1">
-        <span className="text-white font-black text-xl">₹{tiffin.price}</span>
-        <span className="text-[#B5B8C5]/50 text-xs">/day</span>
-      </div>
-
-      {/* Free Delivery tag */}
-      <div className="flex items-center gap-1 mb-4">
-        <span className="text-[#2ECC71] text-[11px] font-medium">Free Delivery</span>
-      </div>
-
-      {/* View Plans button */}
-      <Link
-        to={`/tiffins/${tiffin._id}`}
-        className="w-full block text-center bg-transparent hover:bg-primary-500 border border-primary-500 text-primary-500 hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200"
-      >
-        View Plans
-      </Link>
-    </div>
-  </motion.div>
-);
+const ratingOf = (t) => (typeof t.rating === 'number' ? t.rating : (t.rating?.average ?? null));
 
 const HomeFeaturedTiffins = ({ tiffins, isLoading }) => {
-  const displayTiffins = tiffins && tiffins.length > 0 ? tiffins : popularTiffins;
+  const displayTiffins = (tiffins && tiffins.length > 0 ? tiffins : popularTiffins).slice(
+    0,
+    VISIBLE_COUNT
+  );
+
+  // Highlight the best-rated card rather than a fixed slot, so the emphasis is
+  // driven by real data instead of position.
+  const featuredIndex = displayTiffins.reduce(
+    (best, t, i) => ((ratingOf(t) ?? -1) > (ratingOf(displayTiffins[best]) ?? -1) ? i : best),
+    0
+  );
 
   return (
-    <section className="py-20 bg-[#0F1016] relative">
-      {/* Subtle divider glow */}
+    <section className="py-20 bg-surface-page relative">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -165,14 +110,15 @@ const HomeFeaturedTiffins = ({ tiffins, isLoading }) => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <div className="flex items-center gap-2 mb-2">
-              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-                Popular <span className="text-primary-500">Tiffins</span>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="w-10 h-10 rounded-full bg-brand-tint flex items-center justify-center shrink-0">
+                <StarIcon className="w-5 h-5 text-brand" />
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-black text-neutral-900 tracking-tight">
+                Popular <span className="text-primary-600">Tiffins</span>
               </h2>
             </div>
-            <p className="text-[#B5B8C5]/60 text-sm italic">
-              Top-rated meals loved by our customers
-            </p>
+            <p className="text-neutral-600 text-sm">Top-rated meals from our verified kitchens</p>
           </motion.div>
 
           <motion.div
@@ -182,7 +128,7 @@ const HomeFeaturedTiffins = ({ tiffins, isLoading }) => {
           >
             <Link
               to="/tiffins"
-              className="inline-flex items-center gap-1.5 text-sm font-bold text-primary-500 hover:text-[#FF9F43] transition-colors group"
+              className="inline-flex items-center gap-1.5 rounded-full border border-brand-border px-5 py-2.5 text-sm font-bold text-brand-ink hover:bg-brand-tint hover:border-brand transition-colors group"
             >
               View All Meals
               <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -190,43 +136,30 @@ const HomeFeaturedTiffins = ({ tiffins, isLoading }) => {
           </motion.div>
         </div>
 
-        {/* Horizontal scrollable grid of 6 cards */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <LoadingSpinner size="large" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {displayTiffins.slice(0, 6).map((tiffin, index) =>
-              tiffin._id?.startsWith('p') ? (
-                <PopularCard key={tiffin._id} tiffin={tiffin} index={index} />
-              ) : (
-                <motion.div
-                  key={tiffin._id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.5, delay: index * 0.08 }}
-                >
-                  <PopularCard
-                    tiffin={{
-                      ...tiffin,
-                      name: tiffin.title || tiffin.name,
-                      price: tiffin.price?.daily || tiffin.price || 0,
-                      rating: tiffin.rating?.average || tiffin.rating || 4.5,
-                      isVeg:
-                        tiffin.isVeg ||
-                        tiffin.dietary?.some((d) =>
-                          ['vegetarian', 'vegan'].includes(d.toLowerCase())
-                        ),
-                      image: tiffin.images?.[0] || tiffin.image || '/tiffin.jpeg',
-                      tag: 'Free Delivery',
-                    }}
-                    index={index}
-                  />
-                </motion.div>
-              )
-            )}
+          // lg:pt-7 leaves room for the featured card, which grows upward by
+          // its ribbon's height so all five images stay on one line.
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-stretch lg:pt-7">
+            {displayTiffins.map((tiffin, index) => (
+              <motion.div
+                key={tiffin._id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                className="h-full"
+              >
+                <TiffinCard
+                  tiffin={tiffin}
+                  featured={index === featuredIndex && ratingOf(tiffin) != null}
+                  featuredLabel="Top Rated"
+                />
+              </motion.div>
+            ))}
           </div>
         )}
       </div>

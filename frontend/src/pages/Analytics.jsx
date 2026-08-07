@@ -48,7 +48,7 @@ const Analytics = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse">
             <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-2xl mb-8"></div>
@@ -65,7 +65,7 @@ const Analytics = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Premium Header */}
       <div className="bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -81,23 +81,23 @@ const Analytics = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-card">
                   <span className="text-3xl">📊</span>
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h1 className="text-2xl font-bold text-white">Analytics Dashboard</h1>
+                    <h1 className="text-2xl font-bold text-neutral-900">Analytics Dashboard</h1>
                     <CheckBadgeIcon className="w-6 h-6 text-blue-200" />
                   </div>
-                  <p className="text-white/80 text-sm mt-0.5 flex items-center">
+                  <p className="text-neutral-700 text-sm mt-0.5 flex items-center">
                     <SparklesIcon className="w-4 h-4 mr-1" />
                     Business insights & performance
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-white/80 text-sm">Conversion Rate</p>
-                <p className="text-3xl font-bold text-white">{analytics.conversionRate}%</p>
+                <p className="text-neutral-700 text-sm">Conversion Rate</p>
+                <p className="text-3xl font-bold text-neutral-900">{analytics.conversionRate}%</p>
               </div>
             </div>
           </motion.div>
@@ -147,7 +147,7 @@ const Analytics = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               whileHover={{ y: -4, scale: 1.02 }}
-              className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
+              className="bg-white rounded-2xl p-6 shadow-card-hover hover:shadow-card-hover transition-all duration-300 border border-neutral-100"
             >
               <div className="flex items-start justify-between mb-4">
                 <div
@@ -156,14 +156,14 @@ const Analytics = () => {
                   <span className="text-2xl">{stat.icon}</span>
                 </div>
                 <div
-                  className={`w-10 h-10 bg-gradient-to-r ${stat.iconBg} rounded-xl flex items-center justify-center shadow-lg`}
+                  className={`w-10 h-10 bg-gradient-to-r ${stat.iconBg} rounded-xl flex items-center justify-center shadow-card`}
                 >
-                  <ArrowTrendingUpIcon className="w-5 h-5 text-white" />
+                  <ArrowTrendingUpIcon className="w-5 h-5 text-neutral-900" />
                 </div>
               </div>
               <p className={`text-3xl font-bold ${stat.textColor} mb-1`}>{stat.value}</p>
               <p className="text-sm text-neutral-500 mb-1">{stat.label}</p>
-              <p className="text-xs text-neutral-400">{stat.subtitle}</p>
+              <p className="text-xs text-neutral-500">{stat.subtitle}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -177,7 +177,7 @@ const Analytics = () => {
         >
           <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
           >
             <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-4 border-b border-neutral-100">
               <div className="flex items-center gap-3">
@@ -221,7 +221,7 @@ const Analytics = () => {
 
           <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
           >
             <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-4 border-b border-neutral-100">
               <div className="flex items-center gap-3">
@@ -268,7 +268,7 @@ const Analytics = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden mb-8"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden mb-8"
         >
           <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-5 border-b border-neutral-100">
             <div className="flex items-center justify-between">
@@ -371,7 +371,7 @@ const Analytics = () => {
           {/* Insights */}
           <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
           >
             <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-4 border-b border-neutral-100">
               <div className="flex items-center gap-3">
@@ -402,7 +402,7 @@ const Analytics = () => {
                   <p
                     className={`text-sm ${analytics.conversionRate >= 15 ? 'text-green-600' : 'text-amber-600'}`}
                   >
-                    Your {analytics.conversionRate}% rate is{' '}
+                    Your {analytics.conversionRate}% rate is{''}
                     {analytics.conversionRate >= 15 ? 'above' : 'below'} the 15% industry target.
                   </p>
                 </div>
@@ -449,7 +449,7 @@ const Analytics = () => {
           {/* Goals */}
           <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
           >
             <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-4 border-b border-neutral-100">
               <div className="flex items-center gap-3">

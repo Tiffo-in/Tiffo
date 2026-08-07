@@ -51,7 +51,7 @@ const PricingDiscountsTab = ({ tiffins, loading, onRefresh, onCreateFirst }) => 
         </div>
       </div>
     ) : tiffins.length === 0 ? (
-      <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-12 text-center">
+      <div className="bg-white rounded-2xl shadow-card border border-neutral-100 p-12 text-center">
         <div className="text-6xl mb-4">🍱</div>
         <h3 className="text-xl font-bold text-neutral-900 mb-2">No tiffins yet</h3>
         <p className="text-neutral-500 mb-6">
@@ -81,15 +81,19 @@ const PricingDiscountsTab = ({ tiffins, loading, onRefresh, onCreateFirst }) => 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {tiffins.map((tiffin) => (
-            <motion.div key={tiffin._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <motion.div
+              key={tiffin._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               <DiscountManager tiffin={tiffin} onSaved={onRefresh} />
             </motion.div>
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6">
+        <div className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6">
           <h3 className="font-bold text-neutral-900 mb-4 flex items-center gap-2">
-            <SparklesIcon className="w-5 h-5 text-primary-500" /> How Discounts Work
+            <SparklesIcon className="w-5 h-5 text-brand" /> How Discounts Work
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             {HOW_IT_WORKS.map((item) => (

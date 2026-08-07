@@ -150,14 +150,14 @@ const AdminDeliveries = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-neutral-500 border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
       <div className="bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -172,17 +172,17 @@ const AdminDeliveries = () => {
                 to="/admin/dashboard"
                 className="p-2 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
               >
-                <ArrowLeftIcon className="w-5 h-5 text-white" />
+                <ArrowLeftIcon className="w-5 h-5 text-neutral-900" />
               </Link>
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <TruckIcon className="w-6 h-6 text-white" />
+                <TruckIcon className="w-6 h-6 text-neutral-900" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-white">Deliveries</h1>
+                  <h1 className="text-2xl font-bold text-neutral-900">Deliveries</h1>
                   <CheckBadgeIcon className="w-6 h-6 text-green-400" />
                 </div>
-                <p className="text-white/70 text-sm">Track and manage deliveries</p>
+                <p className="text-neutral-700 text-sm">Track and manage deliveries</p>
               </div>
             </div>
             <div className="flex bg-white/20 backdrop-blur-sm rounded-xl p-1">
@@ -193,7 +193,7 @@ const AdminDeliveries = () => {
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
                     dateFilter === range
                       ? 'bg-white text-neutral-800'
-                      : 'text-white hover:bg-white/20'
+                      : 'text-neutral-900 hover:bg-white/20'
                   }`}
                 >
                   {range}
@@ -224,12 +224,12 @@ const AdminDeliveries = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-4"
+              className="bg-white rounded-2xl shadow-card border border-neutral-100 p-4"
             >
               <div
                 className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center mb-3`}
               >
-                <TruckIcon className="w-5 h-5 text-white" />
+                <TruckIcon className="w-5 h-5 text-neutral-900" />
               </div>
               <p className="text-2xl font-bold text-neutral-900">{stat.value}</p>
               <p className="text-xs text-neutral-500">{stat.label}</p>
@@ -242,7 +242,7 @@ const AdminDeliveries = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-4 mb-6"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 p-4 mb-6"
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
@@ -264,7 +264,7 @@ const AdminDeliveries = () => {
                     onClick={() => setFilter(status)}
                     className={`px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                       filter === status
-                        ? 'bg-neutral-800 text-white'
+                        ? 'bg-neutral-800 text-neutral-900'
                         : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                     }`}
                   >
@@ -281,7 +281,7 @@ const AdminDeliveries = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
         >
           <div className="px-6 py-4 border-b border-neutral-100 flex items-center justify-between">
             <h2 className="text-lg font-bold text-neutral-900">Delivery Schedule</h2>

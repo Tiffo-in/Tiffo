@@ -17,6 +17,7 @@ import { login as loginAction } from '../store/slices/authSlice';
 import AuthBrandPanel from '../components/auth/AuthBrandPanel';
 import RoleSelector from '../components/auth/RoleSelector';
 import FormField from '../components/auth/FormField';
+import { useTheme } from '../contexts/ThemeContext';
 
 const REGISTER_BENEFITS = [
   '100% Authentic homemade meals from verified local chefs.',
@@ -30,6 +31,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -86,11 +88,13 @@ const Register = () => {
         });
         const container = document.getElementById('google-signin-button');
         if (!container) return;
+        // Re-rendering on role/theme change would otherwise stack a second button.
+        container.innerHTML = '';
         // GSI buttons render at a fixed pixel width (Google caps it at 400)
         // and never shrink, so a hardcoded width overflows small screens —
         // derive the width from the container instead.
         window.google.accounts.id.renderButton(container, {
-          theme: 'outline',
+          theme: isDark ? 'filled_black' : 'outline',
           size: 'large',
           width: Math.min(400, container.offsetWidth || 400),
         });
@@ -106,7 +110,7 @@ const Register = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userRole]); // Re-initialize when role changes so backend gets the updated role
+  }, [userRole, isDark]); // Re-initialize when role or theme changes
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -126,7 +130,7 @@ const Register = () => {
         toast.success(
           response.data.message ||
             'Registration successful! Please check your email to verify your account.',
-          { duration: 6000 },
+          { duration: 6000 }
         );
         navigate('/login');
       }
@@ -145,15 +149,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-stretch bg-neutral-50 dark:bg-neutral-950 selection:bg-primary-200 selection:text-primary-900">
+    <div className="min-h-screen flex items-stretch bg-surface-page selection:bg-primary-200 selection:text-primary-900">
       <AuthBrandPanel
         image="/register.jpeg"
         heading={
           <>
             Your journey to <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
-              great food
-            </span>{' '}
+            <span className="text-primary-400">great food</span>
+            {''}
             begins here.
           </>
         }
@@ -163,11 +166,11 @@ const Register = () => {
       />
 
       {/* No justify-center here: with overflow-y-auto it would clip the top of an
-          overflowing form and make it unscrollable — the card's my-auto centers it
-          when it fits. pt-28 clears the fixed navbar (~88px). */}
-      <div className="flex-1 flex flex-col items-center px-6 sm:px-12 pt-28 pb-12 relative dark:bg-neutral-950 overflow-y-auto">
+ overflowing form and make it unscrollable — the card's my-auto centers it
+ when it fits. pt-28 clears the fixed navbar (~88px). */}
+      <div className="flex-1 flex flex-col items-center px-6 sm:px-12 pt-28 pb-12 relative overflow-y-auto">
         <motion.div
-          className="w-full max-w-[480px] my-auto"
+          className="w-full max-w-[440px] my-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -175,21 +178,19 @@ const Register = () => {
           <div className="lg:hidden text-center mb-10">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 dark:text-white mb-2"
+              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 mb-2"
             >
               <img src="/logo.png" alt="Tiffo Logo" className="h-10 w-auto" /> Tiffo
-              <span className="text-primary-500">.</span>
+              <span className="text-brand-ink">.</span>
             </Link>
-            <p className="text-neutral-500 dark:text-neutral-400">
-              Join the homemade food revolution.
-            </p>
+            <p className="text-neutral-500">Join the homemade food revolution.</p>
           </div>
 
           <div className="mb-8 hidden lg:block">
-            <h2 className="text-3xl font-black text-neutral-900 dark:text-white mb-2 tracking-tight">
+            <h2 className="text-3xl font-black text-neutral-900 mb-2 tracking-tight">
               Create an account
             </h2>
-            <p className="text-neutral-500 dark:text-neutral-400 font-medium">
+            <p className="text-neutral-500 font-medium">
               Ready for delicious home-cooked meals? Let's get started.
             </p>
           </div>
@@ -232,7 +233,8 @@ const Register = () => {
                   required: 'Phone number is required',
                   pattern: {
                     value: /^[6-9]\d{9}$/,
-                    message: 'Please enter a valid 10-digit Indian mobile number (e.g., 9876543210)',
+                    message:
+                      'Please enter a valid 10-digit Indian mobile number (e.g., 9876543210)',
                   },
                 })}
                 error={errors.phone}
@@ -276,10 +278,10 @@ const Register = () => {
                   <input
                     {...register('terms', { required: true })}
                     type="checkbox"
-                    className="peer appearance-none w-5 h-5 border-2 border-neutral-300 dark:border-neutral-700 rounded cursor-pointer checked:bg-primary-500 checked:border-primary-500 transition-colors"
+                    className="peer appearance-none w-5 h-5 border-2 border-neutral-300 rounded cursor-pointer checked:bg-primary-500 checked:border-primary-500 transition-colors"
                   />
                   <svg
-                    className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"
+                    className="absolute w-3 h-3 text-on-brand opacity-0 peer-checked:opacity-100 pointer-events-none"
                     viewBox="0 0 14 10"
                     fill="none"
                   >
@@ -292,18 +294,19 @@ const Register = () => {
                     />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  I agree to the{' '}
+                <span className="text-sm font-medium text-neutral-600 leading-relaxed">
+                  I agree to the{''}
                   <Link
                     to="/terms"
-                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 font-bold transition-colors"
+                    className="text-primary-600 hover:text-primary-700 font-bold transition-colors"
                   >
                     Terms of Service
-                  </Link>{' '}
-                  and{' '}
+                  </Link>
+                  {''}
+                  and{''}
                   <Link
                     to="/privacy"
-                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 font-bold transition-colors"
+                    className="text-primary-600 hover:text-primary-700 font-bold transition-colors"
                   >
                     Privacy Policy
                   </Link>
@@ -319,7 +322,7 @@ const Register = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-lg py-4 rounded-xl font-black hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-4 focus:ring-neutral-900/20 dark:focus:ring-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-neutral-900/20 dark:shadow-white/10 flex items-center justify-center gap-2"
+                className="btn-primary w-full text-lg py-4 font-black focus:outline-none focus:ring-4 focus:ring-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -353,10 +356,10 @@ const Register = () => {
 
             <div className="relative pt-4 pb-2">
               <div className="absolute inset-0 flex items-center pt-2">
-                <div className="w-full border-t border-neutral-200 dark:border-neutral-800"></div>
+                <div className="w-full border-t border-neutral-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 font-bold">
+                <span className="px-4 bg-surface-page text-neutral-500 font-bold">
                   or continue with
                 </span>
               </div>
@@ -368,11 +371,11 @@ const Register = () => {
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-neutral-600 dark:text-neutral-400 font-medium">
-              Already have an account?{' '}
+            <p className="text-neutral-600 font-medium">
+              Already have an account?{''}
               <Link
                 to="/login"
-                className="font-black text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                className="font-black text-primary-600 hover:text-primary-700 transition-colors"
               >
                 Sign in instead
               </Link>

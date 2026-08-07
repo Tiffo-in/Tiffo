@@ -50,19 +50,19 @@ const DeliveryStatusModal = ({ isOpen, onClose, deliveries, date, customerName }
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="relative bg-[#14151e] border border-zinc-800/80 rounded-2xl shadow-2xl p-6 w-full max-w-md text-zinc-100 z-10"
+            className="relative bg-surface border border-neutral-200/80 rounded-2xl shadow-card-hover p-6 w-full max-w-md text-neutral-900 z-10"
           >
             {/* Header */}
-            <div className="flex justify-between items-center pb-4 mb-4 border-b border-zinc-800">
+            <div className="flex justify-between items-center pb-4 mb-4 border-b border-neutral-200">
               <div>
-                <h3 className="text-base font-bold text-white">Update Delivery Status</h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <h3 className="text-base font-bold text-neutral-900">Update Delivery Status</h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
                   {customerName} • {new Date(date).toLocaleDateString()}
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-xl bg-surface-alt/80 hover:bg-surface-alt text-neutral-500 hover:text-neutral-900 flex items-center justify-center transition-colors"
               >
                 <XMarkIcon className="w-4 h-4" />
               </button>
@@ -73,17 +73,19 @@ const DeliveryStatusModal = ({ isOpen, onClose, deliveries, date, customerName }
               {Object.entries(deliveries).map(([mealType, delivery]) => (
                 <div
                   key={mealType}
-                  className="bg-zinc-900/80 border border-zinc-800 rounded-xl p-4 space-y-3"
+                  className="bg-surface/80 border border-neutral-200 rounded-xl p-4 space-y-3"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">{getMealIcon(mealType)}</span>
-                      <span className="text-xs font-bold text-white capitalize">{mealType}</span>
+                      <span className="text-xs font-bold text-neutral-900 capitalize">
+                        {mealType}
+                      </span>
                     </div>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         delivery.status === 'delivered'
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          ? 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/30'
                           : delivery.status === 'cancelled'
                             ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                             : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
@@ -100,7 +102,7 @@ const DeliveryStatusModal = ({ isOpen, onClose, deliveries, date, customerName }
                       className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1 ${
                         delivery.status === 'delivered'
                           ? 'bg-emerald-500/10 text-emerald-500 cursor-not-allowed border border-emerald-500/20'
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
+                          : 'bg-emerald-600 hover:bg-emerald-500 text-neutral-900 shadow-card'
                       }`}
                     >
                       <span>✓ Delivered</span>
@@ -112,7 +114,7 @@ const DeliveryStatusModal = ({ isOpen, onClose, deliveries, date, customerName }
                       className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1 ${
                         delivery.status === 'cancelled'
                           ? 'bg-rose-500/10 text-rose-500 cursor-not-allowed border border-rose-500/20'
-                          : 'bg-rose-600 hover:bg-rose-500 text-white shadow-md'
+                          : 'bg-rose-600 hover:bg-rose-500 text-neutral-900 shadow-card'
                       }`}
                     >
                       <span>✕ Cancel</span>

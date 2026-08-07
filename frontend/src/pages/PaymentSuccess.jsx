@@ -65,40 +65,40 @@ const PaymentSuccess = () => {
   if (!confirmed) {
     const progress = ((MAX_POLLS - pollsLeft) / MAX_POLLS) * 100;
     return (
-      <div className="min-h-screen bg-[#0b0c10] text-zinc-100 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-surface-page text-neutral-900 flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-sm w-full bg-[#14151e] border border-zinc-800/80 rounded-3xl shadow-2xl p-8 text-center"
+          className="max-w-sm w-full bg-surface border border-neutral-200 rounded-3xl shadow-card-hover p-8 text-center"
         >
           <div className="relative w-24 h-24 mx-auto mb-6">
             <div className="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping opacity-60" />
-            <div className="relative w-24 h-24 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
+            <div className="relative w-24 h-24 bg-emerald-100 border border-emerald-200 rounded-full flex items-center justify-center">
               <span className="text-4xl">💳</span>
             </div>
           </div>
 
-          <h2 className="text-xl font-bold text-white mb-2">Confirming your order...</h2>
-          <p className="text-xs text-zinc-400 mb-5">
+          <h2 className="text-xl font-bold text-neutral-900 mb-2">Confirming your order...</h2>
+          <p className="text-xs text-neutral-500 mb-5">
             This usually takes just a moment. Please keep this window open.
           </p>
 
-          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-2 bg-neutral-200 rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-orange-500 to-emerald-500 rounded-full"
+              className="h-full bg-gradient-to-r from-primary-500 to-emerald-500 rounded-full"
               initial={{ width: '0%' }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: POLL_INTERVAL_MS / 1000, ease: 'linear' }}
             />
           </div>
-          <p className="text-[11px] text-zinc-500 mt-2">Syncing payment status...</p>
+          <p className="text-[11px] text-neutral-500 mt-2">Syncing payment status...</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-zinc-100 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-surface-page text-neutral-900 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Confetti particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
@@ -124,7 +124,7 @@ const PaymentSuccess = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full bg-[#14151e] border border-zinc-800/80 rounded-3xl shadow-2xl p-8 text-center relative z-10 space-y-6"
+        className="max-w-md w-full bg-surface border border-neutral-200 rounded-3xl shadow-card-hover p-8 text-center relative z-10 space-y-6"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -138,19 +138,19 @@ const PaymentSuccess = () => {
         </motion.div>
 
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Order Confirmed!</h1>
-          <p className="text-xs text-zinc-400">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900">Order Confirmed!</h1>
+          <p className="text-xs text-neutral-500">
             Your tiffin subscription has been activated successfully.
           </p>
         </div>
 
         {/* What's Next Card */}
-        <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-5 text-left space-y-3">
-          <h3 className="font-bold text-sm text-white flex items-center space-x-2">
+        <div className="bg-surface-alt border border-neutral-200 rounded-2xl p-5 text-left space-y-3">
+          <h3 className="font-bold text-sm text-neutral-900 flex items-center space-x-2">
             <span>🎉</span>
             <span>What happens next?</span>
           </h3>
-          <ul className="space-y-2 text-xs text-zinc-300">
+          <ul className="space-y-2 text-xs text-neutral-600">
             {[
               'You will receive a confirmation receipt shortly',
               'Your kitchen partner has received your order',
@@ -158,7 +158,7 @@ const PaymentSuccess = () => {
               'Track live status anytime from your Dashboard',
             ].map((item, i) => (
               <li key={i} className="flex items-start space-x-2">
-                <span className="text-emerald-400 font-bold">✓</span>
+                <span className="text-emerald-600 font-bold">✓</span>
                 <span>{item}</span>
               </li>
             ))}
@@ -169,12 +169,12 @@ const PaymentSuccess = () => {
         <div className="space-y-3 pt-2">
           <Link
             to="/dashboard"
-            className="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center space-x-2 active:scale-95"
+            className="btn-primary w-full py-3 text-xs flex items-center justify-center space-x-2 active:scale-95"
           >
             <span>Go to Dashboard</span>
             <ArrowRightIcon className="w-4 h-4" />
           </Link>
-          <p className="text-[11px] text-zinc-500">Auto redirecting in 6 seconds...</p>
+          <p className="text-[11px] text-neutral-500">Auto redirecting in 6 seconds...</p>
         </div>
       </motion.div>
     </div>

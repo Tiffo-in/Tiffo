@@ -71,15 +71,13 @@ const TransactionRow = ({ payment, index }) => {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06 }}
-      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-2xl shadow-sm hover:shadow-md border border-neutral-100 transition-shadow"
+      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-white rounded-2xl shadow-card hover:shadow-card border border-neutral-100 transition-shadow"
     >
       <div className="flex items-center space-x-4">
         {/* Type icon */}
         <div
           className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-            payment.type === 'refund'
-              ? 'bg-blue-50 text-blue-500'
-              : 'bg-primary-50 text-primary-500'
+            payment.type === 'refund' ? 'bg-blue-50 text-blue-500' : 'bg-primary-50 text-brand'
           }`}
         >
           {payment.type === 'refund' ? (

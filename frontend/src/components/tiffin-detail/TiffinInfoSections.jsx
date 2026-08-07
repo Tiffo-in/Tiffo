@@ -11,7 +11,7 @@ const FEATURE_PILLS = [
 ];
 
 const NUTRITION_FIELDS = [
-  { key: 'calories', label: 'Calories', suffix: '', color: 'text-primary-500' },
+  { key: 'calories', label: 'Calories', suffix: '', color: 'text-primary-600' },
   { key: 'protein', label: 'Protein', suffix: 'g', color: 'text-blue-400' },
   { key: 'carbs', label: 'Carbs', suffix: 'g', color: 'text-amber-400' },
   { key: 'fat', label: 'Fat', suffix: 'g', color: 'text-rose-500' },
@@ -53,56 +53,54 @@ const TiffinInfoSections = ({ tiffin }) => {
   return (
     <div className="space-y-6">
       {/* 1. ABOUT THIS TIFFIN */}
-      <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 shadow-xl">
-        <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+      <div className="bg-surface border border-neutral-100 rounded-2xl p-6 shadow-card-hover">
+        <h2 className="text-lg font-bold text-neutral-900 mb-3 flex items-center gap-2">
           <span>👨‍🍳</span>
           <span>About This Tiffin</span>
         </h2>
 
         {tiffin.description && (
-          <p className="text-[#B5B8C5] text-sm leading-relaxed mb-6">{tiffin.description}</p>
+          <p className="text-neutral-600 text-sm leading-relaxed mb-6">{tiffin.description}</p>
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {FEATURE_PILLS.map((pill) => (
             <div
               key={pill.label}
-              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#12141D] border border-[rgba(255,255,255,0.04)] text-xs text-[#B5B8C5]"
+              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-surface-alt border border-neutral-100 text-xs text-neutral-600"
             >
-              <span className="text-base text-primary-500">{pill.emoji}</span>
-              <span className="font-semibold text-white">{pill.label}</span>
+              <span className="text-base text-brand-ink">{pill.emoji}</span>
+              <span className="font-semibold text-neutral-900">{pill.label}</span>
             </div>
           ))}
         </div>
 
         {availableDays.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center gap-2 text-xs text-[#B5B8C5]">
-            <CalendarDaysIcon className="w-4 h-4 text-primary-500" />
+          <div className="mt-6 pt-4 border-t border-neutral-100 flex items-center gap-2 text-xs text-neutral-600">
+            <CalendarDaysIcon className="w-4 h-4 text-brand" />
             <span>Available on: </span>
-            <span className="font-bold text-primary-500 capitalize">
-              {availableDays.join(', ')}
-            </span>
+            <span className="font-bold text-brand-ink capitalize">{availableDays.join(', ')}</span>
           </div>
         )}
       </div>
 
       {/* 2. WHAT'S INSIDE (menu) */}
-      <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 shadow-xl">
-        <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+      <div className="bg-surface border border-neutral-100 rounded-2xl p-6 shadow-card-hover">
+        <h2 className="text-lg font-bold text-neutral-900 mb-4 flex items-center gap-2">
           <span>🍱</span>
           <span>What's Inside</span>
         </h2>
 
         {menuItems.length === 0 ? (
-          <p className="text-sm text-[#B5B8C5]/60">The kitchen hasn't listed the menu items yet.</p>
+          <p className="text-sm text-neutral-500">The kitchen hasn't listed the menu items yet.</p>
         ) : (
           <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {menuItems.map((item, idx) => (
               <div
                 key={item._id || idx}
-                className="flex flex-col items-center gap-2 shrink-0 bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-3 rounded-2xl w-28 text-center"
+                className="flex flex-col items-center gap-2 shrink-0 bg-surface-alt border border-neutral-100 p-3 rounded-2xl w-28 text-center"
               >
-                <div className="w-14 h-14 rounded-full overflow-hidden border border-primary-500/30 shrink-0 flex items-center justify-center bg-[#181A24]">
+                <div className="w-14 h-14 rounded-full overflow-hidden border border-brand-border shrink-0 flex items-center justify-center bg-surface">
                   {item.image || item.img ? (
                     <img
                       src={item.image || item.img}
@@ -113,7 +111,7 @@ const TiffinInfoSections = ({ tiffin }) => {
                     <span className="text-xl">🍽️</span>
                   )}
                 </div>
-                <span className="text-xs font-semibold text-white leading-tight line-clamp-2">
+                <span className="text-xs font-semibold text-neutral-900 leading-tight line-clamp-2">
                   {item.name}
                 </span>
               </div>
@@ -124,19 +122,19 @@ const TiffinInfoSections = ({ tiffin }) => {
 
       {/* 3. NUTRITION — only when the partner has provided it */}
       {nutritionFields.length > 0 && (
-        <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 shadow-xl">
-          <h2 className="text-lg font-bold text-white mb-4">Nutrition Info (Approx.)</h2>
+        <div className="bg-surface border border-neutral-100 rounded-2xl p-6 shadow-card-hover">
+          <h2 className="text-lg font-bold text-neutral-900 mb-4">Nutrition Info (Approx.)</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {nutritionFields.map((f) => (
               <div
                 key={f.key}
-                className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl text-center"
+                className="bg-surface-alt border border-neutral-100 p-4 rounded-2xl text-center"
               >
                 <div className={`text-2xl font-black ${f.color}`}>
                   {nutrition[f.key]}
                   {f.suffix}
                 </div>
-                <div className="text-xs text-[#B5B8C5]/60 font-medium">{f.label}</div>
+                <div className="text-xs text-neutral-500 font-medium">{f.label}</div>
               </div>
             ))}
           </div>
@@ -145,17 +143,17 @@ const TiffinInfoSections = ({ tiffin }) => {
 
       {/* 4. DELIVERY & AVAILABILITY — real fields only */}
       {(availableDays.length > 0 || deliveryRadius) && (
-        <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 shadow-xl">
-          <h2 className="text-lg font-bold text-white mb-4">Delivery & Availability</h2>
+        <div className="bg-surface border border-neutral-100 rounded-2xl p-6 shadow-card-hover">
+          <h2 className="text-lg font-bold text-neutral-900 mb-4">Delivery & Availability</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {availableDays.length > 0 && (
-              <div className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-primary-500/10 text-primary-500">
+              <div className="bg-surface-alt border border-neutral-100 p-4 rounded-2xl flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-primary-500/10 text-brand-ink">
                   <CalendarDaysIcon className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs text-[#B5B8C5]/60 font-medium">Available Days</div>
-                  <div className="text-sm font-bold text-white capitalize">
+                  <div className="text-xs text-neutral-500 font-medium">Available Days</div>
+                  <div className="text-sm font-bold text-neutral-900 capitalize">
                     {availableDays.join(', ')}
                   </div>
                 </div>
@@ -163,13 +161,15 @@ const TiffinInfoSections = ({ tiffin }) => {
             )}
 
             {deliveryRadius && (
-              <div className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-primary-500/10 text-primary-500">
+              <div className="bg-surface-alt border border-neutral-100 p-4 rounded-2xl flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-primary-500/10 text-brand-ink">
                   <MapPinIcon className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs text-[#B5B8C5]/60 font-medium">Delivery Radius</div>
-                  <div className="text-sm font-bold text-white">Within {deliveryRadius} km</div>
+                  <div className="text-xs text-neutral-500 font-medium">Delivery Radius</div>
+                  <div className="text-sm font-bold text-neutral-900">
+                    Within {deliveryRadius} km
+                  </div>
                 </div>
               </div>
             )}
@@ -178,14 +178,14 @@ const TiffinInfoSections = ({ tiffin }) => {
       )}
 
       {/* 5. CUSTOMER REVIEWS — real data */}
-      <div className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 shadow-xl">
+      <div className="bg-surface border border-neutral-100 rounded-2xl p-6 shadow-card-hover">
         <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-lg font-bold text-white">Customer Reviews</h2>
+          <h2 className="text-lg font-bold text-neutral-900">Customer Reviews</h2>
           {rating.count > 0 && (
-            <div className="flex items-center gap-1 text-xs font-bold text-white bg-[#12141D] px-2.5 py-1 rounded-lg border border-[rgba(255,255,255,0.06)]">
-              <StarIcon className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            <div className="flex items-center gap-1 text-xs font-bold text-neutral-900 bg-surface-alt px-2.5 py-1 rounded-lg border border-neutral-100">
+              <StarIcon className="w-3.5 h-3.5 text-rating fill-amber-400" />
               <span>{Number(rating.average).toFixed(1)}</span>
-              <span className="text-[#B5B8C5]/60 font-normal">
+              <span className="text-neutral-500 font-normal">
                 ({rating.count} review{rating.count === 1 ? '' : 's'})
               </span>
             </div>
@@ -193,7 +193,7 @@ const TiffinInfoSections = ({ tiffin }) => {
         </div>
 
         {reviews.length === 0 ? (
-          <p className="text-sm text-[#B5B8C5]/60">
+          <p className="text-sm text-neutral-500">
             No reviews yet — be the first to review this tiffin after your first delivery.
           </p>
         ) : (
@@ -201,30 +201,30 @@ const TiffinInfoSections = ({ tiffin }) => {
             {reviews.map((rev) => (
               <div
                 key={rev._id}
-                className="bg-[#12141D] border border-[rgba(255,255,255,0.04)] p-4 rounded-2xl"
+                className="bg-surface-alt border border-neutral-100 p-4 rounded-2xl"
               >
                 <div className="flex items-center gap-2.5 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-primary-500/20 text-primary-500 flex items-center justify-center text-xs font-black shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-brand-tint text-brand-ink flex items-center justify-center text-xs font-black shrink-0">
                     {(rev.user?.name || 'A').charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white leading-tight">
+                    <div className="text-xs font-bold text-neutral-900 leading-tight">
                       {rev.user?.name || 'Anonymous'}
                     </div>
-                    <div className="text-[10px] text-[#B5B8C5]/50">
+                    <div className="text-[10px] text-neutral-500">
                       {relativeDate(rev.createdAt)}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-0.5 text-amber-400 mb-2">
+                <div className="flex items-center gap-0.5 text-rating mb-2">
                   {[...Array(Math.round(rev.rating || 0))].map((_, i) => (
                     <StarIcon key={i} className="w-3 h-3 fill-amber-400" />
                   ))}
                 </div>
 
                 {rev.comment && (
-                  <p className="text-xs text-[#B5B8C5] leading-relaxed line-clamp-4">
+                  <p className="text-xs text-neutral-600 leading-relaxed line-clamp-4">
                     &ldquo;{rev.comment}&rdquo;
                   </p>
                 )}

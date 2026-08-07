@@ -129,13 +129,13 @@ function App() {
               {/* ── Skip Navigation — keyboard accessibility ─────────────────── */}
               <a
                 href="#main-content"
-                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:font-semibold"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-card focus:font-semibold"
               >
                 Skip to main content
               </a>
 
               <ErrorBoundary>
-                <div className="App min-h-screen bg-white dark:bg-neutral-950 transition-colors duration-300">
+                <div className="App min-h-screen bg-white transition-colors duration-300">
                   <SessionHydrator />
                   <Navbar />
                   <main id="main-content">

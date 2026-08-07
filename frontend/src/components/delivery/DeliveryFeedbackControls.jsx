@@ -71,7 +71,7 @@ const DeliveryFeedbackControls = ({ delivery, onDone }) => {
               aria-label={`${n} star${n > 1 ? 's' : ''}`}
               className="disabled:cursor-default"
             >
-              <Icon className={`w-4 h-4 ${filled ? 'text-amber-400' : 'text-neutral-300'}`} />
+              <Icon className={`w-4 h-4 ${filled ? 'text-rating' : 'text-neutral-300'}`} />
             </button>
           );
         })}
@@ -95,7 +95,7 @@ const DeliveryFeedbackControls = ({ delivery, onDone }) => {
       ) : (
         <button
           onClick={() => setReporting(true)}
-          className="text-xs text-neutral-400 hover:text-red-500"
+          className="text-xs text-neutral-500 hover:text-red-500"
         >
           Report an issue
         </button>

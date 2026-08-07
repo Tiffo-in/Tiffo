@@ -48,7 +48,7 @@ const ReportFraud = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="bg-white rounded-lg shadow-card p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -173,7 +173,7 @@ const ReportFraud = () => {
 
               <button
                 type="submit"
-                className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium"
+                className="w-full bg-red-600 text-neutral-900 py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium"
               >
                 Submit Fraud Report
               </button>

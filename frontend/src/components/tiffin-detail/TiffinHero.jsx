@@ -43,7 +43,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
       <div className="mb-4">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#B5B8C5] hover:text-white transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-600 hover:text-neutral-900 transition-colors cursor-pointer"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           <span>Back to all tiffins</span>
@@ -56,8 +56,8 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
         <div className="lg:col-span-6 flex flex-col justify-between h-full">
           <div>
             {/* Title */}
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
-              {mainTitle} <span className="text-primary-500">{highlightedTitle}</span>
+            <h1 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight mb-4 leading-tight">
+              {mainTitle} <span className="text-primary-600">{highlightedTitle}</span>
             </h1>
 
             {/* Tags Row — driven by real tiffin fields */}
@@ -85,45 +85,45 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
             </div>
 
             {/* Chef / Kitchen Info */}
-            <div className="flex items-center gap-3 mb-6 bg-[#181A24] p-3 rounded-2xl border border-[rgba(255,255,255,0.06)] self-start max-w-sm">
+            <div className="flex items-center gap-3 mb-6 bg-surface p-3 rounded-2xl border border-neutral-100 self-start max-w-sm">
               {tiffin.partner?.logo ? (
                 <img
                   src={tiffin.partner.logo}
                   alt={partnerName}
-                  className="w-10 h-10 rounded-full object-cover border border-primary-500/40 shrink-0"
+                  className="w-10 h-10 rounded-full object-cover border border-brand-border shrink-0"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-primary-500/20 border border-primary-500/40 shrink-0 flex items-center justify-center text-sm font-black text-primary-500">
+                <div className="w-10 h-10 rounded-full bg-brand-tint border border-brand-border shrink-0 flex items-center justify-center text-sm font-black text-brand-ink">
                   {partnerName.charAt(0).toUpperCase()}
                 </div>
               )}
               <div>
-                <div className="flex items-center gap-1.5 text-sm font-bold text-white">
+                <div className="flex items-center gap-1.5 text-sm font-bold text-neutral-900">
                   <span>by {partnerName}</span>
                   {isVerified && <CheckBadgeIcon className="w-4 h-4 text-blue-500" />}
                 </div>
                 {isVerified && (
-                  <div className="text-xs text-[#B5B8C5]/60 font-medium">Verified Kitchen</div>
+                  <div className="text-xs text-neutral-500 font-medium">Verified Kitchen</div>
                 )}
               </div>
             </div>
 
             {/* Rating & Meta Stats */}
-            <div className="flex flex-wrap items-center gap-4 text-xs text-[#B5B8C5] mb-6">
-              <div className="flex items-center gap-1 text-white font-bold">
-                <StarIcon className="w-4 h-4 text-amber-400" />
+            <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-600 mb-6">
+              <div className="flex items-center gap-1 text-neutral-900 font-bold">
+                <StarIcon className="w-4 h-4 text-rating" />
                 {ratingCount > 0 ? (
                   <>
                     <span>{Number(ratingVal).toFixed(1)}</span>
-                    <span className="text-[#B5B8C5]/60 font-normal">
+                    <span className="text-neutral-500 font-normal">
                       ({ratingCount} review{ratingCount === 1 ? '' : 's'})
                     </span>
                   </>
                 ) : (
-                  <span className="text-[#B5B8C5]/60 font-normal">New</span>
+                  <span className="text-neutral-500 font-normal">New</span>
                 )}
               </div>
-              <span className="text-[#B5B8C5]/40">•</span>
+              <span className="text-neutral-400">•</span>
               <div className="flex items-center gap-1 text-emerald-400 font-medium">
                 <TruckIcon className="w-4 h-4" />
                 <span>Free Delivery</span>
@@ -133,12 +133,12 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
             {/* Starting Price & Quick CTA Bar */}
             <div className="flex items-center gap-4 pt-2">
               <div>
-                <span className="block text-[11px] text-[#B5B8C5]/60 font-medium">
+                <span className="block text-[11px] text-neutral-500 font-medium">
                   Starting from
                 </span>
                 <div className="flex items-baseline">
-                  <span className="text-white text-3xl font-black">₹{dailyPrice}</span>
-                  <span className="text-[#B5B8C5]/60 text-xs font-semibold ml-1">/day</span>
+                  <span className="text-neutral-900 text-3xl font-black">₹{dailyPrice}</span>
+                  <span className="text-neutral-500 text-xs font-semibold ml-1">/day</span>
                 </div>
               </div>
 
@@ -146,7 +146,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
                 onClick={onSubscribe}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="bg-primary-500 hover:bg-primary-600 text-white font-bold px-6 py-3.5 rounded-xl text-sm shadow-lg shadow-primary-500/30 flex items-center gap-2 transition-all cursor-pointer"
+                className="bg-primary-500 hover:bg-primary-600 text-on-brand font-bold px-6 py-3.5 rounded-xl text-sm shadow-card shadow-primary-500/30 flex items-center gap-2 transition-all cursor-pointer"
               >
                 <span>Subscribe Now</span>
                 <span>→</span>
@@ -154,12 +154,12 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
 
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
-                className="p-3 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:bg-[#202330] text-white transition-colors cursor-pointer"
+                className="p-3 rounded-xl bg-surface border border-neutral-100 hover:bg-surface-alt text-neutral-900 transition-colors cursor-pointer"
               >
                 {isFavorite ? (
                   <HeartSolid className="w-5 h-5 text-rose-500" />
                 ) : (
-                  <HeartOutline className="w-5 h-5 text-[#B5B8C5]" />
+                  <HeartOutline className="w-5 h-5 text-neutral-600" />
                 )}
               </button>
             </div>
@@ -169,7 +169,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
         {/* Right Column: Hero Image & Thumbnail Carousel */}
         <div className="lg:col-span-6 flex flex-col gap-4">
           {/* Main Large Hero Image Box */}
-          <div className="relative h-72 md:h-80 rounded-3xl overflow-hidden bg-[#181A24] border border-[rgba(255,255,255,0.08)] shadow-2xl group flex items-center justify-center">
+          <div className="relative h-72 md:h-80 rounded-3xl overflow-hidden bg-surface border border-neutral-100 shadow-card-hover group flex items-center justify-center">
             {images.length > 0 ? (
               <>
                 <img
@@ -189,7 +189,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
             <div className="flex items-center justify-between gap-3">
               <button
                 onClick={handlePrevImage}
-                className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-surface border border-neutral-100 text-neutral-600 hover:text-neutral-900 transition-colors cursor-pointer"
               >
                 <ChevronLeftIcon className="w-5 h-5" />
               </button>
@@ -203,8 +203,8 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
                       onClick={() => setSelectedImageIndex(idx)}
                       className={`relative h-16 md:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-primary-500 shadow-lg shadow-primary-500/30 scale-105'
-                          : 'border-[rgba(255,255,255,0.1)] opacity-70 hover:opacity-100'
+                          ? 'border-primary-500 shadow-card shadow-primary-500/30 scale-105'
+                          : 'border-neutral-200 opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
@@ -215,7 +215,7 @@ const TiffinHero = ({ tiffin, onBack, onSubscribe }) => {
 
               <button
                 onClick={handleNextImage}
-                className="p-2 rounded-xl bg-[#181A24] border border-[rgba(255,255,255,0.08)] text-[#B5B8C5] hover:text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-surface border border-neutral-100 text-neutral-600 hover:text-neutral-900 transition-colors cursor-pointer"
               >
                 <ChevronRightIcon className="w-5 h-5" />
               </button>

@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { getTiffins } from '../store/slices/tiffinSlice';
 import HomeHero from '../components/home/HomeHero';
-import HomeFeatures from '../components/home/HomeFeatures';
 import HomeFeaturedTiffins from '../components/home/HomeFeaturedTiffins';
 import HomeTestimonials from '../components/home/HomeTestimonials';
 import HomePartnerCTA from '../components/home/HomePartnerCTA';
@@ -21,7 +20,7 @@ const Home = () => {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-[#0F1016] font-sans selection:bg-primary-500/30 selection:text-orange-200">
+    <div className="min-h-screen bg-surface-page font-sans selection:bg-primary-500/30 selection:text-neutral-900">
       <Helmet>
         <title>Tiffo - Authentic Homemade Tiffin Delivery Service</title>
         <meta
@@ -32,7 +31,6 @@ const Home = () => {
 
       <HomeHero user={user} />
       <HomeFeaturedTiffins tiffins={tiffins} isLoading={isLoading} />
-      <HomeFeatures />
       <HomeTestimonials />
       <HomePartnerCTA />
       <HomeAppPromo />

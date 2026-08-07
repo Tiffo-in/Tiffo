@@ -23,7 +23,7 @@ const ScrollToTop = () => {
           exit={{ opacity: 0, scale: 0.5, y: 20 }}
           transition={{ duration: 0.25 }}
           onClick={scrollToTop}
-          className="fixed bottom-8 right-6 z-50 w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-2xl shadow-2xl flex items-center justify-center hover:shadow-primary-500/40 hover:scale-110 transition-transform duration-200"
+          className="fixed bottom-8 right-6 z-50 w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 text-on-brand rounded-2xl shadow-card-hover flex items-center justify-center hover:shadow-primary-500/40 hover:scale-110 transition-transform duration-200"
           title="Back to top"
           aria-label="Back to top"
         >

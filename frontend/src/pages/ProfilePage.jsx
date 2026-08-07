@@ -29,16 +29,16 @@ const Section = ({ icon: Icon, title, subtitle, children, rightAction }) => (
   <motion.div
     initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#14151e] border border-zinc-800/80 rounded-2xl shadow-xl overflow-hidden"
+    className="bg-surface border border-neutral-200/80 rounded-2xl shadow-card-hover overflow-hidden"
   >
-    <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-800/80 bg-[#161722]">
+    <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-200/80 bg-surface">
       <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+        <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand-ink">
           <Icon className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-white">{title}</h2>
-          {subtitle && <p className="text-xs text-zinc-400 mt-0.5">{subtitle}</p>}
+          <h2 className="text-base font-bold text-neutral-900">{title}</h2>
+          {subtitle && <p className="text-xs text-neutral-500 mt-0.5">{subtitle}</p>}
         </div>
       </div>
       {rightAction && <div>{rightAction}</div>}
@@ -52,19 +52,19 @@ const PasswordInput = ({ label, value, onChange, placeholder }) => {
   const [show, setShow] = useState(false);
   return (
     <div>
-      <label className="block text-xs font-semibold text-zinc-300 mb-1.5">{label}</label>
+      <label className="block text-xs font-semibold text-neutral-700 mb-1.5">{label}</label>
       <div className="relative">
         <input
           type={show ? 'text' : 'password'}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 pr-11 transition-all"
+          className="w-full bg-surface border border-neutral-300/80 rounded-xl px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-orange-500 pr-11 transition-all"
         />
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
-          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-900 transition-colors"
         >
           {show ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
         </button>
@@ -189,24 +189,24 @@ const ProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-surface-page flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
-          <p className="text-xs text-zinc-400 font-medium">Loading profile...</p>
+          <div className="w-12 h-12 border-4 border-brand/20 border-t-orange-500 rounded-full animate-spin" />
+          <p className="text-xs text-neutral-500 font-medium">Loading profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-surface-page text-neutral-900 font-sans selection:bg-primary-500/30 selection:text-neutral-900">
       {/* Top Header / Sub-Navbar */}
-      <header className="border-b border-zinc-800/80 bg-[#111218]/90 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-neutral-200/80 bg-surface-page/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link
               to="/dashboard"
-              className="p-2 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all flex items-center space-x-1.5 text-xs font-semibold"
+              className="p-2 rounded-xl bg-surface-alt/60 hover:bg-surface-alt text-neutral-500 hover:text-neutral-900 transition-all flex items-center space-x-1.5 text-xs font-semibold"
             >
               <ArrowLeftIcon className="w-4 h-4" />
               <span>Back to Dashboard</span>
@@ -214,25 +214,25 @@ const ProfilePage = () => {
           </div>
 
           <Link to="/" className="flex items-center space-x-2">
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center font-black text-white text-sm">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center font-black text-neutral-900 text-sm">
               T
             </span>
-            <span className="text-lg font-bold text-white tracking-tight">
-              Tiffo<span className="text-orange-500">.</span>
+            <span className="text-lg font-bold text-neutral-900 tracking-tight">
+              Tiffo<span className="text-brand-ink">.</span>
             </span>
           </Link>
         </div>
       </header>
 
       {/* Hero Banner Header */}
-      <div className="relative bg-gradient-to-r from-[#171622] via-[#1a1928] to-[#251d20] border-b border-zinc-800/80">
+      <div className="relative bg-gradient-to-r from-surface via-surface to-surface-alt border-b border-neutral-200/80">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <img
             src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1200&auto=format&fit=crop&q=80"
             alt="Header backdrop"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#171622] via-[#171622]/90 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-transparent" />
         </div>
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 relative z-10">
@@ -240,24 +240,24 @@ const ProfilePage = () => {
             <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
               {/* Avatar Box */}
               <div className="relative group">
-                <div className="w-24 h-24 rounded-3xl bg-zinc-900 border-2 border-orange-500/40 shadow-2xl flex items-center justify-center text-4xl overflow-hidden">
+                <div className="w-24 h-24 rounded-3xl bg-surface border-2 border-brand/40 shadow-card-hover flex items-center justify-center text-4xl overflow-hidden">
                   {profile.avatar ? (
                     <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="font-extrabold text-orange-500">
+                    <span className="font-extrabold text-brand-ink">
                       {profile.name?.[0]?.toUpperCase() || '👤'}
                     </span>
                   )}
                 </div>
 
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-lg border-2 border-[#171622]">
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-brand text-neutral-900 flex items-center justify-center shadow-card border-2 border-neutral-100">
                   <CheckCircleIcon className="w-4 h-4" />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <div className="flex items-center justify-center sm:justify-start space-x-2">
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900">
                     {profile.name || 'User Profile'}
                   </h1>
                   <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full flex items-center space-x-1">
@@ -265,17 +265,17 @@ const ProfilePage = () => {
                   </span>
                 </div>
 
-                <p className="text-xs text-zinc-400 flex items-center justify-center sm:justify-start space-x-2">
-                  <EnvelopeIcon className="w-3.5 h-3.5 text-zinc-500" />
+                <p className="text-xs text-neutral-500 flex items-center justify-center sm:justify-start space-x-2">
+                  <EnvelopeIcon className="w-3.5 h-3.5 text-neutral-500" />
                   <span>{profile.email}</span>
-                  <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
                     Verified
                   </span>
                 </p>
 
                 {profile.phone && (
-                  <p className="text-xs text-zinc-400 flex items-center justify-center sm:justify-start space-x-2">
-                    <PhoneIcon className="w-3.5 h-3.5 text-zinc-500" />
+                  <p className="text-xs text-neutral-500 flex items-center justify-center sm:justify-start space-x-2">
+                    <PhoneIcon className="w-3.5 h-3.5 text-neutral-500" />
                     <span>{profile.phone}</span>
                   </p>
                 )}
@@ -288,7 +288,7 @@ const ProfilePage = () => {
                 <>
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-semibold text-xs transition-all flex items-center space-x-1.5"
+                    className="px-4 py-2 rounded-xl border border-neutral-300 bg-surface hover:bg-surface-alt text-neutral-700 font-semibold text-xs transition-all flex items-center space-x-1.5"
                   >
                     <XMarkIcon className="w-4 h-4" />
                     <span>Cancel</span>
@@ -296,7 +296,7 @@ const ProfilePage = () => {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs shadow-lg shadow-orange-500/20 transition-all flex items-center space-x-1.5 disabled:opacity-60"
+                    className="px-5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-neutral-900 font-semibold text-xs shadow-card shadow-orange-500/20 transition-all flex items-center space-x-1.5 disabled:opacity-60"
                   >
                     <CheckCircleIcon className="w-4 h-4" />
                     <span>{saving ? 'Saving...' : 'Save Changes'}</span>
@@ -305,7 +305,7 @@ const ProfilePage = () => {
               ) : (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs shadow-lg shadow-orange-500/20 transition-all flex items-center space-x-1.5 active:scale-95"
+                  className="px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-neutral-900 font-semibold text-xs shadow-card shadow-orange-500/20 transition-all flex items-center space-x-1.5 active:scale-95"
                 >
                   <PencilIcon className="w-4 h-4" />
                   <span>Edit Profile</span>
@@ -326,7 +326,7 @@ const ProfilePage = () => {
         >
           <div className="space-y-5">
             {isEditing && (
-              <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+              <div className="bg-surface/60 border border-neutral-200 rounded-xl p-4">
                 <ImageUpload
                   label="Profile Picture Avatar"
                   value={profile.avatar}
@@ -338,7 +338,7 @@ const ProfilePage = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                   Full Name *
                 </label>
                 <input
@@ -346,33 +346,33 @@ const ProfilePage = () => {
                   value={profile.name}
                   onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
                   disabled={!isEditing}
-                  className={`w-full bg-zinc-900 border rounded-xl px-4 py-2.5 text-sm text-white transition-all ${
+                  className={`w-full bg-surface border rounded-xl px-4 py-2.5 text-sm text-neutral-900 transition-all ${
                     isEditing
-                      ? 'border-zinc-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                      : 'border-zinc-800/80 opacity-75 cursor-not-allowed'
+                      ? 'border-neutral-300 focus:border-brand focus:ring-1 focus:ring-orange-500'
+                      : 'border-neutral-200/80 opacity-75 cursor-not-allowed'
                   }`}
                   placeholder="Your full name"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                   Email Address
                 </label>
                 <input
                   type="email"
                   value={profile.email}
                   disabled
-                  className="w-full bg-zinc-950 border border-zinc-800/80 rounded-xl px-4 py-2.5 text-sm text-zinc-400 opacity-60 cursor-not-allowed"
+                  className="w-full bg-surface border border-neutral-200/80 rounded-xl px-4 py-2.5 text-sm text-neutral-500 opacity-60 cursor-not-allowed"
                 />
-                <p className="text-[11px] text-zinc-500 mt-1">
+                <p className="text-[11px] text-neutral-500 mt-1">
                   Email is linked to your primary account
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                 Phone Number
               </label>
               <input
@@ -380,10 +380,10 @@ const ProfilePage = () => {
                 value={profile.phone}
                 onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))}
                 disabled={!isEditing}
-                className={`w-full bg-zinc-900 border rounded-xl px-4 py-2.5 text-sm text-white transition-all ${
+                className={`w-full bg-surface border rounded-xl px-4 py-2.5 text-sm text-neutral-900 transition-all ${
                   isEditing
-                    ? 'border-zinc-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                    : 'border-zinc-800/80 opacity-75 cursor-not-allowed'
+                    ? 'border-neutral-300 focus:border-brand focus:ring-1 focus:ring-orange-500'
+                    : 'border-neutral-200/80 opacity-75 cursor-not-allowed'
                 }`}
                 placeholder="+91 98765 43210"
               />
@@ -411,7 +411,7 @@ const ProfilePage = () => {
                 { key: 'pincode', label: 'Pincode', placeholder: '560103' },
               ].map(({ key, label, placeholder, span }) => (
                 <div key={key} className={span ? 'sm:col-span-2' : ''}>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                     {label}
                   </label>
                   <input
@@ -424,10 +424,10 @@ const ProfilePage = () => {
                       }))
                     }
                     disabled={!isEditing}
-                    className={`w-full bg-zinc-900 border rounded-xl px-4 py-2.5 text-sm text-white transition-all ${
+                    className={`w-full bg-surface border rounded-xl px-4 py-2.5 text-sm text-neutral-900 transition-all ${
                       isEditing
-                        ? 'border-zinc-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                        : 'border-zinc-800/80 opacity-75 cursor-not-allowed'
+                        ? 'border-neutral-300 focus:border-brand focus:ring-1 focus:ring-orange-500'
+                        : 'border-neutral-200/80 opacity-75 cursor-not-allowed'
                     }`}
                     placeholder={placeholder}
                   />
@@ -436,18 +436,18 @@ const ProfilePage = () => {
             </div>
 
             {/* Address Preview Card */}
-            <div className="bg-zinc-900/80 border border-orange-500/30 rounded-2xl p-4 flex items-start space-x-3 mt-4">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="bg-surface/80 border border-brand/30 rounded-2xl p-4 flex items-start space-x-3 mt-4">
+              <div className="w-8 h-8 rounded-lg bg-brand/20 text-brand-ink flex items-center justify-center flex-shrink-0 mt-0.5">
                 <MapPinIcon className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand/20 text-brand-ink border border-brand/30">
                   Default Delivery Location
                 </span>
-                <p className="text-xs font-semibold text-white pt-1">
+                <p className="text-xs font-semibold text-neutral-900 pt-1">
                   {profile.address.street || 'No street specified'}
                 </p>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-neutral-500">
                   {profile.address.city || 'City'}, {profile.address.state || 'State'} -{' '}
                   {profile.address.pincode || 'Pincode'}
                 </p>
@@ -485,16 +485,16 @@ const ProfilePage = () => {
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
-              <div className="flex items-center space-x-2 text-xs text-zinc-400">
-                <ShieldCheckIcon className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center justify-between pt-2 border-t border-neutral-200">
+              <div className="flex items-center space-x-2 text-xs text-neutral-500">
+                <ShieldCheckIcon className="w-4 h-4 text-emerald-600" />
                 <span>Two-factor encryption enabled</span>
               </div>
 
               <button
                 type="submit"
                 disabled={pwSaving || !passwords.currentPassword || !passwords.newPassword}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold text-xs shadow-lg shadow-orange-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2 active:scale-95"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-neutral-900 font-semibold text-xs shadow-card shadow-orange-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2 active:scale-95"
               >
                 <LockClosedIcon className="w-4 h-4" />
                 <span>{pwSaving ? 'Updating...' : 'Update Password'}</span>
@@ -532,21 +532,21 @@ const ProfilePage = () => {
                 onClick={() =>
                   setNotifications((prev) => ({ ...prev, [item.key]: !prev[item.key] }))
                 }
-                className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 cursor-pointer hover:border-zinc-700 transition-all"
+                className="flex items-center justify-between p-3.5 rounded-xl bg-surface/60 border border-neutral-200/80 cursor-pointer hover:border-neutral-300 transition-all"
               >
                 <div>
-                  <h4 className="text-xs font-bold text-white">{item.title}</h4>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">{item.desc}</p>
+                  <h4 className="text-xs font-bold text-neutral-900">{item.title}</h4>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">{item.desc}</p>
                 </div>
 
                 <div
                   className={`w-11 h-6 rounded-full flex items-center p-1 transition-colors ${
                     notifications[item.key]
-                      ? 'bg-orange-500 justify-end'
-                      : 'bg-zinc-800 justify-start'
+                      ? 'bg-brand justify-end'
+                      : 'bg-surface-alt justify-start'
                   }`}
                 >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                  <div className="w-4 h-4 rounded-full bg-white shadow-card" />
                 </div>
               </div>
             ))}

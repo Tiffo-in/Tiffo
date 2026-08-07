@@ -119,9 +119,9 @@ const BlogPost = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="relative h-96 bg-gradient-to-r from-maroon-600 to-maroon-800 dark:from-maroon-900 dark:to-neutral-950 overflow-hidden">
+      <div className="relative h-96 bg-gradient-to-r from-maroon-600 to-maroon-800 overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-40"></div>
-        <div className="relative max-w-4xl mx-auto px-4 h-full flex flex-col justify-center text-white">
+        <div className="relative max-w-4xl mx-auto px-4 h-full flex flex-col justify-center text-neutral-900">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ const BlogPost = () => {
           >
             <Link
               to="/blog"
-              className="inline-flex items-center text-white/80 hover:text-white mb-4"
+              className="inline-flex items-center text-neutral-700 hover:text-neutral-900 mb-4"
             >
               ← Back to Blog
             </Link>
@@ -137,7 +137,7 @@ const BlogPost = () => {
               {post.category}
             </span>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
-            <div className="flex items-center text-sm text-white/90">
+            <div className="flex items-center text-sm text-neutral-800">
               <span>{typeof post.author === 'object' ? post.author?.name : post.author}</span>
               <span className="mx-2">•</span>
               <span>
@@ -164,7 +164,7 @@ const BlogPost = () => {
               <div className="flex lg:flex-col gap-3">
                 <button
                   onClick={shareOnTwitter}
-                  className="flex items-center justify-center p-3 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
+                  className="flex items-center justify-center p-3 bg-blue-400 text-neutral-900 rounded-lg hover:bg-blue-500 transition-colors"
                   title="Share on Twitter"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -173,7 +173,7 @@ const BlogPost = () => {
                 </button>
                 <button
                   onClick={shareOnFacebook}
-                  className="flex items-center justify-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center justify-center p-3 bg-blue-600 text-neutral-900 rounded-lg hover:bg-blue-700 transition-colors"
                   title="Share on Facebook"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,7 @@ const BlogPost = () => {
                 </button>
                 <button
                   onClick={shareOnLinkedIn}
-                  className="flex items-center justify-center p-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
+                  className="flex items-center justify-center p-3 bg-blue-700 text-neutral-900 rounded-lg hover:bg-blue-800 transition-colors"
                   title="Share on LinkedIn"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -192,7 +192,7 @@ const BlogPost = () => {
                 </button>
                 <button
                   onClick={shareOnWhatsApp}
-                  className="flex items-center justify-center p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  className="flex items-center justify-center p-3 bg-green-500 text-neutral-900 rounded-lg hover:bg-green-600 transition-colors"
                   title="Share on WhatsApp"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -201,7 +201,7 @@ const BlogPost = () => {
                 </button>
                 <button
                   onClick={copyLink}
-                  className="flex items-center justify-center p-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  className="flex items-center justify-center p-3 bg-gray-600 text-neutral-900 rounded-lg hover:bg-gray-700 transition-colors"
                   title="Copy Link"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +216,7 @@ const BlogPost = () => {
               </div>
 
               {/* Stats */}
-              <div className="mt-8 p-4 bg-white rounded-lg shadow-sm">
+              <div className="mt-8 p-4 bg-white rounded-lg shadow-card">
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Views</span>
@@ -237,7 +237,7 @@ const BlogPost = () => {
 
           {/* Article Content */}
           <div className="lg:col-span-3 order-1 lg:order-2">
-            <article className="bg-white rounded-lg shadow-sm p-8 prose prose-lg max-w-none">
+            <article className="bg-white rounded-lg shadow-card p-8 prose prose-lg max-w-none">
               <ReactMarkdown>{post.content}</ReactMarkdown>
             </article>
 
@@ -256,10 +256,10 @@ const BlogPost = () => {
             )}
 
             {/* Author Bio */}
-            <div className="mt-8 bg-gradient-to-r from-maroon-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-900 rounded-lg p-6">
+            <div className="mt-8 bg-gradient-to-r from-maroon-50 to-orange-50 rounded-lg p-6">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 bg-maroon-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                  <div className="w-16 h-16 bg-maroon-600 rounded-full flex items-center justify-center text-on-brand text-2xl font-bold">
                     {(typeof post.author === 'object'
                       ? post.author?.name || 'A'
                       : post.author || 'A'
@@ -284,7 +284,7 @@ const BlogPost = () => {
                     <Link
                       key={relatedPost._id || relatedPost.id}
                       to={`/blog/${relatedPost.slug}`}
-                      className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                      className="bg-white rounded-lg shadow-card overflow-hidden hover:shadow-card transition-shadow"
                     >
                       <div className="bg-gray-100 h-32 flex items-center justify-center text-4xl">
                         🍱

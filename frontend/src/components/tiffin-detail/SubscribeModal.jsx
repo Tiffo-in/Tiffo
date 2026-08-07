@@ -52,27 +52,27 @@ const SubscribeModal = ({
           }}
         >
           <motion.div
-            className="bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-3xl shadow-card-hover w-full max-w-lg max-h-[90vh] overflow-y-auto"
             initial={{ scale: 0.9, y: 30 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, y: 30 }}
           >
             <div
-              className={`bg-gradient-to-r ${MEAL_COLORS[tiffin.mealType] || 'from-maroon-500 to-orange-500'} p-6 rounded-t-3xl text-white relative`}
+              className={`bg-gradient-to-r ${MEAL_COLORS[tiffin.mealType] || 'from-maroon-500 to-orange-500'} p-6 rounded-t-3xl text-on-brand relative`}
             >
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-white/80 hover:text-white"
+                className="absolute top-4 right-4 text-neutral-700 hover:text-neutral-900"
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
               <h2 className="text-xl font-bold">Subscribe to {tiffin.title}</h2>
-              <p className="text-white/80 text-sm mt-1">Fill in the details to get started</p>
+              <p className="text-neutral-700 text-sm mt-1">Fill in the details to get started</p>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Selected Plan
                 </label>
                 <div className="flex gap-2">
@@ -81,19 +81,17 @@ const SubscribeModal = ({
                       type="button"
                       key={p}
                       onClick={() => onSelectPlan(p)}
-                      className={`flex-1 py-2 rounded-xl text-sm font-medium border-2 capitalize transition-all ${selectedPlan === p ? 'bg-maroon-600 border-maroon-600 text-white' : 'border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-300 hover:border-maroon-400'}`}
+                      className={`flex-1 py-2 rounded-xl text-sm font-medium border-2 capitalize transition-all ${selectedPlan === p ? 'bg-maroon-600 border-maroon-600 text-on-brand' : 'border-gray-200 text-gray-700 hover:border-maroon-400'}`}
                     >
                       {p}
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-neutral-400 mt-1">
-                  Total: ₹{grandTotal} (incl. 5% GST)
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Total: ₹{grandTotal} (incl. 5% GST)</p>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Start Date *
                 </label>
                 <input
@@ -107,7 +105,7 @@ const SubscribeModal = ({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Delivery Time *
                 </label>
                 <select
@@ -122,7 +120,7 @@ const SubscribeModal = ({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Delivery Address *
                 </label>
                 <div className="space-y-2">
@@ -159,7 +157,7 @@ const SubscribeModal = ({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Special Instructions (optional)
                 </label>
                 <textarea

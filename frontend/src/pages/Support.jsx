@@ -65,14 +65,14 @@ const Support = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-surface-page text-neutral-900 font-sans selection:bg-primary-500/30 selection:text-neutral-900">
       {/* Top Header / Sub-Navbar */}
-      <header className="border-b border-zinc-800/80 bg-[#111218]/90 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-neutral-200/80 bg-surface-page/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link
               to="/dashboard"
-              className="p-2 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all flex items-center space-x-1.5 text-xs font-semibold"
+              className="p-2 rounded-xl bg-surface-alt/60 hover:bg-surface-alt text-neutral-500 hover:text-neutral-900 transition-all flex items-center space-x-1.5 text-xs font-semibold"
             >
               <ArrowLeftIcon className="w-4 h-4" />
               <span>Back to Dashboard</span>
@@ -80,43 +80,45 @@ const Support = () => {
           </div>
 
           <Link to="/" className="flex items-center space-x-2">
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center font-black text-white text-sm">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center font-black text-neutral-900 text-sm">
               T
             </span>
-            <span className="text-lg font-bold text-white tracking-tight">
-              Tiffo<span className="text-orange-500">.</span>
+            <span className="text-lg font-bold text-neutral-900 tracking-tight">
+              Tiffo<span className="text-brand-ink">.</span>
             </span>
           </Link>
         </div>
       </header>
 
       {/* Hero Banner Header */}
-      <div className="relative bg-gradient-to-r from-[#171622] via-[#1a1928] to-[#251d20] border-b border-zinc-800/80">
+      <div className="relative bg-gradient-to-r from-surface via-surface to-surface-alt border-b border-neutral-200/80">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <img
             src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1200&auto=format&fit=crop&q=80"
             alt="Support Backdrop"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#171622] via-[#171622]/90 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-transparent" />
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 relative z-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shadow-xl flex-shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-brand/20 border border-brand/40 flex items-center justify-center text-brand-ink shadow-card-hover flex-shrink-0">
                 <ChatBubbleLeftRightIcon className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Help & Support</h1>
-                <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900">
+                  Help & Support
+                </h1>
+                <p className="text-xs sm:text-sm text-neutral-500 mt-1">
                   We're here for you 24/7 · Mon–Sun 8:00 AM – 10:00 PM IST
                 </p>
               </div>
             </div>
 
             {/* Quick Response Badge */}
-            <div className="bg-zinc-900/80 backdrop-blur-md border border-zinc-800 rounded-2xl px-4 py-2.5 flex items-center space-x-3">
+            <div className="bg-surface/80 backdrop-blur-md border border-neutral-200 rounded-2xl px-4 py-2.5 flex items-center space-x-3">
               <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
                 <BoltIcon className="w-4 h-4" />
               </div>
@@ -124,7 +126,7 @@ const Support = () => {
                 <p className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
                   Response Time
                 </p>
-                <p className="text-xs font-semibold text-white">Within 2–4 Hours</p>
+                <p className="text-xs font-semibold text-neutral-900">Within 2–4 Hours</p>
               </div>
             </div>
           </div>
@@ -137,37 +139,37 @@ const Support = () => {
           {/* LEFT 8 COLS: Contact Form & FAQ */}
           <div className="lg:col-span-8 space-y-8">
             {/* Contact Form Card */}
-            <div className="bg-[#14151e] border border-zinc-800/80 rounded-2xl shadow-xl overflow-hidden">
-              <div className="p-6 border-b border-zinc-800/80 bg-[#161722] flex items-center justify-between">
+            <div className="bg-surface border border-neutral-200/80 rounded-2xl shadow-card-hover overflow-hidden">
+              <div className="p-6 border-b border-neutral-200/80 bg-surface flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                  <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand-ink">
                     <EnvelopeIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-white">Send Us a Message</h2>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                    <h2 className="text-base font-bold text-neutral-900">Send Us a Message</h2>
+                    <p className="text-xs text-neutral-500 mt-0.5">
                       Fill out your issue details below.
                     </p>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
                   Online
                 </span>
               </div>
 
               {submitted ? (
                 <div className="p-10 text-center space-y-4">
-                  <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-xl">
+                  <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-card-hover">
                     <CheckCircleIcon className="w-10 h-10" />
                   </div>
-                  <h3 className="text-xl font-bold text-white">Request Submitted!</h3>
-                  <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
+                  <h3 className="text-xl font-bold text-neutral-900">Request Submitted!</h3>
+                  <p className="text-xs text-neutral-500 max-w-md mx-auto leading-relaxed">
                     We've received your ticket and assigned a support agent. Expect a detailed
                     response in your email within 2–4 hours.
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs transition-all shadow-lg shadow-orange-500/20 active:scale-95"
+                    className="px-6 py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-neutral-900 font-semibold text-xs transition-all shadow-card shadow-orange-500/20 active:scale-95"
                   >
                     Submit Another Ticket
                   </button>
@@ -176,27 +178,27 @@ const Support = () => {
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                         Name *
                       </label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                        className="w-full bg-surface border border-neutral-300/80 rounded-xl px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-orange-500 transition-all"
                         placeholder="Your name"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                         Email Address *
                       </label>
                       <input
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                        className="w-full bg-surface border border-neutral-300/80 rounded-xl px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-orange-500 transition-all"
                         placeholder="your@email.com"
                         required
                       />
@@ -204,13 +206,13 @@ const Support = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                       Subject / Category *
                     </label>
                     <select
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                      className="w-full bg-surface border border-neutral-300/80 rounded-xl px-4 py-2.5 text-sm text-neutral-900 focus:outline-none focus:border-brand focus:ring-1 focus:ring-orange-500 transition-all"
                       required
                     >
                       <option value="">Select a issue category</option>
@@ -225,14 +227,14 @@ const Support = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                       Message *
                     </label>
                     <textarea
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       rows={5}
-                      className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all resize-none"
+                      className="w-full bg-surface border border-neutral-300/80 rounded-xl px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-orange-500 transition-all resize-none"
                       placeholder="Describe your query or problem in detail..."
                       required
                     />
@@ -241,7 +243,7 @@ const Support = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm shadow-lg shadow-orange-500/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-95"
+                    className="w-full py-3.5 rounded-xl bg-brand hover:bg-brand-hover text-neutral-900 font-bold text-sm shadow-card shadow-orange-500/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center space-x-2 active:scale-95"
                   >
                     {loading ? (
                       <span className="flex items-center space-x-2">
@@ -257,29 +259,33 @@ const Support = () => {
             </div>
 
             {/* FAQ Accordion Card */}
-            <div className="bg-[#14151e] border border-zinc-800/80 rounded-2xl shadow-xl overflow-hidden">
-              <div className="p-6 border-b border-zinc-800/80 bg-[#161722] flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+            <div className="bg-surface border border-neutral-200/80 rounded-2xl shadow-card-hover overflow-hidden">
+              <div className="p-6 border-b border-neutral-200/80 bg-surface flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand-ink">
                   <QuestionMarkCircleIcon className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">Frequently Asked Questions</h2>
-                  <p className="text-xs text-zinc-400 mt-0.5">Quick answers to common questions.</p>
+                  <h2 className="text-base font-bold text-neutral-900">
+                    Frequently Asked Questions
+                  </h2>
+                  <p className="text-xs text-neutral-500 mt-0.5">
+                    Quick answers to common questions.
+                  </p>
                 </div>
               </div>
 
-              <div className="divide-y divide-zinc-800/80">
+              <div className="divide-y divide-neutral-200/80">
                 {faqs.map((faq, i) => (
                   <div key={i}>
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full text-left px-6 py-4 flex items-center justify-between hover:bg-zinc-900/60 transition-colors group"
+                      className="w-full text-left px-6 py-4 flex items-center justify-between hover:bg-surface/60 transition-colors group"
                     >
-                      <span className="font-semibold text-sm text-zinc-200 group-hover:text-white pr-4">
+                      <span className="font-semibold text-sm text-neutral-900 group-hover:text-neutral-900 pr-4">
                         {faq.q}
                       </span>
                       <ChevronDownIcon
-                        className={`w-4 h-4 text-orange-400 transition-transform duration-200 flex-shrink-0 ${
+                        className={`w-4 h-4 text-brand-ink transition-transform duration-200 flex-shrink-0 ${
                           openFaq === i ? 'rotate-180' : ''
                         }`}
                       />
@@ -289,7 +295,7 @@ const Support = () => {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="px-6 pb-4 text-xs text-zinc-400 leading-relaxed bg-zinc-950/40"
+                        className="px-6 pb-4 text-xs text-neutral-500 leading-relaxed bg-surface/40"
                       >
                         {faq.a}
                       </motion.div>
@@ -303,27 +309,27 @@ const Support = () => {
           {/* RIGHT 4 COLS: Contact Info Sidebar */}
           <div className="lg:col-span-4 space-y-6">
             {/* Direct Channels Card */}
-            <div className="bg-[#14151e] border border-zinc-800/80 rounded-2xl shadow-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-500 to-amber-600 p-5 text-white">
+            <div className="bg-surface border border-neutral-200/80 rounded-2xl shadow-card-hover overflow-hidden">
+              <div className="bg-gradient-to-r from-orange-500 to-amber-600 p-5 text-neutral-900">
                 <h3 className="font-bold text-base">Direct Channels</h3>
-                <p className="text-xs text-white/80 mt-0.5">
+                <p className="text-xs text-neutral-700 mt-0.5">
                   Reach out via email or phone hotline.
                 </p>
               </div>
 
               <div className="p-5 space-y-4">
                 {/* Email */}
-                <div className="flex items-start space-x-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
-                  <div className="w-9 h-9 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-3 p-3 rounded-xl bg-surface/60 border border-neutral-200/80">
+                  <div className="w-9 h-9 rounded-lg bg-brand/20 text-brand-ink flex items-center justify-center flex-shrink-0">
                     <EnvelopeIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                       Email Support
                     </p>
                     <a
                       href="mailto:support@tiffo.in"
-                      className="text-xs font-semibold text-white hover:text-orange-400 transition-colors"
+                      className="text-xs font-semibold text-neutral-900 hover:text-brand-ink transition-colors"
                     >
                       support@tiffo.in
                     </a>
@@ -332,17 +338,17 @@ const Support = () => {
 
                 {/* Phone — only shown when a real support number is configured */}
                 {process.env.REACT_APP_SUPPORT_PHONE && (
-                  <div className="flex items-start space-x-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-start space-x-3 p-3 rounded-xl bg-surface/60 border border-neutral-200/80">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-600 flex items-center justify-center flex-shrink-0">
                       <PhoneIcon className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                         Phone Support
                       </p>
                       <a
                         href={`tel:${process.env.REACT_APP_SUPPORT_PHONE}`}
-                        className="text-xs font-semibold text-white hover:text-emerald-400 transition-colors"
+                        className="text-xs font-semibold text-neutral-900 hover:text-emerald-600 transition-colors"
                       >
                         {process.env.REACT_APP_SUPPORT_PHONE}
                       </a>
@@ -351,28 +357,28 @@ const Support = () => {
                 )}
 
                 {/* Operating Hours */}
-                <div className="flex items-start space-x-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
+                <div className="flex items-start space-x-3 p-3 rounded-xl bg-surface/60 border border-neutral-200/80">
                   <div className="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
                     <ClockIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                       Support Hours
                     </p>
-                    <p className="text-xs font-semibold text-white">Mon – Sun</p>
-                    <p className="text-[11px] text-zinc-400">8:00 AM – 10:00 PM IST</p>
+                    <p className="text-xs font-semibold text-neutral-900">Mon – Sun</p>
+                    <p className="text-[11px] text-neutral-500">8:00 AM – 10:00 PM IST</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Live Chat Feature Widget */}
-            <div className="bg-gradient-to-br from-[#1b1a26] via-[#161522] to-[#12111a] border border-orange-500/20 rounded-2xl p-5 shadow-xl space-y-3">
+            <div className="bg-gradient-to-br from-surface via-surface to-surface-alt border border-brand/20 rounded-2xl p-5 shadow-card-hover space-y-3">
               <div className="flex items-center space-x-2">
-                <ShieldCheckIcon className="w-5 h-5 text-emerald-400" />
-                <h4 className="text-sm font-bold text-white">Priority Concierge</h4>
+                <ShieldCheckIcon className="w-5 h-5 text-emerald-600" />
+                <h4 className="text-sm font-bold text-neutral-900">Priority Concierge</h4>
               </div>
-              <p className="text-xs text-zinc-300 leading-relaxed">
+              <p className="text-xs text-neutral-700 leading-relaxed">
                 As a registered user, your support requests automatically receive high priority
                 routing for instant resolution.
               </p>

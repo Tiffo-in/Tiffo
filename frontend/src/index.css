@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@300;400;500;600;700;900&family=Baloo+2:wght@400;500;600;700;800&display=swap');
+@import './styles/tokens.css';
+@import './styles/palette-tokens.css';
 
 @tailwind base;
 @tailwind components;
@@ -34,487 +36,108 @@
     font-family: 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
   }
-}
 
-/* ═══════════════════════════════════════════════════════════════
-   TIFFO GLOBAL DARK MODE SYSTEM
-   All overrides use html.dark so they apply sitewide
-   without touching individual component files.
-   ═══════════════════════════════════════════════════════════════ */
+  /* Tells the browser to render native widgets (scrollbars, form controls,
+     the URL bar on mobile) in the matching scheme. Replaces the hand-written
+     scrollbar overrides the old dark sheet carried. */
+  :root {
+    color-scheme: light;
+  }
 
-/* ── Base & backgrounds ──────────────────────────────────────── */
-html.dark body,
-html.dark #root,
-html.dark .App {
-  background-color: #0f1016;
-  color: #e5e5e5;
-}
+  .dark {
+    color-scheme: dark;
+  }
 
-html.dark .min-h-screen {
-  background-color: #0f1016;
-}
+  body {
+    @apply bg-surface-page text-neutral-900;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
 
-/* Common page wrappers */
-html.dark .bg-white {
-  background-color: #1a1a2e !important;
-  color: #e2e2f0;
+  /* A single visible focus treatment for keyboard users, on both themes.
+     The old sheet had no focus styling at all outside inputs. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--brand));
+    outline-offset: 2px;
+  }
 }
-html.dark .bg-neutral-50 {
-  background-color: #111118 !important;
-}
-html.dark .bg-neutral-100 {
-  background-color: #1c1c2a !important;
-}
-html.dark .bg-neutral-200 {
-  background-color: #252538 !important;
-}
-html.dark .bg-gray-50 {
-  background-color: #111118 !important;
-}
-html.dark .bg-gray-100 {
-  background-color: #1c1c2a !important;
-}
-html.dark .bg-gray-200 {
-  background-color: #252538 !important;
-}
-
-/* Gradient page backgrounds */
-html.dark [class*='from-neutral-50'] {
-  --tw-gradient-from: #111118;
-}
-html.dark [class*='to-primary-50'] {
-  --tw-gradient-to: #12080c;
-}
-html.dark [class*='via-white'] {
-  --tw-gradient-via: #0d0d12;
-}
-
-/* ── Text ────────────────────────────────────────────────────── */
-html.dark .text-neutral-900 {
-  color: #f0f0f8 !important;
-}
-html.dark .text-neutral-800 {
-  color: #e0e0ee !important;
-}
-html.dark .text-neutral-700 {
-  color: #c8c8dc !important;
-}
-html.dark .text-neutral-600 {
-  color: #a8a8c0 !important;
-}
-html.dark .text-neutral-500 {
-  color: #8888a8 !important;
-}
-html.dark .text-neutral-400 {
-  color: #666688 !important;
-}
-html.dark .text-gray-900 {
-  color: #f0f0f8 !important;
-}
-html.dark .text-gray-800 {
-  color: #e0e0ee !important;
-}
-html.dark .text-gray-700 {
-  color: #c8c8dc !important;
-}
-html.dark .text-gray-600 {
-  color: #a8a8c0 !important;
-}
-html.dark .text-gray-500 {
-  color: #8888a8 !important;
-}
-
-/* ── Borders ─────────────────────────────────────────────────── */
-html.dark .border-neutral-100 {
-  border-color: #2a2a3f !important;
-}
-html.dark .border-neutral-200 {
-  border-color: #353550 !important;
-}
-html.dark .border-neutral-300 {
-  border-color: #404060 !important;
-}
-html.dark .border-gray-100 {
-  border-color: #2a2a3f !important;
-}
-html.dark .border-gray-200 {
-  border-color: #353550 !important;
-}
-html.dark .border-gray-300 {
-  border-color: #404060 !important;
-}
-
-/* ── Cards & Surfaces ────────────────────────────────────────── */
-html.dark .shadow-lg,
-html.dark .shadow-md,
-html.dark .shadow-xl,
-html.dark .shadow-2xl,
-html.dark .shadow-premium,
-html.dark .shadow-premium-lg {
-  --tw-shadow-color: rgba(0, 0, 0, 0.5);
-}
-
-/* Cards with white bg */
-html.dark .rounded-2xl.bg-white,
-html.dark .rounded-xl.bg-white,
-html.dark .rounded-lg.bg-white,
-html.dark .rounded-2xl.bg-neutral-50,
-html.dark .rounded-xl.bg-neutral-50 {
-  background-color: #1a1a2e !important;
-  border-color: #2a2a3f !important;
-}
-
-html.dark .card {
-  background-color: #1a1a2e !important;
-  border-color: #2a2a3f !important;
-  color: #e2e2f0 !important;
-}
-html.dark .glass-card {
-  background: linear-gradient(
-    135deg,
-    rgba(26, 26, 46, 0.95) 0%,
-    rgba(20, 20, 38, 0.85) 100%
-  ) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* ── Inputs & Forms ──────────────────────────────────────────── */
-html.dark .input-field,
-html.dark input[type='text'],
-html.dark input[type='email'],
-html.dark input[type='password'],
-html.dark input[type='tel'],
-html.dark input[type='number'],
-html.dark input[type='time'],
-html.dark input[type='date'],
-html.dark textarea,
-html.dark select {
-  background-color: #13131f !important;
-  border-color: #353550 !important;
-  color: #e2e2f0 !important;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #5a5a7a !important;
-}
-
-html.dark input:focus,
-html.dark textarea:focus,
-html.dark select:focus {
-  border-color: #ff7a18 !important;
-  box-shadow: 0 0 0 4px rgba(255, 122, 24, 0.18) !important;
-  outline: none;
-}
-
-/* Range input */
-html.dark input[type='range'] {
-  accent-color: #ff7a18;
-}
-
-/* ── Tables ──────────────────────────────────────────────────── */
-html.dark table {
-  background-color: #1a1a2e;
-}
-html.dark thead {
-  background-color: #13131f !important;
-}
-html.dark th {
-  color: #a8a8c0 !important;
-  border-color: #2a2a3f !important;
-}
-html.dark td {
-  color: #d0d0e8 !important;
-  border-color: #2a2a3f !important;
-}
-html.dark tbody tr:hover {
-  background-color: #22223a !important;
-}
-
-/* ── Modals & Overlays ───────────────────────────────────────── */
-html.dark .fixed.inset-0 .bg-white,
-html.dark .fixed.inset-0 .rounded-2xl,
-html.dark .fixed.inset-0 .rounded-xl {
-  background-color: #1a1a2e !important;
-  border-color: #2a2a3f !important;
-}
-
-/* ── Hover states ────────────────────────────────────────────── */
-html.dark .hover\:bg-neutral-50:hover {
-  background-color: #22223a !important;
-}
-html.dark .hover\:bg-neutral-100:hover {
-  background-color: #252538 !important;
-}
-html.dark .hover\:bg-gray-50:hover {
-  background-color: #22223a !important;
-}
-html.dark .hover\:bg-gray-100:hover {
-  background-color: #252538 !important;
-}
-
-/* ── Background utility variants ────────────────────────────── */
-html.dark .bg-green-50 {
-  background-color: #0d1f14 !important;
-}
-html.dark .bg-blue-50 {
-  background-color: #0d1520 !important;
-}
-html.dark .bg-amber-50 {
-  background-color: #1f1800 !important;
-}
-html.dark .bg-purple-50 {
-  background-color: #180d1f !important;
-}
-html.dark .bg-red-50 {
-  background-color: #1f0d0d !important;
-}
-html.dark .bg-yellow-50 {
-  background-color: #1a1600 !important;
-}
-html.dark .bg-orange-50 {
-  background-color: #1a1000 !important;
-}
-html.dark .bg-indigo-50 {
-  background-color: #0d0f1f !important;
-}
-html.dark .bg-pink-50 {
-  background-color: #1f0d15 !important;
-}
-html.dark .bg-emerald-50 {
-  background-color: #0a1f14 !important;
-}
-html.dark .bg-cyan-50 {
-  background-color: #0a1820 !important;
-}
-html.dark .bg-teal-50 {
-  background-color: #0a1f1e !important;
-}
-
-/* ── Tabs & Navigation ───────────────────────────────────────── */
-html.dark .border-b {
-  border-color: #2a2a3f !important;
-}
-html.dark .border-b-2 {
-  border-color: #2a2a3f !important;
-}
-html.dark .border-t {
-  border-color: #2a2a3f !important;
-}
-
-/* Tab buttons */
-html.dark button.text-gray-500 {
-  color: #6868a0 !important;
-}
-html.dark button.text-neutral-500 {
-  color: #6868a0 !important;
-}
-
-/* ── Badges & Pills ──────────────────────────────────────────── */
-html.dark .bg-green-100 {
-  background-color: #112818 !important;
-}
-html.dark .bg-red-100 {
-  background-color: #281518 !important;
-}
-html.dark .bg-blue-100 {
-  background-color: #111c28 !important;
-}
-html.dark .bg-amber-100 {
-  background-color: #282000 !important;
-}
-html.dark .bg-purple-100 {
-  background-color: #200f28 !important;
-}
-html.dark .bg-yellow-100 {
-  background-color: #201e00 !important;
-}
-html.dark .bg-orange-100 {
-  background-color: #201500 !important;
-}
-
-html.dark .text-green-700 {
-  color: #4ade80 !important;
-}
-html.dark .text-green-800 {
-  color: #86efac !important;
-}
-html.dark .text-red-700 {
-  color: #f87171 !important;
-}
-html.dark .text-red-800 {
-  color: #fca5a5 !important;
-}
-html.dark .text-blue-700 {
-  color: #60a5fa !important;
-}
-html.dark .text-blue-800 {
-  color: #93c5fd !important;
-}
-html.dark .text-amber-700 {
-  color: #fbbf24 !important;
-}
-html.dark .text-amber-800 {
-  color: #fcd34d !important;
-}
-html.dark .text-amber-900 {
-  color: #fde68a !important;
-}
-html.dark .text-purple-700 {
-  color: #c084fc !important;
-}
-html.dark .text-yellow-700 {
-  color: #facc15 !important;
-}
-html.dark .text-orange-700 {
-  color: #fb923c !important;
-}
-
-/* ── Scrollbar ───────────────────────────────────────────────── */
-html.dark ::-webkit-scrollbar {
-  width: 8px;
-  background: #0d0d0d;
-}
-html.dark ::-webkit-scrollbar-track {
-  background: #1a1a2e;
-}
-html.dark ::-webkit-scrollbar-thumb {
-  background: #353550;
-  border-radius: 4px;
-}
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #4a4a70;
-}
-
-/* ── Dividers ────────────────────────────────────────────────── */
-html.dark hr {
-  border-color: #2a2a3f !important;
-}
-
-/* ── Header gradient backgrounds (dashboards) ────────────────── */
-/* html.dark [class*='from-neutral-900'] {
-  keep dark gradients as-is
-} */
-
-/* Prevent white gradient blobs showing through */
-html.dark .absolute.bg-white\/10,
-html.dark .absolute.bg-white\/20 {
-  opacity: 0.05 !important;
-}
-
-/* ── Skeleton loaders ────────────────────────────────────────── */
-html.dark .skeleton,
-html.dark .animate-pulse.bg-gray-200,
-html.dark .animate-pulse.bg-neutral-200 {
-  background-color: #252538 !important;
-}
-
-/* ── Buttons — secondary & ghost ────────────────────────────── */
-html.dark .btn-secondary {
-  background-color: #1a1a2e !important;
-  color: #e2e2f0 !important;
-  border-color: #353550 !important;
-}
-
-html.dark .btn-secondary:hover {
-  background-color: #22223a !important;
-}
-
-/* Keep primary buttons as-is (already colored) */
 
 /* Premium 2D TIFFO Logo Styling */
 .tiffo-brand {
   font-family: 'Inter', 'Poppins', 'Arial', sans-serif;
   font-weight: 900;
   letter-spacing: 0.1em;
-  color: #ff7a18;
+  color: rgb(var(--brand));
   text-transform: uppercase;
-  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   display: inline-block;
   transition: all 0.3s ease;
 }
 
 .tiffo-brand:hover {
-  color: #f97316;
-  text-shadow: 0px 4px 8px rgba(255, 122, 24, 0.2);
+  color: rgb(var(--brand-hover));
   transform: translateY(-1px);
 }
 
 @layer components {
-  /* Primary Button - Premium Design */
+  /* ── Buttons ────────────────────────────────────────────────────────────
+     Labels on an orange fill are CHARCOAL, not white. White on #FF7A00 is
+     2.6:1 and fails WCAG AA (it misses even the 3:1 large-text floor);
+     charcoal is 6.6:1 on the flat brand and 6.0:1 on the CTA gradient's dark
+     end. See docs/DESIGN_SYSTEM_PLAN.md §4. */
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 relative overflow-hidden;
+    @apply bg-gradient-cta text-on-brand font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 relative overflow-hidden;
   }
 
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s ease;
+  .btn-primary:hover {
+    filter: saturate(1.08) brightness(1.03);
   }
 
-  .btn-primary:hover::before {
-    left: 100%;
+  .btn-primary:active {
+    @apply translate-y-0 shadow-card;
   }
 
-  .btn-primary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  /* Secondary Button - Enhanced */
   .btn-secondary {
-    @apply bg-white hover:bg-neutral-50 text-neutral-800 font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 border border-neutral-200 hover:border-primary-200;
+    @apply bg-surface hover:bg-surface-alt text-neutral-800 font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 border border-neutral-200 hover:border-brand-border;
   }
 
-  /* Ghost Button */
+  /* Ghost / outline share the same idea: orange edge, AA-safe orange INK for
+     the label (never raw --brand, which is 2.6:1 as text on light). */
   .btn-ghost {
-    @apply bg-transparent hover:bg-primary-50 text-primary-500 hover:text-primary-600 font-semibold py-3 px-6 rounded-xl transition-all duration-300 border-2 border-primary-200 hover:border-primary-400;
+    @apply bg-transparent hover:bg-brand-tint text-brand-ink font-semibold py-3 px-6 rounded-xl transition-all duration-200 border border-brand-border hover:border-brand;
   }
 
-  /* Outline Button */
   .btn-outline {
-    @apply bg-transparent hover:bg-primary-500 text-primary-500 hover:text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 border-2 border-primary-500;
+    @apply bg-transparent hover:bg-brand hover:text-on-brand text-brand-ink font-semibold py-3 px-6 rounded-xl transition-all duration-200 border border-brand;
   }
 
-  /* Input Fields - Premium style */
+  /* ── Inputs ─────────────────────────────────────────────────────────── */
   .input-field {
-    @apply w-full px-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-400 transition-all duration-300 bg-white hover:border-neutral-300 placeholder:text-neutral-400;
+    @apply w-full px-4 py-3.5 border border-neutral-200 rounded-xl focus:outline-none transition-all duration-200 bg-surface text-neutral-900 hover:border-neutral-300 placeholder:text-neutral-400;
   }
 
   .input-field:focus {
-    box-shadow: 0 0 0 4px rgba(255, 122, 24, 0.08);
+    border-color: rgb(var(--brand));
+    box-shadow: 0 0 0 3px var(--focus-ring);
   }
 
-  /* Card Component - Enhanced depth */
+  /* ── Cards ──────────────────────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-2xl shadow-md p-6 border border-neutral-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+    @apply bg-surface rounded-card shadow-card p-6 border border-neutral-100 transition-all duration-200;
   }
 
-  /* Premium Card with gradient border */
+  .card:hover {
+    @apply shadow-card-hover border-brand-border -translate-y-1;
+  }
+
+  /* Featured / "Most Ordered" treatment: brand edge + warm gradient fill +
+     a soft brand glow, matching the highlighted card in the reference. */
   .card-premium {
-    @apply bg-white rounded-2xl shadow-premium p-6 relative overflow-hidden;
-    background:
-      linear-gradient(white, white) padding-box,
-      linear-gradient(135deg, #ff7a18 0%, #f97316 100%) border-box;
-    border: 2px solid transparent;
+    @apply rounded-card p-6 relative overflow-hidden border-2 border-brand;
+    background: var(--grad-featured);
+    box-shadow:
+      var(--shadow-sm),
+      0 0 0 6px var(--brand-glow);
   }
 
   .card-premium::before {
@@ -524,38 +147,36 @@ html.dark .btn-secondary:hover {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #ff7a18, #f97316);
+    background: var(--grad-cta);
   }
 
-  /* Glassmorphism Effects - Enhanced */
+  /* ── Glass ──────────────────────────────────────────────────────────── */
   .glass-card {
-    @apply backdrop-blur-xl border shadow-premium rounded-2xl;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
-    border-color: rgba(255, 255, 255, 0.5);
+    @apply backdrop-blur-xl border border-neutral-100 shadow-card rounded-card;
+    background: rgb(var(--bg-card) / 0.82);
   }
 
   .glass-light {
-    @apply backdrop-blur-lg border shadow-lg;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.5) 100%);
-    border-color: rgba(255, 255, 255, 0.4);
+    @apply backdrop-blur-lg border border-neutral-100 shadow-card;
+    background: rgb(var(--bg-card) / 0.65);
   }
 
   .glass-dark {
-    @apply backdrop-blur-lg border shadow-2xl;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.7) 100%);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: white;
+    @apply backdrop-blur-lg border shadow-card-hover;
+    background: rgb(15 16 21 / 0.82);
+    border-color: rgb(255 255 255 / 0.1);
+    color: rgb(var(--t-50));
   }
 
-  /* Gradient Text - Enhanced */
+  /* ── Gradient text ──────────────────────────────────────────────────── */
   .gradient-text {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #ff7a18 0%, #f97316 100%);
+    background-image: var(--grad-cta);
   }
 
   .gradient-text-premium {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #ff7a18 0%, #d946ef 50%, #f97316 100%);
+    background-image: linear-gradient(135deg, #ff8a1f 0%, #ff6b00 50%, #b84e10 100%);
     background-size: 200% auto;
     animation: gradient-shift 3s ease-in-out infinite;
   }
@@ -573,25 +194,38 @@ html.dark .btn-secondary:hover {
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 
-  /* Decorative badge */
+  /* ── Badges ─────────────────────────────────────────────────────────────
+     Tinted background + INK label. The bright semantic values (--veg,
+     --nonveg) are 2.4:1 as text on their own tints, so they are reserved for
+     the dot/icon and the label uses the ink. */
   .badge-premium {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #92400e;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold;
+    background: rgb(var(--warning) / 0.16);
+    color: rgb(var(--t-800));
   }
 
   .badge-new {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-400 to-emerald-500 text-white;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-veg-bg text-veg-ink;
   }
 
-  /* Hover card effect */
+  .badge-veg {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-veg-bg text-veg-ink;
+  }
+
+  .badge-nonveg {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-nonveg-bg text-nonveg-ink;
+  }
+
+  /* Hover card effect. The old version did translateY(-8px) scale(1.01) —
+     too much motion for a dense grid, and the scale blurred card text mid
+     transition. A 4px lift with a warm shadow reads calmer. */
   .hover-card {
-    @apply transition-all duration-500;
+    @apply transition-all duration-200;
   }
 
   .hover-card:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
   }
 
   /* Skeleton loader */
@@ -603,7 +237,7 @@ html.dark .btn-secondary:hover {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgb(var(--bg-card) / 0.55), transparent);
     animation: shimmer 1.5s infinite;
   }
 
@@ -630,7 +264,12 @@ html.dark .btn-secondary:hover {
   }
 
   .animate-shimmer {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: linear-gradient(
+      90deg,
+      rgb(var(--s-200)) 25%,
+      rgb(var(--s-300)) 50%,
+      rgb(var(--s-200)) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
@@ -708,7 +347,7 @@ html.dark .btn-secondary:hover {
 
   .hover-lift:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
   }
 
   /* Steam Effect Container */
@@ -722,7 +361,7 @@ html.dark .btn-secondary:hover {
     bottom: 0;
     width: 8px;
     height: 8px;
-    background: rgba(255, 255, 255, 0.6);
+    background: rgb(var(--bg-card) / 0.6);
     border-radius: 50%;
     filter: blur(4px);
     animation: steam 3s ease-out infinite;
@@ -765,7 +404,7 @@ html.dark .btn-secondary:hover {
     left: 0;
     width: 0;
     height: 2px;
-    background: #9f1239;
+    background: rgb(var(--brand));
     transition: width 0.3s ease;
   }
 
@@ -878,12 +517,12 @@ html.dark .btn-secondary:hover {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(159, 18, 57, 0.7);
+    box-shadow: 0 0 0 0 rgba(255, 122, 0, 0.7);
     transform: scale(1);
   }
 
   50% {
-    box-shadow: 0 0 20px 10px rgba(159, 18, 57, 0);
+    box-shadow: 0 0 20px 10px rgba(255, 122, 0, 0);
     transform: scale(1.05);
   }
 }
@@ -989,16 +628,16 @@ html.dark .btn-secondary:hover {
   0%,
   100% {
     box-shadow:
-      0 0 5px rgba(159, 18, 57, 0.5),
-      0 0 10px rgba(159, 18, 57, 0.3),
-      0 0 15px rgba(159, 18, 57, 0.1);
+      0 0 5px rgba(255, 122, 0, 0.5),
+      0 0 10px rgba(255, 122, 0, 0.3),
+      0 0 15px rgba(255, 122, 0, 0.1);
   }
 
   50% {
     box-shadow:
-      0 0 20px rgba(159, 18, 57, 0.8),
-      0 0 30px rgba(159, 18, 57, 0.5),
-      0 0 40px rgba(159, 18, 57, 0.3);
+      0 0 20px rgba(255, 122, 0, 0.8),
+      0 0 30px rgba(255, 122, 0, 0.5),
+      0 0 40px rgba(255, 122, 0, 0.3);
   }
 }
 

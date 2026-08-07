@@ -111,7 +111,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div
-        className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 flex items-center justify-center"
+        className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 flex items-center justify-center"
         role="status"
         aria-label="Loading dashboard data"
       >
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
       <div className="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -139,15 +139,15 @@ const AdminDashboard = () => {
             className="flex items-center justify-between"
           >
             <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center shadow-card">
                 <span className="text-3xl">👑</span>
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+                  <h1 className="text-2xl font-bold text-neutral-900">Admin Dashboard</h1>
                   <CheckBadgeIcon className="w-6 h-6 text-green-400" />
                 </div>
-                <p className="text-neutral-400 text-sm mt-0.5 flex items-center">
+                <p className="text-neutral-500 text-sm mt-0.5 flex items-center">
                   <SparklesIcon className="w-4 h-4 mr-1" />
                   Platform management & analytics
                 </p>
@@ -194,7 +194,7 @@ const AdminDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -4, scale: 1.02 }}
-                className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
+                className="bg-white rounded-2xl p-6 shadow-card-hover hover:shadow-card-hover transition-all duration-300 border border-neutral-100"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div
@@ -203,9 +203,9 @@ const AdminDashboard = () => {
                     <Icon className="w-6 h-6 text-neutral-700" />
                   </div>
                   <div
-                    className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center shadow-lg`}
+                    className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center shadow-card`}
                   >
-                    <ArrowTrendingUpIcon className="w-5 h-5 text-white" />
+                    <ArrowTrendingUpIcon className="w-5 h-5 text-neutral-900" />
                   </div>
                 </div>
                 <p className="text-2xl font-bold text-neutral-900 mb-1">{stat.value}</p>
@@ -223,9 +223,9 @@ const AdminDashboard = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+            className="lg:col-span-2 bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
           >
-            <div className="bg-gradient-to-r from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950 px-6 py-4 border-b border-neutral-100 dark:border-neutral-800">
+            <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-4 border-b border-neutral-100">
               <h2 className="text-lg font-bold text-neutral-900">Quick Actions</h2>
             </div>
             <div className="p-6 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -233,7 +233,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <UserGroupIcon className="w-8 h-8 text-blue-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Manage Users</h3>
@@ -245,14 +245,14 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer relative"
+                  className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl hover:shadow-card transition-all cursor-pointer relative"
                 >
                   <BuildingStorefrontIcon className="w-8 h-8 text-green-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Partners</h3>
                   <p className="text-sm text-neutral-500">{stats.totalPartners} verified</p>
                   {stats.pendingPartners > 0 && (
                     <span
-                      className="absolute top-3 right-3 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                      className="absolute top-3 right-3 w-6 h-6 bg-red-500 text-neutral-900 text-xs font-bold rounded-full flex items-center justify-center"
                       aria-label={`${stats.pendingPartners} pending partner application${stats.pendingPartners !== 1 ? 's' : ''}`}
                     >
                       <span aria-hidden="true">{stats.pendingPartners}</span>
@@ -265,7 +265,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <ChartBarIcon className="w-8 h-8 text-purple-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Analytics</h3>
@@ -277,7 +277,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <CurrencyRupeeIcon className="w-8 h-8 text-amber-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Payments</h3>
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <BellAlertIcon className="w-8 h-8 text-red-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Alerts</h3>
@@ -301,7 +301,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900/30 dark:to-neutral-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <ClockIcon className="w-8 h-8 text-neutral-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Deliveries</h3>
@@ -313,7 +313,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <ChatBubbleLeftRightIcon className="w-8 h-8 text-blue-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Support Tickets</h3>
@@ -325,7 +325,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-rose-50 to-red-100 dark:from-rose-900/30 dark:to-red-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-rose-50 to-red-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <ShieldExclamationIcon className="w-8 h-8 text-rose-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">Fraud Reports</h3>
@@ -337,7 +337,7 @@ const AdminDashboard = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-5 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/30 dark:to-teal-800/30 rounded-2xl hover:shadow-lg transition-all cursor-pointer"
+                  className="p-5 bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl hover:shadow-card transition-all cursor-pointer"
                 >
                   <PhotoIcon className="w-8 h-8 text-teal-600 mb-3" />
                   <h3 className="font-bold text-neutral-900">App Banners</h3>
@@ -352,9 +352,9 @@ const AdminDashboard = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
           >
-            <div className="bg-gradient-to-r from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950 px-6 py-4 border-b border-neutral-100 dark:border-neutral-800">
+            <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-4 border-b border-neutral-100">
               <h2 className="text-lg font-bold text-neutral-900">Recent Activity</h2>
             </div>
             <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
@@ -369,7 +369,7 @@ const AdminDashboard = () => {
                   <span className="text-xl">{item.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-neutral-700">{item.message}</p>
-                    <p className="text-xs text-neutral-400 mt-1">
+                    <p className="text-xs text-neutral-500 mt-1">
                       {new Date(item.timestamp).toLocaleTimeString()}
                     </p>
                   </div>
@@ -401,7 +401,7 @@ const AdminDashboard = () => {
             </div>
             <Link
               to="/admin/partners"
-              className="px-4 py-2 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors"
+              className="px-4 py-2 bg-amber-500 text-neutral-900 rounded-xl font-medium hover:bg-amber-600 transition-colors"
               aria-label={`Review ${stats.pendingPartners} pending partner application${stats.pendingPartners !== 1 ? 's' : ''}`}
             >
               Review Now

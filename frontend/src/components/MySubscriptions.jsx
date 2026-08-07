@@ -104,21 +104,21 @@ const MySubscriptions = () => {
       case 'active':
         return {
           bg: 'bg-gradient-to-r from-green-500 to-emerald-500',
-          text: 'text-white',
+          text: 'text-neutral-900',
           icon: CheckCircleIcon,
           label: 'Active',
         };
       case 'paused':
         return {
           bg: 'bg-gradient-to-r from-amber-400 to-orange-400',
-          text: 'text-white',
+          text: 'text-neutral-900',
           icon: PauseCircleIcon,
           label: 'Paused',
         };
       case 'cancelled':
         return {
           bg: 'bg-gradient-to-r from-red-400 to-rose-500',
-          text: 'text-white',
+          text: 'text-neutral-900',
           icon: XMarkIcon,
           label: 'Cancelled',
         };
@@ -191,7 +191,7 @@ const MySubscriptions = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -4 }}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-neutral-100 group"
+                className="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden border border-neutral-100 group"
               >
                 {/* Status Bar */}
                 <div className={`h-1.5 ${statusConfig.bg}`} />
@@ -205,17 +205,17 @@ const MySubscriptions = () => {
                           <img
                             src={subscription.tiffin.images[0]}
                             alt={subscription.tiffin?.title || subscription.tiffin?.name}
-                            className="w-20 h-20 rounded-xl object-cover shadow-md group-hover:scale-105 transition-transform duration-300"
+                            className="w-20 h-20 rounded-xl object-cover shadow-card group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="w-20 h-20 rounded-xl shadow-md bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center text-3xl group-hover:scale-105 transition-transform duration-300">
+                          <div className="w-20 h-20 rounded-xl shadow-card bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center text-3xl group-hover:scale-105 transition-transform duration-300">
                             🍱
                           </div>
                         )}
                         <div
                           className={`absolute -bottom-2 -right-2 w-6 h-6 ${statusConfig.bg} rounded-full flex items-center justify-center`}
                         >
-                          <StatusIcon className="w-4 h-4 text-white" />
+                          <StatusIcon className="w-4 h-4 text-neutral-900" />
                         </div>
                       </div>
                       <div>
@@ -234,7 +234,7 @@ const MySubscriptions = () => {
                       </div>
                     </div>
                     <div
-                      className={`${statusConfig.bg} ${statusConfig.text} px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-md`}
+                      className={`${statusConfig.bg} ${statusConfig.text} px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-card`}
                     >
                       <StatusIcon className="w-4 h-4" />
                       <span>{statusConfig.label}</span>
@@ -337,7 +337,7 @@ const MySubscriptions = () => {
                       daysUntilEnd(subscription.endDate) <= 3 && (
                         <button
                           onClick={() => handleRenew(subscription._id)}
-                          className="px-6 py-3 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors"
+                          className="px-6 py-3 bg-primary-500 text-on-brand rounded-xl font-semibold hover:bg-primary-600 transition-colors"
                         >
                           Renew
                           {daysUntilEnd(subscription.endDate) >= 0
@@ -430,7 +430,7 @@ const SubscriptionModal = ({ subscription, onClose }) => {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-card-hover"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
@@ -487,7 +487,7 @@ const SubscriptionModal = ({ subscription, onClose }) => {
             {/* Delivery Address */}
             <div className="bg-neutral-50 rounded-xl p-5">
               <h4 className="font-semibold text-neutral-700 mb-3 flex items-center">
-                <MapPinIcon className="w-5 h-5 mr-2 text-primary-500" />
+                <MapPinIcon className="w-5 h-5 mr-2 text-brand" />
                 Delivery Address
               </h4>
               <p className="text-neutral-600">{subscription.deliveryAddress?.street}</p>
@@ -500,7 +500,7 @@ const SubscriptionModal = ({ subscription, onClose }) => {
             {/* Delivery timeline — status-accurate per day (Phase 1) */}
             <div>
               <h4 className="font-semibold text-neutral-700 mb-3 flex items-center">
-                <TruckIcon className="w-5 h-5 mr-2 text-primary-500" />
+                <TruckIcon className="w-5 h-5 mr-2 text-brand" />
                 Delivery Timeline
               </h4>
               <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -526,7 +526,7 @@ const SubscriptionModal = ({ subscription, onClose }) => {
                             })}
                           </span>
                           {doneAt && (
-                            <span className="text-xs text-neutral-400">
+                            <span className="text-xs text-neutral-500">
                               {new Date(doneAt).toLocaleTimeString('en-IN', {
                                 hour: 'numeric',
                                 minute: '2-digit',
@@ -566,7 +566,7 @@ const SubscriptionModal = ({ subscription, onClose }) => {
                   );
                 })}
               </div>
-              <p className="text-xs text-neutral-400 mt-2">
+              <p className="text-xs text-neutral-500 mt-2">
                 Skipping a day adds a make-up delivery to the end of your plan — you never lose a
                 meal. Up to {MAX_SKIPS_PER_MONTH} skips per month.
               </p>

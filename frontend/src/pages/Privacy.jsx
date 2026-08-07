@@ -6,7 +6,7 @@ const sections = [
   {
     title: 'Information We Collect',
     content: `We collect information you provide directly, such as when you create an account, place orders, manage a tiffin service, or contact us for support. This includes:
-    
+ 
 • **Account data:** Name, email address, phone number, profile photo.
 • **Order data:** Delivery addresses, tiffin preferences, subscription plans, payment history.
 • **Partner data:** Business name, bank account details (encrypted), FSSAI license, tax information.
@@ -88,9 +88,9 @@ Despite best efforts, no system is 100% secure. Please report any suspected secu
     title: 'Contact Us',
     content: `If you have questions, concerns, or requests regarding this Privacy Policy:
 
-• **Email:** privacy@tiffo.in  
-• **Postal Address:** Tiffo Technologies Pvt. Ltd., [Your Address], India  
-• **Support:** https://tiffo.com/support  
+• **Email:** privacy@tiffo.in 
+• **Postal Address:** Tiffo Technologies Pvt. Ltd., [Your Address], India 
+• **Support:** https://tiffo.com/support 
 
 We aim to respond to all privacy-related inquiries within 5 business days.`,
   },
@@ -100,7 +100,7 @@ const Privacy = () => {
   const [openSection, setOpenSection] = useState(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-secondary-500 relative overflow-hidden">
         <div className="absolute inset-0">
@@ -111,14 +111,14 @@ const Privacy = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-4 mb-2">
               <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <ShieldCheckIcon className="w-7 h-7 text-white" />
+                <ShieldCheckIcon className="w-7 h-7 text-neutral-900" />
               </div>
               <div>
-                <h1 className="text-3xl font-black text-white">Privacy Policy</h1>
-                <p className="text-white/70 text-sm mt-0.5">Last updated: April 2026</p>
+                <h1 className="text-3xl font-black text-neutral-900">Privacy Policy</h1>
+                <p className="text-neutral-700 text-sm mt-0.5">Last updated: April 2026</p>
               </div>
             </div>
-            <p className="text-white/80 text-sm mt-4 max-w-2xl">
+            <p className="text-neutral-700 text-sm mt-4 max-w-2xl">
               Your privacy matters. This policy explains what data we collect, why we collect it,
               and how you can control it.
             </p>
@@ -131,25 +131,23 @@ const Privacy = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-100 dark:border-neutral-800 overflow-hidden"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
         >
-          <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+          <div className="divide-y divide-neutral-100">
             {sections.map((section, i) => (
               <div key={i}>
                 <button
                   onClick={() => setOpenSection(openSection === i ? null : i)}
-                  className="w-full text-left px-6 py-5 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
+                  className="w-full text-left px-6 py-5 flex items-center justify-between hover:bg-neutral-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-7 h-7 bg-primary-100 dark:bg-primary-900/40 rounded-lg flex items-center justify-center text-xs font-bold text-primary-700 dark:text-primary-300 shrink-0">
+                    <span className="w-7 h-7 bg-primary-100 rounded-lg flex items-center justify-center text-xs font-bold text-primary-700 shrink-0">
                       {i + 1}
                     </span>
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                      {section.title}
-                    </span>
+                    <span className="font-semibold text-neutral-800">{section.title}</span>
                   </div>
                   <span
-                    className={`text-2xl text-primary-500 transition-transform duration-200 ${openSection === i ? 'rotate-45' : ''}`}
+                    className={`text-2xl text-primary-600 transition-transform duration-200 ${openSection === i ? 'rotate-45' : ''}`}
                   >
                     +
                   </span>
@@ -158,7 +156,7 @@ const Privacy = () => {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="px-6 pb-6 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line"
+                    className="px-6 pb-6 text-sm text-neutral-600 leading-relaxed whitespace-pre-line"
                   >
                     {section.content}
                   </motion.div>
@@ -168,13 +166,13 @@ const Privacy = () => {
           </div>
         </motion.div>
 
-        <p className="text-center text-xs text-neutral-400 mt-8">
-          © {new Date().getFullYear()} Tiffo Technologies Pvt. Ltd. ·{' '}
-          <a href="/terms" className="hover:text-primary-500">
+        <p className="text-center text-xs text-neutral-500 mt-8">
+          © {new Date().getFullYear()} Tiffo Technologies Pvt. Ltd. ·{''}
+          <a href="/terms" className="hover:text-brand-ink">
             Terms of Service
-          </a>{' '}
-          ·{' '}
-          <a href="/support" className="hover:text-primary-500">
+          </a>
+          {''}·{''}
+          <a href="/support" className="hover:text-brand-ink">
             Contact Support
           </a>
         </p>

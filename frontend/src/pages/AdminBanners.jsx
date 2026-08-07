@@ -151,21 +151,19 @@ export default function AdminBanners() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-neutral-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link
               to="/admin/dashboard"
-              className="p-2 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+              className="p-2 bg-white rounded-xl shadow-card border border-neutral-200 text-neutral-600 hover:bg-neutral-50"
             >
               <ArrowLeftIcon className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-2xl font-extrabold text-neutral-900 dark:text-white">
-                App Banners
-              </h1>
+              <h1 className="text-2xl font-extrabold text-neutral-900">App Banners</h1>
               <p className="text-sm text-neutral-500">
                 Manage promotional slides displayed on the mobile app home screen
               </p>
@@ -173,7 +171,7 @@ export default function AdminBanners() {
           </div>
           <button
             onClick={openAddModal}
-            className="mt-4 md:mt-0 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-colors"
+            className="mt-4 md:mt-0 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-neutral-900 font-semibold px-5 py-3 rounded-xl shadow-card transition-colors"
           >
             <PlusIcon className="w-5 h-5" />
             <span>Add Banner</span>
@@ -186,8 +184,8 @@ export default function AdminBanners() {
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600"></div>
           </div>
         ) : banners.length === 0 ? (
-          <div className="bg-white dark:bg-neutral-800 rounded-2xl p-12 text-center border border-neutral-100 dark:border-neutral-800">
-            <p className="text-neutral-500">No banners found. Click "Add Banner" to get started.</p>
+          <div className="bg-white rounded-2xl p-12 text-center border border-neutral-100">
+            <p className="text-neutral-500">No banners found. Click "Add Banner"to get started.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -195,11 +193,11 @@ export default function AdminBanners() {
               <motion.div
                 key={banner._id}
                 layout
-                className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 overflow-hidden flex flex-col"
+                className="bg-white rounded-2xl shadow-card border border-neutral-200 overflow-hidden flex flex-col"
               >
                 {/* Visual Preview */}
                 <div
-                  className="p-6 text-white flex flex-row items-center justify-between min-h-[110px]"
+                  className="p-6 text-neutral-900 flex flex-row items-center justify-between min-h-[110px]"
                   style={{ backgroundColor: banner.bg }}
                 >
                   <div className="flex-1 pr-4">
@@ -207,9 +205,9 @@ export default function AdminBanners() {
                       Order: {banner.order}
                     </span>
                     <h3 className="text-xl font-bold line-clamp-1">{banner.title}</h3>
-                    <p className="text-xs text-white/80 line-clamp-2 mt-1">{banner.subtitle}</p>
+                    <p className="text-xs text-neutral-700 line-clamp-2 mt-1">{banner.subtitle}</p>
                   </div>
-                  <div className="text-white/90 bg-white/10 p-2.5 rounded-xl border border-white/20">
+                  <div className="text-neutral-800 bg-white/10 p-2.5 rounded-xl border border-white/20">
                     <span className="text-xs font-mono">{banner.icon}</span>
                   </div>
                 </div>
@@ -222,8 +220,8 @@ export default function AdminBanners() {
                       onClick={() => toggleActive(banner)}
                       className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
                         banner.isActive
-                          ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                          : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400'
+                          ? 'bg-green-50 text-green-700'
+                          : 'bg-neutral-100 text-neutral-500'
                       }`}
                     >
                       {banner.isActive ? (
@@ -243,14 +241,14 @@ export default function AdminBanners() {
                   <div className="flex space-x-3 mt-auto">
                     <button
                       onClick={() => openEditModal(banner)}
-                      className="flex-1 flex items-center justify-center space-x-1.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-200 py-2.5 rounded-xl text-sm font-semibold border border-neutral-200 dark:border-neutral-600 transition-colors"
+                      className="flex-1 flex items-center justify-center space-x-1.5 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 py-2.5 rounded-xl text-sm font-semibold border border-neutral-200 transition-colors"
                     >
                       <PencilIcon className="w-4 h-4" />
                       <span>Edit</span>
                     </button>
                     <button
                       onClick={() => handleDelete(banner._id)}
-                      className="flex items-center justify-center p-2.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 rounded-xl border border-red-100 dark:border-red-900/50 transition-colors"
+                      className="flex items-center justify-center p-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-100 transition-colors"
                     >
                       <TrashIcon className="w-4 h-4" />
                     </button>
@@ -269,15 +267,15 @@ export default function AdminBanners() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white dark:bg-neutral-800 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl"
+                className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-card-hover"
               >
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-neutral-900">
                     {editingBanner ? 'Edit Banner' : 'Add New Banner'}
                   </h2>
                   <button
                     onClick={() => setShowModal(false)}
-                    className="text-neutral-500 hover:text-neutral-750 dark:hover:text-white"
+                    className="text-neutral-500 hover:text-neutral-750"
                   >
                     <XMarkIcon className="w-6 h-6" />
                   </button>
@@ -285,12 +283,12 @@ export default function AdminBanners() {
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
-                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                    <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                       Title
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white focus:ring-2 focus:ring-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-950 focus:ring-2 focus:ring-red-500"
                       value={form.title}
                       onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                       required
@@ -298,12 +296,12 @@ export default function AdminBanners() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                    <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                       Subtitle
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white focus:ring-2 focus:ring-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-950 focus:ring-2 focus:ring-red-500"
                       value={form.subtitle}
                       onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))}
                       required
@@ -311,7 +309,7 @@ export default function AdminBanners() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                    <label className="block text-sm font-semibold text-neutral-700 mb-2">
                       Background Color
                     </label>
                     <div className="flex flex-wrap gap-2.5 mb-3">
@@ -322,7 +320,7 @@ export default function AdminBanners() {
                           onClick={() => setForm((f) => ({ ...f, bg: c.hex }))}
                           className={`w-8 h-8 rounded-full border-2 transition-all ${
                             form.bg === c.hex
-                              ? 'border-neutral-900 dark:border-white scale-110 shadow-md'
+                              ? 'border-neutral-900 scale-110 shadow-card'
                               : 'border-transparent'
                           }`}
                           style={{ backgroundColor: c.hex }}
@@ -333,7 +331,7 @@ export default function AdminBanners() {
                     <input
                       type="text"
                       placeholder="#HEXCOLOR"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white font-mono focus:ring-2 focus:ring-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-950 font-mono focus:ring-2 focus:ring-red-500"
                       value={form.bg}
                       onChange={(e) => setForm((f) => ({ ...f, bg: e.target.value }))}
                       required
@@ -341,11 +339,11 @@ export default function AdminBanners() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                    <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                       Icon Name (Expo/Ionicons compatible)
                     </label>
                     <select
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white focus:ring-2 focus:ring-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-950 focus:ring-2 focus:ring-red-500"
                       value={form.icon}
                       onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
                     >
@@ -359,12 +357,12 @@ export default function AdminBanners() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                      <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                         Order
                       </label>
                       <input
                         type="number"
-                        className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white focus:ring-2 focus:ring-red-500"
+                        className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-950 focus:ring-2 focus:ring-red-500"
                         value={form.order}
                         onChange={(e) =>
                           setForm((f) => ({ ...f, order: parseInt(e.target.value) || 0 }))
@@ -374,11 +372,11 @@ export default function AdminBanners() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                      <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                         Visibility
                       </label>
                       <select
-                        className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white focus:ring-2 focus:ring-red-500"
+                        className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-950 focus:ring-2 focus:ring-red-500"
                         value={form.isActive ? 'yes' : 'no'}
                         onChange={(e) =>
                           setForm((f) => ({ ...f, isActive: e.target.value === 'yes' }))
@@ -392,7 +390,7 @@ export default function AdminBanners() {
 
                   <button
                     type="submit"
-                    className="w-full mt-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 rounded-xl shadow-md transition-colors"
+                    className="w-full mt-2 bg-red-600 hover:bg-red-700 text-neutral-900 font-semibold py-3.5 rounded-xl shadow-card transition-colors"
                   >
                     {editingBanner ? 'Save Changes' : 'Create Banner'}
                   </button>

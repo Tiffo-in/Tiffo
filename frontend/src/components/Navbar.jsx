@@ -9,6 +9,7 @@ import {
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,8 +41,8 @@ const Navbar = () => {
     <motion.nav
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-[#0F1016]/95 backdrop-blur-xl shadow-lg border-b border-[rgba(255,255,255,0.08)] py-3'
-          : 'bg-[#0F1016]/60 backdrop-blur-md py-5'
+          ? 'bg-surface/95 backdrop-blur-xl shadow-card border-b border-neutral-100 py-3'
+          : 'bg-surface/70 backdrop-blur-md py-5'
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -57,8 +58,8 @@ const Navbar = () => {
                 alt="Tiffo Logo"
                 className="h-10 w-auto group-hover:scale-110 transition-transform duration-300"
               />
-              <span className="text-2xl font-black tracking-tight text-white">
-                Tiffo<span className="text-orange-500">.</span>
+              <span className="text-2xl font-black tracking-tight text-neutral-900">
+                Tiffo<span className="text-brand">.</span>
               </span>
             </Link>
           </div>
@@ -74,7 +75,7 @@ const Navbar = () => {
                   end={link.path === '/'}
                   className={({ isActive }) =>
                     `relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                      isActive ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
+                      isActive ? 'text-brand-ink' : 'text-neutral-600 hover:text-neutral-900'
                     }`
                   }
                 >
@@ -85,18 +86,19 @@ const Navbar = () => {
 
             {/* Auth / User Actions */}
             <div className="flex items-center gap-3 ml-2">
+              <ThemeToggle />
               {user ? (
                 <>
                   <Link
                     to={user.role === 'partner' ? '/partner/dashboard' : '/dashboard'}
-                    className="flex items-center gap-2 text-neutral-400 hover:text-white px-3 py-2 text-sm font-semibold transition-colors"
+                    className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 px-3 py-2 text-sm font-semibold transition-colors"
                   >
                     <UserCircleIcon className="w-5 h-5" />
                     Dashboard
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 text-neutral-500 hover:text-red-400 px-3 py-2 text-sm font-semibold transition-colors"
+                    className="flex items-center gap-2 text-neutral-600 hover:text-error px-3 py-2 text-sm font-semibold transition-colors"
                   >
                     <ArrowRightOnRectangleIcon className="w-5 h-5" />
                     Logout
@@ -106,13 +108,13 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-neutral-400 hover:text-white px-4 py-2 text-sm font-semibold transition-colors"
+                    className="text-neutral-600 hover:text-neutral-900 px-4 py-2 text-sm font-semibold transition-colors"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 hover:-translate-y-0.5 transition-all duration-200"
+                    className="bg-gradient-cta text-on-brand text-sm font-bold px-5 py-2.5 rounded-xl shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200"
                   >
                     Get Started
                   </Link>
@@ -123,10 +125,14 @@ const Navbar = () => {
 
           {/* Mobile Menu Controls */}
           <div className="md:hidden flex items-center gap-3">
+            {/* Sits outside the collapsed menu so the theme can be changed
+                without opening it. */}
+            <ThemeToggle />
+
             {/* Hamburger */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-alt border border-neutral-100 text-neutral-900 shadow-card"
               aria-label={isOpen ? 'Close Menu' : 'Open Menu'}
             >
               <AnimatePresence mode="wait">
@@ -159,7 +165,7 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="md:hidden absolute top-full left-0 w-full bg-[#0d0d0d]/98 backdrop-blur-xl border-b border-neutral-800 shadow-2xl"
+            className="md:hidden absolute top-full left-0 w-full bg-surface/98 backdrop-blur-xl border-b border-neutral-100 shadow-card-hover"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -174,8 +180,8 @@ const Navbar = () => {
                   className={({ isActive }) =>
                     `block px-4 py-4 rounded-xl text-base font-semibold transition-colors ${
                       isActive
-                        ? 'bg-orange-500/10 text-orange-400'
-                        : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
+                        ? 'bg-brand-tint text-brand-ink'
+                        : 'text-neutral-600 hover:bg-surface-alt hover:text-neutral-900'
                     }`
                   }
                 >
@@ -183,14 +189,14 @@ const Navbar = () => {
                 </NavLink>
               ))}
 
-              <div className="my-4 h-px bg-neutral-800 w-full" />
+              <div className="my-4 h-px bg-neutral-200 w-full" />
 
               {user ? (
                 <>
                   <Link
                     to={user.role === 'partner' ? '/partner/dashboard' : '/dashboard'}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-4 py-4 rounded-xl text-base font-semibold text-neutral-300 hover:bg-neutral-900 transition-colors"
+                    className="flex items-center gap-3 px-4 py-4 rounded-xl text-base font-semibold text-neutral-600 hover:bg-surface-alt transition-colors"
                   >
                     <UserCircleIcon className="w-6 h-6" />
                     Dashboard
@@ -200,7 +206,7 @@ const Navbar = () => {
                       handleLogout();
                       setIsOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl text-base font-semibold text-red-400 hover:bg-red-900/20 transition-colors"
+                    className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl text-base font-semibold text-error hover:bg-red-50 transition-colors"
                   >
                     <ArrowRightOnRectangleIcon className="w-6 h-6" />
                     Logout
@@ -211,14 +217,14 @@ const Navbar = () => {
                   <Link
                     to="/login"
                     onClick={() => setIsOpen(false)}
-                    className="block text-center px-4 py-4 rounded-xl text-base font-semibold text-neutral-300 border border-neutral-800 transition-colors hover:bg-neutral-900"
+                    className="block text-center px-4 py-4 rounded-xl text-base font-semibold text-neutral-700 border border-neutral-200 transition-colors hover:bg-surface-alt"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
                     onClick={() => setIsOpen(false)}
-                    className="block text-center px-4 py-4 rounded-xl text-base font-bold text-white bg-orange-500 hover:bg-orange-400 transition-colors shadow-lg"
+                    className="block text-center px-4 py-4 rounded-xl text-base font-bold text-on-brand bg-gradient-cta transition-colors shadow-card"
                   >
                     Get Started
                   </Link>

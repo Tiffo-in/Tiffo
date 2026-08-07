@@ -32,11 +32,11 @@ const PaymentFailed = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-zinc-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-surface-page text-neutral-900 flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full bg-[#14151e] border border-zinc-800/80 rounded-3xl shadow-2xl p-8 text-center space-y-6"
+        className="max-w-md w-full bg-surface border border-neutral-200 rounded-3xl shadow-card-hover p-8 text-center space-y-6"
       >
         {/* Error Animation Container */}
         <motion.div
@@ -45,31 +45,31 @@ const PaymentFailed = () => {
           transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
           className="mb-2"
         >
-          <div className="w-20 h-20 bg-rose-500/20 border border-rose-500/40 text-rose-400 rounded-full flex items-center justify-center mx-auto shadow-xl">
+          <div className="w-20 h-20 bg-red-100 border border-red-200 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-card-hover">
             <XCircleIcon className="w-10 h-10" />
           </div>
         </motion.div>
 
         {/* Error Message */}
         <div className="space-y-1">
-          <h1 className="text-2xl font-extrabold text-white">Payment Failed</h1>
-          <p className="text-xs text-rose-400 font-medium">{getErrorMessage(errorCode)}</p>
+          <h1 className="text-2xl font-extrabold text-neutral-900">Payment Failed</h1>
+          <p className="text-xs text-red-600 font-medium">{getErrorMessage(errorCode)}</p>
         </div>
 
         {/* Reasons Card */}
-        <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-4 text-left space-y-2">
-          <h3 className="font-bold text-xs text-white">Possible Reasons:</h3>
-          <ul className="space-y-1.5 text-xs text-zinc-400">
+        <div className="bg-surface-alt border border-neutral-200 rounded-2xl p-4 text-left space-y-2">
+          <h3 className="font-bold text-xs text-neutral-900">Possible Reasons:</h3>
+          <ul className="space-y-1.5 text-xs text-neutral-600">
             <li className="flex items-center space-x-2">
-              <span className="text-rose-500">•</span>
+              <span className="text-red-500">•</span>
               <span>Insufficient account balance or bank limit reached</span>
             </li>
             <li className="flex items-center space-x-2">
-              <span className="text-rose-500">•</span>
+              <span className="text-red-500">•</span>
               <span>Transaction timed out or canceled by bank</span>
             </li>
             <li className="flex items-center space-x-2">
-              <span className="text-rose-500">•</span>
+              <span className="text-red-500">•</span>
               <span>Temporary payment gateway timeout</span>
             </li>
           </ul>
@@ -79,14 +79,14 @@ const PaymentFailed = () => {
         <div className="space-y-3 pt-2">
           <button
             onClick={handleRetry}
-            className="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center space-x-2 active:scale-95"
+            className="btn-primary w-full py-3 text-xs flex items-center justify-center space-x-2 active:scale-95"
           >
             <ArrowPathIcon className="w-4 h-4" />
             <span>Try Payment Again</span>
           </button>
           <Link
             to="/dashboard"
-            className="block w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold text-xs transition-all text-center"
+            className="block w-full py-2.5 rounded-xl bg-surface-alt hover:bg-neutral-200 border border-neutral-200 text-neutral-700 font-semibold text-xs transition-all text-center"
           >
             Return to Dashboard
           </Link>

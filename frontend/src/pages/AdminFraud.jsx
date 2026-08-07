@@ -96,7 +96,7 @@ const AdminFraud = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-xl shadow-sm mb-6 flex gap-2 overflow-x-auto">
+        <div className="bg-white p-4 rounded-xl shadow-card mb-6 flex gap-2 overflow-x-auto">
           {['all', 'open', 'under_investigation', 'action_taken', 'dismissed'].map((f) => (
             <button
               key={f}
@@ -106,7 +106,7 @@ const AdminFraud = () => {
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium capitalize whitespace-nowrap transition-colors ${
                 filter === f
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-red-600 text-neutral-900'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -116,7 +116,7 @@ const AdminFraud = () => {
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-card overflow-hidden">
           {loading ? (
             <div className="text-center py-12 text-gray-500">Loading reports...</div>
           ) : reports.length === 0 ? (

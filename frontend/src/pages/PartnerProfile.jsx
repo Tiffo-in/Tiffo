@@ -182,9 +182,7 @@ const PartnerProfile = () => {
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-4xl font-extrabold text-gray-900 flex items-center">
               <span className="text-5xl mr-4 animate-bounce-slow">🏪</span>
-              <span className="bg-gradient-to-r from-maroon-600 via-maroon-700 to-maroon-800 dark:from-maroon-400 dark:via-maroon-500 dark:to-maroon-600 bg-clip-text text-transparent">
-                Partner Profile
-              </span>
+              <span className="text-primary-600">Partner Profile</span>
             </h1>
             {activeTab === 'profile' && !isEditing ? (
               <motion.button
@@ -231,7 +229,7 @@ const PartnerProfile = () => {
                 {activeTab === 'profile' && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-maroon-600 via-maroon-700 to-maroon-800 dark:from-maroon-400 dark:via-maroon-500 dark:to-maroon-600"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-maroon-600 via-maroon-700 to-maroon-800"
                     initial={false}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
@@ -247,7 +245,7 @@ const PartnerProfile = () => {
                 {activeTab === 'payment' && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-maroon-600 via-maroon-700 to-maroon-800 dark:from-maroon-400 dark:via-maroon-500 dark:to-maroon-600"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-maroon-600 via-maroon-700 to-maroon-800"
                     initial={false}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
@@ -260,7 +258,7 @@ const PartnerProfile = () => {
           {activeTab === 'profile' ? (
             <>
               {/* Business Information */}
-              <div className="glass-card mb-8 p-8 shadow-premium">
+              <div className="glass-card mb-8 p-8 shadow-card">
                 <h2 className="text-2xl font-bold mb-6 flex items-center text-gray-900">
                   <span className="text-2xl mr-3">🏢</span>
                   Business Information
@@ -278,7 +276,7 @@ const PartnerProfile = () => {
                 )}
 
                 {!isEditing && profileData.logo && (
-                  <div className="mb-6 w-24 h-24 rounded-2xl overflow-hidden shadow-sm border border-neutral-200">
+                  <div className="mb-6 w-24 h-24 rounded-2xl overflow-hidden shadow-card border border-neutral-200">
                     <img
                       src={profileData.logo}
                       alt="Business Logo"
@@ -319,14 +317,14 @@ const PartnerProfile = () => {
               </div>
 
               {/* Business Location */}
-              <div className="glass-card mb-8 p-8 shadow-premium">
+              <div className="glass-card mb-8 p-8 shadow-card">
                 <h2 className="text-2xl font-bold mb-6 flex items-center text-gray-900">
                   <span className="text-3xl mr-3">📍</span>
                   Business Location *
                 </h2>
 
                 {isEditing && (
-                  <div className="mb-6 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/30 dark:to-amber-900/30 border-l-4 border-yellow-400 rounded-lg p-4">
+                  <div className="mb-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-400 rounded-lg p-4">
                     <p className="text-sm text-yellow-900 font-medium">
                       <strong>⚠️ Important:</strong> Setting your exact location helps customers
                       find you when searching for nearby tiffin services.
@@ -425,7 +423,7 @@ const PartnerProfile = () => {
               </div>
 
               {/* Contact Information */}
-              <div className="glass-card mb-8 p-8 shadow-premium">
+              <div className="glass-card mb-8 p-8 shadow-card">
                 <h2 className="text-2xl font-bold mb-6 flex items-center text-gray-900">
                   <span className="text-2xl mr-3">📞</span>
                   Contact Information
@@ -474,7 +472,7 @@ const PartnerProfile = () => {
               </div>
 
               {/* Business Hours */}
-              <div className="glass-card mb-8 p-8 shadow-premium">
+              <div className="glass-card mb-8 p-8 shadow-card">
                 <h2 className="text-2xl font-bold mb-6 flex items-center text-gray-900">
                   <span className="text-2xl mr-3">🕒</span>
                   Business Hours
@@ -531,7 +529,7 @@ const PartnerProfile = () => {
                           disabled={!isEditing}
                           className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                             profileData.businessHours.workingDays.includes(day)
-                              ? 'bg-maroon-600 text-white'
+                              ? 'bg-maroon-600 text-on-brand'
                               : 'bg-gray-200 text-gray-600'
                           } ${isEditing ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed'}`}
                         >
@@ -544,14 +542,14 @@ const PartnerProfile = () => {
               </div>
 
               {/* Delivery Settings */}
-              <div className="glass-card p-8 shadow-premium">
+              <div className="glass-card p-8 shadow-card">
                 <h2 className="text-2xl font-bold mb-6 flex items-center text-gray-900">
                   <span className="text-2xl mr-3">🚚</span>
                   Delivery Settings
                 </h2>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Delivery Radius:{' '}
+                    Delivery Radius:{''}
                     <span className="text-maroon-600 font-bold">
                       {profileData.deliveryRadius} km
                     </span>

@@ -80,9 +80,9 @@ const CustomerAnalytics = () => {
   const maxAcquisition = Math.max(...stats.acquisition.map((a) => a.customers));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 dark:from-purple-900 dark:via-purple-800 dark:to-pink-900 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-10 -right-10 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-60 h-60 bg-white/5 rounded-full blur-3xl" />
@@ -95,14 +95,14 @@ const CustomerAnalytics = () => {
                 to="/admin/dashboard"
                 className="p-2 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
               >
-                <ArrowLeftIcon className="w-5 h-5 text-white" />
+                <ArrowLeftIcon className="w-5 h-5 text-neutral-900" />
               </Link>
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <ChartBarIcon className="w-6 h-6 text-white" />
+                <ChartBarIcon className="w-6 h-6 text-neutral-900" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Customer Analytics</h1>
-                <p className="text-white/80 text-sm">Insights and trends</p>
+                <h1 className="text-2xl font-bold text-neutral-900">Customer Analytics</h1>
+                <p className="text-neutral-700 text-sm">Insights and trends</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -114,7 +114,7 @@ const CustomerAnalytics = () => {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       timeRange === range
                         ? 'bg-white text-purple-600'
-                        : 'text-white hover:bg-white/20'
+                        : 'text-neutral-900 hover:bg-white/20'
                     }`}
                   >
                     {range}
@@ -122,10 +122,10 @@ const CustomerAnalytics = () => {
                 ))}
               </div>
               <div className="relative group">
-                <button className="px-4 py-2 bg-white/20 text-white rounded-xl font-medium hover:bg-white/30 transition-all flex items-center gap-2">
+                <button className="px-4 py-2 bg-white/20 text-neutral-900 rounded-xl font-medium hover:bg-white/30 transition-all flex items-center gap-2">
                   <ArrowTrendingUpIcon className="w-4 h-4" /> Export
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-neutral-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-card border border-neutral-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                   <div className="p-2 space-y-1">
                     <button
                       onClick={() => handleExport('customers')}
@@ -199,13 +199,13 @@ const CustomerAnalytics = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+              className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
             >
               <div className="flex items-start justify-between">
                 <div
                   className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center`}
                 >
-                  <stat.icon className="w-6 h-6 text-white" />
+                  <stat.icon className="w-6 h-6 text-neutral-900" />
                 </div>
                 <span
                   className={`flex items-center gap-1 text-sm font-medium ${
@@ -234,7 +234,7 @@ const CustomerAnalytics = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+            className="lg:col-span-2 bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
           >
             <h3 className="text-lg font-bold text-neutral-900 mb-6">Customer Acquisition</h3>
             <div className="flex items-end gap-3 h-48">
@@ -244,7 +244,7 @@ const CustomerAnalytics = () => {
                     initial={{ height: 0 }}
                     animate={{ height: `${(item.customers / maxAcquisition) * 100}%` }}
                     transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
-                    className="w-full bg-gradient-to-t from-purple-500 to-pink-400 dark:from-purple-800 dark:to-pink-700 rounded-t-lg relative group"
+                    className="w-full bg-gradient-to-t from-purple-500 to-pink-400 rounded-t-lg relative group"
                   >
                     <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-medium text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity">
                       {item.customers}
@@ -261,7 +261,7 @@ const CustomerAnalytics = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
           >
             <h3 className="text-lg font-bold text-neutral-900 mb-6">Retention Rate</h3>
             <div className="space-y-3">
@@ -282,7 +282,7 @@ const CustomerAnalytics = () => {
                       initial={{ width: 0 }}
                       animate={{ width: `${item.value}%` }}
                       transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
-                      className="h-full bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-700 dark:to-emerald-700 rounded-full"
+                      className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
                     />
                   </div>
                 </div>
@@ -297,7 +297,7 @@ const CustomerAnalytics = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
           >
             <h3 className="text-lg font-bold text-neutral-900 mb-4">Top Customers</h3>
             <div className="space-y-3">
@@ -306,7 +306,7 @@ const CustomerAnalytics = () => {
                   key={customer._id}
                   className="flex items-center gap-4 p-3 bg-neutral-50 rounded-xl"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-700 dark:to-pink-700 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-neutral-900 text-sm font-bold">
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -317,7 +317,7 @@ const CustomerAnalytics = () => {
                     <div className="flex items-center gap-3 text-sm text-neutral-500">
                       <span>{customer.orders} orders</span>
                       <span className="flex items-center gap-1">
-                        <StarIcon className="w-3 h-3 text-amber-500" />
+                        <StarIcon className="w-3 h-3 text-rating" />
                         {customer.rating}
                       </span>
                     </div>
@@ -336,7 +336,7 @@ const CustomerAnalytics = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+              className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
             >
               <h3 className="text-lg font-bold text-neutral-900 mb-4">Subscription Plans</h3>
               <div className="flex gap-4">
@@ -361,7 +361,7 @@ const CustomerAnalytics = () => {
                           cy="32"
                           r="28"
                           fill="none"
-                          stroke="#e5e5e5"
+                          stroke="rgb(var(--line-100))"
                           strokeWidth="6"
                         />
                         <motion.circle
@@ -392,13 +392,13 @@ const CustomerAnalytics = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+              className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
             >
               <h3 className="text-lg font-bold text-neutral-900 mb-4">Top Locations</h3>
               <div className="space-y-3">
                 {stats.demographics.locations.map((loc, index) => (
                   <div key={loc.city} className="flex items-center gap-3">
-                    <span className="w-6 text-sm text-neutral-400">{index + 1}</span>
+                    <span className="w-6 text-sm text-neutral-500">{index + 1}</span>
                     <span className="flex-1 font-medium text-neutral-700">{loc.city}</span>
                     <span className="text-sm font-medium text-neutral-900">{loc.count}</span>
                   </div>

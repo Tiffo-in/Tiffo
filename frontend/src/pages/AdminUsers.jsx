@@ -180,7 +180,7 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -194,20 +194,20 @@ const AdminUsers = () => {
                 to="/admin/dashboard"
                 className="p-2 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
               >
-                <ArrowLeftIcon className="w-5 h-5 text-white" />
+                <ArrowLeftIcon className="w-5 h-5 text-neutral-900" />
               </Link>
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <UserGroupIcon className="w-6 h-6 text-white" />
+                <UserGroupIcon className="w-6 h-6 text-neutral-900" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">User Management</h1>
-                <p className="text-white/80 text-sm">{users.length} users found</p>
+                <h1 className="text-2xl font-bold text-neutral-900">User Management</h1>
+                <p className="text-neutral-700 text-sm">{users.length} users found</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Link
                 to="/admin/analytics"
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-sm text-white rounded-xl font-medium hover:bg-white/30 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-sm text-neutral-900 rounded-xl font-medium hover:bg-white/30 transition-colors"
               >
                 📊 Analytics
               </Link>
@@ -216,7 +216,7 @@ const AdminUsers = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={exportToCSV}
                 disabled={exporting}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-sm text-white rounded-xl font-medium hover:bg-white/30 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-sm text-neutral-900 rounded-xl font-medium hover:bg-white/30 transition-colors"
               >
                 <ArrowDownTrayIcon className="w-5 h-5" />
                 {exporting ? 'Exporting...' : 'Export CSV'}
@@ -233,14 +233,14 @@ const AdminUsers = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-neutral-900 text-white py-3 px-4 sticky top-0 z-40"
+            className="bg-neutral-900 text-neutral-900 py-3 px-4 sticky top-0 z-40"
           >
             <div className="max-w-7xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="font-semibold">{selectedIds.length} selected</span>
                 <button
                   onClick={() => setSelectedIds([])}
-                  className="text-sm text-neutral-400 hover:text-white"
+                  className="text-sm text-neutral-500 hover:text-neutral-900"
                 >
                   Clear selection
                 </button>
@@ -296,7 +296,7 @@ const AdminUsers = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`bg-white rounded-2xl shadow-lg border border-neutral-100 p-4 mb-6 ${showBulkActions ? '' : '-mt-12'}`}
+          className={`bg-white rounded-2xl shadow-card border border-neutral-100 p-4 mb-6 ${showBulkActions ? '' : '-mt-12'}`}
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -316,7 +316,7 @@ const AdminUsers = () => {
                   onClick={() => setRoleFilter(role)}
                   className={`px-4 py-2 rounded-xl font-medium transition-all ${
                     roleFilter === role
-                      ? 'bg-blue-500 text-white shadow-lg'
+                      ? 'bg-blue-500 text-neutral-900 shadow-card'
                       : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                   }`}
                 >
@@ -332,7 +332,7 @@ const AdminUsers = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
         >
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -378,7 +378,7 @@ const AdminUsers = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-neutral-900 font-bold">
                             {user.name.charAt(0)}
                           </div>
                           <div>
@@ -442,7 +442,7 @@ const AdminUsers = () => {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-sm text-neutral-400">—</span>
+                          <span className="text-sm text-neutral-500">—</span>
                         )}
                       </td>
                       <td className="py-4 px-6">
@@ -482,9 +482,9 @@ const AdminUsers = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
+              className="bg-white rounded-2xl shadow-card-hover max-w-lg w-full overflow-hidden"
             >
-              <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-6 text-white">
+              <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-6 text-neutral-900">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold">
@@ -492,7 +492,7 @@ const AdminUsers = () => {
                     </div>
                     <div>
                       <h2 className="text-xl font-bold">{selectedUser.name}</h2>
-                      <p className="text-white/80">{selectedUser.email}</p>
+                      <p className="text-neutral-700">{selectedUser.email}</p>
                     </div>
                   </div>
                   <button
@@ -531,7 +531,7 @@ const AdminUsers = () => {
                   </button>
                   <button
                     onClick={handleSendMessage}
-                    className="flex-1 py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors"
+                    className="flex-1 py-3 bg-blue-500 text-neutral-900 rounded-xl font-medium hover:bg-blue-600 transition-colors"
                   >
                     Send Message
                   </button>

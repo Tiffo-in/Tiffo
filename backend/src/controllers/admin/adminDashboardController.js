@@ -1,10 +1,101 @@
+const mongoose = require('mongoose');
 const User = require('../../models/User');
 const Subscription = require('../../models/Subscription');
 const Payment = require('../../models/Payment');
 const Delivery = require('../../models/Delivery');
 const FraudReport = require('../../models/FraudReport');
 const SupportRequest = require('../../models/SupportRequest');
+const SystemAlert = require('../../models/SystemAlert');
 const logger = require('../../utils/logger');
+
+const MONGO_STATES = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+
+const formatUptime = (seconds) => {
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+};
+
+/**
+ * Collect live system health metrics from the running process, the Mongo
+ * connection and the recent Payment record — no simulated values.
+ */
+const collectSystemHealth = async () => {
+  const mem = process.memoryUsage();
+  const heapUsedMb = Math.round(mem.heapUsed / 1024 / 1024);
+  const heapTotalMb = Math.round(mem.heapTotal / 1024 / 1024);
+  const heapRatio = mem.heapTotal > 0 ? mem.heapUsed / mem.heapTotal : 0;
+
+  // Database: connection state + a real ping to measure round-trip latency.
+  const readyState = mongoose.connection.readyState;
+  let dbStatus = readyState === 1 ? 'healthy' : 'critical';
+  let pingMs = null;
+  if (readyState === 1) {
+    try {
+      const start = Date.now();
+      await mongoose.connection.db.admin().ping();
+      pingMs = Date.now() - start;
+    } catch (err) {
+      dbStatus = 'warning';
+    }
+  }
+
+  // Payments: real success rate + volume over the last 24h.
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const paymentAgg = await Payment.aggregate([
+    { $match: { createdAt: { $gte: since } } },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        success: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0] } },
+        failed: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] } },
+      },
+    },
+  ]);
+  const pStats = paymentAgg[0] || { total: 0, success: 0, failed: 0 };
+  const successRate = pStats.total > 0 ? Math.round((pStats.success / pStats.total) * 100) : 100;
+  let paymentStatus = 'healthy';
+  if (pStats.total > 0 && successRate < 80) paymentStatus = 'critical';
+  else if (pStats.total > 0 && successRate < 95) paymentStatus = 'warning';
+
+  const errorRatePct = pStats.total > 0 ? (pStats.failed / pStats.total) * 100 : 0;
+
+  return {
+    server: {
+      status: heapRatio > 0.9 ? 'warning' : 'healthy',
+      metrics: [
+        { label: 'Uptime', value: formatUptime(process.uptime()) },
+        { label: 'Memory', value: `${heapUsedMb} / ${heapTotalMb} MB` },
+        { label: 'Environment', value: process.env.NODE_ENV || 'development' },
+      ],
+    },
+    database: {
+      status: dbStatus,
+      metrics: [
+        { label: 'State', value: MONGO_STATES[readyState] || 'unknown' },
+        { label: 'Ping', value: pingMs === null ? 'n/a' : `${pingMs}ms` },
+      ],
+    },
+    api: {
+      status: errorRatePct > 5 ? 'warning' : 'healthy',
+      metrics: [
+        { label: 'Node', value: process.version },
+        { label: 'Error Rate', value: `${errorRatePct.toFixed(1)}%` },
+      ],
+    },
+    payments: {
+      status: paymentStatus,
+      metrics: [
+        { label: 'Success (24h)', value: `${successRate}%` },
+        { label: 'Volume (24h)', value: `${pStats.total}` },
+      ],
+    },
+  };
+};
 
 /**
  * Get dashboard statistics
@@ -191,76 +282,119 @@ exports.getAnalytics = async (req, res) => {
  */
 exports.getSystemAlerts = async (req, res) => {
   try {
-    const [pendingPartners, openFraudReports, openSupportRequests] = await Promise.all([
+    const [health, pendingPartners, openFraudReports, openSupportRequests] = await Promise.all([
+      collectSystemHealth(),
       User.countDocuments({ role: 'partner', isVerified: false }),
       FraudReport.countDocuments({ status: { $in: ['open', 'under_investigation'] } }),
       SupportRequest.countDocuments({ status: { $in: ['pending', 'investigating'] } }),
     ]);
 
-    // Simulated real-time response for system health
-    const systemHealth = {
-      server: { status: 'healthy', uptime: '99.9%', latency: '45ms' },
-      database: { status: 'healthy', connections: 24, queryTime: '12ms' },
-      api: { status: 'healthy', requests: '1.2k/min', errorRate: '0.1%' },
-      payments: { status: 'healthy', successRate: '98.5%', avgTime: '1.2s' },
-    };
-
-    const alerts = [];
-
-    if (pendingPartners > 0) {
-      alerts.push({
-        id: 'ALT_P',
+    // Derived alerts keyed by a stable natural key. Upsert keeps their
+    // message/count fresh while preserving any acknowledgment already recorded;
+    // when the underlying count clears we remove the alert so it self-resolves.
+    const derived = [
+      pendingPartners > 0 && {
+        key: 'pending-partners',
         type: 'warning',
         title: 'Pending Partners',
         message: `${pendingPartners} partner(s) waiting for verification`,
         source: 'Partners',
-        timestamp: new Date(),
-        acknowledged: false,
-      });
-    }
-
-    if (openFraudReports > 0) {
-      alerts.push({
-        id: 'ALT_F',
+      },
+      openFraudReports > 0 && {
+        key: 'fraud-reports',
         type: 'critical',
         title: 'Unresolved Fraud Reports',
         message: `${openFraudReports} fraud report(s) require attention`,
         source: 'Security',
-        timestamp: new Date(),
-        acknowledged: false,
-      });
-    }
-
-    if (openSupportRequests > 0) {
-      alerts.push({
-        id: 'ALT_S',
+      },
+      openSupportRequests > 0 && {
+        key: 'support-requests',
         type: 'info',
         title: 'Open Support Requests',
         message: `${openSupportRequests} support request(s) waiting for response`,
         source: 'Support',
-        timestamp: new Date(),
-        acknowledged: false,
-      });
-    }
+      },
+    ].filter(Boolean);
 
-    if (alerts.length === 0) {
-      alerts.push({
-        id: 'ALT_OK',
-        type: 'info',
-        title: 'All Clear',
-        message: 'No active alerts in the system',
-        source: 'System',
-        timestamp: new Date(),
-        acknowledged: true,
-      });
-    }
+    const activeKeys = derived.map((d) => d.key);
+
+    await Promise.all([
+      // Retire derived alerts whose condition no longer holds.
+      SystemAlert.deleteMany({ key: { $nin: activeKeys, $ne: null } }),
+      // Upsert current derived alerts without touching acknowledgment state.
+      ...derived.map((d) =>
+        SystemAlert.updateOne(
+          { key: d.key },
+          {
+            $set: { title: d.title, message: d.message, type: d.type, source: d.source },
+            $setOnInsert: { acknowledged: false },
+          },
+          { upsert: true },
+        ),
+      ),
+    ]);
+
+    const docs = await SystemAlert.find().sort({ createdAt: -1 }).lean();
+
+    const alerts =
+      docs.length > 0
+        ? docs.map((d) => ({
+            id: d._id.toString(),
+            type: d.type,
+            title: d.title,
+            message: d.message,
+            source: d.source,
+            timestamp: d.updatedAt || d.createdAt,
+            acknowledged: d.acknowledged,
+          }))
+        : [
+            {
+              id: 'ALT_OK',
+              type: 'info',
+              title: 'All Clear',
+              message: 'No active alerts in the system',
+              source: 'System',
+              timestamp: new Date(),
+              acknowledged: true,
+            },
+          ];
 
     res.json({
       success: true,
-      data: { health: systemHealth, alerts },
+      data: { health, alerts },
     });
   } catch (error) {
-    logger.error('getSystemAlerts error:', { error: error.message });
+    logger.error('getSystemAlerts error:', { error: error.message, stack: error.stack });
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * Acknowledge a system alert, persisting who acknowledged it and when.
+ * POST /api/admin/alerts/:id/acknowledge
+ */
+exports.acknowledgeAlert = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // The ephemeral "All Clear" placeholder has no DB document to update.
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: 'Alert not found' });
+    }
+
+    const alert = await SystemAlert.findByIdAndUpdate(
+      id,
+      { acknowledged: true, acknowledgedBy: req.user._id, acknowledgedAt: new Date() },
+      { new: true },
+    );
+
+    if (!alert) {
+      return res.status(404).json({ success: false, message: 'Alert not found' });
+    }
+
+    res.json({ success: true, data: { id: alert._id.toString(), acknowledged: true } });
+  } catch (error) {
+    logger.error('acknowledgeAlert error:', { error: error.message, stack: error.stack });
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

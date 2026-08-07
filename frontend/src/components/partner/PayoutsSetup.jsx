@@ -74,7 +74,7 @@ const PayoutsSetup = () => {
 
   if (status === 'setup') {
     return (
-      <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-8 text-center">
+      <div className="bg-white rounded-2xl shadow-card border border-neutral-100 p-8 text-center">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <span className="text-4xl">✅</span>
         </div>
@@ -114,7 +114,7 @@ const PayoutsSetup = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden">
         <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-5 border-b border-neutral-100">
           <h2 className="text-xl font-bold text-neutral-900">Bank & Payout Setup</h2>
           <p className="text-sm text-neutral-500 mt-1">
@@ -152,7 +152,7 @@ const PayoutsSetup = () => {
               placeholder="ABCDE1234F"
               className="input-field uppercase tracking-widest"
             />
-            <p className="text-xs text-neutral-400 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               Required for tax compliance and Razorpay KYC
             </p>
           </div>

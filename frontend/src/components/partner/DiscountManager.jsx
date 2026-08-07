@@ -2,42 +2,37 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import {
-  TagIcon,
-  CalendarIcon,
-  CheckCircleIcon,
-  XCircleIcon
-} from '@heroicons/react/24/outline';
+import { TagIcon, CalendarIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 const DiscountManager = ({ tiffin, onSaved }) => {
   const [form, setForm] = useState({
-    weekly:    tiffin.discount?.weekly    ?? 0,
-    monthly:   tiffin.discount?.monthly   ?? 0,
-    isActive:  tiffin.discount?.isActive  ?? false,
-    label:     tiffin.discount?.label     ?? '',
+    weekly: tiffin.discount?.weekly ?? 0,
+    monthly: tiffin.discount?.monthly ?? 0,
+    isActive: tiffin.discount?.isActive ?? false,
+    label: tiffin.discount?.label ?? '',
     expiresAt: tiffin.discount?.expiresAt
       ? new Date(tiffin.discount.expiresAt).toISOString().split('T')[0]
-      : ''
+      : '',
   });
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   const dailyPrice = tiffin.price?.daily || 0;
 
-  const previewWeekly  = Math.round(dailyPrice * 7  * (1 - form.weekly  / 100));
+  const previewWeekly = Math.round(dailyPrice * 7 * (1 - form.weekly / 100));
   const previewMonthly = Math.round(dailyPrice * 30 * (1 - form.monthly / 100));
-  const origWeekly     = Math.round(dailyPrice * 7);
-  const origMonthly    = Math.round(dailyPrice * 30);
+  const origWeekly = Math.round(dailyPrice * 7);
+  const origMonthly = Math.round(dailyPrice * 30);
 
   const handleSave = async () => {
     setSaving(true);
     try {
       await api.patch(`/tiffins/${tiffin._id}/discount`, {
-        weekly:    Number(form.weekly),
-        monthly:   Number(form.monthly),
-        isActive:  form.isActive,
-        label:     form.label,
-        expiresAt: form.expiresAt || null
+        weekly: Number(form.weekly),
+        monthly: Number(form.monthly),
+        isActive: form.isActive,
+        label: form.label,
+        expiresAt: form.expiresAt || null,
       });
       toast.success(`Discount saved for "${tiffin.title}"!`);
       onSaved();
@@ -69,7 +64,7 @@ const DiscountManager = ({ tiffin, onSaved }) => {
             </p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-lg font-bold text-primary-600">₹{dailyPrice}</span>
-              <span className="text-xs text-neutral-400">/day base price</span>
+              <span className="text-xs text-neutral-500">/day base price</span>
             </div>
           </div>
 
@@ -77,7 +72,7 @@ const DiscountManager = ({ tiffin, onSaved }) => {
           <div className="flex flex-col items-center gap-1 shrink-0">
             <button
               type="button"
-              onClick={() => setForm(f => ({ ...f, isActive: !f.isActive }))}
+              onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
               className={`relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none ${
                 form.isActive ? 'bg-green-500' : 'bg-neutral-300'
               }`}
@@ -89,7 +84,9 @@ const DiscountManager = ({ tiffin, onSaved }) => {
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
-            <span className={`text-xs font-semibold ${form.isActive ? 'text-green-600' : 'text-neutral-400'}`}>
+            <span
+              className={`text-xs font-semibold ${form.isActive ? 'text-green-600' : 'text-neutral-400'}`}
+            >
               {form.isActive ? 'Active' : 'Off'}
             </span>
           </div>
@@ -114,7 +111,7 @@ const DiscountManager = ({ tiffin, onSaved }) => {
         {/* Expand/collapse settings */}
         <button
           type="button"
-          onClick={() => setExpanded(e => !e)}
+          onClick={() => setExpanded((e) => !e)}
           className="mt-4 w-full text-sm text-primary-600 font-semibold flex items-center justify-center gap-1 hover:text-primary-700"
         >
           {expanded ? '▲ Hide settings' : '▼ Configure discount'}
@@ -133,7 +130,6 @@ const DiscountManager = ({ tiffin, onSaved }) => {
             className="border-t border-neutral-100 overflow-hidden"
           >
             <div className="p-5 space-y-5">
-
               {/* Percentages */}
               <div className="grid grid-cols-2 gap-4">
                 {/* Weekly */}
@@ -144,12 +140,16 @@ const DiscountManager = ({ tiffin, onSaved }) => {
                   <div className="flex items-center gap-2">
                     <input
                       type="range"
-                      min="0" max="70" step="1"
+                      min="0"
+                      max="70"
+                      step="1"
                       value={form.weekly}
-                      onChange={e => setForm(f => ({ ...f, weekly: Number(e.target.value) }))}
+                      onChange={(e) => setForm((f) => ({ ...f, weekly: Number(e.target.value) }))}
                       className="flex-1 accent-primary-500"
                     />
-                    <span className="w-10 text-center font-bold text-primary-600 text-sm">{form.weekly}%</span>
+                    <span className="w-10 text-center font-bold text-primary-600 text-sm">
+                      {form.weekly}%
+                    </span>
                   </div>
                   {form.weekly > 0 && (
                     <div className="mt-1 text-xs text-green-600 font-medium">
@@ -166,12 +166,16 @@ const DiscountManager = ({ tiffin, onSaved }) => {
                   <div className="flex items-center gap-2">
                     <input
                       type="range"
-                      min="0" max="70" step="1"
+                      min="0"
+                      max="70"
+                      step="1"
                       value={form.monthly}
-                      onChange={e => setForm(f => ({ ...f, monthly: Number(e.target.value) }))}
+                      onChange={(e) => setForm((f) => ({ ...f, monthly: Number(e.target.value) }))}
                       className="flex-1 accent-primary-500"
                     />
-                    <span className="w-10 text-center font-bold text-primary-600 text-sm">{form.monthly}%</span>
+                    <span className="w-10 text-center font-bold text-primary-600 text-sm">
+                      {form.monthly}%
+                    </span>
                   </div>
                   {form.monthly > 0 && (
                     <div className="mt-1 text-xs text-green-600 font-medium">
@@ -190,7 +194,7 @@ const DiscountManager = ({ tiffin, onSaved }) => {
                   type="text"
                   value={form.label}
                   maxLength={40}
-                  onChange={e => setForm(f => ({ ...f, label: e.target.value }))}
+                  onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
                   placeholder='e.g. "Summer Sale", "Festival Offer"'
                   className="input-field text-sm"
                 />
@@ -205,14 +209,14 @@ const DiscountManager = ({ tiffin, onSaved }) => {
                   type="date"
                   value={form.expiresAt}
                   min={new Date().toISOString().split('T')[0]}
-                  onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))}
+                  onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
                   className="input-field text-sm"
                 />
                 {form.expiresAt && (
                   <button
                     type="button"
-                    onClick={() => setForm(f => ({ ...f, expiresAt: '' }))}
-                    className="text-xs text-neutral-400 hover:text-red-500 mt-1"
+                    onClick={() => setForm((f) => ({ ...f, expiresAt: '' }))}
+                    className="text-xs text-neutral-500 hover:text-red-500 mt-1"
                   >
                     Clear expiry
                   </button>
@@ -222,7 +226,9 @@ const DiscountManager = ({ tiffin, onSaved }) => {
               {/* Price preview */}
               {(form.weekly > 0 || form.monthly > 0) && (
                 <div className="bg-primary-50 rounded-xl p-4">
-                  <p className="text-xs font-bold text-primary-700 mb-2 uppercase tracking-wider">Price Preview</p>
+                  <p className="text-xs font-bold text-primary-700 mb-2 uppercase tracking-wider">
+                    Price Preview
+                  </p>
                   <div className="grid grid-cols-3 gap-3 text-center">
                     <div>
                       <div className="text-xs text-neutral-500 mb-1">Daily</div>
@@ -232,7 +238,7 @@ const DiscountManager = ({ tiffin, onSaved }) => {
                       <div className="text-xs text-neutral-500 mb-1">Weekly</div>
                       {form.weekly > 0 ? (
                         <>
-                          <div className="text-xs text-neutral-400 line-through">₹{origWeekly}</div>
+                          <div className="text-xs text-neutral-500 line-through">₹{origWeekly}</div>
                           <div className="font-bold text-green-600">₹{previewWeekly}</div>
                         </>
                       ) : (
@@ -243,7 +249,9 @@ const DiscountManager = ({ tiffin, onSaved }) => {
                       <div className="text-xs text-neutral-500 mb-1">Monthly</div>
                       {form.monthly > 0 ? (
                         <>
-                          <div className="text-xs text-neutral-400 line-through">₹{origMonthly}</div>
+                          <div className="text-xs text-neutral-500 line-through">
+                            ₹{origMonthly}
+                          </div>
                           <div className="font-bold text-green-600">₹{previewMonthly}</div>
                         </>
                       ) : (

@@ -4,7 +4,13 @@ import { PhotoIcon, XMarkIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outli
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 
-const ImageUpload = ({ value, onChange, context = 'misc', label = 'Upload Image', disabled = false }) => {
+const ImageUpload = ({
+  value,
+  onChange,
+  context = 'misc',
+  label = 'Upload Image',
+  disabled = false,
+}) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -55,10 +61,10 @@ const ImageUpload = ({ value, onChange, context = 'misc', label = 'Upload Image'
   return (
     <div className="mb-4">
       <label className="block text-sm font-medium text-neutral-700 mb-2">{label}</label>
-      
+
       <div className="flex items-center gap-4">
         {value ? (
-          <div className="relative group w-24 h-24 rounded-2xl overflow-hidden shadow-sm border border-neutral-200">
+          <div className="relative group w-24 h-24 rounded-2xl overflow-hidden shadow-card border border-neutral-200">
             <img src={value} alt="Uploaded" className="w-full h-full object-cover" />
             {!disabled && (
               <motion.button
@@ -67,7 +73,7 @@ const ImageUpload = ({ value, onChange, context = 'misc', label = 'Upload Image'
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleRemove}
-                className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-10"
+                className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-neutral-900 rounded-full flex items-center justify-center shadow-card hover:bg-red-600 transition-colors z-10"
               >
                 <XMarkIcon className="w-4 h-4" />
               </motion.button>
@@ -94,7 +100,7 @@ const ImageUpload = ({ value, onChange, context = 'misc', label = 'Upload Image'
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               className={`flex items-center gap-2 px-4 py-2 mt-2 rounded-xl text-sm font-semibold transition-all ${
-                isUploading 
+                isUploading
                   ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
                   : 'bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200'
               }`}
@@ -111,9 +117,7 @@ const ImageUpload = ({ value, onChange, context = 'misc', label = 'Upload Image'
                 </>
               )}
             </motion.button>
-            <p className="text-xs text-neutral-500 mt-2">
-              Supports JPEG, PNG, WEBP up to 5MB.
-            </p>
+            <p className="text-xs text-neutral-500 mt-2">Supports JPEG, PNG, WEBP up to 5MB.</p>
           </div>
         )}
       </div>

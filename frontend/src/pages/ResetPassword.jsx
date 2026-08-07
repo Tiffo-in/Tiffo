@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { KeyIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
+import AuthBrandPanel from '../components/auth/AuthBrandPanel';
 import api from '../services/api';
 
 const ResetPassword = () => {
@@ -50,40 +51,20 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex items-stretch relative">
       {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-500 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <motion.div
-            className="absolute top-20 left-20 w-64 h-64 bg-white/10 rounded-full"
-            animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
-            transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-          />
-          <motion.div
-            className="absolute bottom-32 right-20 w-80 h-80 bg-white/10 rounded-full"
-            animate={{ scale: [1.2, 1, 1.2], rotate: [90, 0, 90] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          />
-        </div>
-        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="text-6xl mb-6">🔐</div>
-            <h1 className="text-4xl font-black mb-4 leading-tight">
-              Create a new
-              <br />
-              <span className="text-white/90">secure password</span>
-            </h1>
-            <p className="text-xl text-white/80 leading-relaxed">
-              Ensure your account stays safe by choosing a strong password you haven't used before.
-            </p>
-          </motion.div>
-        </div>
-      </div>
+      <AuthBrandPanel
+        image="/login.jpeg"
+        heading={
+          <>
+            Create a new
+            <br />
+            <span className="text-primary-400">secure password.</span>
+          </>
+        }
+        subheading="Ensure your account stays safe by choosing a strong password you haven't used before."
+      />
 
       {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center bg-neutral-50 px-6 py-12 relative">
+      <div className="flex-1 flex items-center justify-center bg-surface-page px-6 py-12 relative">
         <div className="absolute top-10 right-10 text-5xl opacity-5">🍱</div>
         <div className="absolute bottom-20 left-10 text-4xl opacity-5">🔐</div>
 
@@ -99,7 +80,7 @@ const ResetPassword = () => {
             <h2 className="text-2xl font-bold gradient-text">TIFFO</h2>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
+          <div className="bg-white rounded-3xl shadow-card-hover p-8 md:p-10">
             {!success ? (
               <>
                 <div className="mb-8">
@@ -113,7 +94,7 @@ const ResetPassword = () => {
                   <div>
                     <label
                       htmlFor="rp-password"
-                      className="block text-sm font-semibold text-neutral-700 mb-2"
+                      className="block text-sm font-bold text-neutral-700 mb-2"
                     >
                       New Password
                     </label>
@@ -146,7 +127,7 @@ const ResetPassword = () => {
                   <div>
                     <label
                       htmlFor="rp-confirm-password"
-                      className="block text-sm font-semibold text-neutral-700 mb-2"
+                      className="block text-sm font-bold text-neutral-700 mb-2"
                     >
                       Confirm New Password
                     </label>

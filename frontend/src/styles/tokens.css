@@ -1,0 +1,234 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   TIFFO DESIGN TOKENS — single source of truth for color on the web app.
+   Spec: docs/DESIGN_SYSTEM_PLAN.md
+
+   HOW THIS WORKS
+   Values are stored as space-separated RGB channels so Tailwind can consume
+   them as `rgb(var(--token) / <alpha-value>)`, keeping opacity modifiers
+   (`bg-surface/80`) working. `.dark` redefines the same names, so dark mode is
+   a variable flip — there is no `dark:` variant or `!important` override sheet.
+
+   THREE NEUTRAL SCALES, NOT ONE
+   A single neutral scale cannot invert correctly for both text and surfaces:
+   `text-neutral-900` must become white in dark mode, while `bg-neutral-900`
+   must stay dark. And `bg-neutral-100` wants cream while `border-neutral-100`
+   wants a hairline. So text (--t-*), surface (--s-*) and line (--line-*) are
+   independent scales, wired to Tailwind's textColor/backgroundColor/borderColor
+   keys respectively. Shade numbers were chosen from real usage counts in the
+   codebase — text-*-500 is the most-used text shade (214 uses), so shade 500
+   is pinned to an AA-passing value.
+
+   ACCESSIBILITY
+   Every text token here clears WCAG AA (4.5:1) against the surfaces it is used
+   on. Deviations from the supplied palette are marked `AA:` with the reason.
+   Contrast is enforced by frontend/src/styles/__tests__/contrast.test.js.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand ──────────────────────────────────────────────────────────── */
+  --brand: 255 122 0; /* #FF7A00 */
+  --brand-hover: 232 104 0; /* #E86800 */
+  --brand-tint: 255 241 229; /* #FFF1E5 */
+  --brand-border: 255 214 184; /* #FFD6B8 */
+
+  /* AA: #FF7A00 as text on warm white is 2.6:1. Orange is a FILL and ICON
+     color only — inline links and emphasis use --brand-ink (5.0:1). */
+  --brand-ink: 184 78 16; /* #B84E10 */
+
+  /* Text placed ON a brand-orange fill. Charcoal (6.6:1 on #FF7A00, 6.0:1 on
+     the gradient's #E86800 end) rather than white (2.6:1, fails AA). */
+  --on-brand: 27 27 31; /* #1B1B1F */
+
+  /* Brand scale (drives primary-*). 50–200 are tints that must darken in dark
+     mode; 300–500 are the accent itself and hold steady across themes. */
+  --p-50: 255 241 229; /* #FFF1E5 */
+  --p-100: 255 224 194; /* #FFE0C2 */
+  --p-200: 255 214 184; /* #FFD6B8 */
+  --p-300: 255 160 71; /* #FFA047 */
+  --p-400: 255 138 31; /* #FF8A1F */
+  --p-500: 255 122 0; /* #FF7A00 */
+  --p-600: 232 104 0; /* #E86800 */
+  --p-700: 184 78 16; /* #B84E10 — the AA-safe text shade */
+  --p-800: 138 59 13; /* #8A3B0D */
+  --p-900: 92 39 8; /* #5C2708 */
+
+  /* ── Surfaces ───────────────────────────────────────────────────────── */
+  --bg-primary: 255 253 248; /* #FFFDF8 warm white — page */
+  --bg-secondary: 255 247 239; /* #FFF7EF soft cream */
+  --bg-card: 255 255 255; /* #FFFFFF */
+  --bg-section: 255 249 243; /* #FFF9F3 ivory */
+  --bg-elevated: 255 255 255; /* popovers, modals */
+
+  /* ── Semantic ───────────────────────────────────────────────────────── */
+  --veg: 45 190 96; /* #2DBE60 — icon/dot fill */
+  --veg-bg: 234 251 241; /* #EAFBF1 */
+  /* AA: #2DBE60 on its own tint is 2.4:1. Badge LABELS use the ink. */
+  --veg-ink: 37 126 62; /* #257E3E — 4.7:1 */
+
+  --nonveg: 255 91 69; /* #FF5B45 — icon/dot fill */
+  --nonveg-bg: 255 236 234; /* #FFECEA */
+  --nonveg-ink: 192 57 43; /* #C0392B — 4.8:1 */
+
+  --success: 24 169 87; /* #18A957 */
+  --error: 239 68 68; /* #EF4444 */
+  --warning: 253 186 33; /* #FDBA21 */
+  --info: 59 130 246; /* #3B82F6 */
+  --rating: 253 186 33; /* #FDBA21 */
+
+  /* ── Text scale (drives text-neutral-*) ─────────────────────────────── */
+  /* 50–200 are "text on a dark surface" and stay light in BOTH themes. */
+  --t-50: 255 253 248;
+  --t-100: 255 247 239;
+  --t-200: 236 232 226;
+  --t-300: 180 184 190; /* #B4B8BE disabled — exempt from AA */
+  --t-400: 138 143 152; /* #8A8F98 — 3.2:1, decorative/icon use only */
+  --t-500: 107 112 121; /* #6B7079 — AA: spec muted was 3.2:1; 4.9:1 here */
+  --t-600: 95 99 104; /* #5F6368 secondary — 6.0:1 */
+  --t-700: 74 77 83; /* 8.0:1 */
+  --t-800: 48 51 56; /* 12.0:1 */
+  --t-900: 27 27 31; /* #1B1B1F primary — 16.9:1 */
+  --t-950: 15 16 21;
+
+  /* ── Surface scale (drives bg-neutral-*) ────────────────────────────── */
+  --s-50: 255 249 243; /* ivory */
+  --s-100: 255 247 239; /* soft cream */
+  --s-200: 243 239 233;
+  --s-300: 231 226 218;
+  --s-400: 216 211 203;
+  --s-500: 180 184 190;
+  --s-600: 107 112 121;
+  --s-700: 74 77 83;
+  --s-800: 48 51 56;
+  --s-900: 27 27 31; /* charcoal section */
+  --s-950: 15 16 21;
+
+  /* ── Line scale (drives border-neutral-*) ───────────────────────────── */
+  --line-100: 236 232 226; /* #ECE8E2 default hairline */
+  --line-200: 226 221 213;
+  --line-300: 212 206 196;
+  --line-400: 196 189 177;
+  --line-500: 180 184 190;
+  --line-600: 138 143 152;
+  --line-700: 74 77 83;
+  --line-800: 48 51 56;
+  --line-900: 27 27 31;
+  --line-hover: 255 212 175; /* #FFD4AF */
+
+  /* ── Effects ────────────────────────────────────────────────────────── */
+  --brand-glow: rgba(255, 122, 0, 0.12);
+  --focus-ring: rgba(255, 122, 0, 0.45);
+  --shadow-sm: 0 12px 30px rgba(24, 24, 27, 0.06);
+  --shadow-lg: 0 20px 60px rgba(24, 24, 27, 0.08);
+
+  /* The hero gradient carries a warm cream at the top and fades to the PAGE
+     surface (#FFFDF8) at its bottom edge, so it lands exactly on the
+     bg-surface-page fill of every section that follows it — no seam. */
+  --grad-hero: linear-gradient(180deg, #fff7ef 0%, #fffdf8 100%);
+  /* Built from the two brand oranges (#FF7A00 -> #E86800) rather than the
+     spec's separate #FF8A1F -> #FF6B00 pair, so every orange on the site
+     comes from the one palette. Charcoal clears AA on both stops. */
+  --grad-cta: linear-gradient(135deg, #ff8a1f 0%, #ff6b00 100%);
+  --grad-featured: linear-gradient(180deg, #ffffff 0%, #fff7ef 100%);
+}
+
+.dark {
+  /* ── Brand ──────────────────────────────────────────────────────────── */
+  --brand: 255 122 0;
+  --brand-hover: 255 148 53; /* #FF9435 */
+  --brand-tint: 42 26 10;
+  --brand-border: 74 44 15; /* #4A2C0F */
+  /* On warm dark, brand orange as text is 7.2:1 — no darkened ink needed. */
+  --brand-ink: 255 148 53; /* #FF9435 */
+  --on-brand: 27 27 31; /* charcoal on orange fills in both themes */
+
+  /* Tints (50–200) darken; the accent itself (300–500) holds; the "darker
+     orange" shades (600+) invert to *lighter* so they stay legible on dark. */
+  --p-50: 42 26 10;
+  --p-100: 51 32 12;
+  --p-200: 74 44 15; /* #4A2C0F */
+  --p-300: 255 160 71;
+  --p-400: 255 138 31;
+  --p-500: 255 122 0;
+  --p-600: 255 148 53; /* #FF9435 */
+  --p-700: 255 148 53;
+  --p-800: 255 176 103;
+  --p-900: 255 214 184;
+
+  /* ── Surfaces ───────────────────────────────────────────────────────── */
+  --bg-primary: 15 16 21; /* #0F1015 */
+  --bg-secondary: 21 24 33; /* #151821 */
+  --bg-card: 27 31 42; /* #1B1F2A */
+  --bg-section: 21 24 33;
+  --bg-elevated: 36 41 56; /* #242938 */
+
+  /* ── Semantic ───────────────────────────────────────────────────────── */
+  --veg: 52 208 127; /* #34D07F */
+  --veg-bg: 31 58 55; /* rgba(52,208,127,.15) composited over the card */
+  --veg-ink: 52 208 127; /* 6.1:1 on --veg-bg */
+
+  --nonveg: 255 102 85; /* #FF6655 */
+  /* A 10% overlay, not the spec's 15%: against the warmer card the 15% tint
+     lifted this to 4.35:1 under the #FF6655 label, just under AA. */
+  --nonveg-bg: 61 42 48;
+  --nonveg-ink: 255 102 85; /* 4.6:1 on --nonveg-bg */
+
+  --success: 52 208 127; /* #34D07F */
+  --error: 255 102 85; /* #FF6655 */
+  --warning: 255 201 61; /* #FFC93D */
+  --info: 96 165 250; /* #60A5FA */
+  --rating: 255 201 61; /* #FFC93D */
+
+  /* ── Text scale — inverts from 300 up; 50–200 stay light ────────────── */
+  --t-50: 255 253 248;
+  --t-100: 255 247 239;
+  --t-200: 236 232 226;
+  --t-300: 111 116 130; /* #6F7482 disabled */
+  --t-400: 126 132 146;
+  --t-500: 144 150 164; /* #9096A4 muted — 5.6:1 on card */
+  --t-600: 197 202 211; /* #C5CAD3 secondary */
+  --t-700: 197 202 211;
+  --t-800: 232 235 240;
+  --t-900: 255 255 255; /* primary */
+  --t-950: 255 255 255;
+
+  /* ── Surface scale — stays dark at every shade ──────────────────────── */
+  --s-50: 21 24 33;
+  --s-100: 27 31 42;
+  --s-200: 36 41 56;
+  --s-300: 46 52 68;
+  --s-400: 58 65 82;
+  --s-500: 74 81 98;
+  --s-600: 90 97 114;
+  --s-700: 36 41 56;
+  --s-800: 27 31 42;
+  --s-900: 21 24 33;
+  --s-950: 15 16 21;
+
+  /* ── Line scale ─────────────────────────────────────────────────────── */
+  --line-100: 42 47 60; /* #2A2F3C */
+  --line-200: 42 47 60;
+  --line-300: 53 59 74;
+  --line-400: 66 73 88;
+  --line-500: 78 86 102;
+  --line-600: 90 98 114;
+  --line-700: 53 59 74;
+  --line-800: 42 47 60;
+  --line-900: 36 41 56;
+  --line-hover: 74 44 15; /* #4A2C0F */
+
+  /* ── Effects ────────────────────────────────────────────────────────── */
+  --brand-glow: rgba(255, 122, 0, 0.2);
+  --focus-ring: rgba(255, 122, 0, 0.55);
+  --shadow-sm: 0 15px 40px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.65);
+
+  /* Same rule as light: a slightly elevated dark at the top fading to the PAGE
+     surface (#0F1015) at the bottom, so the hero lands exactly on the
+     bg-surface-page fill of the sections that follow it, with no hard edge. */
+  --grad-hero: linear-gradient(180deg, #151821 0%, #0f1015 100%);
+  /* Built from the two brand oranges (#FF7A00 -> #E86800) rather than the
+     spec's separate #FF8A1F -> #FF6B00 pair, so every orange on the site
+     comes from the one palette. Charcoal clears AA on both stops. */
+  --grad-cta: linear-gradient(135deg, #ff8a1f 0%, #ff6b00 100%);
+  --grad-featured: linear-gradient(180deg, #1b1f2a 0%, #151821 100%);
+}

@@ -7,13 +7,13 @@ const LoadingSpinner = ({ size = 'medium', message = 'Loading...' }) => {
   const sizes = {
     small: { width: 80, height: 80 },
     medium: { width: 150, height: 150 },
-    large: { width: 200, height: 200 }
+    large: { width: 200, height: 200 },
   };
 
   const textSizes = {
     small: 'text-sm',
     medium: 'text-base',
-    large: 'text-lg'
+    large: 'text-lg',
   };
 
   return (
@@ -31,14 +31,14 @@ const LoadingSpinner = ({ size = 'medium', message = 'Loading...' }) => {
       {/* Loading Text */}
       {message && (
         <motion.p
-          className={`mt-4 text-gray-600 font-medium ${textSizes[size]}`}
+          className={`mt-4 text-neutral-600 font-medium ${textSizes[size]}`}
           animate={{
-            opacity: [0.5, 1, 0.5]
+            opacity: [0.5, 1, 0.5],
           }}
           transition={{
             duration: 1.5,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: 'easeInOut',
           }}
         >
           {message}
@@ -50,7 +50,7 @@ const LoadingSpinner = ({ size = 'medium', message = 'Loading...' }) => {
         {[...Array(3)].map((_, i) => (
           <motion.div
             key={i}
-            className="w-2 h-2 bg-maroon-500 rounded-full"
+            className="w-2 h-2 bg-primary-500 rounded-full"
             animate={{
               y: [0, -10, 0],
             }}
@@ -58,7 +58,7 @@ const LoadingSpinner = ({ size = 'medium', message = 'Loading...' }) => {
               duration: 0.6,
               repeat: Infinity,
               delay: i * 0.2,
-              ease: "easeInOut"
+              ease: 'easeInOut',
             }}
           />
         ))}

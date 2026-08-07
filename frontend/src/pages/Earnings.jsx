@@ -202,10 +202,10 @@ const Earnings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse">
-            <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-2xl mb-8"></div>
+            <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-2xl mb-8"></div>
             <div className="grid grid-cols-4 gap-4 mb-8">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-28 bg-neutral-200 rounded-xl"></div>
@@ -219,7 +219,7 @@ const Earnings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Premium Header */}
       <div className="bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -235,23 +235,25 @@ const Earnings = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-card">
                   <span className="text-3xl">💰</span>
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h1 className="text-2xl font-bold text-white">Earnings & Payments</h1>
+                    <h1 className="text-2xl font-bold text-neutral-900">Earnings & Payments</h1>
                     <CheckBadgeIcon className="w-6 h-6 text-green-200" />
                   </div>
-                  <p className="text-white/80 text-sm mt-0.5 flex items-center">
+                  <p className="text-neutral-700 text-sm mt-0.5 flex items-center">
                     <SparklesIcon className="w-4 h-4 mr-1" />
                     Track your revenue
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-white/80 text-sm">Total Earnings</p>
-                <p className="text-3xl font-bold text-white">{formatCurrency(earnings.total)}</p>
+                <p className="text-neutral-700 text-sm">Total Earnings</p>
+                <p className="text-3xl font-bold text-neutral-900">
+                  {formatCurrency(earnings.total)}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -273,7 +275,7 @@ const Earnings = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               whileHover={{ y: -4, scale: 1.02 }}
-              className="bg-white rounded-2xl p-5 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
+              className="bg-white rounded-2xl p-5 shadow-card-hover hover:shadow-card-hover transition-all duration-300 border border-neutral-100"
             >
               <div
                 className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center mb-3`}
@@ -300,9 +302,9 @@ const Earnings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden mb-8"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden mb-8"
         >
-          <div className="bg-gradient-to-r from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950 px-6 py-5 border-b border-neutral-100 dark:border-neutral-800">
+          <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-5 border-b border-neutral-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -429,7 +431,7 @@ const Earnings = () => {
           {/* Payment Methods */}
           <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
@@ -453,7 +455,7 @@ const Earnings = () => {
           {/* Payment Status */}
           <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
@@ -478,7 +480,7 @@ const Earnings = () => {
           {/* Plan Revenue */}
           <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+            className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">

@@ -1,256 +1,293 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { StarIcon, HeartIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { StarIcon, HeartIcon, ClockIcon, FireIcon } from '@heroicons/react/24/solid';
 import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
 
-const TiffinCard = React.memo(({ tiffin, showDistance = false, viewMode = 'grid' }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+const MAX_VISIBLE_INGREDIENTS = 4;
 
-  // Compute discount info
-  const discount = tiffin.discount;
-  const discountActive =
-    discount?.isActive && (!discount.expiresAt || new Date() < new Date(discount.expiresAt));
-  const maxDiscount = discountActive
-    ? Math.max(discount.weekly || 0, discount.monthly || 0)
-    : tiffin.discountPercentage || 0;
+/**
+ * Veg / non-veg pill. The bright semantic color is the DOT; the label uses the
+ * ink token — #2DBE60 on its own tint is only 2.4:1 and fails AA as text.
+ */
+const DietPill = ({ isVeg }) => (
+  <span className={isVeg ? 'badge-veg' : 'badge-nonveg'}>
+    <span
+      className={`w-2 h-2 rounded-full shrink-0 ${isVeg ? 'bg-veg' : 'bg-nonveg'}`}
+      aria-hidden="true"
+    />
+    {isVeg ? 'Veg' : 'Non-Veg'}
+  </span>
+);
 
-  // Daily price computation
-  const dailyPrice =
-    typeof tiffin.price === 'object' ? tiffin.price?.daily || 0 : tiffin.price || 120;
+const TiffinCard = React.memo(
+  ({
+    tiffin,
+    showDistance = false,
+    viewMode = 'grid',
+    featured = false,
+    // The reference mockup labels the highlighted card "Most Ordered", but no
+    // order-volume data is exposed anywhere in the API. Callers pass a label
+    // they can actually substantiate; the default reflects rating, which is.
+    featuredLabel = 'Top Rated',
+  }) => {
+    const [isFavorite, setIsFavorite] = useState(false);
 
-  // Determine if vegetarian
-  const isVeg =
-    tiffin.isVeg !== undefined
-      ? tiffin.isVeg
-      : (tiffin.dietary?.some((d) => ['vegetarian', 'vegan'].includes(d.toLowerCase())) ?? true);
+    // Compute discount info
+    const discount = tiffin.discount;
+    const discountActive =
+      discount?.isActive && (!discount.expiresAt || new Date() < new Date(discount.expiresAt));
+    const maxDiscount = discountActive
+      ? Math.max(discount.weekly || 0, discount.monthly || 0)
+      : tiffin.discountPercentage || 0;
 
-  const kitchenName =
-    tiffin.partner?.businessName ||
-    tiffin.partner?.name ||
-    tiffin.kitchenName ||
-    'Verified Kitchen';
-  const prepTime = tiffin.prepTime || tiffin.deliveryTime || '25 min';
-  const ratingVal = tiffin.rating?.average || tiffin.rating || 4.8;
-  const imageSrc = tiffin.images?.[0] || tiffin.image || '/tiffin.jpeg';
+    const dailyPrice =
+      typeof tiffin.price === 'object' ? tiffin.price?.daily || 0 : tiffin.price || 0;
 
-  if (viewMode === 'list') {
-    return (
-      <Link to={`/tiffins/${tiffin.slug || tiffin._id}`}>
-        <motion.div
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.3 }}
-          className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-primary-500/40 transition-all duration-300 cursor-pointer group flex flex-col md:flex-row shadow-xl"
-        >
-          {/* Image Left */}
-          <div className="relative md:w-64 h-48 md:h-auto overflow-hidden shrink-0 bg-[#0F1016]">
-            <img
-              src={imageSrc}
-              alt={tiffin.title || tiffin.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            {/* Top Badges */}
-            <div className="absolute top-3 left-3 flex gap-2">
-              {maxDiscount > 0 ? (
-                <span className="bg-[#FF5216] text-white text-[11px] font-black px-2.5 py-1 rounded-md shadow-md uppercase">
-                  {maxDiscount}% OFF
-                </span>
-              ) : (
-                <span
-                  className={`text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-md ${
-                    isVeg ? 'bg-emerald-600' : 'bg-rose-600'
-                  }`}
-                >
-                  {isVeg ? 'Veg' : 'Non-Veg'}
-                </span>
-              )}
+    // `isVeg` is not a schema field — `dietary` is. Only trust isVeg if a
+    // caller explicitly passed it.
+    const isVeg =
+      tiffin.isVeg !== undefined
+        ? tiffin.isVeg
+        : (tiffin.dietary?.some((d) => ['vegetarian', 'vegan'].includes(d.toLowerCase())) ?? true);
+
+    const kitchenName = tiffin.partner?.businessName || tiffin.partner?.name || tiffin.kitchenName;
+
+    // Everything below renders only when the API actually returned it. The
+    // card previously defaulted to a 4.8 rating and a "25 min" prep time,
+    // which invented data the backend never sent.
+    const ratingVal =
+      tiffin.rating?.average ?? (typeof tiffin.rating === 'number' ? tiffin.rating : null);
+    const ratingCount = tiffin.rating?.count ?? null;
+    const prepTime = tiffin.prepTime || tiffin.deliveryTime || null;
+    const ingredients = Array.isArray(tiffin.ingredients) ? tiffin.ingredients : [];
+    const imageSrc = tiffin.images?.[0] || tiffin.image || '/tiffin.jpeg';
+    const title = tiffin.title || tiffin.name;
+    const href = `/tiffins/${tiffin.slug || tiffin._id}`;
+
+    const FavoriteButton = () => (
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          setIsFavorite(!isFavorite);
+        }}
+        aria-label={isFavorite ? 'Remove from favourites' : 'Save to favourites'}
+        aria-pressed={isFavorite}
+        className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-surface/95 backdrop-blur-sm shadow-card flex items-center justify-center transition-colors hover:bg-surface"
+      >
+        {isFavorite ? (
+          <HeartIcon className="w-[18px] h-[18px] text-nonveg" />
+        ) : (
+          <HeartOutline className="w-[18px] h-[18px] text-neutral-600" />
+        )}
+      </button>
+    );
+
+    // Rating chip that overlaps the bottom edge of the image, per the reference.
+    const RatingChip = () =>
+      ratingVal == null ? null : (
+        <div className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1.5 bg-surface/95 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-card">
+          <StarIcon className="w-3.5 h-3.5 text-rating" />
+          <span className="text-xs font-bold text-neutral-900">{Number(ratingVal).toFixed(1)}</span>
+          {ratingCount ? <span className="text-xs text-neutral-500">({ratingCount})</span> : null}
+        </div>
+      );
+
+    if (viewMode === 'list') {
+      return (
+        <Link to={href} className="block">
+          <motion.div
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="bg-surface rounded-card overflow-hidden border border-neutral-100 hover:border-brand-border shadow-card hover:shadow-card-hover transition-all duration-200 cursor-pointer group flex flex-col md:flex-row"
+          >
+            <div className="relative md:w-64 h-48 md:h-auto shrink-0 p-2">
+              <div className="relative w-full h-full rounded-media overflow-hidden bg-surface-alt">
+                <img
+                  src={imageSrc}
+                  alt={title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="absolute top-3 left-3 flex gap-2 z-10">
+                <DietPill isVeg={isVeg} />
+                {maxDiscount > 0 && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gradient-cta text-on-brand">
+                    {maxDiscount}% OFF
+                  </span>
+                )}
+              </div>
+              <FavoriteButton />
+              <RatingChip />
             </div>
 
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                setIsFavorite(!isFavorite);
-              }}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/70 transition-colors"
-            >
-              {isFavorite ? (
-                <HeartIcon className="w-4 h-4 text-rose-500" />
-              ) : (
-                <HeartOutline className="w-4 h-4" />
-              )}
-            </button>
-          </div>
-
-          {/* Content Right */}
-          <div className="p-5 flex flex-col justify-between flex-1">
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="text-white text-xl font-bold group-hover:text-primary-500 transition-colors">
-                  {tiffin.title || tiffin.name}
+            <div className="p-5 flex flex-col justify-between flex-1">
+              <div>
+                <h3 className="text-neutral-900 text-xl font-bold group-hover:text-brand-ink transition-colors">
+                  {title}
                 </h3>
-                <div className="flex items-center gap-1 bg-[#232736] px-2.5 py-1 rounded-lg">
-                  <StarIcon className="w-4 h-4 text-amber-400" />
-                  <span className="text-white text-xs font-bold">
-                    {Number(ratingVal).toFixed(1)}
+                {kitchenName && <p className="text-sm text-neutral-500 mt-1">{kitchenName}</p>}
+                {tiffin.description && (
+                  <p className="text-neutral-600 text-sm line-clamp-2 mt-3">{tiffin.description}</p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-4 mt-4 border-t border-neutral-100 gap-4">
+                {prepTime && (
+                  <span className="flex items-center gap-1.5 text-xs text-neutral-500">
+                    <ClockIcon className="w-3.5 h-3.5" />
+                    {prepTime}
+                  </span>
+                )}
+                <div className="flex items-center gap-4 ml-auto">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-neutral-900 text-2xl font-black">₹{dailyPrice}</span>
+                    <span className="text-neutral-500 text-xs">/day</span>
+                  </div>
+                  <span className="inline-flex items-center bg-transparent hover:bg-brand hover:text-on-brand text-brand-ink font-semibold py-2.5 px-5 text-sm rounded-xl transition-all duration-200 border border-brand">
+                    View Plans
                   </span>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        </Link>
+      );
+    }
 
-              <div className="flex items-center gap-1.5 text-xs text-[#B5B8C5] mb-3">
-                <span className="font-medium">{kitchenName}</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-              </div>
+    return (
+      <Link to={href} className="block h-full">
+        <motion.div
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className={`relative bg-surface rounded-card overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-200 cursor-pointer group flex flex-col h-full ${
+            featured
+              ? // The ribbon is in normal flow, so without this it would push
+                // the featured card's image, rating and price ~28px below its
+                // siblings' and break the row's alignment. Instead the card
+                // grows upward by exactly the ribbon's height, so every card's
+                // image starts on the same line and the featured one reads as
+                // deliberately breaking the grid (as in the reference).
+                'border-2 border-brand lg:-mt-7 lg:h-[calc(100%+1.75rem)]'
+              : 'border border-neutral-100 hover:border-brand-border'
+          }`}
+          style={featured ? { background: 'var(--grad-featured)' } : undefined}
+        >
+          {featured && (
+            <div className="bg-gradient-cta text-on-brand text-xs font-bold py-1.5 flex items-center justify-center gap-1.5 shrink-0">
+              <FireIcon className="w-3.5 h-3.5" />
+              {featuredLabel}
+            </div>
+          )}
 
-              <p className="text-[#B5B8C5]/70 text-sm line-clamp-2 mb-4">
-                {tiffin.description ||
-                  'Authentic home-cooked meals made with fresh ingredients and traditional recipes.'}
-              </p>
+          {/* Image, inset from the card edge with its own radius */}
+          <div className="relative p-2">
+            <div className="relative aspect-[4/3] rounded-media overflow-hidden bg-surface-alt">
+              <img
+                src={imageSrc}
+                alt={title}
+                loading="lazy"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-[rgba(255,255,255,0.06)]">
-              <div className="flex items-center gap-4 text-xs text-[#B5B8C5]">
-                <span className="flex items-center gap-1">
-                  <ClockIcon className="w-3.5 h-3.5 text-primary-500" />
-                  {prepTime}
+            <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+              <DietPill isVeg={isVeg} />
+              {maxDiscount > 0 && (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gradient-cta text-on-brand">
+                  {maxDiscount}% OFF
                 </span>
-                <span className="text-emerald-400 font-medium">🚚 Free Delivery</span>
-              </div>
+              )}
+            </div>
 
-              <div className="flex items-center gap-4">
-                <div>
-                  <span className="text-[#B5B8C5]/60 text-xs mr-1">From</span>
-                  <span className="text-white text-2xl font-black">₹{dailyPrice}</span>
-                  <span className="text-[#B5B8C5]/60 text-xs">/day</span>
-                </div>
-                <span className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-primary-500/20 transition-colors">
-                  View Plans
-                </span>
+            <FavoriteButton />
+            <RatingChip />
+          </div>
+
+          <div className="px-4 pb-4 pt-2 flex flex-col flex-1">
+            {/* Two lines, always reserved. line-clamp-1 truncated real titles
+                ("South Indian Lunch Combo" -> "South Indian Lunch…") and, since
+                some titles wrap and others don't, left each card's price on a
+                different baseline. */}
+            <h3 className="text-neutral-900 text-base font-bold group-hover:text-brand-ink transition-colors line-clamp-2 min-h-[3rem]">
+              {title}
+            </h3>
+
+            {/* Ingredient chips, capped with a +N overflow like the reference.
+                Two rows are reserved so a one-row card doesn't sit its price
+                higher than its neighbours'. */}
+            {ingredients.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-1 min-h-[2.75rem] content-start">
+                {ingredients.slice(0, MAX_VISIBLE_INGREDIENTS).map((item) => (
+                  <span
+                    key={item}
+                    className="px-2 py-0.5 rounded-full bg-surface-alt text-neutral-600 text-[11px] font-medium"
+                  >
+                    {item}
+                  </span>
+                ))}
+                {ingredients.length > MAX_VISIBLE_INGREDIENTS && (
+                  <span className="px-2 py-0.5 rounded-full bg-surface-alt text-neutral-500 text-[11px] font-medium">
+                    +{ingredients.length - MAX_VISIBLE_INGREDIENTS}
+                  </span>
+                )}
               </div>
+            )}
+
+            {/* Price */}
+            <div className="flex items-baseline gap-1 mt-3">
+              <span
+                className={`text-[22px] font-black leading-none ${
+                  featured ? 'text-brand-ink' : 'text-neutral-900'
+                }`}
+              >
+                ₹{dailyPrice}
+              </span>
+              <span className="text-neutral-500 text-xs">/day</span>
+            </div>
+
+            {/* Meta row — only renders what the API actually returned */}
+            {(prepTime || kitchenName || showDistance) && (
+              <div className="flex items-center gap-2 mt-2 text-[11px] text-neutral-500">
+                {prepTime && (
+                  <span className="flex items-center gap-1">
+                    <ClockIcon className="w-3.5 h-3.5" />
+                    {prepTime}
+                  </span>
+                )}
+                {prepTime && kitchenName && <span aria-hidden="true">·</span>}
+                {kitchenName && <span className="line-clamp-1">{kitchenName}</span>}
+                {showDistance && tiffin.distance != null && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span>{tiffin.distance} km</span>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* CTA — outlined by default, filled only on the featured card, so
+                one card per row carries the visual weight. `mt-auto` on the
+                wrapper keeps CTAs on one baseline when sibling cards have
+                different numbers of ingredient chips. */}
+            <div className="mt-auto pt-4">
+              <span
+                className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${
+                  featured
+                    ? 'bg-gradient-cta text-on-brand shadow-card group-hover:shadow-card-hover'
+                    : 'border border-brand-border text-brand-ink group-hover:bg-brand-tint group-hover:border-brand'
+                }`}
+              >
+                {featured ? 'Order Now' : 'Choose Plan'}
+              </span>
             </div>
           </div>
         </motion.div>
       </Link>
     );
   }
+);
 
-  return (
-    <Link to={`/tiffins/${tiffin.slug || tiffin._id}`}>
-      <motion.div
-        whileHover={{ y: -6 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="bg-[#181A24] rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)] hover:border-primary-500/50 transition-all duration-300 cursor-pointer group shadow-xl flex flex-col h-full"
-      >
-        {/* Image Container */}
-        <div className="relative h-52 bg-[#0F1016] overflow-hidden">
-          <img
-            src={imageSrc}
-            alt={tiffin.title || tiffin.name}
-            onLoad={() => setImageLoaded(true)}
-            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
-          />
-
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#181A24] via-transparent to-black/30" />
-
-          {/* Top Left Discount / Type Tag */}
-          <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
-            {maxDiscount > 0 ? (
-              <span className="bg-[#FF5216] text-white text-[11px] font-black px-2.5 py-1 rounded-md shadow-md uppercase tracking-wider">
-                {maxDiscount}% OFF
-              </span>
-            ) : (
-              <span
-                className={`text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-md ${
-                  isVeg ? 'bg-emerald-600' : 'bg-rose-600'
-                }`}
-              >
-                {isVeg ? 'Veg' : 'Non-Veg'}
-              </span>
-            )}
-          </div>
-
-          {/* Top Right Heart Wishlist Button */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              setIsFavorite(!isFavorite);
-            }}
-            className="absolute top-3 right-3 p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/70 transition-colors z-10"
-          >
-            {isFavorite ? (
-              <HeartIcon className="w-4 h-4 text-rose-500" />
-            ) : (
-              <HeartOutline className="w-4 h-4 text-white" />
-            )}
-          </button>
-
-          {/* Bottom Left Badges Overlay: Veg/Non-Veg & Verified */}
-          <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
-            {/* Veg Badge with Dot */}
-            <div className="bg-[#12141D]/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1.5 shadow-md">
-              <span
-                className={`w-2 h-2 rounded-full ${isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`}
-              />
-              <span className="text-[11px] font-semibold text-white">
-                {isVeg ? 'Veg' : 'Non-Veg'}
-              </span>
-            </div>
-
-            {/* Verified Badge */}
-            <div className="bg-blue-600/90 backdrop-blur-md text-white px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 shadow-md">
-              <CheckBadgeIcon className="w-3.5 h-3.5" />
-              <span>Verified</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card Content */}
-        <div className="p-4 flex flex-col justify-between flex-1">
-          <div>
-            {/* Title */}
-            <h3 className="text-white text-lg font-bold group-hover:text-primary-500 transition-colors line-clamp-1 mb-1">
-              {tiffin.title || tiffin.name}
-            </h3>
-
-            {/* Kitchen Name */}
-            <div className="flex items-center gap-1.5 mb-3">
-              <span className="text-[#B5B8C5] text-xs font-medium line-clamp-1">{kitchenName}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0" />
-            </div>
-
-            {/* Stats Row */}
-            <div className="flex items-center justify-between text-xs text-[#B5B8C5] mb-4 bg-[#12141D] p-2.5 rounded-xl border border-white/5">
-              <div className="flex items-center gap-1">
-                <StarIcon className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-white font-bold">{Number(ratingVal).toFixed(1)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <ClockIcon className="w-3.5 h-3.5 text-primary-500" />
-                <span>{prepTime}</span>
-              </div>
-              <div className="text-emerald-400 font-medium flex items-center gap-1">
-                <span>🚚 Free Delivery</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Price & CTA Row */}
-          <div className="flex items-center justify-between pt-3 border-t border-[rgba(255,255,255,0.06)]">
-            <div>
-              <span className="text-[#B5B8C5]/60 text-xs mr-1">From</span>
-              <span className="text-white text-xl font-black">₹{dailyPrice}</span>
-              <span className="text-[#B5B8C5]/60 text-xs">/day</span>
-            </div>
-
-            <span className="bg-primary-500 hover:bg-[#FF9F43] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-primary-500/25 transition-all">
-              View Plans
-            </span>
-          </div>
-        </div>
-      </motion.div>
-    </Link>
-  );
-});
+TiffinCard.displayName = 'TiffinCard';
 
 export default TiffinCard;

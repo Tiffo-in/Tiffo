@@ -10,17 +10,14 @@ const initialState = {
   message: '',
 };
 
-export const getSubscriptions = createAsyncThunk(
-  'subscriptions/getAll',
-  async (_, thunkAPI) => {
-    try {
-      return await subscriptionService.getSubscriptions();
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-      return thunkAPI.rejectWithValue(message);
-    }
+export const getSubscriptions = createAsyncThunk('subscriptions/getAll', async (_, thunkAPI) => {
+  try {
+    return await subscriptionService.getSubscriptions();
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    return thunkAPI.rejectWithValue(message);
   }
-);
+});
 
 export const createSubscription = createAsyncThunk(
   'subscriptions/create',

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../services/api';
+import { partnerService } from '../services/partnerService';
 import CustomerCalendar from '../components/CustomerCalendar';
 import CustomerSelector from '../components/CustomerSelector';
 import CustomerDetails from '../components/CustomerDetails';
@@ -35,6 +36,8 @@ const PartnerDashboard = () => {
     avgRating: null,
     reviewCount: 0,
   });
+  // null = not yet known (don't render banner); number = completeness percentage.
+  const [profileCompletion, setProfileCompletion] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -48,6 +51,29 @@ const PartnerDashboard = () => {
       }
     };
     fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfileCompletion = async () => {
+      try {
+        const res = await partnerService.getProfile();
+        const p = res.data;
+        const checks = [
+          Boolean(p?.businessName),
+          Boolean(p?.description),
+          Boolean(p?.address?.street && p?.address?.city),
+          Boolean(p?.contact?.phone),
+          Boolean(p?.businessHours?.open && p?.businessHours?.close),
+          Boolean(p?.logo || (p?.foodImages && p.foodImages.length > 0)),
+        ];
+        const completed = checks.filter(Boolean).length;
+        setProfileCompletion(Math.round((completed / checks.length) * 100));
+      } catch (err) {
+        // 404 (no partner profile yet) or any error → treat as incomplete.
+        setProfileCompletion(0);
+      }
+    };
+    fetchProfileCompletion();
   }, []);
 
   const { user } = useSelector((state) => state.auth);
@@ -167,9 +193,9 @@ const PartnerDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-secondary-500 dark:from-primary-900 dark:via-primary-800 dark:to-secondary-900 relative">
+      <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-secondary-500 relative">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-10 -right-10 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
@@ -186,15 +212,17 @@ const PartnerDashboard = () => {
             {/* Top Bar */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-card">
                   <span className="text-3xl">👨‍🍳</span>
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h1 className="text-2xl font-bold text-white">Welcome back, {partner.name}!</h1>
+                    <h1 className="text-2xl font-bold text-neutral-900">
+                      Welcome back, {partner.name}!
+                    </h1>
                     <CheckBadgeIcon className="w-6 h-6 text-green-300" />
                   </div>
-                  <p className="text-white/80 text-sm flex items-center mt-0.5">
+                  <p className="text-neutral-700 text-sm flex items-center mt-0.5">
                     <SparklesIcon className="w-4 h-4 mr-1" />
                     Partner Dashboard
                   </p>
@@ -209,9 +237,9 @@ const PartnerDashboard = () => {
                   className="relative p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-colors"
                   aria-label="View Orders Notifications"
                 >
-                  <BellIcon className="w-6 h-6 text-white" />
+                  <BellIcon className="w-6 h-6 text-neutral-900" />
                   {statsData.pendingDeliveries > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-neutral-900 text-xs rounded-full flex items-center justify-center font-bold">
                       {statsData.pendingDeliveries > 9 ? '9+' : statsData.pendingDeliveries}
                     </span>
                   )}
@@ -223,7 +251,7 @@ const PartnerDashboard = () => {
                   className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-colors"
                   aria-label="View Partner Profile Settings"
                 >
-                  <Cog6ToothIcon className="w-6 h-6 text-white" />
+                  <Cog6ToothIcon className="w-6 h-6 text-neutral-900" />
                 </motion.button>
               </div>
             </div>
@@ -239,7 +267,7 @@ const PartnerDashboard = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                     whileHover={{ y: -4, scale: 1.02 }}
-                    className="bg-white rounded-2xl p-5 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
+                    className="bg-white rounded-2xl p-5 shadow-card-hover hover:shadow-card-hover transition-all duration-300 border border-neutral-100"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div
@@ -295,7 +323,7 @@ const PartnerDashboard = () => {
                   whileHover={{ y: -6, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate(action.route)}
-                  className={`relative bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border-2 group overflow-hidden ${
+                  className={`relative bg-white rounded-2xl p-6 shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer border-2 group overflow-hidden ${
                     action.highlight
                       ? 'border-primary-200'
                       : 'border-transparent hover:border-neutral-100'
@@ -320,7 +348,7 @@ const PartnerDashboard = () => {
                   )}
 
                   <div
-                    className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                    className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-4 shadow-card group-hover:scale-110 transition-transform duration-300`}
                   >
                     <span className="text-2xl">{action.emoji}</span>
                   </div>
@@ -346,9 +374,9 @@ const PartnerDashboard = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mb-10"
         >
-          <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden">
             {/* Section Header */}
-            <div className="bg-gradient-to-r from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950 px-6 py-5 border-b border-neutral-100 dark:border-neutral-800">
+            <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-5 border-b border-neutral-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -408,9 +436,9 @@ const PartnerDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
-          <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden">
             {/* Section Header */}
-            <div className="bg-gradient-to-r from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950 px-6 py-5 border-b border-neutral-100 dark:border-neutral-800">
+            <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-5 border-b border-neutral-100">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                   <CalendarDaysIcon className="w-5 h-5 text-green-600" />
@@ -429,43 +457,52 @@ const PartnerDashboard = () => {
           </div>
         </motion.div>
 
-        {/* Promo Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-10"
-        >
-          <div className="bg-gradient-to-r from-secondary-500 via-secondary-400 to-amber-400 dark:from-secondary-900 dark:via-secondary-800 dark:to-amber-900 rounded-2xl p-6 md:p-8 relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-xl" />
+        {/* Promo Banner — only shown while the profile is incomplete */}
+        {profileCompletion !== null && profileCompletion < 100 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-10"
+          >
+            <div className="bg-gradient-to-r from-secondary-500 via-secondary-400 to-amber-400 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+              <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-xl" />
 
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="mb-4 md:mb-0">
-                <div className="flex items-center space-x-2 mb-2">
-                  <FireIcon className="w-5 h-5 text-white" />
-                  <span className="text-white/90 font-semibold text-sm uppercase tracking-wider">
-                    Pro Tip
-                  </span>
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between">
+                <div className="mb-4 md:mb-0 md:mr-8 flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FireIcon className="w-5 h-5 text-neutral-900" />
+                    <span className="text-neutral-800 font-semibold text-sm uppercase tracking-wider">
+                      Pro Tip • {profileCompletion}% complete
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-neutral-900 mb-2">
+                    Complete your profile to get more customers!
+                  </h3>
+                  <p className="text-neutral-700 mb-3">
+                    Partners with complete profiles get 3x more visibility in search results.
+                  </p>
+                  {/* Completion progress bar */}
+                  <div className="w-full max-w-sm h-2 bg-white/40 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-neutral-900/80 rounded-full transition-all duration-500"
+                      style={{ width: `${profileCompletion}%` }}
+                    />
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  Complete your profile to get more customers!
-                </h3>
-                <p className="text-white/80">
-                  Partners with complete profiles get 3x more visibility in search results.
-                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/partner/profile')}
+                  className="bg-white text-secondary-600 px-6 py-3 rounded-xl font-bold shadow-card hover:shadow-card-hover transition-all flex-shrink-0"
+                >
+                  Update Profile
+                </motion.button>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/partner/profile')}
-                className="bg-white text-secondary-600 px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
-              >
-                Update Profile
-              </motion.button>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

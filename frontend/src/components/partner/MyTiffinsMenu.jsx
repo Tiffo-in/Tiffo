@@ -30,7 +30,7 @@ const MyTiffinsMenu = ({
       className="space-y-6"
     >
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden">
         <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-5 border-b border-neutral-100 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-neutral-900">Menu Manager</h2>
@@ -98,7 +98,7 @@ const MyTiffinsMenu = ({
             {selectedMenuTiffin && (
               <div className="space-y-6">
                 {/* Tiffin Cover Poster */}
-                <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm">
+                <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-card">
                   <h3 className="font-bold text-neutral-900 mb-2 flex items-center gap-2">
                     🖼️ Tiffin Cover Poster / Banner
                   </h3>
@@ -118,7 +118,7 @@ const MyTiffinsMenu = ({
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex flex-col items-center justify-center">
                           <span className="text-4xl mb-1">🍱</span>
-                          <span className="text-xs text-neutral-400">No poster uploaded</span>
+                          <span className="text-xs text-neutral-500">No poster uploaded</span>
                         </div>
                       )}
                     </div>
@@ -156,7 +156,7 @@ const MyTiffinsMenu = ({
                 {/* Add new item form */}
                 <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-200">
                   <h3 className="font-bold text-neutral-900 mb-4 flex items-center gap-2">
-                    <PlusIcon className="w-5 h-5 text-primary-500" />
+                    <PlusIcon className="w-5 h-5 text-brand" />
                     Add a Dish
                   </h3>
                   <form onSubmit={handleAddDraftItem} className="space-y-4">

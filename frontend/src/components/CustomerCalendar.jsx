@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPartnerCustomers, fetchCustomerCalendar, setSelectedCustomer } from '../store/slices/customerSlice';
-import DeliveryStatusModal from './DeliveryStatusModal';
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon
-} from '@heroicons/react/24/outline';
+  fetchPartnerCustomers,
+  fetchCustomerCalendar,
+  setSelectedCustomer,
+} from '../store/slices/customerSlice';
+import DeliveryStatusModal from './DeliveryStatusModal';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 const CustomerCalendar = () => {
   const dispatch = useDispatch();
-  const { customers, selectedCustomer, calendars, loading } = useSelector(state => state.customers);
+  const { customers, selectedCustomer, calendars, loading } = useSelector(
+    (state) => state.customers
+  );
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -24,11 +27,13 @@ const CustomerCalendar = () => {
   // Fetch calendar when customer or month changes
   useEffect(() => {
     if (selectedCustomer) {
-      dispatch(fetchCustomerCalendar({
-        customerId: selectedCustomer.id,
-        month: currentMonth.getMonth() + 1,
-        year: currentMonth.getFullYear()
-      }));
+      dispatch(
+        fetchCustomerCalendar({
+          customerId: selectedCustomer.id,
+          month: currentMonth.getMonth() + 1,
+          year: currentMonth.getFullYear(),
+        })
+      );
     }
   }, [dispatch, selectedCustomer, currentMonth]);
 
@@ -75,11 +80,13 @@ const CustomerCalendar = () => {
   const handleModalClose = () => {
     setModalOpen(false);
     if (selectedCustomer) {
-      dispatch(fetchCustomerCalendar({
-        customerId: selectedCustomer.id,
-        month: currentMonth.getMonth() + 1,
-        year: currentMonth.getFullYear()
-      }));
+      dispatch(
+        fetchCustomerCalendar({
+          customerId: selectedCustomer.id,
+          month: currentMonth.getMonth() + 1,
+          year: currentMonth.getFullYear(),
+        })
+      );
     }
   };
 
@@ -87,9 +94,9 @@ const CustomerCalendar = () => {
     if (!deliveries) return null;
 
     const meals = Object.keys(deliveries);
-    const delivered = meals.filter(meal => deliveries[meal].status === 'delivered').length;
-    const cancelled = meals.filter(meal => deliveries[meal].status === 'cancelled').length;
-    const pending = meals.filter(meal => deliveries[meal].status === 'pending').length;
+    const delivered = meals.filter((meal) => deliveries[meal].status === 'delivered').length;
+    const cancelled = meals.filter((meal) => deliveries[meal].status === 'cancelled').length;
+    const pending = meals.filter((meal) => deliveries[meal].status === 'pending').length;
 
     if (delivered === meals.length) return 'delivered';
     if (cancelled === meals.length) return 'cancelled';
@@ -99,28 +106,66 @@ const CustomerCalendar = () => {
 
   const getStatusStyles = (status) => {
     switch (status) {
-      case 'delivered': return { bg: 'bg-green-100', border: 'border-green-300', text: 'text-green-700', icon: '✓' };
-      case 'pending': return { bg: 'bg-amber-50', border: 'border-amber-300', text: 'text-amber-700', icon: '⏳' };
-      case 'scheduled': return { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', icon: '📅' };
-      case 'cancelled': return { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-700', icon: '✕' };
-      case 'mixed': return { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-700', icon: '◐' };
-      default: return { bg: 'bg-neutral-50', border: 'border-neutral-200', text: 'text-neutral-500', icon: '' };
+      case 'delivered':
+        return {
+          bg: 'bg-green-100',
+          border: 'border-green-300',
+          text: 'text-green-700',
+          icon: '✓',
+        };
+      case 'pending':
+        return {
+          bg: 'bg-amber-50',
+          border: 'border-amber-300',
+          text: 'text-amber-700',
+          icon: '⏳',
+        };
+      case 'scheduled':
+        return { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', icon: '📅' };
+      case 'cancelled':
+        return { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-700', icon: '✕' };
+      case 'mixed':
+        return {
+          bg: 'bg-orange-50',
+          border: 'border-orange-300',
+          text: 'text-orange-700',
+          icon: '◐',
+        };
+      default:
+        return {
+          bg: 'bg-neutral-50',
+          border: 'border-neutral-200',
+          text: 'text-neutral-500',
+          icon: '',
+        };
     }
   };
 
   const getMealIcons = (deliveries) => {
     if (!deliveries) return null;
     const icons = { breakfast: '🌅', lunch: '☀️', dinner: '🌙' };
-    return Object.keys(deliveries).map(meal => icons[meal]).join(' ');
+    return Object.keys(deliveries)
+      .map((meal) => icons[meal])
+      .join(' ');
   };
 
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   const navigateMonth = (direction) => {
-    setCurrentMonth(prev => {
+    setCurrentMonth((prev) => {
       const newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + direction);
       return newDate;
@@ -132,7 +177,7 @@ const CustomerCalendar = () => {
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-3">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-16 bg-neutral-100 rounded-xl animate-pulse" />
             ))}
           </div>
@@ -158,7 +203,7 @@ const CustomerCalendar = () => {
                 <p className="text-neutral-500">No customers available</p>
               </div>
             ) : (
-              customers.map(customer => {
+              customers.map((customer) => {
                 const isSelected = selectedCustomer?.id === customer.id;
                 return (
                   <motion.button
@@ -166,22 +211,32 @@ const CustomerCalendar = () => {
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => dispatch(setSelectedCustomer(customer))}
-                    className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-300 ${isSelected
-                        ? 'border-primary-500 bg-primary-50 shadow-md'
-                        : 'border-neutral-100 bg-white hover:border-neutral-200 hover:shadow-sm'
-                      }`}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-300 ${
+                      isSelected
+                        ? 'border-primary-500 bg-primary-50 shadow-card'
+                        : 'border-neutral-100 bg-white hover:border-neutral-200 hover:shadow-card'
+                    }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold ${isSelected ? 'bg-primary-100 text-primary-600' : 'bg-neutral-100 text-neutral-600'
-                        }`}>
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold ${
+                          isSelected
+                            ? 'bg-primary-100 text-primary-600'
+                            : 'bg-neutral-100 text-neutral-600'
+                        }`}
+                      >
                         {customer.name?.charAt(0)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-neutral-900 truncate">{customer.name}</div>
-                        <div className="text-xs text-neutral-500 capitalize">{customer.plan} Plan</div>
+                        <div className="font-semibold text-neutral-900 truncate">
+                          {customer.name}
+                        </div>
+                        <div className="text-xs text-neutral-500 capitalize">
+                          {customer.plan} Plan
+                        </div>
                       </div>
                       {isSelected && (
-                        <CheckCircleIcon className="w-5 h-5 text-primary-500 flex-shrink-0" />
+                        <CheckCircleIcon className="w-5 h-5 text-brand flex-shrink-0" />
                       )}
                     </div>
                   </motion.button>
@@ -203,7 +258,7 @@ const CustomerCalendar = () => {
                   </h3>
                   <p className="text-sm text-neutral-500">{selectedCustomer.phone}</p>
                 </div>
-                <div className="flex items-center space-x-2 bg-white rounded-xl p-1 shadow-sm border border-neutral-200">
+                <div className="flex items-center space-x-2 bg-white rounded-xl p-1 shadow-card border border-neutral-200">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -230,8 +285,11 @@ const CustomerCalendar = () => {
               <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
                 {/* Day Headers */}
                 <div className="grid grid-cols-7 bg-neutral-50 border-b border-neutral-200">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="p-3 text-center text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div
+                      key={day}
+                      className="p-3 text-center text-xs font-semibold text-neutral-500 uppercase tracking-wider"
+                    >
                       {day}
                     </div>
                   ))}
@@ -243,7 +301,8 @@ const CustomerCalendar = () => {
                     const deliveries = getDeliveryData(day);
                     const status = getDayStatusSummary(deliveries);
                     const statusStyles = status ? getStatusStyles(status) : null;
-                    const isToday = day &&
+                    const isToday =
+                      day &&
                       new Date().getDate() === day &&
                       new Date().getMonth() === currentMonth.getMonth() &&
                       new Date().getFullYear() === currentMonth.getFullYear();
@@ -254,16 +313,23 @@ const CustomerCalendar = () => {
                         whileHover={day ? { scale: 1.05 } : {}}
                         whileTap={day ? { scale: 0.95 } : {}}
                         onClick={() => handleDateClick(day)}
-                        className={`p-2 min-h-[70px] border-b border-r border-neutral-100 transition-all ${!day ? 'bg-neutral-50' :
-                            isToday ? 'bg-primary-50 ring-2 ring-primary-500 ring-inset' :
-                              status ? `${statusStyles?.bg} cursor-pointer hover:opacity-80` :
-                                'hover:bg-neutral-50 cursor-pointer'
-                          }`}
+                        className={`p-2 min-h-[70px] border-b border-r border-neutral-100 transition-all ${
+                          !day
+                            ? 'bg-neutral-50'
+                            : isToday
+                              ? 'bg-primary-50 ring-2 ring-primary-500 ring-inset'
+                              : status
+                                ? `${statusStyles?.bg} cursor-pointer hover:opacity-80`
+                                : 'hover:bg-neutral-50 cursor-pointer'
+                        }`}
                       >
                         {day && (
                           <>
-                            <div className={`text-sm font-medium ${isToday ? 'text-primary-600' : 'text-neutral-700'
-                              }`}>
+                            <div
+                              className={`text-sm font-medium ${
+                                isToday ? 'text-primary-600' : 'text-neutral-700'
+                              }`}
+                            >
                               {day}
                             </div>
                             {deliveries && (
@@ -288,8 +354,8 @@ const CustomerCalendar = () => {
                   { status: 'delivered', label: 'Delivered' },
                   { status: 'pending', label: 'Pending' },
                   { status: 'mixed', label: 'Mixed' },
-                  { status: 'cancelled', label: 'Cancelled' }
-                ].map(item => {
+                  { status: 'cancelled', label: 'Cancelled' },
+                ].map((item) => {
                   const styles = getStatusStyles(item.status);
                   return (
                     <div key={item.status} className="flex items-center space-x-2">
@@ -300,7 +366,7 @@ const CustomerCalendar = () => {
                 })}
               </div>
 
-              <p className="mt-3 text-xs text-neutral-400">
+              <p className="mt-3 text-xs text-neutral-500">
                 🌅 Breakfast • ☀️ Lunch • 🌙 Dinner | Click on dates to update delivery status
               </p>
             </div>

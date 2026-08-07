@@ -19,6 +19,7 @@ router.get('/dashboard', dashboardController.getDashboardStats);
 router.get('/activity', dashboardController.getRecentActivity);
 router.get('/analytics', dashboardController.getAnalytics);
 router.get('/alerts', dashboardController.getSystemAlerts);
+router.post('/alerts/:id/acknowledge', dashboardController.acknowledgeAlert);
 
 // ── User Management ────────────────────────────────────────────────────────
 router.post('/users/bulk', userController.bulkUserAction);

@@ -92,7 +92,7 @@ const AdminPartners = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -106,14 +106,16 @@ const AdminPartners = () => {
                 to="/admin/dashboard"
                 className="p-2 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
               >
-                <ArrowLeftIcon className="w-5 h-5 text-white" />
+                <ArrowLeftIcon className="w-5 h-5 text-neutral-900" />
               </Link>
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <BuildingStorefrontIcon className="w-6 h-6 text-white" />
+                <BuildingStorefrontIcon className="w-6 h-6 text-neutral-900" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Partner Management</h1>
-                <p className="text-white/80 text-sm">{pendingPartners.length} pending approvals</p>
+                <h1 className="text-2xl font-bold text-neutral-900">Partner Management</h1>
+                <p className="text-neutral-700 text-sm">
+                  {pendingPartners.length} pending approvals
+                </p>
               </div>
             </div>
           </div>
@@ -125,13 +127,13 @@ const AdminPartners = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-2 mb-6 -mt-12 flex"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 p-2 mb-6 -mt-12 flex"
         >
           <button
             onClick={() => setActiveTab('pending')}
             className={`flex-1 py-3 px-6 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
               activeTab === 'pending'
-                ? 'bg-amber-500 text-white shadow-lg'
+                ? 'bg-amber-500 text-neutral-900 shadow-card'
                 : 'text-neutral-600 hover:bg-neutral-100'
             }`}
           >
@@ -142,7 +144,7 @@ const AdminPartners = () => {
             onClick={() => setActiveTab('verified')}
             className={`flex-1 py-3 px-6 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
               activeTab === 'verified'
-                ? 'bg-green-500 text-white shadow-lg'
+                ? 'bg-green-500 text-neutral-900 shadow-card'
                 : 'text-neutral-600 hover:bg-neutral-100'
             }`}
           >
@@ -162,7 +164,7 @@ const AdminPartners = () => {
               className="space-y-4"
             >
               {pendingPartners.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+                <div className="bg-white rounded-2xl shadow-card p-12 text-center">
                   <div className="text-6xl mb-4">✅</div>
                   <h3 className="text-xl font-bold text-neutral-700">All caught up!</h3>
                   <p className="text-neutral-500">No pending partner applications</p>
@@ -174,13 +176,13 @@ const AdminPartners = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+                    className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
                   >
                     <div className="h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
                     <div className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                          <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center text-neutral-900 text-2xl font-bold">
                             {partner.businessName?.charAt(0) || partner.name?.charAt(0) || '?'}
                           </div>
                           <div>
@@ -229,7 +231,7 @@ const AdminPartners = () => {
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => handleApprove(partner._id)}
-                          className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-medium hover:shadow-lg transition-shadow flex items-center justify-center gap-2"
+                          className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-neutral-900 rounded-xl font-medium hover:shadow-card transition-shadow flex items-center justify-center gap-2"
                         >
                           <CheckCircleIcon className="w-5 h-5" />
                           Approve
@@ -277,12 +279,12 @@ const AdminPartners = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -4 }}
-                  className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+                  className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
                 >
                   <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-500" />
                   <div className="p-6">
                     <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl font-bold">
+                      <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center text-neutral-900 text-xl font-bold">
                         {partner.businessName?.charAt(0) || partner.name?.charAt(0) || '?'}
                       </div>
                       <div className="flex-1">
@@ -294,7 +296,7 @@ const AdminPartners = () => {
                         </div>
                         <p className="text-sm text-neutral-500">{partner.address}</p>
                         <div className="flex items-center gap-1 mt-1">
-                          <StarIcon className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          <StarIcon className="w-4 h-4 text-rating fill-amber-500" />
                           <span className="text-sm font-medium">{partner.rating || 'N/A'}</span>
                         </div>
                       </div>
@@ -337,9 +339,9 @@ const AdminPartners = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
+              className="bg-white rounded-2xl shadow-card-hover max-w-lg w-full overflow-hidden"
             >
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-white">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-neutral-900">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-bold">{selectedPartner.businessName}</h2>
                   <button
@@ -368,7 +370,7 @@ const AdminPartners = () => {
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => handleApprove(selectedPartner._id)}
-                    className="flex-1 py-3 bg-green-500 text-white rounded-xl font-medium"
+                    className="flex-1 py-3 bg-green-500 text-neutral-900 rounded-xl font-medium"
                   >
                     Approve Partner
                   </button>

@@ -76,20 +76,20 @@ const OrderDetailModal = ({ order, onClose }) => {
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-[#14151e] border border-zinc-800/80 text-zinc-100 rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-surface border border-neutral-200/80 text-neutral-900 rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-card-hover"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h3 className="text-2xl font-bold text-white">Order Details</h3>
-            <p className="text-zinc-400 mt-1">{order.tiffin?.title || order.tiffin?.name}</p>
+            <h3 className="text-2xl font-bold text-neutral-900">Order Details</h3>
+            <p className="text-neutral-500 mt-1">{order.tiffin?.title || order.tiffin?.name}</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.1, rotate: 90 }}
             whileTap={{ scale: 0.9 }}
             onClick={onClose}
-            className="w-10 h-10 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-full flex items-center justify-center transition-colors"
+            className="w-10 h-10 bg-surface-alt hover:bg-surface-alt text-neutral-500 hover:text-neutral-900 rounded-full flex items-center justify-center transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
           </motion.button>
@@ -99,7 +99,7 @@ const OrderDetailModal = ({ order, onClose }) => {
         <div
           className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl border font-semibold mb-6 ${
             order.status === 'completed'
-              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+              ? 'bg-emerald-500/20 text-emerald-600 border-emerald-500/30'
               : order.status === 'cancelled'
                 ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
                 : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
@@ -111,20 +111,20 @@ const OrderDetailModal = ({ order, onClose }) => {
 
         {/* Info grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-4">
-            <p className="text-xs text-zinc-400 mb-1">Partner</p>
-            <p className="font-semibold text-white">{order.partner?.businessName || '—'}</p>
+          <div className="bg-surface/80 border border-neutral-200/80 rounded-xl p-4">
+            <p className="text-xs text-neutral-500 mb-1">Partner</p>
+            <p className="font-semibold text-neutral-900">{order.partner?.businessName || '—'}</p>
           </div>
-          <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-4">
-            <p className="text-xs text-zinc-400 mb-1">Plan</p>
-            <p className="font-semibold text-white capitalize">{order.plan}</p>
+          <div className="bg-surface/80 border border-neutral-200/80 rounded-xl p-4">
+            <p className="text-xs text-neutral-500 mb-1">Plan</p>
+            <p className="font-semibold text-neutral-900 capitalize">{order.plan}</p>
           </div>
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
             <p className="text-xs text-amber-400 mb-1">Total Paid</p>
             <p className="font-bold text-amber-300 text-lg">₹{order.totalAmount}</p>
           </div>
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
-            <p className="text-xs text-emerald-400 mb-1">Meals Delivered</p>
+            <p className="text-xs text-emerald-600 mb-1">Meals Delivered</p>
             <p className="font-bold text-emerald-300 text-lg">{order.deliveredCount ?? 0}</p>
           </div>
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
@@ -138,11 +138,11 @@ const OrderDetailModal = ({ order, onClose }) => {
         </div>
 
         {/* Dates */}
-        <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-4 mb-6 flex items-center space-x-3">
-          <CalendarDaysIcon className="w-5 h-5 text-orange-400 flex-shrink-0" />
+        <div className="bg-surface/80 border border-neutral-200/80 rounded-xl p-4 mb-6 flex items-center space-x-3">
+          <CalendarDaysIcon className="w-5 h-5 text-brand-ink flex-shrink-0" />
           <div>
-            <p className="text-xs text-zinc-400">Subscription Period</p>
-            <p className="font-medium text-white">
+            <p className="text-xs text-neutral-500">Subscription Period</p>
+            <p className="font-medium text-neutral-900">
               {new Date(order.startDate).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
@@ -191,7 +191,7 @@ const OrderDetailModal = ({ order, onClose }) => {
 
         <button
           onClick={onClose}
-          className="w-full py-3 bg-neutral-900 text-white rounded-xl font-semibold hover:bg-neutral-800 transition-colors"
+          className="w-full py-3 bg-neutral-900 text-neutral-900 rounded-xl font-semibold hover:bg-neutral-800 transition-colors"
         >
           Close
         </button>
@@ -307,7 +307,7 @@ const OrderHistory = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.08 }}
                 whileHover={{ y: -2 }}
-                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-neutral-100 group"
+                className="bg-white rounded-2xl shadow-card hover:shadow-card transition-all duration-300 overflow-hidden border border-neutral-100 group"
               >
                 <div className="p-6">
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -317,16 +317,16 @@ const OrderHistory = () => {
                         <img
                           src={tiffinImage}
                           alt={tiffinTitle}
-                          className="w-20 h-20 rounded-xl object-cover shadow-md"
+                          className="w-20 h-20 rounded-xl object-cover shadow-card"
                           onError={(e) => {
                             e.target.src =
                               'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop';
                           }}
                         />
                         <div
-                          className={`absolute -bottom-2 -right-2 w-7 h-7 ${statusConfig.iconBg} rounded-full flex items-center justify-center shadow-md`}
+                          className={`absolute -bottom-2 -right-2 w-7 h-7 ${statusConfig.iconBg} rounded-full flex items-center justify-center shadow-card`}
                         >
-                          <StatusIcon className="w-4 h-4 text-white" />
+                          <StatusIcon className="w-4 h-4 text-neutral-900" />
                         </div>
                       </div>
 
@@ -357,7 +357,7 @@ const OrderHistory = () => {
                       <div className="text-right">
                         <p className="text-2xl font-bold text-neutral-900">₹{order.totalAmount}</p>
                         {pricePerDay && (
-                          <p className="text-sm text-neutral-400">₹{pricePerDay}/day</p>
+                          <p className="text-sm text-neutral-500">₹{pricePerDay}/day</p>
                         )}
                       </div>
                       <span
@@ -402,7 +402,7 @@ const OrderHistory = () => {
                         whileTap={{ scale: 0.98 }}
                         disabled={reordering === order._id}
                         onClick={() => handleReorder(order)}
-                        className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-60"
+                        className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-on-brand rounded-xl font-semibold shadow-card hover:shadow-card transition-all disabled:opacity-60"
                       >
                         <ArrowPathIcon
                           className={`w-4 h-4 ${reordering === order._id ? 'animate-spin' : ''}`}

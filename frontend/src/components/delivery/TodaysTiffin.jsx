@@ -40,7 +40,7 @@ const TodaysTiffin = () => {
             key={delivery._id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-neutral-100 rounded-2xl p-4 shadow-sm flex items-start justify-between gap-4"
+            className="bg-white border border-neutral-100 rounded-2xl p-4 shadow-card flex items-start justify-between gap-4"
           >
             <div className="min-w-0">
               <p className="font-semibold text-neutral-900 truncate">

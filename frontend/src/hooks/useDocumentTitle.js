@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 /**
  * useDocumentTitle
  * Sets document.title on mount and restores the default on unmount.
- * 
+ *
  * @param {string} title - The page-specific title (e.g. "Browse Tiffins")
  * @param {boolean} [restoreOnUnmount=true] - Whether to reset to default on unmount
  */

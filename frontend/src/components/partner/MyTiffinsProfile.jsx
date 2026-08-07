@@ -10,7 +10,7 @@ const MyTiffinsProfile = ({ profile, setProfile, loading, handleProfileUpdate })
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+      className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
     >
       <div className="bg-gradient-to-r from-neutral-50 to-white px-6 py-5 border-b border-neutral-100">
         <div className="flex items-center space-x-3">
@@ -101,7 +101,7 @@ const MyTiffinsProfile = ({ profile, setProfile, loading, handleProfileUpdate })
             {profile.foodImages?.map((imgUrl, idx) => (
               <div
                 key={idx}
-                className="relative w-24 h-24 rounded-xl overflow-hidden shadow-sm border border-neutral-200"
+                className="relative w-24 h-24 rounded-xl overflow-hidden shadow-card border border-neutral-200"
               >
                 <img src={imgUrl} alt="Food" className="w-full h-full object-cover" />
                 <button
@@ -112,7 +112,7 @@ const MyTiffinsProfile = ({ profile, setProfile, loading, handleProfileUpdate })
                       foodImages: profile.foodImages.filter((_, i) => i !== idx),
                     })
                   }
-                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-10"
+                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-neutral-900 rounded-full flex items-center justify-center shadow-card hover:bg-red-600 transition-colors z-10"
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>

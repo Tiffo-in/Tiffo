@@ -10,29 +10,23 @@ const initialState = {
   pagination: null,
 };
 
-export const getTiffins = createAsyncThunk(
-  'tiffins/getAll',
-  async (params, thunkAPI) => {
-    try {
-      return await tiffinService.getTiffins(params);
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-      return thunkAPI.rejectWithValue(message);
-    }
+export const getTiffins = createAsyncThunk('tiffins/getAll', async (params, thunkAPI) => {
+  try {
+    return await tiffinService.getTiffins(params);
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    return thunkAPI.rejectWithValue(message);
   }
-);
+});
 
-export const getTiffin = createAsyncThunk(
-  'tiffins/getOne',
-  async (id, thunkAPI) => {
-    try {
-      return await tiffinService.getTiffin(id);
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-      return thunkAPI.rejectWithValue(message);
-    }
+export const getTiffin = createAsyncThunk('tiffins/getOne', async (id, thunkAPI) => {
+  try {
+    return await tiffinService.getTiffin(id);
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    return thunkAPI.rejectWithValue(message);
   }
-);
+});
 
 export const tiffinSlice = createSlice({
   name: 'tiffins',

@@ -148,7 +148,7 @@ const Blog = () => {
                   onClick={() => setSelectedCategory(category.name)}
                   className={`px-4 py-2 rounded-full font-medium transition-all ${
                     selectedCategory === category.name
-                      ? 'bg-maroon-600 text-white shadow-md'
+                      ? 'bg-maroon-600 text-on-brand shadow-card'
                       : 'bg-white text-gray-700 hover:bg-gray-100'
                   }`}
                 >
@@ -169,7 +169,7 @@ const Blog = () => {
           {/* Featured Post */}
           {filteredPosts.length > 0 && !searchQuery && selectedCategory === 'All' && (
             <Link to={`/blog/${filteredPosts[0].slug}`}>
-              <div className="bg-white rounded-lg shadow-md overflow-hidden mb-12 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white rounded-lg shadow-card overflow-hidden mb-12 hover:shadow-card-hover transition-shadow cursor-pointer">
                 <div className="md:flex">
                   <div className="md:w-1/3 bg-gradient-to-br from-maroon-100 to-orange-100 flex items-center justify-center p-8">
                     <div className="text-6xl">🍱</div>
@@ -224,7 +224,7 @@ const Blog = () => {
                     transition={{ delay: index * 0.1 }}
                   >
                     <Link to={`/blog/${post.slug}`}>
-                      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all cursor-pointer group">
+                      <div className="bg-white rounded-lg shadow-card overflow-hidden hover:shadow-card transition-all cursor-pointer group">
                         <div className="bg-gradient-to-br from-gray-100 to-gray-200 h-48 flex items-center justify-center group-hover:scale-105 transition-transform">
                           <div className="text-4xl">🍱</div>
                         </div>
@@ -300,7 +300,7 @@ const Blog = () => {
                 <button
                   type="submit"
                   disabled={newsletterLoading}
-                  className="bg-maroon-600 text-white px-6 py-2 rounded-md hover:bg-maroon-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-maroon-600 text-on-brand px-6 py-2 rounded-md hover:bg-maroon-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {newsletterLoading ? 'Subscribing...' : 'Subscribe'}
                 </button>

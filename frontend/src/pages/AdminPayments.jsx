@@ -131,14 +131,14 @@ const AdminPayments = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-orange-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -153,20 +153,20 @@ const AdminPayments = () => {
                 to="/admin/dashboard"
                 className="p-2 bg-white/20 rounded-xl hover:bg-white/30 transition-colors"
               >
-                <ArrowLeftIcon className="w-5 h-5 text-white" />
+                <ArrowLeftIcon className="w-5 h-5 text-neutral-900" />
               </Link>
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <CurrencyRupeeIcon className="w-6 h-6 text-white" />
+                <CurrencyRupeeIcon className="w-6 h-6 text-neutral-900" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-white">Payments</h1>
-                  <CheckBadgeIcon className="w-6 h-6 text-white" />
+                  <h1 className="text-2xl font-bold text-neutral-900">Payments</h1>
+                  <CheckBadgeIcon className="w-6 h-6 text-neutral-900" />
                 </div>
-                <p className="text-white/80 text-sm">Transaction management</p>
+                <p className="text-neutral-700 text-sm">Transaction management</p>
               </div>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-white hover:bg-white/30 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-neutral-900 hover:bg-white/30 transition-colors">
               <ArrowDownTrayIcon className="w-5 h-5" />
               Export
             </button>
@@ -208,13 +208,13 @@ const AdminPayments = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6"
+              className="bg-white rounded-2xl shadow-card border border-neutral-100 p-6"
             >
               <div className="flex items-start justify-between">
                 <div
                   className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center`}
                 >
-                  <stat.icon className="w-6 h-6 text-white" />
+                  <stat.icon className="w-6 h-6 text-neutral-900" />
                 </div>
               </div>
               <div className="mt-4">
@@ -230,7 +230,7 @@ const AdminPayments = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-4 mb-6"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 p-4 mb-6"
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
@@ -251,7 +251,7 @@ const AdminPayments = () => {
                   onClick={() => setFilter(status)}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize ${
                     filter === status
-                      ? 'bg-amber-500 text-white'
+                      ? 'bg-amber-500 text-neutral-900'
                       : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                   }`}
                 >
@@ -267,7 +267,7 @@ const AdminPayments = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 overflow-hidden"
         >
           <div className="px-6 py-4 border-b border-neutral-100">
             <h2 className="text-lg font-bold text-neutral-900">Recent Transactions</h2>
@@ -343,7 +343,7 @@ const AdminPayments = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            className="bg-white rounded-2xl shadow-card-hover max-w-md w-full p-6"
           >
             <h3 className="text-xl font-bold text-neutral-900 mb-4">Transaction Details</h3>
             <div className="space-y-3">

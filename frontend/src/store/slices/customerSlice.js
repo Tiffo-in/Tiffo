@@ -45,7 +45,7 @@ const customerSlice = createSlice({
     selectedCustomer: null,
     calendars: {},
     loading: false,
-    error: null
+    error: null,
   },
   reducers: {
     setSelectedCustomer: (state, action) => {
@@ -53,7 +53,7 @@ const customerSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -78,14 +78,22 @@ const customerSlice = createSlice({
         const { customerId, calendar } = action.payload;
         state.calendars[customerId] = calendar;
       })
-      // Update delivery status
+      // Update delivery status — patch the cached calendar in place so the grid
+      // reflects the new status immediately, without waiting for a re-fetch.
       .addCase(updateDeliveryStatus.fulfilled, (state, action) => {
-        // Refresh calendar data after status update
-        if (state.selectedCustomer) {
-          // This will trigger a re-fetch of calendar data
-        }
+        const { deliveryId, status } = action.meta.arg;
+        // calendars: { [customerId]: { [dateStr]: { [mealType]: { id, status } } } }
+        Object.values(state.calendars).forEach((calendar) => {
+          Object.values(calendar).forEach((day) => {
+            Object.values(day).forEach((delivery) => {
+              if (delivery && delivery.id === deliveryId) {
+                delivery.status = status;
+              }
+            });
+          });
+        });
       });
-  }
+  },
 });
 
 export const { setSelectedCustomer, clearError } = customerSlice.actions;

@@ -15,7 +15,7 @@ export const customerService = {
   getCustomerCalendar: async (customerId, month, year) => {
     try {
       const response = await api.get(`/partner/customers/${customerId}/calendar`, {
-        params: { month, year }
+        params: { month, year },
       });
       return response.data;
     } catch (error) {
@@ -41,7 +41,7 @@ export const customerService = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  }
+  },
 };
 
 export default customerService;

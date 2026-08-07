@@ -24,35 +24,38 @@ const useImpressionTracker = () => {
   };
 
   useEffect(() => {
-    observerRef.current = new IntersectionObserver((entries) => {
-      let idsAdded = false;
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        let idsAdded = false;
 
-      entries.forEach((entry) => {
-        // If the element is more than 50% visible
-        if (entry.isIntersecting) {
-          const campaignId = entry.target.dataset.campaignId;
-          
-          if (campaignId && !pendingCampaignsRef.current.has(campaignId)) {
-            pendingCampaignsRef.current.add(campaignId);
-            idsAdded = true;
-            
-            // Stop observing this exact element so we don't spam impressions 
-            // if they scroll up and down. Backend frequency cap will also protect this.
-            observerRef.current.unobserve(entry.target);
+        entries.forEach((entry) => {
+          // If the element is more than 50% visible
+          if (entry.isIntersecting) {
+            const campaignId = entry.target.dataset.campaignId;
+
+            if (campaignId && !pendingCampaignsRef.current.has(campaignId)) {
+              pendingCampaignsRef.current.add(campaignId);
+              idsAdded = true;
+
+              // Stop observing this exact element so we don't spam impressions
+              // if they scroll up and down. Backend frequency cap will also protect this.
+              observerRef.current.unobserve(entry.target);
+            }
           }
-        }
-      });
+        });
 
-      if (idsAdded) {
-        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-        // Flush after 1.5 seconds of accumulating visible ads
-        debounceTimerRef.current = setTimeout(() => {
-          flushImpressions();
-        }, 1500);
+        if (idsAdded) {
+          if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+          // Flush after 1.5 seconds of accumulating visible ads
+          debounceTimerRef.current = setTimeout(() => {
+            flushImpressions();
+          }, 1500);
+        }
+      },
+      {
+        threshold: 0.5, // 50% of the item must be visible
       }
-    }, {
-      threshold: 0.5 // 50% of the item must be visible
-    });
+    );
 
     return () => {
       // Cleanup
@@ -67,7 +70,7 @@ const useImpressionTracker = () => {
       if (node && observerRef.current) {
         observerRef.current.observe(node);
       }
-    }
+    },
   };
 };
 

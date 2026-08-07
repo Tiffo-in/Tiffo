@@ -112,7 +112,7 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="animate-pulse">
             <div className="h-32 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-2xl mb-8"></div>
@@ -133,7 +133,7 @@ const Orders = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Premium Header */}
       <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-secondary-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -149,20 +149,20 @@ const Orders = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-card">
                   <span className="text-3xl">📋</span>
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h1 className="text-2xl font-bold text-white">Today's Orders</h1>
+                    <h1 className="text-2xl font-bold text-neutral-900">Today's Orders</h1>
                     <CheckBadgeIcon className="w-6 h-6 text-green-300" />
                   </div>
-                  <p className="text-white/80 text-sm mt-0.5">Manage your daily deliveries</p>
+                  <p className="text-neutral-700 text-sm mt-0.5">Manage your daily deliveries</p>
                 </div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
-                <span className="text-white font-bold text-lg">{orderStats.total}</span>
-                <span className="text-white/80 text-sm ml-1">orders today</span>
+                <span className="text-neutral-900 font-bold text-lg">{orderStats.total}</span>
+                <span className="text-neutral-700 text-sm ml-1">orders today</span>
               </div>
             </div>
           </motion.div>
@@ -213,7 +213,7 @@ const Orders = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               whileHover={{ y: -4, scale: 1.02 }}
-              className="bg-white rounded-2xl p-5 shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100"
+              className="bg-white rounded-2xl p-5 shadow-card-hover hover:shadow-card-hover transition-all duration-300 border border-neutral-100"
             >
               <div
                 className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center mb-3`}
@@ -246,7 +246,7 @@ const Orders = () => {
               onClick={() => setFilter(tab.id)}
               className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
                 filter === tab.id
-                  ? 'bg-primary-500 text-white shadow-lg'
+                  ? 'bg-primary-500 text-on-brand shadow-card'
                   : 'bg-white text-neutral-600 border border-neutral-200 hover:border-primary-200 hover:bg-primary-50'
               }`}
             >
@@ -267,7 +267,7 @@ const Orders = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-lg p-12 text-center border border-neutral-100"
+            className="bg-white rounded-2xl shadow-card p-12 text-center border border-neutral-100"
           >
             <div className="text-6xl mb-4">📦</div>
             <h3 className="text-xl font-bold text-neutral-700 mb-2">No orders found</h3>
@@ -287,7 +287,7 @@ const Orders = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   whileHover={{ y: -2, scale: 1.005 }}
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-neutral-100 overflow-hidden"
+                  className="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 border border-neutral-100 overflow-hidden"
                 >
                   {/* Card Header with Status */}
                   <div className={`h-1.5 bg-gradient-to-r ${statusConfig.bgGradient}`} />
@@ -355,7 +355,7 @@ const Orders = () => {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => markDelivered(order.id)}
                         disabled={order.status === 'delivered'}
-                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg transition-shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-neutral-900 py-3 px-4 rounded-xl font-semibold hover:shadow-card transition-shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <CheckCircleIcon className="w-5 h-5" />
                         {order.status === 'delivered' ? 'Delivered ✓' : 'Mark Delivered'}

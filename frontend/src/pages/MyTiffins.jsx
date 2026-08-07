@@ -177,7 +177,7 @@ const MyTiffins = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-secondary-500 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -191,15 +191,15 @@ const MyTiffins = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-card">
                 <span className="text-3xl">🍱</span>
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-2xl font-bold text-white">My Tiffin Service</h1>
+                  <h1 className="text-2xl font-bold text-neutral-900">My Tiffin Service</h1>
                   <CheckBadgeIcon className="w-6 h-6 text-green-300" />
                 </div>
-                <p className="text-white/80 text-sm mt-0.5 flex items-center">
+                <p className="text-neutral-700 text-sm mt-0.5 flex items-center">
                   <SparklesIcon className="w-4 h-4 mr-1" />
                   Manage your menu, pricing and discount offers
                 </p>
@@ -215,7 +215,7 @@ const MyTiffins = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-lg border border-neutral-100 p-2 mb-8 -mt-12"
+          className="bg-white rounded-2xl shadow-card border border-neutral-100 p-2 mb-8 -mt-12"
         >
           <div className="flex space-x-2">
             {TABS.map((tab) => (
@@ -226,7 +226,7 @@ const MyTiffins = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 flex items-center justify-center gap-3 py-4 px-4 rounded-xl transition-all duration-300 ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-on-brand shadow-card'
                     : 'text-neutral-600 hover:bg-neutral-50'
                 }`}
               >
@@ -234,7 +234,7 @@ const MyTiffins = () => {
                 <div className="text-left">
                   <div className="font-semibold">{tab.label}</div>
                   <div
-                    className={`text-xs ${activeTab === tab.id ? 'text-white/80' : 'text-neutral-400'}`}
+                    className={`text-xs ${activeTab === tab.id ? 'text-neutral-700' : 'text-neutral-400'}`}
                   >
                     {tab.description}
                   </div>

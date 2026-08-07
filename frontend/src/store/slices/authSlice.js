@@ -9,18 +9,14 @@ const initialState = {
   message: '',
 };
 
-
-export const register = createAsyncThunk(
-  'auth/register',
-  async (userData, thunkAPI) => {
-    try {
-      return await authService.register(userData);
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-      return thunkAPI.rejectWithValue(message);
-    }
+export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
+  try {
+    return await authService.register(userData);
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    return thunkAPI.rejectWithValue(message);
   }
-);
+});
 
 export const login = createAsyncThunk(
   // amazonq-ignore-next-line

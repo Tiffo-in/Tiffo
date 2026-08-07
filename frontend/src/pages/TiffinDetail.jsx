@@ -115,7 +115,7 @@ const TiffinDetail = () => {
 
   if (isLoading || (!activeTiffin && !storeTiffin)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0F1016] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-surface-page text-neutral-900">
         <LoadingSpinner size="large" message="Loading tiffin details…" />
       </div>
     );
@@ -123,13 +123,13 @@ const TiffinDetail = () => {
 
   if (!activeTiffin) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F1016] text-white px-6 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-surface-page text-neutral-900 px-6 text-center">
         <div className="text-5xl mb-4">🍱</div>
         <h1 className="text-2xl font-black mb-2">Tiffin not found</h1>
-        <p className="text-[#B5B8C5] mb-6">This tiffin may no longer be available.</p>
+        <p className="text-neutral-600 mb-6">This tiffin may no longer be available.</p>
         <Link
           to="/tiffins"
-          className="px-6 py-3 bg-primary-500 text-white rounded-xl font-bold hover:bg-primary-600 transition-colors"
+          className="px-6 py-3 bg-primary-500 text-on-brand rounded-xl font-bold hover:bg-primary-600 transition-colors"
         >
           Browse Tiffins
         </Link>
@@ -138,7 +138,7 @@ const TiffinDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1016] text-white pt-24 pb-20 font-sans selection:bg-primary-500/30 selection:text-orange-200">
+    <div className="min-h-screen bg-surface-page text-neutral-900 pt-24 pb-20 font-sans selection:bg-primary-500/30 selection:text-orange-200">
       <Helmet>
         <title>{`${activeTiffin.title || 'Tiffin Details'} | Tiffo`}</title>
         <meta
@@ -182,17 +182,17 @@ const TiffinDetail = () => {
 
         {/* ─── YOU MAY ALSO LIKE (real tiffins, same cuisine) ─── */}
         {recommended.length > 0 && (
-          <div className="pt-8 border-t border-[rgba(255,255,255,0.08)]">
-            <h2 className="text-xl font-black text-white mb-6">You May Also Like</h2>
+          <div className="pt-8 border-t border-neutral-100">
+            <h2 className="text-xl font-black text-neutral-900 mb-6">You May Also Like</h2>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {recommended.map((rec) => (
                 <Link to={`/tiffins/${rec.slug || rec._id}`} key={rec._id}>
                   <motion.div
                     whileHover={{ y: -5 }}
-                    className="bg-[#181A24] border border-[rgba(255,255,255,0.08)] hover:border-primary-500/50 rounded-2xl overflow-hidden shadow-lg cursor-pointer group transition-all"
+                    className="bg-surface-alt border border-neutral-100 hover:border-brand-border rounded-2xl overflow-hidden shadow-card cursor-pointer group transition-all"
                   >
-                    <div className="relative h-36 bg-[#0F1016] overflow-hidden flex items-center justify-center">
+                    <div className="relative h-36 bg-surface-page overflow-hidden flex items-center justify-center">
                       {rec.images?.[0] ? (
                         <img
                           src={rec.images[0]}
@@ -204,25 +204,27 @@ const TiffinDetail = () => {
                         <span className="text-4xl opacity-40">🍱</span>
                       )}
                       {rec.dietary?.includes('veg') && (
-                        <div className="absolute top-2.5 left-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md">
+                        <div className="absolute top-2.5 left-2.5 bg-emerald-600 text-neutral-900 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-card">
                           Veg
                         </div>
                       )}
                     </div>
 
                     <div className="p-3">
-                      <h3 className="text-white text-sm font-bold group-hover:text-primary-500 transition-colors line-clamp-1 mb-1">
+                      <h3 className="text-neutral-900 text-sm font-bold group-hover:text-brand-ink transition-colors line-clamp-1 mb-1">
                         {rec.title}
                       </h3>
-                      <div className="flex items-center justify-between text-xs text-[#B5B8C5]">
+                      <div className="flex items-center justify-between text-xs text-neutral-600">
                         <div className="flex items-center gap-1">
-                          <StarIcon className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                          <span className="text-white font-bold">
+                          <StarIcon className="w-3.5 h-3.5 text-rating fill-amber-400" />
+                          <span className="text-neutral-900 font-bold">
                             {rec.rating?.average?.toFixed(1) || 'New'}
                           </span>
                         </div>
                         {rec.price?.daily != null && (
-                          <div className="font-extrabold text-white">₹{rec.price.daily}/day</div>
+                          <div className="font-extrabold text-neutral-900">
+                            ₹{rec.price.daily}/day
+                          </div>
                         )}
                       </div>
                     </div>

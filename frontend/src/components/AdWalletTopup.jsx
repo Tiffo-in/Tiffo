@@ -67,7 +67,7 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
           contact: '9999999999',
         },
         theme: {
-          color: '#0d9488',
+          color: '#FF7A00', // brand orange (Razorpay SDK needs a literal hex)
         },
       };
 
@@ -100,21 +100,23 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0"
           >
-            <div className="bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden relative border border-neutral-100 dark:border-neutral-800">
+            <div className="bg-white rounded-3xl shadow-card-hover w-full max-w-md overflow-hidden relative border border-neutral-100">
               {/* Header */}
-              <div className="bg-gradient-to-br from-teal-500 to-emerald-600 px-6 py-8 text-white relative">
+              <div className="bg-gradient-to-br from-teal-500 to-emerald-600 px-6 py-8 text-neutral-900 relative">
                 <button
                   onClick={onClose}
                   className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
                 >
-                  <XMarkIcon className="w-5 h-5 text-white" />
+                  <XMarkIcon className="w-5 h-5 text-neutral-900" />
                 </button>
                 <div className="flex items-center space-x-3 mb-2">
                   <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner">
-                    <BoltIcon className="w-7 h-7 text-white" />
+                    <BoltIcon className="w-7 h-7 text-neutral-900" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white tracking-tight">Top Up Wallet</h2>
+                    <h2 className="text-2xl font-bold text-neutral-900 tracking-tight">
+                      Top Up Wallet
+                    </h2>
                     <p className="text-teal-100 text-sm font-medium">Power up your ad campaigns</p>
                   </div>
                 </div>
@@ -130,7 +132,7 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
 
                 <label
                   htmlFor="topup-amount"
-                  className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2"
+                  className="block text-sm font-bold text-neutral-700 mb-2"
                 >
                   Enter Amount
                 </label>
@@ -146,7 +148,7 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
                     step="100"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-4 bg-neutral-50 dark:bg-neutral-800 border-0 rounded-2xl text-2xl font-bold text-neutral-900 dark:text-white focus:ring-4 focus:ring-teal-500/20 transition-all font-mono"
+                    className="block w-full pl-12 pr-4 py-4 bg-neutral-50 border-0 rounded-2xl text-2xl font-bold text-neutral-900 focus:ring-4 focus:ring-teal-500/20 transition-all font-mono"
                   />
                 </div>
 
@@ -158,8 +160,8 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
                       onClick={() => setAmount(val)}
                       className={`flex-1 py-2 px-3 rounded-xl text-sm font-bold transition-all ${
                         amount === val
-                          ? 'bg-teal-100 text-teal-800 ring-2 ring-teal-500 dark:bg-teal-900 dark:text-teal-200'
-                          : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
+                          ? 'bg-teal-100 text-teal-800 ring-2 ring-teal-500'
+                          : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                       }`}
                     >
                       ₹{val}
@@ -172,7 +174,7 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleTopup}
                   disabled={loading}
-                  className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-xl flex items-center justify-center transition-all ${
+                  className={`w-full py-4 rounded-xl font-bold text-lg text-neutral-900 shadow-card-hover flex items-center justify-center transition-all ${
                     loading
                       ? 'bg-teal-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-teal-500 to-emerald-600 hover:shadow-teal-500/30'
@@ -180,7 +182,7 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
                 >
                   {loading ? 'Processing...' : `Pay ₹${amount}`}
                 </motion.button>
-                <p className="text-center text-xs text-neutral-400 mt-4 flex items-center justify-center">
+                <p className="text-center text-xs text-neutral-500 mt-4 flex items-center justify-center">
                   🔒 Secured by Razorpay
                 </p>
               </div>

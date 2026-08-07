@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import SuccessAnimation from '../components/SuccessAnimation';
+import AuthBrandPanel from '../components/auth/AuthBrandPanel';
+import FormField from '../components/auth/FormField';
+import { useTheme } from '../contexts/ThemeContext';
 import { login as loginAction } from '../store/slices/authSlice';
 import api from '../services/api';
 
@@ -13,6 +17,7 @@ const Login = () => {
   const [userName, setUserName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -63,11 +68,13 @@ const Login = () => {
         });
         const container = document.getElementById('google-signin-button');
         if (!container) return;
+        // Re-rendering on theme change would otherwise stack a second button.
+        container.innerHTML = '';
         // GSI buttons render at a fixed pixel width (Google caps it at 400)
         // and never shrink, so a hardcoded width overflows small screens —
         // derive the width from the container instead.
         window.google.accounts.id.renderButton(container, {
-          theme: 'outline',
+          theme: isDark ? 'filled_black' : 'outline',
           size: 'large',
           width: Math.min(400, container.offsetWidth || 400),
         });
@@ -82,7 +89,7 @@ const Login = () => {
         script.addEventListener('load', initializeGoogle);
       }
     }
-  }, []);
+  }, [isDark]);
 
   // Get redirect path based on user role
   const getRedirectPath = (role) => {
@@ -132,49 +139,23 @@ const Login = () => {
   // quickLogin removed
 
   return (
-    <div className="min-h-screen flex items-stretch bg-neutral-50 dark:bg-neutral-950 selection:bg-primary-200 selection:text-primary-900">
+    <div className="min-h-screen flex items-stretch bg-surface-page selection:bg-primary-200 selection:text-primary-900">
       {/* Left Panel - Image & Branding (Hidden on Mobile) */}
-      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-neutral-900">
-        {/* Beautiful Food Background */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transform hover:scale-105 transition-transform duration-[20s] ease-out"
-          style={{
-            backgroundImage: "url('/login.jpeg')",
-          }}
-        />
-
-        {/* Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-900/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/80 to-transparent" />
-
-        {/* Content Wrapper */}
-        <div className="relative z-10 flex flex-col justify-center h-full w-full p-12 lg:p-16 text-white">
-          {/* Main Copy */}
-          <div className="space-y-12">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <h1 className="text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
-                Taste the
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
-                  comfort of home.
-                </span>
-              </h1>
-              <p className="text-xl text-neutral-300 max-w-md leading-relaxed font-medium">
-                Log in to manage your daily meals, track deliveries, and discover authentic local
-                tiffins.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </div>
+      <AuthBrandPanel
+        image="/login.jpeg"
+        heading={
+          <>
+            Taste the
+            <br />
+            <span className="text-primary-400">comfort of home.</span>
+          </>
+        }
+        subheading="Log in to manage your daily meals, track deliveries, and discover authentic local tiffins."
+      />
 
       {/* Right Panel - Login Form */}
       {/* pt-28 clears the fixed navbar (~88px) so the form never slides under it */}
-      <div className="flex-1 flex flex-col justify-center items-center px-6 sm:px-12 pt-28 pb-12 relative dark:bg-neutral-950">
+      <div className="flex-1 flex flex-col justify-center items-center px-6 sm:px-12 pt-28 pb-12 relative">
         {/* Success Overlay */}
         <SuccessAnimation
           show={showSuccess}
@@ -192,21 +173,19 @@ const Login = () => {
           <div className="lg:hidden text-center mb-10">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 dark:text-white mb-2"
+              className="inline-flex items-center gap-2 text-3xl font-black tracking-tight text-neutral-900 mb-2"
             >
               <img src="/logo.png" alt="Tiffo Logo" className="h-10 w-auto" /> Tiffo
-              <span className="text-primary-500">.</span>
+              <span className="text-brand-ink">.</span>
             </Link>
-            <p className="text-neutral-500 dark:text-neutral-400">
-              Welcome back to authentic dining.
-            </p>
+            <p className="text-neutral-500">Welcome back to authentic dining.</p>
           </div>
 
           <div className="mb-10 hidden lg:block">
-            <h2 className="text-3xl font-black text-neutral-900 dark:text-white mb-2 tracking-tight">
+            <h2 className="text-3xl font-black text-neutral-900 mb-2 tracking-tight">
               Sign in to your account
             </h2>
-            <p className="text-neutral-500 dark:text-neutral-400 font-medium">
+            <p className="text-neutral-500 font-medium">
               Enter your email and password to access your dashboard.
             </p>
           </div>
@@ -218,33 +197,20 @@ const Login = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <label
-                htmlFor="login-email"
-                className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2"
-              >
-                Email Address
-              </label>
-              <div className="relative group">
-                <input
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^\S+@\S+$/i,
-                      message: 'Invalid email address',
-                    },
-                  })}
-                  id="login-email"
-                  type="email"
-                  autoComplete="email"
-                  className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                  placeholder="name@example.com"
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
-                  <span>⚠️</span> {errors.email.message}
-                </p>
-              )}
+              <FormField
+                label="Email Address"
+                icon={EnvelopeIcon}
+                type="email"
+                placeholder="name@example.com"
+                registration={register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: 'Invalid email address',
+                  },
+                })}
+                error={errors.email}
+              />
             </motion.div>
 
             {/* Password Field */}
@@ -254,47 +220,30 @@ const Login = () => {
               transition={{ delay: 0.2 }}
             >
               <div className="flex items-center justify-between mb-2">
-                <label
-                  htmlFor="login-password"
-                  className="block text-sm font-bold text-neutral-700 dark:text-neutral-300"
-                >
-                  Password
-                </label>
+                <span className="block text-sm font-bold text-neutral-700">Password</span>
                 <Link
                   to="/forgot-password"
-                  className="text-sm font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                  className="text-sm font-bold text-primary-600 hover:text-primary-700 transition-colors"
                 >
                   Forgot password?
                 </Link>
               </div>
-              <div className="relative group">
-                <input
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters',
-                    },
-                  })}
-                  id="login-password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  className="w-full bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3.5 pr-16 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 font-bold text-sm transition-colors"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? 'HIDE' : 'SHOW'}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-500 font-medium flex items-center gap-1">
-                  <span>⚠️</span> {errors.password.message}
-                </p>
-              )}
+              <FormField
+                label=""
+                icon={LockClosedIcon}
+                placeholder="••••••••"
+                showToggle
+                shown={showPassword}
+                onToggleShown={() => setShowPassword(!showPassword)}
+                registration={register('password', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters',
+                  },
+                })}
+                error={errors.password}
+              />
             </motion.div>
 
             {/* Remember Me */}
@@ -309,10 +258,10 @@ const Login = () => {
                   <input
                     id="login-remember"
                     type="checkbox"
-                    className="peer appearance-none w-5 h-5 border-2 border-neutral-300 dark:border-neutral-700 rounded cursor-pointer checked:bg-primary-500 checked:border-primary-500 transition-colors"
+                    className="peer appearance-none w-5 h-5 border-2 border-neutral-300 rounded cursor-pointer checked:bg-primary-500 checked:border-primary-500 transition-colors"
                   />
                   <svg
-                    className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"
+                    className="absolute w-3 h-3 text-on-brand opacity-0 peer-checked:opacity-100 pointer-events-none"
                     viewBox="0 0 14 10"
                     fill="none"
                   >
@@ -325,7 +274,7 @@ const Login = () => {
                     />
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200 transition-colors">
+                <span className="text-sm font-medium text-neutral-600 group-hover:text-neutral-900 transition-colors">
                   Keep me signed in
                 </span>
               </label>
@@ -334,7 +283,7 @@ const Login = () => {
             {/* Error Message */}
             {error && (
               <motion.div
-                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2"
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
               >
@@ -351,7 +300,7 @@ const Login = () => {
             >
               <button
                 type="submit"
-                className="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-lg py-4 rounded-xl font-black hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-4 focus:ring-neutral-900/20 dark:focus:ring-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-neutral-900/20 dark:shadow-white/10"
+                className="btn-primary w-full text-lg py-4 font-black focus:outline-none focus:ring-4 focus:ring-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -389,12 +338,10 @@ const Login = () => {
             transition={{ delay: 0.5 }}
           >
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-200 dark:border-neutral-800" />
+              <div className="w-full border-t border-neutral-200" />
             </div>
             <div className="relative flex justify-center text-sm font-bold">
-              <span className="px-4 bg-neutral-50 dark:bg-neutral-950 text-neutral-400">
-                OR CONTINUE WITH
-              </span>
+              <span className="px-4 bg-surface-page text-neutral-400">or continue with</span>
             </div>
           </motion.div>
 
@@ -415,11 +362,11 @@ const Login = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
           >
-            <p className="text-neutral-600 dark:text-neutral-400 font-medium">
-              Don't have an account?{' '}
+            <p className="text-neutral-600 font-medium">
+              Don't have an account?{''}
               <Link
                 to="/register"
-                className="font-black text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                className="font-black text-primary-600 hover:text-primary-700 transition-colors"
               >
                 Sign up for free
               </Link>
@@ -428,7 +375,7 @@ const Login = () => {
             <p className="text-sm font-medium">
               <Link
                 to="/register?role=partner"
-                className="text-neutral-500 hover:text-primary-600 dark:text-neutral-500 dark:hover:text-primary-400 transition-colors flex items-center justify-center gap-1"
+                className="text-neutral-500 hover:text-primary-600 transition-colors flex items-center justify-center gap-1"
               >
                 Want to become a Tiffin Partner? Register here <span>→</span>
               </Link>

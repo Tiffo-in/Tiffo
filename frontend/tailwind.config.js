@@ -1,122 +1,153 @@
 /** @type {import('tailwindcss').Config} */
+
+// Every color resolves through a CSS custom property defined in
+// src/styles/tokens.css, using the `rgb(var(--x) / <alpha-value>)` form so
+// opacity modifiers (`bg-surface/80`, `text-neutral-500/60`) keep working.
+// Dark mode is a variable flip on `.dark` — there is no `dark:` override sheet.
+const token = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+
+const scale = (prefix, shades) =>
+  Object.fromEntries(shades.map((s) => [s, token(`${prefix}-${s}`)]));
+
+const NEUTRAL_SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const LINE_SHADES = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+const BRAND_SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+
+// The brand scale, shared by `primary` and the legacy `maroon`/`zomato`
+// aliases so any un-migrated class still renders on-brand.
+const primary = scale('p', BRAND_SHADES);
+
+// Text, surface and line each get their OWN neutral scale. A single scale
+// cannot invert correctly for all three: `text-neutral-900` must become white
+// in dark mode while `bg-neutral-900` must stay dark, and `bg-neutral-100`
+// wants cream while `border-neutral-100` wants a hairline. Wiring them to
+// Tailwind's textColor/backgroundColor/borderColor keys keeps the ~1,700
+// existing utility classes in the codebase working, with correct values.
+const textNeutral = scale('t', NEUTRAL_SHADES);
+const surfaceNeutral = scale('s', NEUTRAL_SHADES);
+const lineNeutral = scale('line', LINE_SHADES);
+
+// Status / category palettes. These resolve through src/styles/palette-tokens.css
+// (generated — see scripts/generate-palette-tokens.mjs), which mirrors each
+// scale in dark mode. Without this, the ~1,000 raw `bg-green-50` /
+// `text-amber-700` style utilities in the app keep their light-mode hex in dark
+// mode and render as bright blocks on the warm dark surfaces.
+// Split the same three ways as the neutrals, because a single scale inverts
+// wrongly: `amber-600` as label text must brighten in dark mode, but the same
+// shade used as a filled accent block must hold. See the generator's header.
+const PALETTE_SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const PALETTE_NAMES = [
+  'red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal',
+  'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose',
+];
+const paletteFamily = (family) =>
+  Object.fromEntries(
+    PALETTE_NAMES.map((name) => [
+      name,
+      Object.fromEntries(PALETTE_SHADES.map((s) => [s, token(`${family}-${name}-${s}`)])),
+    ])
+  );
+const paletteText = paletteFamily('ct');
+const paletteBg = paletteFamily('cb');
+const paletteLine = paletteFamily('cl');
+
+const semantic = {
+  brand: token('brand'),
+  'brand-hover': token('brand-hover'),
+  'brand-tint': token('brand-tint'),
+  'brand-border': token('brand-border'),
+  // Orange as small text on light backgrounds is 2.6:1 — use `brand-ink`.
+  'brand-ink': token('brand-ink'),
+  // Charcoal, for labels sitting ON an orange fill (6.6:1 vs white's 2.6:1).
+  'on-brand': token('on-brand'),
+
+  surface: token('bg-card'),
+  'surface-page': token('bg-primary'),
+  'surface-alt': token('bg-secondary'),
+  'surface-section': token('bg-section'),
+  'surface-elevated': token('bg-elevated'),
+
+  veg: token('veg'),
+  'veg-bg': token('veg-bg'),
+  'veg-ink': token('veg-ink'),
+  nonveg: token('nonveg'),
+  'nonveg-bg': token('nonveg-bg'),
+  'nonveg-ink': token('nonveg-ink'),
+
+  success: token('success'),
+  warning: token('warning'),
+  error: token('error'),
+  info: token('info'),
+  rating: token('rating'),
+};
+
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // TIFFO Primary Brand Color (Orange)
-        primary: {
-          50: '#fff3e8',
-          100: '#ffe0c2',
-          200: '#ffc085',
-          300: '#ffa047',
-          400: '#ff8a24',
-          500: '#FF7A18', // TIFFO Brand Orange
-          600: '#e06514',
-          700: '#b84e10',
-          800: '#8a3b0d',
-          900: '#5c2708',
-        },
-        // Warm Secondary (Orange from logo)
-        secondary: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316', // Warm orange
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
-        },
-        // Maroon (legacy alias — now points at the brand orange after the
-        // rebrand, so any remaining `maroon-*` classes render on-brand).
-        maroon: {
-          50: '#fff3e8',
-          100: '#ffe0c2',
-          200: '#ffc085',
-          300: '#ffa047',
-          400: '#ff8a24',
-          500: '#FF7A18',
-          600: '#e06514',
-          700: '#b84e10',
-          800: '#8a3b0d',
-          900: '#5c2708',
-        },
-        // Zomato Red (optional for reference)
-        zomato: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#E23744', // Zomato signature red
-          600: '#cb202d',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
-        },
-        // Food-themed Accents
+        // Base `colors` feeds anything without its own key (gradients, shadows,
+        // fills). The bg family is the right default for those.
+        ...paletteBg,
+        ...semantic,
+        primary,
+        secondary: primary,
+        // Legacy aliases from the pre-rebrand palette. Kept pointing at the
+        // brand scale so stragglers render on-brand rather than maroon/red.
+        maroon: primary,
+        zomato: primary,
         accent: {
-          // Fresh Green (veg indicator)
-          green: {
-            50: '#f0fdf4',
-            100: '#dcfce7',
-            200: '#bbf7d0',
-            300: '#86efac',
-            400: '#4ade80',
-            500: '#22c55e',
-            600: '#16a34a',
-            700: '#15803d',
-            800: '#166534',
-            900: '#14532d',
-          },
-          // Orange (non-veg, hot food)
-          orange: {
-            50: '#fff7ed',
-            100: '#ffedd5',
-            200: '#fed7aa',
-            300: '#fdba74',
-            400: '#fb923c',
-            500: '#f97316',
-            600: '#ea580c',
-            700: '#c2410c',
-          },
-          // Gold (premium, ratings)
-          gold: {
-            50: '#fefce8',
-            100: '#fef9c3',
-            200: '#fef08a',
-            300: '#fde047',
-            400: '#facc15',
-            500: '#eab308',
-            600: '#ca8a04',
-            700: '#a16207',
-          },
+          green: { 500: token('veg'), 600: token('veg-ink'), 700: token('veg-ink') },
+          orange: primary,
+          gold: { 400: token('rating'), 500: token('rating'), 600: token('rating') },
         },
-        // Clean Neutrals (Zomato-style grays)
-        neutral: {
-          50: '#fafafa',
-          100: '#f5f5f5',
-          200: '#e5e5e5',
-          300: '#d4d4d4',
-          400: '#a3a3a3',
-          500: '#737373',
-          600: '#525252',
-          700: '#404040',
-          800: '#262626',
-          900: '#171717',
-        },
-        // Utility Colors
-        success: '#22c55e',
-        warning: '#f59e0b',
-        error: '#ef4444',
-        info: '#3b82f6',
+        neutral: textNeutral,
       },
+      // `white` stays literally white for textColor/borderColor (labels on dark
+      // or orange surfaces must not shift), but `bg-white` — 241 usages, all of
+      // them card surfaces — resolves to the card token so it darkens correctly.
+      // `zinc`, `slate` and `stone` are aliased onto the same three scales as
+      // `neutral`/`gray`. The app had accumulated FOUR interchangeable gray
+      // scales (1,079 neutral-*, 365 gray-*, 332 zinc-*, plus slate/stone), and
+      // only the first two were themed — which is why dark mode looked
+      // inconsistent page to page.
+      backgroundColor: ({ theme }) => ({
+        ...theme('colors'),
+        ...paletteBg,
+        white: token('bg-card'),
+        neutral: surfaceNeutral,
+        gray: surfaceNeutral,
+        zinc: surfaceNeutral,
+        slate: surfaceNeutral,
+        stone: surfaceNeutral,
+      }),
+      textColor: ({ theme }) => ({
+        ...theme('colors'),
+        ...paletteText,
+        neutral: textNeutral,
+        gray: textNeutral,
+        zinc: textNeutral,
+        slate: textNeutral,
+        stone: textNeutral,
+      }),
+      borderColor: ({ theme }) => ({
+        ...theme('colors'),
+        ...paletteLine,
+        DEFAULT: token('line-100'),
+        neutral: lineNeutral,
+        gray: lineNeutral,
+        zinc: lineNeutral,
+        slate: lineNeutral,
+        stone: lineNeutral,
+      }),
+      divideColor: ({ theme }) => ({
+        ...theme('borderColor'),
+      }),
+      ringColor: ({ theme }) => ({
+        ...theme('colors'),
+        DEFAULT: token('brand'),
+      }),
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Poppins', 'Inter', 'sans-serif'],
@@ -128,31 +159,37 @@ module.exports = {
         '5xl': '3.052rem',
       },
       spacing: {
-        '128': '32rem',
-        '144': '36rem',
+        128: '32rem',
+        144: '36rem',
       },
       borderRadius: {
+        card: '20px',
+        media: '14px',
         '4xl': '2rem',
         '5xl': '2.5rem',
       },
       boxShadow: {
-        // Zomato-inspired subtle shadows
-        'card': '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
-        'card-hover': '0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06)',
-        'premium': '0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
-        'premium-lg': '0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1)',
-        'glow': '0 0 20px rgba(255, 122, 24, 0.25)',
-        'glow-lg': '0 0 40px rgba(255, 122, 24, 0.35)',
-        'inner-premium': 'inset 0 2px 4px rgba(0, 0, 0, 0.06)',
-        'modal': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        'dropdown': '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',
+        // Warm, wide, low-opacity — the reference look. Both values flip in
+        // dark mode via the token.
+        card: 'var(--shadow-sm)',
+        'card-hover': 'var(--shadow-lg)',
+        premium: 'var(--shadow-sm)',
+        'premium-lg': 'var(--shadow-lg)',
+        modal: 'var(--shadow-lg)',
+        dropdown: 'var(--shadow-sm)',
+        glow: '0 0 0 4px var(--brand-glow)',
+        'glow-lg': '0 12px 32px var(--brand-glow)',
+        focus: '0 0 0 3px var(--focus-ring)',
+        'inner-premium': 'inset 0 2px 4px rgba(24, 24, 27, 0.06)',
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #FF7A18 0%, #e06514 100%)',
-        'gradient-secondary': 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-        'gradient-premium': 'linear-gradient(135deg, #FF7A18 0%, #e06514 50%, #b84e10 100%)',
-        'gradient-warm': 'linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%)',
-        'gradient-hero': 'linear-gradient(135deg, #FF7A18 0%, #ff8a24 100%)',
+        'gradient-primary': 'var(--grad-cta)',
+        'gradient-secondary': 'var(--grad-cta)',
+        'gradient-premium': 'var(--grad-cta)',
+        'gradient-warm': 'var(--grad-cta)',
+        'gradient-cta': 'var(--grad-cta)',
+        'gradient-hero': 'var(--grad-hero)',
+        'gradient-featured': 'var(--grad-featured)',
         'gradient-radial': 'radial-gradient(circle at center, var(--tw-gradient-stops))',
       },
       backdropBlur: {
@@ -171,4 +208,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};

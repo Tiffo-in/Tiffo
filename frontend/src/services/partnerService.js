@@ -39,7 +39,7 @@ export const partnerService = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  }
+  },
 };
 
 export default partnerService;
