@@ -11,12 +11,16 @@ import { useTheme } from '../contexts/ThemeContext';
 import { login as loginAction } from '../store/slices/authSlice';
 import api from '../services/api';
 
+// Build-time value (inlined by Vite), not a runtime lookup — see cloudbuild.yaml.
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [userName, setUserName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [googleUnavailable, setGoogleUnavailable] = useState(false);
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -58,12 +62,19 @@ const Login = () => {
   };
 
   useEffect(() => {
+    // No placeholder fallback here on purpose. This value is inlined at build
+    // time; when the build arg is missing it collapses to '' and a stand-in
+    // client ID would render a button that fails against a nonexistent OAuth
+    // client. Better to surface the misconfiguration than to fake it.
+    if (!GOOGLE_CLIENT_ID) {
+      setGoogleUnavailable(true);
+      return;
+    }
+
     const initializeGoogle = () => {
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
-          client_id:
-            process.env.REACT_APP_GOOGLE_CLIENT_ID ||
-            '1008719970978-placeholder.apps.googleusercontent.com',
+          client_id: GOOGLE_CLIENT_ID,
           callback: handleGoogleCredentialResponse,
         });
         const container = document.getElementById('google-signin-button');
@@ -352,7 +363,13 @@ const Login = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <div id="google-signin-button" className="w-full flex justify-center"></div>
+            {googleUnavailable ? (
+              <p className="text-sm text-neutral-500 text-center">
+                Google sign-in is unavailable right now. Please use your email and password.
+              </p>
+            ) : (
+              <div id="google-signin-button" className="w-full flex justify-center"></div>
+            )}
           </motion.div>
 
           {/* Sign Up Link */}

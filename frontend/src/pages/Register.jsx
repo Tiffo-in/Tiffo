@@ -25,12 +25,16 @@ const REGISTER_BENEFITS = [
   'Empowering local communities and home cooks.',
 ];
 
+// Build-time value (inlined by Vite), not a runtime lookup — see cloudbuild.yaml.
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
 const Register = () => {
   const [searchParams] = useSearchParams();
   const [userRole, setUserRole] = useState(searchParams.get('role') || 'user');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [googleUnavailable, setGoogleUnavailable] = useState(false);
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -78,12 +82,19 @@ const Register = () => {
   };
 
   useEffect(() => {
+    // No placeholder fallback here on purpose. This value is inlined at build
+    // time; when the build arg is missing it collapses to '' and a stand-in
+    // client ID would render a button that fails against a nonexistent OAuth
+    // client. Better to surface the misconfiguration than to fake it.
+    if (!GOOGLE_CLIENT_ID) {
+      setGoogleUnavailable(true);
+      return;
+    }
+
     const initializeGoogle = () => {
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
-          client_id:
-            process.env.REACT_APP_GOOGLE_CLIENT_ID ||
-            '1008719970978-placeholder.apps.googleusercontent.com',
+          client_id: GOOGLE_CLIENT_ID,
           callback: handleGoogleCredentialResponse,
         });
         const container = document.getElementById('google-signin-button');
@@ -366,7 +377,13 @@ const Register = () => {
             </div>
 
             <div className="flex justify-center">
-              <div id="google-signin-button" className="w-full flex justify-center"></div>
+              {googleUnavailable ? (
+                <p className="text-sm text-neutral-500 text-center">
+                  Google sign-up is unavailable right now. Please use the form above.
+                </p>
+              ) : (
+                <div id="google-signin-button" className="w-full flex justify-center"></div>
+              )}
             </div>
           </form>
 

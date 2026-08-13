@@ -35,11 +35,22 @@ steps:
   # =========================================================================
 
   # Build frontend container image
+  #
+  # The REACT_APP_* values MUST be passed here as --build-arg. The frontend is a
+  # static Vite bundle served by nginx, so these are inlined at build time —
+  # setting them as Cloud Run runtime env vars on tiffo-frontend has no effect.
+  # Omitting them makes each ARG an empty string, which silently collapses every
+  # `process.env.REACT_APP_X || 'fallback'` in the source down to its fallback.
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-frontend'
     args: [
       'build',
       '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tiffo/tiffo-frontend:$COMMIT_SHA',
+      '--build-arg', 'REACT_APP_API_URL=${_REACT_APP_API_URL}',
+      '--build-arg', 'REACT_APP_GOOGLE_CLIENT_ID=${_REACT_APP_GOOGLE_CLIENT_ID}',
+      '--build-arg', 'REACT_APP_SENTRY_DSN=${_REACT_APP_SENTRY_DSN}',
+      '--build-arg', 'REACT_APP_RAZORPAY_KEY_ID=${_REACT_APP_RAZORPAY_KEY_ID}',
+      '--build-arg', 'STRICT_BUILD_ENV=1',
       '-f', 'frontend/Dockerfile',
       'frontend'
     ]
@@ -61,6 +72,20 @@ steps:
       '--allow-unauthenticated',
       '--port', '80'
     ]
+
+# Frontend build-time configuration. Every one of these values ships inside the
+# public JS bundle, so they are client identifiers rather than secrets — plain
+# substitutions are the right home for them, not Secret Manager.
+#
+# Override them on the Cloud Build trigger. _REACT_APP_GOOGLE_CLIENT_ID must be
+# set there: the default below is intentionally empty so a misconfigured trigger
+# fails the build (see frontend/vite.config.js) instead of shipping a login page
+# with a nonexistent OAuth client.
+substitutions:
+  _REACT_APP_API_URL: 'https://api.tiffo.in/api'
+  _REACT_APP_GOOGLE_CLIENT_ID: ''
+  _REACT_APP_SENTRY_DSN: ''
+  _REACT_APP_RAZORPAY_KEY_ID: ''
 
 options:
   logging: CLOUD_LOGGING_ONLY
