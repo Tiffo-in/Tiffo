@@ -3,7 +3,7 @@ import { DarkColors, Colors } from '../colors';
 // The website, customer app, and partner app previously shipped three different
 // primary colors (orange / Zomato red / amber). These tests pin the shared
 // brand accent so that drift cannot silently return.
-const TIFFO_BRAND_ORANGE = '#FF7A18';
+const TIFFO_BRAND_ORANGE = '#FF7A00';
 
 describe('partner brand tokens', () => {
   it('uses the shared TIFFO brand orange as primary', () => {

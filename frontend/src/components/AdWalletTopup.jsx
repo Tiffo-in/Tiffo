@@ -67,7 +67,7 @@ const AdWalletTopup = ({ isOpen, onClose, onSuccess }) => {
           contact: '9999999999',
         },
         theme: {
-          color: '#FF7A00', // brand orange (Razorpay SDK needs a literal hex)
+          color: '#FF7A00', // design-system-ok: Razorpay's SDK takes a hex string, not a CSS var
         },
       };
 

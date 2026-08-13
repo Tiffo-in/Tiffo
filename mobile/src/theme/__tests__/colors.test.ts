@@ -3,7 +3,7 @@ import { LightColors, DarkColors } from '../colors';
 // The website, customer app, and partner app previously shipped three different
 // primary colors (orange / Zomato red / amber). These tests pin the shared
 // brand accent so that drift cannot silently return.
-const TIFFO_BRAND_ORANGE = '#FF7A18';
+const TIFFO_BRAND_ORANGE = '#FF7A00';
 const LEGACY_ZOMATO_RED = '#E23744';
 
 describe('customer brand tokens', () => {
@@ -19,9 +19,12 @@ describe('customer brand tokens', () => {
 
   it('keeps semantic reds red', () => {
     // error + the non-veg indicator are semantic, not brand — they must NOT
-    // have been swept up in the orange rebrand.
-    expect(LightColors.error).toBe(LEGACY_ZOMATO_RED);
-    expect(LightColors.nonVeg).toBe(LEGACY_ZOMATO_RED);
+    // have been swept up in the orange rebrand. They no longer share one hex:
+    // non-veg is warmer than error so the two read as different signals.
+    expect(LightColors.error).toBe('#EF4444');
+    expect(LightColors.nonVeg).toBe('#FF5B45');
+    expect(LightColors.error).not.toBe(LightColors.primary);
+    expect(LightColors.nonVeg).not.toBe(LightColors.primary);
   });
 
   it('does not use the legacy red as the brand primary', () => {

@@ -29,7 +29,7 @@ const STATUS_CONFIG: Record<
   },
   preparing: {
     label: 'Preparing',
-    color: '#FF7A18',
+    color: '#FF7A00',
     bg: '#451A03',
     nextAction: 'Out for Delivery',
     nextStatus: 'out_for_delivery',
@@ -188,7 +188,7 @@ const OrdersScreen = () => {
       </View>
 
       {isLoading ? (
-        <ActivityIndicator color="#FF7A18" size="large" style={{ marginTop: 40 }} />
+        <ActivityIndicator color="#FF7A00" size="large" style={{ marginTop: 40 }} />
       ) : isError ? (
         <View style={{ alignItems: 'center', marginTop: 40, paddingHorizontal: 20 }}>
           <Ionicons name="warning-outline" size={48} color="#EF4444" />
@@ -202,7 +202,7 @@ const OrdersScreen = () => {
             onPress={() => refetch()}
             style={{
               marginTop: 16,
-              backgroundColor: '#FF7A18',
+              backgroundColor: '#FF7A00',
               paddingHorizontal: 24,
               paddingVertical: 12,
               borderRadius: 10,
@@ -218,7 +218,7 @@ const OrdersScreen = () => {
           renderItem={renderItem}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#FF7A18" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#FF7A00" />
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   infoText: { fontSize: 12, color: '#64748B', marginLeft: 6, flex: 1 },
   actionBtn: {
-    backgroundColor: '#FF7A18',
+    backgroundColor: '#FF7A00',
     borderRadius: 10,
     padding: 12,
     alignItems: 'center',

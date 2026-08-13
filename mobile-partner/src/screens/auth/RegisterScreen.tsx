@@ -256,11 +256,11 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#FF7A18',
+    color: '#FF7A00',
     marginTop: 20,
     marginBottom: 8,
     borderLeftWidth: 3,
-    borderLeftColor: '#FF7A18',
+    borderLeftColor: '#FF7A00',
     paddingLeft: 6,
   },
   label: { fontSize: 12, fontWeight: '600', color: '#CBD5E1', marginBottom: 6, marginTop: 10 },
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     color: '#F8FAFC',
   },
   registerBtn: {
-    backgroundColor: '#FF7A18',
+    backgroundColor: '#FF7A00',
     borderRadius: 12,
     padding: 14,
     alignItems: 'center',
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signInLinkLabel: {
-    color: '#FF7A18',
+    color: '#FF7A00',
     fontSize: 13,
     fontWeight: '600',
   },

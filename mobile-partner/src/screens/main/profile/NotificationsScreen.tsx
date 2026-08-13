@@ -73,7 +73,7 @@ const NotificationsScreen = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF7A18" />
+        <ActivityIndicator size="large" color="#FF7A00" />
         <Text style={styles.loadingText}>Loading Settings...</Text>
       </SafeAreaView>
     );
@@ -116,8 +116,8 @@ const NotificationsScreen = () => {
             <Switch
               value={orderPush}
               onValueChange={setOrderPush}
-              trackColor={{ false: '#0F172A', true: '#FF7A1830' }}
-              thumbColor={orderPush ? '#FF7A18' : '#64748B'}
+              trackColor={{ false: '#0F172A', true: '#FF7A0030' }}
+              thumbColor={orderPush ? '#FF7A00' : '#64748B'}
             />
           </View>
 
@@ -131,8 +131,8 @@ const NotificationsScreen = () => {
             <Switch
               value={orderEmail}
               onValueChange={setOrderEmail}
-              trackColor={{ false: '#0F172A', true: '#FF7A1830' }}
-              thumbColor={orderEmail ? '#FF7A18' : '#64748B'}
+              trackColor={{ false: '#0F172A', true: '#FF7A0030' }}
+              thumbColor={orderEmail ? '#FF7A00' : '#64748B'}
             />
           </View>
         </View>
@@ -151,8 +151,8 @@ const NotificationsScreen = () => {
             <Switch
               value={payoutSms}
               onValueChange={setPayoutSms}
-              trackColor={{ false: '#0F172A', true: '#FF7A1830' }}
-              thumbColor={payoutSms ? '#FF7A18' : '#64748B'}
+              trackColor={{ false: '#0F172A', true: '#FF7A0030' }}
+              thumbColor={payoutSms ? '#FF7A00' : '#64748B'}
             />
           </View>
 
@@ -166,8 +166,8 @@ const NotificationsScreen = () => {
             <Switch
               value={weeklyReports}
               onValueChange={setWeeklyReports}
-              trackColor={{ false: '#0F172A', true: '#FF7A1830' }}
-              thumbColor={weeklyReports ? '#FF7A18' : '#64748B'}
+              trackColor={{ false: '#0F172A', true: '#FF7A0030' }}
+              thumbColor={weeklyReports ? '#FF7A00' : '#64748B'}
             />
           </View>
         </View>
@@ -270,10 +270,10 @@ const styles = StyleSheet.create({
   cardSectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FF7A18',
+    color: '#FF7A00',
     marginBottom: 16,
     borderLeftWidth: 3,
-    borderLeftColor: '#FF7A18',
+    borderLeftColor: '#FF7A00',
     paddingLeft: 8,
   },
   settingRow: {
@@ -304,14 +304,14 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
   saveButton: {
-    backgroundColor: '#FF7A18',
+    backgroundColor: '#FF7A00',
     borderRadius: 12,
     paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
-    shadowColor: '#FF7A18',
+    shadowColor: '#FF7A00',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,

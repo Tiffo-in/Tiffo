@@ -122,7 +122,7 @@ const MenuScreen = () => {
               accessibilityRole="button"
               accessibilityLabel={`Edit dishes for ${item.title}`}
             >
-              <Ionicons name="list-outline" size={13} color="#FF7A18" />
+              <Ionicons name="list-outline" size={13} color="#FF7A00" />
               <Text style={styles.editMenuText}>
                 {item.menuItems?.length ? `${item.menuItems.length} dishes` : 'Add dishes'}
               </Text>
@@ -132,7 +132,7 @@ const MenuScreen = () => {
 
         <View style={styles.cardRight}>
           {toggling === item._id ? (
-            <ActivityIndicator color="#FF7A18" size="small" />
+            <ActivityIndicator color="#FF7A00" size="small" />
           ) : (
             <Switch
               value={item.isActive}
@@ -162,12 +162,12 @@ const MenuScreen = () => {
           style={styles.addButton}
           onPress={() => navigation.navigate('CreateTiffin')}
         >
-          <Ionicons name="add-circle" size={32} color="#FF7A18" />
+          <Ionicons name="add-circle" size={32} color="#FF7A00" />
         </TouchableOpacity>
       </View>
 
       {loading ? (
-        <ActivityIndicator color="#FF7A18" size="large" style={{ marginTop: 40 }} />
+        <ActivityIndicator color="#FF7A00" size="large" style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={tiffins}
@@ -181,7 +181,7 @@ const MenuScreen = () => {
                 setRefreshing(true);
                 fetchMenu();
               }}
-              tintColor="#FF7A18"
+              tintColor="#FF7A00"
             />
           }
           ListEmptyComponent={
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     paddingVertical: 4,
   },
-  editMenuText: { color: '#FF7A18', fontSize: 12, fontWeight: '600' },
+  editMenuText: { color: '#FF7A00', fontSize: 12, fontWeight: '600' },
   cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   iconArea: {
     width: 56,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   cardName: { fontSize: 15, fontWeight: '700', color: '#F8FAFC', marginBottom: 2 },
   cardNameInactive: { color: '#64748B' },
   cardCategory: { fontSize: 12, color: '#64748B', marginBottom: 4 },
-  cardPrice: { fontSize: 13, fontWeight: '700', color: '#FF7A18' },
+  cardPrice: { fontSize: 13, fontWeight: '700', color: '#FF7A00' },
   cardRight: { alignItems: 'center', marginLeft: 12 },
   toggleLabel: { fontSize: 10, fontWeight: '600', marginTop: 4 },
   emptyState: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 40 },

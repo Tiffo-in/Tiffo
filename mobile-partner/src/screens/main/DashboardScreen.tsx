@@ -90,7 +90,7 @@ const DashboardScreen = () => {
         style={styles.scroll}
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#FF7A18" />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#FF7A00" />
         }
       >
         {/* Header */}
@@ -118,7 +118,7 @@ const DashboardScreen = () => {
             accessibilityRole="button"
             accessibilityLabel="Open business analytics"
           >
-            <Ionicons name="bar-chart-outline" size={20} color="#FF7A18" />
+            <Ionicons name="bar-chart-outline" size={20} color="#FF7A00" />
             <Text style={styles.quickActionText}>Analytics</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -127,7 +127,7 @@ const DashboardScreen = () => {
             accessibilityRole="button"
             accessibilityLabel="Open ad manager"
           >
-            <Ionicons name="megaphone-outline" size={20} color="#FF7A18" />
+            <Ionicons name="megaphone-outline" size={20} color="#FF7A00" />
             <Text style={styles.quickActionText}>Ads</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -138,9 +138,9 @@ const DashboardScreen = () => {
             accessibilityLabel="Export orders as CSV"
           >
             {exporting ? (
-              <ActivityIndicator size="small" color="#FF7A18" />
+              <ActivityIndicator size="small" color="#FF7A00" />
             ) : (
-              <Ionicons name="download-outline" size={20} color="#FF7A18" />
+              <Ionicons name="download-outline" size={20} color="#FF7A00" />
             )}
             <Text style={styles.quickActionText}>Export</Text>
           </TouchableOpacity>
@@ -148,7 +148,7 @@ const DashboardScreen = () => {
 
         {/* Stats */}
         {isLoading ? (
-          <ActivityIndicator color="#FF7A18" size="large" style={{ marginTop: 40 }} />
+          <ActivityIndicator color="#FF7A00" size="large" style={{ marginTop: 40 }} />
         ) : isError ? (
           <View style={{ alignItems: 'center', marginTop: 40, paddingHorizontal: 20 }}>
             <Ionicons name="warning-outline" size={48} color="#EF4444" />
@@ -162,7 +162,7 @@ const DashboardScreen = () => {
               onPress={() => refetch()}
               style={{
                 marginTop: 16,
-                backgroundColor: '#FF7A18',
+                backgroundColor: '#FF7A00',
                 paddingHorizontal: 24,
                 paddingVertical: 12,
                 borderRadius: 10,
@@ -185,7 +185,7 @@ const DashboardScreen = () => {
                 icon="bicycle-outline"
                 label="Deliveries"
                 value={stats?.todayDeliveries ?? 0}
-                color="#FF7A18"
+                color="#FF7A00"
                 sub="due today"
               />
               <StatCard
@@ -206,7 +206,7 @@ const DashboardScreen = () => {
 
             {stats?.pendingPayouts !== undefined && stats.pendingPayouts > 0 && (
               <View style={styles.payoutAlert}>
-                <Ionicons name="alert-circle-outline" size={18} color="#FF7A18" />
+                <Ionicons name="alert-circle-outline" size={18} color="#FF7A00" />
                 <Text style={styles.payoutAlertText}>
                   ₹{stats.pendingPayouts.toLocaleString('en-IN')} payout pending from Tiffo
                 </Text>
@@ -224,7 +224,7 @@ const DashboardScreen = () => {
             { icon: 'cash-outline', label: 'Earnings' },
           ].map((action) => (
             <TouchableOpacity key={action.label} style={styles.actionCard}>
-              <Ionicons name={action.icon as any} size={24} color="#FF7A18" />
+              <Ionicons name={action.icon as any} size={24} color="#FF7A00" />
               <Text style={styles.actionLabel}>{action.label}</Text>
             </TouchableOpacity>
           ))}
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF7A18',
+    backgroundColor: '#FF7A00',
     justifyContent: 'center',
     alignItems: 'center',
   },

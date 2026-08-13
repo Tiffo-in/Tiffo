@@ -33,6 +33,6 @@ describe('shared brand font mapping', () => {
 
 describe('shared brand tokens', () => {
   it('exposes the canonical brand orange', () => {
-    expect(Brand.primary).toBe('#FF7A18');
+    expect(Brand.primary).toBe('#FF7A00');
   });
 });

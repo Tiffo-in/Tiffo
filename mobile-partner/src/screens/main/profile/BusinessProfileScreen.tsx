@@ -112,7 +112,7 @@ const BusinessProfileScreen = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF7A18" />
+        <ActivityIndicator size="large" color="#FF7A00" />
         <Text style={styles.loadingText}>Loading Profile...</Text>
       </SafeAreaView>
     );
@@ -349,10 +349,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FF7A18',
+    color: '#FF7A00',
     marginBottom: 16,
     borderLeftWidth: 3,
-    borderLeftColor: '#FF7A18',
+    borderLeftColor: '#FF7A00',
     paddingLeft: 8,
   },
   inputLabel: {
@@ -380,14 +380,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   saveButton: {
-    backgroundColor: '#FF7A18',
+    backgroundColor: '#FF7A00',
     borderRadius: 12,
     paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
-    shadowColor: '#FF7A18',
+    shadowColor: '#FF7A00',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,

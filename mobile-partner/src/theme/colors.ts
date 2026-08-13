@@ -2,9 +2,9 @@
 //
 // The partner app is an intentionally dark "operations console". It keeps a
 // slate shell (Tailwind slate scale) but uses the SAME brand accent as the
-// customer app and website: TIFFO Brand Orange #FF7A18. Keep the `primary`
-// values in sync with mobile/src/theme/colors.ts and
-// frontend/tailwind.config.js so all three apps stay on-brand.
+// customer app and website: TIFFO Brand Orange #FF7A00. That value is owned by
+// shared-mobile/src/theme/brand.ts — import it rather than restating the hex,
+// so a rebrand touches one file.
 //
 // Migration note: screens historically hardcode these hex values inline.
 // New/edited code should import from this file (Colors / useTheme) instead of
@@ -46,7 +46,7 @@ export const DarkColors = {
   // Accent tint
   primaryMuted: '#3A2410', // brand orange tint on dark
   // Tab bar
-  tabActive: '#FF7A18',
+  tabActive: shared.primary,
   tabInactive: '#64748B',
   tabBackground: '#0F172A',
 };

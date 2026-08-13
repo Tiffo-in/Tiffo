@@ -83,7 +83,7 @@ const TaxDocumentsScreen = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF7A18" />
+        <ActivityIndicator size="large" color="#FF7A00" />
         <Text style={styles.loadingText}>Loading Documents...</Text>
       </SafeAreaView>
     );
@@ -114,7 +114,7 @@ const TaxDocumentsScreen = () => {
             <Ionicons
               name={verified ? 'shield-checkmark' : 'shield-outline'}
               size={24}
-              color={verified ? '#10B981' : '#FF7A18'}
+              color={verified ? '#10B981' : '#FF7A00'}
             />
             <View style={styles.docBannerContent}>
               <Text
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     color: '#10B981',
   },
   pendingText: {
-    color: '#FF7A18',
+    color: '#FF7A00',
   },
   docBannerSub: {
     color: '#94A3B8',
@@ -320,10 +320,10 @@ const styles = StyleSheet.create({
   cardSectionTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FF7A18',
+    color: '#FF7A00',
     marginBottom: 16,
     borderLeftWidth: 3,
-    borderLeftColor: '#FF7A18',
+    borderLeftColor: '#FF7A00',
     paddingLeft: 8,
   },
   inputContainer: {
@@ -385,13 +385,13 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   saveButton: {
-    backgroundColor: '#FF7A18',
+    backgroundColor: '#FF7A00',
     borderRadius: 12,
     paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#FF7A18',
+    shadowColor: '#FF7A00',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
